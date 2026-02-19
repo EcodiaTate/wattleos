@@ -1,7 +1,7 @@
 // src/lib/integrations/pdf/client.ts
 //
 // ============================================================
-// WattleOS V2 — PDF Generation Client
+// WattleOS V2 - PDF Generation Client
 // ============================================================
 // Thin wrapper around @react-pdf/renderer that converts a
 // ReportContent object into a PDF Buffer.
@@ -11,12 +11,12 @@
 // this file changes.
 // ============================================================
 
-import React from "react";
-import { renderToBuffer } from "@react-pdf/renderer";
 import type { DocumentProps } from "@react-pdf/renderer";
+import { renderToBuffer } from "@react-pdf/renderer";
+import React from "react";
 
-import { ReportDocument } from "./report-renderer";
 import type { ReportContent } from "./report-renderer";
+import { ReportDocument } from "./report-renderer";
 
 export type { ReportContent };
 
@@ -35,14 +35,19 @@ export async function renderReportPdf(content: ReportContent): Promise<Buffer> {
     //
     // Our `ReportDocument` is a component that *returns* <Document />, but TypeScript
     // cannot prove that, so we cast to the expected element type.
-    const doc = React.createElement(ReportDocument, { content }) as unknown as React.ReactElement<DocumentProps>;
+    const doc = React.createElement(ReportDocument, {
+      content,
+    }) as unknown as React.ReactElement<DocumentProps>;
 
     const bufferLike = await renderToBuffer(doc);
 
     // Some versions return ArrayBufferLike; normalize to Buffer
-    return Buffer.isBuffer(bufferLike) ? bufferLike : Buffer.from(bufferLike as any);
+    return Buffer.isBuffer(bufferLike)
+      ? bufferLike
+      : Buffer.from(bufferLike as any);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown PDF rendering error";
+    const message =
+      err instanceof Error ? err.message : "Unknown PDF rendering error";
     throw new Error(`PDF generation failed: ${message}`);
   }
 }

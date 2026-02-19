@@ -123,15 +123,15 @@ export function PickupAuthorizationSection({
   }
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-        <h2 className="text-lg font-medium text-gray-900">
+    <section className="rounded-lg borderborder-border bg-background shadow-sm">
+      <div className="flex items-center justify-between border-bborder-border px-6 py-4">
+        <h2 className="text-lg font-medium text-foreground">
           Pickup Authorizations
         </h2>
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="rounded-md bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-700"
+            className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-amber-700"
           >
             Add Person
           </button>
@@ -148,7 +148,7 @@ export function PickupAuthorizationSection({
 
         {/* Empty state */}
         {!loading && authorizations.length === 0 && !showForm && (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             No pickup authorizations. Guardians with pickup permission are shown
             in the Guardians section above.
           </p>
@@ -168,7 +168,7 @@ export function PickupAuthorizationSection({
                 >
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-foreground">
                         {auth.authorized_name}
                       </p>
                       {auth.is_permanent ? (
@@ -181,19 +181,19 @@ export function PickupAuthorizationSection({
                         </span>
                       )}
                       {!valid && (
-                        <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500">
+                        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                           Expired
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 text-xs text-gray-500">
+                    <p className="mt-0.5 text-xs text-muted-foreground">
                       {auth.relationship && `${auth.relationship}`}
                       {auth.relationship && auth.phone && " · "}
                       {auth.phone && auth.phone}
                     </p>
                     {!auth.is_permanent &&
                       (auth.valid_from || auth.valid_until) && (
-                        <p className="mt-0.5 text-xs text-gray-400">
+                        <p className="mt-0.5 text-xs text-muted-foreground">
                           {auth.valid_from && `From ${auth.valid_from}`}
                           {auth.valid_from && auth.valid_until && " "}
                           {auth.valid_until && `Until ${auth.valid_until}`}
@@ -215,8 +215,8 @@ export function PickupAuthorizationSection({
 
         {/* Add form */}
         {showForm && (
-          <div className="mt-3 space-y-3 rounded-lg border border-amber-200 bg-amber-50/50 p-4">
-            <h3 className="text-sm font-medium text-gray-900">
+          <div className="mt-3 space-y-3 rounded-lg border border-amber-200 bg-amber-50/50 p-[var(--density-card-padding)]">
+            <h3 className="text-sm font-medium text-foreground">
               Add Authorized Person
             </h3>
 
@@ -224,7 +224,7 @@ export function PickupAuthorizationSection({
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-medium text-gray-700">
+                <label className="block text-xs font-medium text-foreground">
                   Full Name *
                 </label>
                 <input
@@ -237,7 +237,7 @@ export function PickupAuthorizationSection({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700">
+                <label className="block text-xs font-medium text-foreground">
                   Relationship
                 </label>
                 <input
@@ -250,7 +250,7 @@ export function PickupAuthorizationSection({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700">
+                <label className="block text-xs font-medium text-foreground">
                   Phone
                 </label>
                 <input
@@ -263,7 +263,7 @@ export function PickupAuthorizationSection({
               </div>
 
               <div>
-                <label className="flex items-center gap-2 text-xs font-medium text-gray-700">
+                <label className="flex items-center gap-2 text-xs font-medium text-foreground">
                   <input
                     type="checkbox"
                     checked={formIsPermanent}
@@ -272,7 +272,7 @@ export function PickupAuthorizationSection({
                   />
                   Permanent authorization
                 </label>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {formIsPermanent
                     ? "Can pick up any time."
                     : "Set a date range below."}
@@ -284,7 +284,7 @@ export function PickupAuthorizationSection({
             {!formIsPermanent && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700">
+                  <label className="block text-xs font-medium text-foreground">
                     Valid From
                   </label>
                   <input
@@ -295,7 +295,7 @@ export function PickupAuthorizationSection({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700">
+                  <label className="block text-xs font-medium text-foreground">
                     Valid Until
                   </label>
                   <input
@@ -312,14 +312,14 @@ export function PickupAuthorizationSection({
               <button
                 onClick={handleCreate}
                 disabled={isPending}
-                className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
               >
                 {isPending ? "Adding..." : "Add"}
               </button>
               <button
                 onClick={resetForm}
                 disabled={isPending}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background disabled:opacity-50"
               >
                 Cancel
               </button>

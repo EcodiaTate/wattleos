@@ -1,5 +1,5 @@
-import { getTenantContext, hasPermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
 
 export default async function DashboardPage() {
   const context = await getTenantContext();
@@ -8,17 +8,17 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       {/* Welcome header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           Welcome back
-          {context.user.first_name ? `, ${context.user.first_name}` : ''}
+          {context.user.first_name ? `, ${context.user.first_name}` : ""}
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           {context.tenant.name} &middot; {context.role.name}
         </p>
       </div>
 
       {/* Quick action cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-[var(--density-card-padding)] sm:grid-cols-2 lg:grid-cols-3">
         {hasPermission(context, Permissions.CREATE_OBSERVATION) && (
           <QuickActionCard
             title="New Observation"
@@ -81,19 +81,39 @@ export default async function DashboardPage() {
       </div>
 
       {/* Module status - shows what's been built */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="text-lg font-semibold text-gray-900">System Status</h2>
-        <p className="mt-1 text-sm text-gray-500">
+      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+        <h2 className="text-lg font-semibold text-foreground">System Status</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
           WattleOS V2 build progress
         </p>
         <div className="mt-4 space-y-3">
-          <ModuleStatus name="Core Platform & Identity" status="active" module={1} />
+          <ModuleStatus
+            name="Core Platform & Identity"
+            status="active"
+            module={1}
+          />
           <ModuleStatus name="Curriculum Engine" status="pending" module={2} />
           <ModuleStatus name="Observation Engine" status="pending" module={3} />
-          <ModuleStatus name="Mastery & Portfolios" status="pending" module={4} />
-          <ModuleStatus name="Student Information System" status="pending" module={5} />
-          <ModuleStatus name="Attendance & Safety" status="pending" module={6} />
-          <ModuleStatus name="Reporting & Communications" status="pending" module={7} />
+          <ModuleStatus
+            name="Mastery & Portfolios"
+            status="pending"
+            module={4}
+          />
+          <ModuleStatus
+            name="Student Information System"
+            status="pending"
+            module={5}
+          />
+          <ModuleStatus
+            name="Attendance & Safety"
+            status="pending"
+            module={6}
+          />
+          <ModuleStatus
+            name="Reporting & Communications"
+            status="pending"
+            module={7}
+          />
           <ModuleStatus name="Integration Pipes" status="pending" module={8} />
         </div>
       </div>
@@ -106,12 +126,12 @@ export default async function DashboardPage() {
 // ============================================================
 
 const COLOR_MAP: Record<string, string> = {
-  amber: 'bg-amber-50 text-amber-700 border-amber-200',
-  green: 'bg-green-50 text-green-700 border-green-200',
-  blue: 'bg-blue-50 text-blue-700 border-blue-200',
-  purple: 'bg-purple-50 text-purple-700 border-purple-200',
-  teal: 'bg-teal-50 text-teal-700 border-teal-200',
-  orange: 'bg-orange-50 text-orange-700 border-orange-200',
+  amber: "bg-amber-50 text-amber-700 border-amber-200",
+  green: "bg-green-50 text-green-700 border-green-200",
+  blue: "bg-blue-50 text-blue-700 border-blue-200",
+  purple: "bg-purple-50 text-purple-700 border-purple-200",
+  teal: "bg-teal-50 text-teal-700 border-teal-200",
+  orange: "bg-orange-50 text-orange-700 border-orange-200",
 };
 
 function QuickActionCard({
@@ -130,7 +150,7 @@ function QuickActionCard({
   return (
     <a
       href={href}
-      className={`block rounded-lg border p-5 transition-shadow hover:shadow-md ${COLOR_MAP[color] ?? COLOR_MAP.amber}`}
+      className={`block rounded-lg border p-[var(--density-card-padding)] transition-shadow hover:shadow-md ${COLOR_MAP[color] ?? COLOR_MAP.amber}`}
     >
       <h3 className="text-sm font-semibold">{title}</h3>
       <p className="mt-1 text-xs opacity-75">{description}</p>
@@ -144,39 +164,39 @@ function ModuleStatus({
   module,
 }: {
   name: string;
-  status: 'active' | 'pending' | 'complete';
+  status: "active" | "pending" | "complete";
   module: number;
 }) {
   return (
     <div className="flex items-center gap-3">
       <div
         className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-          status === 'active'
-            ? 'bg-amber-100 text-amber-700'
-            : status === 'complete'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-gray-100 text-gray-400'
+          status === "active"
+            ? "bg-amber-100 text-amber-700"
+            : status === "complete"
+              ? "bg-green-100 text-green-700"
+              : "bg-muted text-muted-foreground"
         }`}
       >
         {module}
       </div>
       <span
         className={`text-sm ${
-          status === 'active'
-            ? 'font-medium text-gray-900'
-            : status === 'complete'
-              ? 'text-green-700'
-              : 'text-gray-400'
+          status === "active"
+            ? "font-medium text-foreground"
+            : status === "complete"
+              ? "text-green-700"
+              : "text-muted-foreground"
         }`}
       >
         {name}
       </span>
-      {status === 'active' && (
+      {status === "active" && (
         <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
           In Progress
         </span>
       )}
-      {status === 'complete' && (
+      {status === "complete" && (
         <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
           Complete
         </span>

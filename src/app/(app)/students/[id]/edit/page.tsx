@@ -11,20 +11,21 @@
 // spinner - the page arrives ready to edit.
 // ============================================================
 
-import { getTenantContext } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { getStudent } from '@/lib/actions/students';
-import { redirect } from 'next/navigation';
-import { notFound } from 'next/navigation';
-import { StudentForm } from '@/components/domain/sis/StudentForm';
-import { formatStudentName } from '@/lib/utils';
-import Link from 'next/link';
+import { StudentForm } from "@/components/domain/sis/StudentForm";
+import { getStudent } from "@/lib/actions/students";
+import { getTenantContext } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import { formatStudentName } from "@/lib/utils";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 
 interface EditStudentPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function EditStudentPage({ params }: EditStudentPageProps) {
+export default async function EditStudentPage({
+  params,
+}: EditStudentPageProps) {
   const { id } = await params;
   const context = await getTenantContext();
 
@@ -44,31 +45,33 @@ export default async function EditStudentPage({ params }: EditStudentPageProps) 
   const displayName = formatStudentName(
     student.first_name,
     student.last_name,
-    student.preferred_name
+    student.preferred_name,
   );
-  const canManageEnrollment = context.permissions.includes(Permissions.MANAGE_ENROLLMENT);
+  const canManageEnrollment = context.permissions.includes(
+    Permissions.MANAGE_ENROLLMENT,
+  );
 
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/students" className="hover:text-gray-700">
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/students" className="hover:text-foreground">
           Students
         </Link>
         <span>/</span>
-        <Link href={`/students/${id}`} className="hover:text-gray-700">
+        <Link href={`/students/${id}`} className="hover:text-foreground">
           {displayName}
         </Link>
         <span>/</span>
-        <span className="text-gray-900">Edit</span>
+        <span className="text-foreground">Edit</span>
       </nav>
 
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
+        <h1 className="text-2xl font-semibold text-foreground">
           Edit {displayName}
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Update this student&apos;s basic information.
         </p>
       </div>

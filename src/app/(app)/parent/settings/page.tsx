@@ -8,11 +8,11 @@
 // and toggle media/directory consent without staff help.
 // ============================================================
 
-import { getTenantContext } from '@/lib/auth/tenant-context';
-import { getMySettings } from '@/lib/actions/parent';
-import Link from 'next/link';
-import { ConsentToggle } from '@/components/domain/parent/ConsentToggle';
-import { ContactInfoForm } from '@/components/domain/parent/ContactInfoForm';
+import { ConsentToggle } from "@/components/domain/parent/ConsentToggle";
+import { ContactInfoForm } from "@/components/domain/parent/ContactInfoForm";
+import { getMySettings } from "@/lib/actions/parent";
+import { getTenantContext } from "@/lib/auth/tenant-context";
+import Link from "next/link";
 
 export default async function ParentSettingsPage() {
   const context = await getTenantContext();
@@ -24,22 +24,23 @@ export default async function ParentSettingsPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       {/* Header */}
       <div>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Link href="/parent" className="hover:text-gray-700">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Link href="/parent" className="hover:text-foreground">
             My Children
           </Link>
-          <span className="text-gray-400">/</span>
-          <span className="text-gray-900">Settings</span>
+          <span className="text-muted-foreground">/</span>
+          <span className="text-foreground">Settings</span>
         </div>
-        <h1 className="mt-2 text-2xl font-bold text-gray-900">My Settings</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Manage your contact information and consent preferences for each child.
+        <h1 className="mt-2 text-2xl font-bold text-foreground">My Settings</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Manage your contact information and consent preferences for each
+          child.
         </p>
       </div>
 
       {settings.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+          <p className="text-sm text-muted-foreground">
             No children linked to your account.
           </p>
         </div>
@@ -48,7 +49,7 @@ export default async function ParentSettingsPage() {
           {settings.map((guardianSetting) => (
             <div
               key={guardianSetting.guardianId}
-              className="rounded-lg border border-gray-200 bg-white"
+              className="rounded-lg borderborder-border bg-background"
             >
               {/* Child header */}
               <div className="flex items-center gap-3 border-b border-gray-100 px-6 py-4">
@@ -56,20 +57,20 @@ export default async function ParentSettingsPage() {
                   <img
                     src={guardianSetting.studentPhotoUrl}
                     alt=""
-                    className="h-10 w-10 rounded-full object-cover"
+                    className="h-[var(--density-button-height)] w-10 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-sm font-bold text-amber-700">
+                  <div className="flex h-[var(--density-button-height)] w-10 items-center justify-center rounded-full bg-amber-100 text-sm font-bold text-amber-700">
                     {guardianSetting.studentName[0]}
                   </div>
                 )}
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-foreground">
                     {guardianSetting.studentName}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     {guardianSetting.relationship}
-                    {guardianSetting.isPrimary && ' · Primary contact'}
+                    {guardianSetting.isPrimary && " · Primary contact"}
                   </p>
                 </div>
               </div>
@@ -77,7 +78,7 @@ export default async function ParentSettingsPage() {
               <div className="space-y-5 px-6 py-5">
                 {/* Contact info */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900">
+                  <h3 className="text-sm font-medium text-foreground">
                     Contact Information
                   </h3>
                   <ContactInfoForm
@@ -88,11 +89,12 @@ export default async function ParentSettingsPage() {
 
                 {/* Consent toggles */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900">
+                  <h3 className="text-sm font-medium text-foreground">
                     Consent Preferences
                   </h3>
-                  <p className="mt-1 text-xs text-gray-500">
-                    These settings control how your child&apos;s information is used.
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    These settings control how your child&apos;s information is
+                    used.
                   </p>
                   <div className="mt-3 space-y-3">
                     <ConsentToggle
@@ -114,23 +116,25 @@ export default async function ParentSettingsPage() {
 
                 {/* Pickup status (read-only) */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900">
+                  <h3 className="text-sm font-medium text-foreground">
                     Pickup Authorization
                   </h3>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {guardianSetting.pickupAuthorized
-                      ? 'You are authorized to pick up this child.'
-                      : 'You are not currently authorized for pickup. Contact the school to update.'}
+                      ? "You are authorized to pick up this child."
+                      : "You are not currently authorized for pickup. Contact the school to update."}
                   </p>
                   <div className="mt-2">
                     <span
                       className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
                         guardianSetting.pickupAuthorized
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-red-100 text-red-700'
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
                       }`}
                     >
-                      {guardianSetting.pickupAuthorized ? 'Authorized' : 'Not Authorized'}
+                      {guardianSetting.pickupAuthorized
+                        ? "Authorized"
+                        : "Not Authorized"}
                     </span>
                   </div>
                 </div>

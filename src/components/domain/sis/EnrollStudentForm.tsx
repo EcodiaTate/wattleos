@@ -100,14 +100,14 @@ export function EnrollStudentForm({
     <div className="space-y-6">
       {/* Error banner */}
       {error && (
-        <div className="rounded-md bg-red-50 p-4">
+        <div className="rounded-md bg-red-50 p-[var(--density-card-padding)]">
           <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
 
       {/* ── Step 1: Search for a student ─────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">
           1. Find Student
         </h2>
 
@@ -128,7 +128,7 @@ export function EnrollStudentForm({
           <button
             onClick={handleSearch}
             disabled={isSearching || !searchQuery.trim()}
-            className="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSearching ? "Searching..." : "Search"}
           </button>
@@ -138,11 +138,11 @@ export function EnrollStudentForm({
         {hasSearched && (
           <div className="mt-4">
             {searchResults.length === 0 ? (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 No active students found matching &quot;{searchQuery}&quot;.
               </p>
             ) : (
-              <div className="divide-y divide-gray-100 rounded-lg border border-gray-200">
+              <div className="divide-y divide-gray-100 rounded-lg borderborder-border">
                 {searchResults.map((student) => {
                   const displayName = formatStudentName(
                     student.first_name,
@@ -160,7 +160,7 @@ export function EnrollStudentForm({
                       className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
                         isSelected
                           ? "bg-amber-50 ring-1 ring-inset ring-amber-200"
-                          : "hover:bg-gray-50"
+                          : "hover:bg-background"
                       }`}
                     >
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-xs font-medium text-amber-700">
@@ -168,16 +168,18 @@ export function EnrollStudentForm({
                         {student.last_name[0]}
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-foreground">
                           {displayName}
                         </p>
                         {age !== null && (
-                          <p className="text-xs text-gray-500">Age {age}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Age {age}
+                          </p>
                         )}
                       </div>
                       {isSelected && (
                         <svg
-                          className="h-5 w-5 text-amber-600"
+                          className="h-5 w-5 text-primary"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -199,16 +201,16 @@ export function EnrollStudentForm({
 
       {/* ── Step 2: Set enrollment date ──────────────────── */}
       {selectedStudent && (
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">
+        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">
             2. Set Start Date
           </h2>
 
-          <div className="flex items-end gap-6">
+          <div className="flex items-end gap-[var(--density-card-padding)]">
             <div>
               <label
                 htmlFor="startDate"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-foreground"
               >
                 Enrollment Start Date
               </label>
@@ -239,14 +241,14 @@ export function EnrollStudentForm({
       <div className="flex items-center justify-end gap-3">
         <Link
           href={`/classes/${classId}`}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          className="rounded-lg border border-gray-300 bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm hover:bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         >
           Cancel
         </Link>
         <button
           onClick={handleEnroll}
           disabled={!selectedStudent || isEnrolling}
-          className="rounded-lg bg-amber-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isEnrolling ? "Enrolling..." : "Enroll Student"}
         </button>

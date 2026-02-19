@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
 import {
-  publishObservation,
   archiveObservation,
   deleteObservation,
-} from '@/lib/actions/observations';
+  publishObservation,
+} from "@/lib/actions/observations";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 
 interface ObservationDetailActionsProps {
   observationId: string;
@@ -35,52 +35,55 @@ export function ObservationDetailActions({
   }
 
   async function handleDelete() {
-    if (!confirm('Delete this draft observation? This cannot be undone.')) return;
+    if (!confirm("Delete this draft observation? This cannot be undone."))
+      return;
     await deleteObservation(observationId);
-    router.push('/pedagogy/observations');
+    router.push("/pedagogy/observations");
     router.refresh();
   }
 
   return (
     <div className="mt-5 flex items-center gap-3 border-t border-gray-100 pt-4">
-      {status === 'draft' && canPublish && (
+      {status === "draft" && canPublish && (
         <button
           onClick={handlePublish}
           disabled={isPending}
-          className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 disabled:opacity-50"
+          className="rounded-lg bg-[var(--mastery-mastered)] px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-green-700 disabled:opacity-50"
         >
           Publish
         </button>
       )}
 
-      {status === 'published' && canPublish && (
+      {status === "published" && canPublish && (
         <button
           onClick={handleArchive}
           disabled={isPending}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
+          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-background disabled:opacity-50"
         >
           Archive
         </button>
       )}
 
-      {status === 'draft' && isAuthor && (
+      {status === "draft" && isAuthor && (
         <button
-          onClick={() => router.push(`/pedagogy/observations/${observationId}/edit`)}
+          onClick={() =>
+            router.push(`/pedagogy/observations/${observationId}/edit`)
+          }
           disabled={isPending}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
+          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-background disabled:opacity-50"
         >
           Edit
         </button>
       )}
 
       <button
-        onClick={() => router.push('/pedagogy/observations')}
-        className="text-sm text-gray-500 hover:text-gray-700"
+        onClick={() => router.push("/pedagogy/observations")}
+        className="text-sm text-muted-foreground hover:text-foreground"
       >
         Back to Feed
       </button>
 
-      {status === 'draft' && isAuthor && (
+      {status === "draft" && isAuthor && (
         <button
           onClick={handleDelete}
           disabled={isPending}

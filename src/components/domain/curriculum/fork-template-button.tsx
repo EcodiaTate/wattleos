@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { forkCurriculumTemplate } from '@/lib/actions/curriculum';
+import { forkCurriculumTemplate } from "@/lib/actions/curriculum";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface ForkTemplateButtonProps {
   templateId: string;
@@ -21,10 +21,7 @@ export function ForkTemplateButton({
     setIsLoading(true);
     setError(null);
 
-    const result = await forkCurriculumTemplate(
-      templateId,
-      templateName
-    );
+    const result = await forkCurriculumTemplate(templateId, templateName);
 
     if (result.error) {
       setError(result.error.message);
@@ -43,9 +40,9 @@ export function ForkTemplateButton({
       <button
         onClick={handleFork}
         disabled={isLoading}
-        className="rounded-md bg-purple-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="rounded-md bg-purple-600 px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {isLoading ? 'Creating...' : 'Use This Template'}
+        {isLoading ? "Creating..." : "Use This Template"}
       </button>
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
     </div>

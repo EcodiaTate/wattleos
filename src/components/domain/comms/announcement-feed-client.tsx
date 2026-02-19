@@ -16,7 +16,7 @@ import {
   deleteAnnouncement,
   listAnnouncements,
   updateAnnouncement,
-} from "@/lib/actions/announcements";
+} from "@/lib/actions/comms/announcements";
 import type {
   AnnouncementPriority,
   AnnouncementTargetType,
@@ -113,7 +113,7 @@ export function AnnouncementFeedClient({
       {!showCreateForm ? (
         <button
           onClick={() => setShowCreateForm(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-amber-700 transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 transition-colors"
         >
           <svg
             className="h-4 w-4"
@@ -131,8 +131,8 @@ export function AnnouncementFeedClient({
           New Announcement
         </button>
       ) : (
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900">
+        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] shadow-sm">
+          <h2 className="text-lg font-semibold text-foreground">
             New Announcement
           </h2>
 
@@ -145,7 +145,7 @@ export function AnnouncementFeedClient({
           <div className="mt-4 space-y-4">
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-foreground">
                 Title
               </label>
               <input
@@ -159,7 +159,7 @@ export function AnnouncementFeedClient({
 
             {/* Content */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-foreground">
                 Message
               </label>
               <textarea
@@ -172,9 +172,9 @@ export function AnnouncementFeedClient({
             </div>
 
             {/* Priority + Target row */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-foreground">
                   Priority
                 </label>
                 <select
@@ -190,7 +190,7 @@ export function AnnouncementFeedClient({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-foreground">
                   Audience
                 </label>
                 <select
@@ -207,7 +207,7 @@ export function AnnouncementFeedClient({
 
               {targetType === "class" && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-foreground">
                     Class
                   </label>
                   <select
@@ -227,7 +227,7 @@ export function AnnouncementFeedClient({
             </div>
 
             {/* Pin toggle */}
-            <label className="flex items-center gap-2 text-sm text-gray-700">
+            <label className="flex items-center gap-2 text-sm text-foreground">
               <input
                 type="checkbox"
                 checked={isPinned}
@@ -242,13 +242,13 @@ export function AnnouncementFeedClient({
               <button
                 onClick={handleCreate}
                 disabled={isSubmitting || !title.trim() || !content.trim()}
-                className="inline-flex items-center rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
               >
                 {isSubmitting ? "Publishing..." : "Publish Announcement"}
               </button>
               <button
                 onClick={() => setShowCreateForm(false)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background transition-colors"
               >
                 Cancel
               </button>
@@ -260,7 +260,7 @@ export function AnnouncementFeedClient({
       {/* Announcement Feed */}
       {announcements.length === 0 ? (
         <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             No announcements yet. Create the first one to share news with your
             school community.
           </p>
@@ -274,15 +274,15 @@ export function AnnouncementFeedClient({
             return (
               <div
                 key={announcement.id}
-                className={`rounded-lg border bg-white shadow-sm ${
+                className={`rounded-lg border bg-background shadow-sm ${
                   announcement.is_pinned
                     ? "border-amber-300 ring-1 ring-amber-100"
-                    : "border-gray-200"
+                    : "border-border"
                 }`}
               >
-                <div className="p-5">
+                <div className="p-[var(--density-card-padding)]">
                   {/* Header row */}
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start justify-between gap-[var(--density-card-padding)]">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         {announcement.is_pinned && (
@@ -297,13 +297,13 @@ export function AnnouncementFeedClient({
                             {config.icon} {config.label}
                           </span>
                         )}
-                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600">
+                        <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
                           {announcement.target_type === "school_wide"
                             ? "🏫 School-wide"
                             : `📚 ${announcement.target_class?.name ?? "Class"}`}
                         </span>
                       </div>
-                      <h3 className="mt-2 text-base font-semibold text-gray-900">
+                      <h3 className="mt-2 text-base font-semibold text-foreground">
                         {announcement.title}
                       </h3>
                     </div>
@@ -317,7 +317,7 @@ export function AnnouncementFeedClient({
                             announcement.is_pinned,
                           )
                         }
-                        className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                        className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
                         title={announcement.is_pinned ? "Unpin" : "Pin"}
                       >
                         <svg
@@ -338,7 +338,7 @@ export function AnnouncementFeedClient({
                       </button>
                       <button
                         onClick={() => handleDelete(announcement.id)}
-                        className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                        className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-600"
                         title="Delete"
                       >
                         <svg
@@ -359,12 +359,12 @@ export function AnnouncementFeedClient({
                   </div>
 
                   {/* Content */}
-                  <p className="mt-3 whitespace-pre-wrap text-sm text-gray-700">
+                  <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">
                     {announcement.content}
                   </p>
 
                   {/* Footer */}
-                  <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+                  <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <span>
                         By {announcement.author.first_name}{" "}

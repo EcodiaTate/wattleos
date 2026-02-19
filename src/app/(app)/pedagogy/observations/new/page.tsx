@@ -11,22 +11,22 @@
 // - Passes mediaConsent boolean per student to the form
 // ============================================================
 
-import { listStudents } from '@/lib/actions/students';
+import { ObservationCaptureForm } from "@/components/domain/observations/observation-capture-form";
+import { getStudentMediaConsentMap } from "@/lib/actions/consent";
 import {
-  listCurriculumInstances,
   getCurriculumTree,
-} from '@/lib/actions/curriculum';
-import { getStudentMediaConsentMap } from '@/lib/actions/consent';
-import { getTenantContext, hasPermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { redirect } from 'next/navigation';
-import { ObservationCaptureForm } from '@/components/domain/observations/observation-capture-form';
+  listCurriculumInstances,
+} from "@/lib/actions/curriculum";
+import { listStudents } from "@/lib/actions/students";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import { redirect } from "next/navigation";
 
 export default async function NewObservationPage() {
   const context = await getTenantContext();
 
   if (!hasPermission(context, Permissions.CREATE_OBSERVATION)) {
-    redirect('/pedagogy/observations');
+    redirect("/pedagogy/observations");
   }
 
   const canPublish = hasPermission(context, Permissions.PUBLISH_OBSERVATION);
@@ -59,7 +59,7 @@ export default async function NewObservationPage() {
     const nodes = treeResult.data ?? [];
     // Only include outcomes and activities (not areas/strands) for tagging
     const outcomes = nodes
-      .filter((n) => n.level === 'outcome' || n.level === 'activity')
+      .filter((n) => n.level === "outcome" || n.level === "activity")
       .map((n) => ({
         id: n.id,
         title: n.title,
@@ -72,8 +72,8 @@ export default async function NewObservationPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">New Observation</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-foreground">New Observation</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Capture a learning moment. Tag students and outcomes.
         </p>
       </div>

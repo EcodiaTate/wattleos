@@ -108,23 +108,23 @@ export function ClassForm({ initialData }: ClassFormProps) {
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Error banner */}
       {error && (
-        <div className="rounded-md bg-red-50 p-4">
+        <div className="rounded-md bg-red-50 p-[var(--density-card-padding)]">
           <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
 
       {/* ── Section: Class Details ───────────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">
           Class Details
         </h2>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-2">
           {/* Class name */}
           <div className="sm:col-span-2">
             <label
               htmlFor="className"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-foreground"
             >
               Class Name <span className="text-red-500">*</span>
             </label>
@@ -137,7 +137,7 @@ export function ClassForm({ initialData }: ClassFormProps) {
               placeholder="e.g. Wattle Room, Banksia Environment"
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-muted-foreground">
               The name guides and parents will see (e.g. &quot;Wattle Room&quot;
               or &quot;3–6 Primary A&quot;).
             </p>
@@ -147,7 +147,7 @@ export function ClassForm({ initialData }: ClassFormProps) {
           <div>
             <label
               htmlFor="room"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-foreground"
             >
               Room / Location
             </label>
@@ -165,7 +165,7 @@ export function ClassForm({ initialData }: ClassFormProps) {
           <div>
             <label
               htmlFor="cycleLevel"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-foreground"
             >
               Cycle Level
             </label>
@@ -181,7 +181,7 @@ export function ClassForm({ initialData }: ClassFormProps) {
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-muted-foreground">
               The Montessori age grouping for this classroom.
             </p>
           </div>
@@ -196,20 +196,20 @@ export function ClassForm({ initialData }: ClassFormProps) {
                   aria-checked={isActive}
                   onClick={() => setIsActive(!isActive)}
                   className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
-                    isActive ? "bg-amber-600" : "bg-gray-200"
+                    isActive ? "bg-primary" : "bg-gray-200"
                   }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-background shadow ring-0 transition duration-200 ease-in-out ${
                       isActive ? "translate-x-5" : "translate-x-0"
                     }`}
                   />
                 </button>
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-foreground">
                   {isActive ? "Active" : "Inactive"}
                 </label>
               </div>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Inactive classes are hidden from enrollment options but retain
                 their historical records.
               </p>
@@ -222,14 +222,14 @@ export function ClassForm({ initialData }: ClassFormProps) {
       <div className="flex items-center justify-end gap-3">
         <Link
           href={isEditing ? `/classes/${initialData!.id}` : "/classes"}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          className="rounded-lg border border-gray-300 bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm hover:bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         >
           Cancel
         </Link>
         <button
           type="submit"
           disabled={isSaving || !name.trim()}
-          className="rounded-lg bg-amber-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSaving
             ? isEditing

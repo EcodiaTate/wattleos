@@ -74,7 +74,7 @@ export function MessageInboxClient({
       {!showCompose ? (
         <button
           onClick={() => setShowCompose(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-amber-700 transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 transition-colors"
         >
           <svg
             className="h-4 w-4"
@@ -92,11 +92,11 @@ export function MessageInboxClient({
           New Class Message
         </button>
       ) : (
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900">
+        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] shadow-sm">
+          <h2 className="text-lg font-semibold text-foreground">
             Send Class Message
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             This message will be sent to all parents of students in the selected
             class.
           </p>
@@ -109,7 +109,7 @@ export function MessageInboxClient({
 
           <div className="mt-4 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-foreground">
                 Class
               </label>
               <select
@@ -127,7 +127,7 @@ export function MessageInboxClient({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-foreground">
                 Subject
               </label>
               <input
@@ -140,7 +140,7 @@ export function MessageInboxClient({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-foreground">
                 Message
               </label>
               <textarea
@@ -161,13 +161,13 @@ export function MessageInboxClient({
                   !composeSubject.trim() ||
                   !composeMessage.trim()
                 }
-                className="inline-flex items-center rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
               >
                 {isSubmitting ? "Sending..." : "Send to Class"}
               </button>
               <button
                 onClick={() => setShowCompose(false)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background transition-colors"
               >
                 Cancel
               </button>
@@ -179,13 +179,13 @@ export function MessageInboxClient({
       {/* Thread list */}
       {threads.length === 0 ? (
         <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             No messages yet. Send a class message to start communicating with
             parents.
           </p>
         </div>
       ) : (
-        <div className="divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="divide-y divide-gray-200 rounded-lg borderborder-border bg-background shadow-sm">
           {threads.map((thread) => {
             const typeConfig =
               THREAD_TYPE_CONFIG[thread.thread_type as MessageThreadType];
@@ -210,18 +210,18 @@ export function MessageInboxClient({
               <Link
                 key={thread.id}
                 href={`/comms/messages/${thread.id}`}
-                className={`block px-5 py-4 transition-colors hover:bg-gray-50 ${
+                className={`block px-5 py-4 transition-colors hover:bg-background ${
                   hasUnread ? "bg-amber-50/50" : ""
                 }`}
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start justify-between gap-[var(--density-card-padding)]">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       {hasUnread && (
-                        <span className="inline-flex h-2 w-2 rounded-full bg-amber-500" />
+                        <span className="inline-flex h-2 w-2 rounded-full bg-primary" />
                       )}
                       <span
-                        className={`text-sm ${hasUnread ? "font-semibold text-gray-900" : "font-medium text-gray-700"}`}
+                        className={`text-sm ${hasUnread ? "font-semibold text-foreground" : "font-medium text-foreground"}`}
                       >
                         {thread.subject || "No subject"}
                       </span>
@@ -232,9 +232,9 @@ export function MessageInboxClient({
                         {thread.target_class?.name ?? typeConfig.label}
                       </span>
                     </div>
-                    <p className="mt-1 truncate text-sm text-gray-500">
+                    <p className="mt-1 truncate text-sm text-muted-foreground">
                       {senderName && (
-                        <span className="font-medium text-gray-600">
+                        <span className="font-medium text-muted-foreground">
                           {senderName}:{" "}
                         </span>
                       )}
@@ -242,15 +242,15 @@ export function MessageInboxClient({
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <span className="whitespace-nowrap text-xs text-gray-400">
+                    <span className="whitespace-nowrap text-xs text-muted-foreground">
                       {lastMsg ? formatRelativeTime(lastMsg.sent_at) : ""}
                     </span>
                     {hasUnread && (
-                      <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-amber-500 px-1.5 text-[10px] font-bold text-white">
+                      <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
                         {thread.unread_count}
                       </span>
                     )}
-                    <span className="text-[10px] text-gray-400">
+                    <span className="text-[10px] text-muted-foreground">
                       {thread.recipient_count} recipients
                     </span>
                   </div>

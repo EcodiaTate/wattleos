@@ -244,10 +244,10 @@ export function RollCallClient({ classes }: RollCallClientProps) {
   return (
     <div className="space-y-4">
       {/* Controls bar */}
-      <div className="flex flex-wrap items-end gap-4 rounded-lg border border-gray-200 bg-white p-4">
+      <div className="flex flex-wrap items-end gap-[var(--density-card-padding)] rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
         {/* Class selector */}
         <div className="min-w-[200px] flex-1">
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             Class
           </label>
           <select
@@ -268,7 +268,7 @@ export function RollCallClient({ classes }: RollCallClientProps) {
 
         {/* Date picker */}
         <div>
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             Date
           </label>
           <input
@@ -285,7 +285,7 @@ export function RollCallClient({ classes }: RollCallClientProps) {
             <button
               onClick={handleMarkAllPresent}
               disabled={saveAllPending}
-              className="rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+              className="rounded-lg bg-[var(--mastery-mastered)] px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-green-700 disabled:opacity-50"
             >
               Mark All Present
             </button>
@@ -295,7 +295,7 @@ export function RollCallClient({ classes }: RollCallClientProps) {
 
       {/* Date display */}
       {selectedClassId && (
-        <p className="text-sm font-medium text-gray-600">
+        <p className="text-sm font-medium text-muted-foreground">
           {formatDateDisplay(date)}
         </p>
       )}
@@ -309,16 +309,18 @@ export function RollCallClient({ classes }: RollCallClientProps) {
 
       {/* Loading state */}
       {loading && (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
+        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-amber-600" />
-          <p className="mt-3 text-sm text-gray-500">Loading students...</p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Loading students...
+          </p>
         </div>
       )}
 
       {/* No class selected */}
       {!selectedClassId && !loading && (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+          <p className="text-sm text-muted-foreground">
             Select a class to begin the roll call.
           </p>
         </div>
@@ -326,11 +328,11 @@ export function RollCallClient({ classes }: RollCallClientProps) {
 
       {/* Empty class */}
       {selectedClassId && !loading && rows.length === 0 && (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
-          <p className="text-sm font-medium text-gray-900">
+        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+          <p className="text-sm font-medium text-foreground">
             No students enrolled
           </p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             This class has no active enrollments.
           </p>
         </div>
@@ -340,7 +342,7 @@ export function RollCallClient({ classes }: RollCallClientProps) {
       {selectedClassId && !loading && rows.length > 0 && (
         <>
           {/* Summary bar */}
-          <div className="flex flex-wrap gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3">
+          <div className="flex flex-wrap gap-3 rounded-lg borderborder-border bg-background px-4 py-3">
             <SummaryPill label="Total" count={totalStudents} color="gray" />
             <SummaryPill label="Present" count={presentCount} color="green" />
             <SummaryPill label="Absent" count={absentCount} color="red" />
@@ -351,7 +353,7 @@ export function RollCallClient({ classes }: RollCallClientProps) {
           </div>
 
           {/* Student rows */}
-          <div className="divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white">
+          <div className="divide-y divide-gray-100 rounded-lg borderborder-border bg-background">
             {rows.map((row) => (
               <StudentRow
                 key={row.student.id}
@@ -371,8 +373,8 @@ export function RollCallClient({ classes }: RollCallClientProps) {
           </div>
 
           {/* Save button */}
-          <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
-            <p className="text-sm text-gray-500">
+          <div className="flex items-center justify-between rounded-lg borderborder-border bg-background px-4 py-3">
+            <p className="text-sm text-muted-foreground">
               {unmarked > 0
                 ? `${unmarked} student${unmarked !== 1 ? "s" : ""} unmarked - they'll be recorded as absent.`
                 : "All students marked."}
@@ -380,7 +382,7 @@ export function RollCallClient({ classes }: RollCallClientProps) {
             <button
               onClick={handleSaveRoll}
               disabled={saveAllPending}
-              className="rounded-lg bg-amber-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-amber-700 disabled:opacity-50"
+              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:opacity-50"
             >
               {saveAllPending ? "Saving..." : "Save Roll"}
             </button>
@@ -427,12 +429,12 @@ function StudentRow({
     <div className="px-4 py-3">
       <div className="flex items-center gap-3">
         {/* Avatar */}
-        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-medium text-gray-600">
+        <div className="flex h-[var(--density-button-height)] w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-medium text-muted-foreground">
           {row.student.photo_url ? (
             <img
               src={row.student.photo_url}
               alt=""
-              className="h-10 w-10 rounded-full object-cover"
+              className="h-[var(--density-button-height)] w-10 rounded-full object-cover"
             />
           ) : (
             displayName.charAt(0).toUpperCase()
@@ -442,7 +444,7 @@ function StudentRow({
         {/* Name + medical alerts */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <p className="truncate text-sm font-medium text-gray-900">
+            <p className="truncate text-sm font-medium text-foreground">
               {displayName} {row.student.last_name}
             </p>
             {isSaving && (
@@ -493,8 +495,8 @@ function StudentRow({
                 title={config.label}
                 className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition-all sm:h-auto sm:w-auto sm:px-2.5 sm:py-1.5 ${
                   isActive
-                    ? `${config.buttonBg} text-white shadow-sm`
-                    : "border border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50"
+                    ? `${config.buttonBg} text-primary-foreground shadow-sm`
+                    : "borderborder-border bg-background text-muted-foreground hover:border-gray-300 hover:bg-background"
                 }`}
               >
                 {/* Icon on mobile, label on desktop */}
@@ -511,7 +513,7 @@ function StudentRow({
             className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm transition-colors sm:h-auto sm:w-auto sm:px-2 sm:py-1.5 ${
               notes
                 ? "bg-blue-100 text-blue-600"
-                : "border border-gray-200 bg-white text-gray-400 hover:border-gray-300 hover:text-gray-600"
+                : "borderborder-border bg-background text-muted-foreground hover:border-gray-300 hover:text-muted-foreground"
             }`}
           >
             <svg
@@ -539,7 +541,7 @@ function StudentRow({
             value={notes}
             onChange={(e) => onNotesChange(e.target.value)}
             placeholder="Add a note (e.g., 'Left early at 2pm')"
-            className="block w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="block w-full rounded-lg borderborder-border px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           />
         </div>
       )}
@@ -558,7 +560,7 @@ interface SummaryPillProps {
 }
 
 const PILL_COLORS: Record<SummaryPillProps["color"], string> = {
-  gray: "bg-gray-100 text-gray-700",
+  gray: "bg-muted text-foreground",
   green: "bg-green-100 text-green-700",
   red: "bg-red-100 text-red-700",
   amber: "bg-amber-100 text-amber-700",

@@ -10,7 +10,7 @@
 
 "use client";
 
-import { sendMessage } from "@/lib/actions/messaging";
+import { sendMessage } from "@/lib/actions/comms/messaging";
 import type { MessageWithSender, User } from "@/types/domain";
 import { useEffect, useRef, useState } from "react";
 
@@ -107,14 +107,14 @@ export function ThreadViewClient({
 
   return (
     <div
-      className="flex flex-col rounded-lg border border-gray-200 bg-white shadow-sm"
+      className="flex flex-col rounded-lg borderborder-border bg-background shadow-sm"
       style={{ height: "calc(100vh - 300px)", minHeight: "400px" }}
     >
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
         {messages.length === 0 ? (
           <div className="flex h-full items-center justify-center">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               No messages yet. Start the conversation!
             </p>
           </div>
@@ -143,7 +143,7 @@ export function ThreadViewClient({
                         className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
                           isOwn
                             ? "bg-amber-200 text-amber-800"
-                            : "bg-gray-200 text-gray-600"
+                            : "bg-gray-200 text-muted-foreground"
                         }`}
                       >
                         {msg.sender.avatar_url ? (
@@ -162,20 +162,20 @@ export function ThreadViewClient({
                   {/* Message bubble */}
                   <div className={`max-w-[70%] ${isOwn ? "text-right" : ""}`}>
                     {showSender && (
-                      <p className="mb-1 text-xs font-medium text-gray-500">
+                      <p className="mb-1 text-xs font-medium text-muted-foreground">
                         {senderName}
                       </p>
                     )}
                     <div
                       className={`inline-block rounded-2xl px-4 py-2.5 text-sm ${
                         isOwn
-                          ? "rounded-br-md bg-amber-500 text-white"
-                          : "rounded-bl-md bg-gray-100 text-gray-900"
+                          ? "rounded-br-md bg-primary text-primary-foreground"
+                          : "rounded-bl-md bg-muted text-foreground"
                       }`}
                     >
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                     </div>
-                    <p className="mt-1 text-[10px] text-gray-400">
+                    <p className="mt-1 text-[10px] text-muted-foreground">
                       {formatTime(msg.sent_at)}
                     </p>
                   </div>
@@ -190,19 +190,19 @@ export function ThreadViewClient({
       {/* Recipients bar */}
       <div className="border-t border-gray-100 px-6 py-2">
         <div className="flex items-center gap-1 overflow-x-auto">
-          <span className="flex-shrink-0 text-[10px] font-medium text-gray-400">
+          <span className="flex-shrink-0 text-[10px] font-medium text-muted-foreground">
             To:
           </span>
           {recipients.slice(0, 8).map((r) => (
             <span
               key={r.id}
-              className="inline-flex flex-shrink-0 items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-600"
+              className="inline-flex flex-shrink-0 items-center rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground"
             >
               {r.first_name} {r.last_name}
             </span>
           ))}
           {recipients.length > 8 && (
-            <span className="text-[10px] text-gray-400">
+            <span className="text-[10px] text-muted-foreground">
               +{recipients.length - 8} more
             </span>
           )}
@@ -210,7 +210,7 @@ export function ThreadViewClient({
       </div>
 
       {/* Reply input */}
-      <div className="border-t border-gray-200 px-4 py-3">
+      <div className="border-tborder-border px-4 py-3">
         {error && (
           <div className="mb-2 rounded-md bg-red-50 px-3 py-2">
             <p className="text-xs text-red-700">{error}</p>
@@ -234,7 +234,7 @@ export function ThreadViewClient({
           <button
             onClick={handleSend}
             disabled={isSending || !replyContent.trim()}
-            className="flex-shrink-0 rounded-xl bg-amber-600 p-2.5 text-white shadow-sm hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+            className="flex-shrink-0 rounded-xl bg-primary p-2.5 text-primary-foreground shadow-sm hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
           >
             <svg
               className="h-5 w-5"

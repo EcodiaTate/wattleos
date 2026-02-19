@@ -9,11 +9,11 @@
 // should be able to create new classrooms.
 // ============================================================
 
-import { getTenantContext } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { redirect } from 'next/navigation';
-import { ClassForm } from '@/components/domain/sis/ClassForm';
-import Link from 'next/link';
+import { ClassForm } from "@/components/domain/sis/ClassForm";
+import { getTenantContext } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function CreateClassPage() {
   const context = await getTenantContext();
@@ -23,26 +23,26 @@ export default async function CreateClassPage() {
     !context.permissions.includes(Permissions.MANAGE_ENROLLMENT) &&
     !context.permissions.includes(Permissions.MANAGE_STUDENTS)
   ) {
-    redirect('/classes');
+    redirect("/classes");
   }
 
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/classes" className="hover:text-gray-700">
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/classes" className="hover:text-foreground">
           Classes
         </Link>
         <span>/</span>
-        <span className="text-gray-900">New Class</span>
+        <span className="text-foreground">New Class</span>
       </nav>
 
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
+        <h1 className="text-2xl font-semibold text-foreground">
           Create New Class
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Set up a new Montessori classroom or environment. You can enroll
           students and link a curriculum after creating the class.
         </p>

@@ -1,18 +1,18 @@
 // src/lib/constants/timesheets.ts
 //
 // ============================================================
-// WattleOS V2 — Timesheet Constants
+// WattleOS V2 - Timesheet Constants
 // ============================================================
 // Status labels, entry type options, and color config for the
 // timesheet module. Used by both staff and admin UI.
 // ============================================================
 
 import type {
+  PayFrequency,
+  PayPeriodStatus,
   TimeEntryType,
   TimesheetStatus,
-  PayPeriodStatus,
-  PayFrequency,
-} from '@/types/domain';
+} from "@/types/domain";
 
 // ============================================================
 // Time Entry Types
@@ -28,63 +28,63 @@ export interface EntryTypeConfig {
 
 export const TIME_ENTRY_TYPE_CONFIG: Record<TimeEntryType, EntryTypeConfig> = {
   regular: {
-    label: 'Regular',
-    shortLabel: 'Reg',
-    color: 'text-gray-700',
-    bgColor: 'bg-gray-100',
-    icon: '⏰',
+    label: "Regular",
+    shortLabel: "Reg",
+    color: "text-gray-700",
+    bgColor: "bg-muted",
+    icon: "⏰",
   },
   overtime: {
-    label: 'Overtime',
-    shortLabel: 'OT',
-    color: 'text-amber-700',
-    bgColor: 'bg-amber-100',
-    icon: '⚡',
+    label: "Overtime",
+    shortLabel: "OT",
+    color: "text-amber-700",
+    bgColor: "bg-amber-100",
+    icon: "⚡",
   },
   public_holiday: {
-    label: 'Public Holiday',
-    shortLabel: 'PH',
-    color: 'text-purple-700',
-    bgColor: 'bg-purple-100',
-    icon: '🎉',
+    label: "Public Holiday",
+    shortLabel: "PH",
+    color: "text-purple-700",
+    bgColor: "bg-purple-100",
+    icon: "🎉",
   },
   sick_leave: {
-    label: 'Sick Leave',
-    shortLabel: 'Sick',
-    color: 'text-red-700',
-    bgColor: 'bg-red-100',
-    icon: '🤒',
+    label: "Sick Leave",
+    shortLabel: "Sick",
+    color: "text-red-700",
+    bgColor: "bg-red-100",
+    icon: "🤒",
   },
   annual_leave: {
-    label: 'Annual Leave',
-    shortLabel: 'AL',
-    color: 'text-blue-700',
-    bgColor: 'bg-blue-100',
-    icon: '🌴',
+    label: "Annual Leave",
+    shortLabel: "AL",
+    color: "text-blue-700",
+    bgColor: "bg-blue-100",
+    icon: "🌴",
   },
   unpaid_leave: {
-    label: 'Unpaid Leave',
-    shortLabel: 'UL',
-    color: 'text-gray-500',
-    bgColor: 'bg-gray-50',
-    icon: '📋',
+    label: "Unpaid Leave",
+    shortLabel: "UL",
+    color: "text-muted-foreground",
+    bgColor: "bg-background",
+    icon: "📋",
   },
 };
 
 export const TIME_ENTRY_TYPES: TimeEntryType[] = [
-  'regular',
-  'overtime',
-  'public_holiday',
-  'sick_leave',
-  'annual_leave',
-  'unpaid_leave',
+  "regular",
+  "overtime",
+  "public_holiday",
+  "sick_leave",
+  "annual_leave",
+  "unpaid_leave",
 ];
 
 export const LEAVE_TYPES: TimeEntryType[] = [
-  'sick_leave',
-  'annual_leave',
-  'unpaid_leave',
-  'public_holiday',
+  "sick_leave",
+  "annual_leave",
+  "unpaid_leave",
+  "public_holiday",
 ];
 
 // ============================================================
@@ -98,36 +98,39 @@ export interface TimesheetStatusConfig {
   dotColor: string;
 }
 
-export const TIMESHEET_STATUS_CONFIG: Record<TimesheetStatus, TimesheetStatusConfig> = {
+export const TIMESHEET_STATUS_CONFIG: Record<
+  TimesheetStatus,
+  TimesheetStatusConfig
+> = {
   draft: {
-    label: 'Draft',
-    color: 'text-gray-700',
-    bgColor: 'bg-gray-100',
-    dotColor: 'bg-gray-400',
+    label: "Draft",
+    color: "text-gray-700",
+    bgColor: "bg-muted",
+    dotColor: "bg-gray-400",
   },
   submitted: {
-    label: 'Submitted',
-    color: 'text-blue-700',
-    bgColor: 'bg-blue-100',
-    dotColor: 'bg-blue-500',
+    label: "Submitted",
+    color: "text-blue-700",
+    bgColor: "bg-blue-100",
+    dotColor: "bg-blue-500",
   },
   approved: {
-    label: 'Approved',
-    color: 'text-green-700',
-    bgColor: 'bg-green-100',
-    dotColor: 'bg-green-500',
+    label: "Approved",
+    color: "text-green-700",
+    bgColor: "bg-green-100",
+    dotColor: "bg-[var(--mastery-mastered)]",
   },
   rejected: {
-    label: 'Rejected',
-    color: 'text-red-700',
-    bgColor: 'bg-red-100',
-    dotColor: 'bg-red-500',
+    label: "Rejected",
+    color: "text-red-700",
+    bgColor: "bg-red-100",
+    dotColor: "bg-[var(--attendance-absent)]",
   },
   synced: {
-    label: 'Synced',
-    color: 'text-emerald-700',
-    bgColor: 'bg-emerald-100',
-    dotColor: 'bg-emerald-500',
+    label: "Synced",
+    color: "text-emerald-700",
+    bgColor: "bg-emerald-100",
+    dotColor: "bg-emerald-500",
   },
 };
 
@@ -135,24 +138,27 @@ export const TIMESHEET_STATUS_CONFIG: Record<TimesheetStatus, TimesheetStatusCon
 // Pay Period Statuses
 // ============================================================
 
-export const PAY_PERIOD_STATUS_CONFIG: Record<PayPeriodStatus, TimesheetStatusConfig> = {
+export const PAY_PERIOD_STATUS_CONFIG: Record<
+  PayPeriodStatus,
+  TimesheetStatusConfig
+> = {
   open: {
-    label: 'Open',
-    color: 'text-green-700',
-    bgColor: 'bg-green-100',
-    dotColor: 'bg-green-500',
+    label: "Open",
+    color: "text-green-700",
+    bgColor: "bg-green-100",
+    dotColor: "bg-[var(--mastery-mastered)]",
   },
   locked: {
-    label: 'Locked',
-    color: 'text-amber-700',
-    bgColor: 'bg-amber-100',
-    dotColor: 'bg-amber-500',
+    label: "Locked",
+    color: "text-amber-700",
+    bgColor: "bg-amber-100",
+    dotColor: "bg-primary",
   },
   processed: {
-    label: 'Processed',
-    color: 'text-gray-700',
-    bgColor: 'bg-gray-100',
-    dotColor: 'bg-gray-500',
+    label: "Processed",
+    color: "text-gray-700",
+    bgColor: "bg-muted",
+    dotColor: "bg-background0",
   },
 };
 
@@ -160,17 +166,28 @@ export const PAY_PERIOD_STATUS_CONFIG: Record<PayPeriodStatus, TimesheetStatusCo
 // Pay Frequency Options
 // ============================================================
 
-export const PAY_FREQUENCY_OPTIONS: Array<{ value: PayFrequency; label: string }> = [
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'fortnightly', label: 'Fortnightly' },
-  { value: 'monthly', label: 'Monthly' },
+export const PAY_FREQUENCY_OPTIONS: Array<{
+  value: PayFrequency;
+  label: string;
+}> = [
+  { value: "weekly", label: "Weekly" },
+  { value: "fortnightly", label: "Fortnightly" },
+  { value: "monthly", label: "Monthly" },
 ];
 
 // ============================================================
 // Day labels (for timesheet grid)
 // ============================================================
 
-export const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
+export const DAY_LABELS = [
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat",
+  "Sun",
+] as const;
 
 export const DAY_NUMBERS: Record<string, number> = {
   Mon: 1,
@@ -187,8 +204,8 @@ export const DAY_NUMBERS: Record<string, number> = {
 // ============================================================
 
 export const DEFAULT_WORK_HOURS = {
-  startTime: '08:00',
-  endTime: '16:00',
+  startTime: "08:00",
+  endTime: "16:00",
   breakMinutes: 30,
-  standardDayHours: 7.6,  // Australian full-time standard
+  standardDayHours: 7.6, // Australian full-time standard
 } as const;

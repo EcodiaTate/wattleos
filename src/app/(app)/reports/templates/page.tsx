@@ -7,19 +7,19 @@
 // Create, duplicate, deactivate, and delete templates.
 // ============================================================
 
-import { getTenantContext, hasPermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { listReportTemplates } from '@/lib/actions/reports';
-import type { TemplateWithStats } from '@/lib/actions/reports';
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { TemplateActions } from '@/components/domain/reports/TemplateActions';
+import { TemplateActions } from "@/components/domain/reports/TemplateActions";
+import type { TemplateWithStats } from "@/lib/actions/reports";
+import { listReportTemplates } from "@/lib/actions/reports";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function TemplatesPage() {
   const context = await getTenantContext();
 
   if (!hasPermission(context, Permissions.MANAGE_REPORTS)) {
-    redirect('/dashboard');
+    redirect("/dashboard");
   }
 
   const result = await listReportTemplates({ activeOnly: false });
@@ -37,20 +37,21 @@ export default async function TemplatesPage() {
           <div className="flex items-center gap-2">
             <Link
               href="/reports"
-              className="text-sm text-gray-500 transition-colors hover:text-gray-700"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               Reports
             </Link>
-            <span className="text-sm text-gray-400">/</span>
-            <h1 className="text-2xl font-bold text-gray-900">Templates</h1>
+            <span className="text-sm text-muted-foreground">/</span>
+            <h1 className="text-2xl font-bold text-foreground">Templates</h1>
           </div>
-          <p className="mt-1 text-sm text-gray-500">
-            Design report formats for your school. Each template defines the sections that appear in student reports.
+          <p className="mt-1 text-sm text-muted-foreground">
+            Design report formats for your school. Each template defines the
+            sections that appear in student reports.
           </p>
         </div>
         <Link
           href="/reports/templates/new"
-          className="rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700"
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-amber-700"
         >
           New Template
         </Link>
@@ -58,10 +59,10 @@ export default async function TemplatesPage() {
 
       {/* Active templates */}
       {activeTemplates.length === 0 && inactiveTemplates.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-50">
+        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+          <div className="mx-auto mb-4 flex h-[var(--density-button-height)] w-12 items-center justify-center rounded-full bg-amber-50">
             <svg
-              className="h-6 w-6 text-amber-600"
+              className="h-6 w-6 text-primary"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
@@ -74,20 +75,23 @@ export default async function TemplatesPage() {
               />
             </svg>
           </div>
-          <h3 className="text-sm font-semibold text-gray-900">No templates yet</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Create your first report template to start generating student reports.
+          <h3 className="text-sm font-semibold text-foreground">
+            No templates yet
+          </h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Create your first report template to start generating student
+            reports.
           </p>
           <Link
             href="/reports/templates/new"
-            className="mt-4 inline-block rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+            className="mt-4 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700"
           >
             Create Template
           </Link>
         </div>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-[var(--density-card-padding)] sm:grid-cols-2 lg:grid-cols-3">
             {activeTemplates.map((template) => (
               <TemplateCard key={template.id} template={template} />
             ))}
@@ -96,10 +100,10 @@ export default async function TemplatesPage() {
           {/* Inactive templates */}
           {inactiveTemplates.length > 0 && (
             <div className="space-y-3">
-              <h2 className="text-sm font-medium text-gray-500">
+              <h2 className="text-sm font-medium text-muted-foreground">
                 Inactive Templates ({inactiveTemplates.length})
               </h2>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-[var(--density-card-padding)] sm:grid-cols-2 lg:grid-cols-3">
                 {inactiveTemplates.map((template) => (
                   <TemplateCard key={template.id} template={template} />
                 ))}
@@ -124,20 +128,20 @@ function TemplateCard({ template }: { template: TemplateWithStats }) {
 
   return (
     <div
-      className={`rounded-lg border bg-white p-5 transition-shadow hover:shadow-md ${
-        template.is_active ? 'border-gray-200' : 'border-gray-200 opacity-60'
+      className={`rounded-lg border bg-background p-[var(--density-card-padding)] transition-shadow hover:shadow-md ${
+        template.is_active ? "border-border" : "border-border opacity-60"
       }`}
     >
       <div className="flex items-start justify-between">
         <div className="min-w-0 flex-1">
           <Link
             href={`/reports/templates/${template.id}`}
-            className="text-sm font-semibold text-gray-900 hover:text-amber-700"
+            className="text-sm font-semibold text-foreground hover:text-amber-700"
           >
             {template.name}
           </Link>
           {template.cycle_level && (
-            <span className="ml-2 inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+            <span className="ml-2 inline-flex rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
               {template.cycle_level}
             </span>
           )}
@@ -147,21 +151,27 @@ function TemplateCard({ template }: { template: TemplateWithStats }) {
             </span>
           )}
         </div>
-        <TemplateActions templateId={template.id} isActive={template.is_active} />
+        <TemplateActions
+          templateId={template.id}
+          isActive={template.is_active}
+        />
       </div>
 
-      <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
-        <span>{sectionCount} section{sectionCount !== 1 ? 's' : ''}</span>
+      <div className="mt-3 flex items-center gap-[var(--density-card-padding)] text-xs text-muted-foreground">
+        <span>
+          {sectionCount} section{sectionCount !== 1 ? "s" : ""}
+        </span>
         <span>&middot;</span>
         <span>
-          {template.reportCount} report{template.reportCount !== 1 ? 's' : ''} generated
+          {template.reportCount} report{template.reportCount !== 1 ? "s" : ""}{" "}
+          generated
         </span>
       </div>
 
       <div className="mt-4">
         <Link
           href={`/reports/templates/${template.id}`}
-          className="text-xs font-medium text-amber-600 hover:text-amber-700"
+          className="text-xs font-medium text-primary hover:text-amber-700"
         >
           Edit Template →
         </Link>

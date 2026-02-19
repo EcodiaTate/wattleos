@@ -37,15 +37,15 @@ export function FeedFilters({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       {/* Status tabs */}
-      <div className="flex gap-1 rounded-lg bg-gray-100 p-1">
+      <div className="flex gap-1 rounded-lg bg-muted p-1">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.label}
             onClick={() => updateParams("status", tab.value)}
             className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
               currentStatus === tab.value
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-600 hover:text-gray-900"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {tab.label}
@@ -57,7 +57,7 @@ export function FeedFilters({
       <select
         value={currentStudentId ?? ""}
         onChange={(e) => updateParams("student", e.target.value || undefined)}
-        className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+        className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
       >
         <option value="">All Students</option>
         {students.map((s) => (

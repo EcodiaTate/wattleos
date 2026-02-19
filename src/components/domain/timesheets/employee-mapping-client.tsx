@@ -167,15 +167,15 @@ export function EmployeeMappingClient({
 
       {/* Active Mappings */}
       <section>
-        <h2 className="text-sm font-semibold text-gray-900">
+        <h2 className="text-sm font-semibold text-foreground">
           Linked Staff ({activeMappings.length})
         </h2>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           These staff members are connected to {providerLabel} for payroll sync.
         </p>
 
         {activeMappings.length === 0 ? (
-          <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
+          <div className="mt-4 rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] text-center text-sm text-muted-foreground">
             No staff linked yet. Use the section below to map staff to their{" "}
             {providerLabel} employee IDs.
           </div>
@@ -187,7 +187,7 @@ export function EmployeeMappingClient({
               return (
                 <div
                   key={mapping.id}
-                  className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3"
+                  className="flex items-center justify-between rounded-lg borderborder-border bg-background px-4 py-3"
                 >
                   {isEditing ? (
                     <div className="flex flex-1 items-center gap-3">
@@ -197,7 +197,7 @@ export function EmployeeMappingClient({
                           .map((n) => n[0])
                           .join("")}
                       </div>
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-foreground">
                         {mapping.user_name}
                       </div>
                       <input
@@ -217,13 +217,13 @@ export function EmployeeMappingClient({
                       <button
                         onClick={() => handleUpdate(mapping.id)}
                         disabled={isPending}
-                        className="rounded bg-amber-600 px-3 py-1 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+                        className="rounded bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
                       >
                         Save
                       </button>
                       <button
                         onClick={() => setEditingId(null)}
-                        className="text-xs text-gray-500 hover:text-gray-700"
+                        className="text-xs text-muted-foreground hover:text-foreground"
                       >
                         Cancel
                       </button>
@@ -238,22 +238,22 @@ export function EmployeeMappingClient({
                             .join("")}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-medium text-foreground">
                             {mapping.user_name}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-muted-foreground">
                             {mapping.user_email}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-[var(--density-card-padding)]">
                         <div className="text-right">
-                          <p className="text-sm font-mono text-gray-700">
+                          <p className="text-sm font-mono text-foreground">
                             {mapping.external_id}
                           </p>
                           {mapping.external_name && (
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-muted-foreground">
                               {mapping.external_name}
                             </p>
                           )}
@@ -266,7 +266,7 @@ export function EmployeeMappingClient({
                               setEditExternalId(mapping.external_id);
                               setEditExternalName(mapping.external_name ?? "");
                             }}
-                            className="text-xs text-gray-500 hover:text-gray-700"
+                            className="text-xs text-muted-foreground hover:text-foreground"
                           >
                             Edit
                           </button>
@@ -291,10 +291,10 @@ export function EmployeeMappingClient({
       {/* Unmapped Staff */}
       {provider && unmappedStaff.length > 0 && (
         <section>
-          <h2 className="text-sm font-semibold text-gray-900">
+          <h2 className="text-sm font-semibold text-foreground">
             Unmapped Staff ({unmappedStaff.length})
           </h2>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             These staff members have not been linked to a {providerLabel}{" "}
             employee record.
           </p>
@@ -306,18 +306,20 @@ export function EmployeeMappingClient({
               return (
                 <div
                   key={user.id}
-                  className="flex items-center justify-between rounded-lg border border-dashed border-gray-300 bg-gray-50/50 px-4 py-3"
+                  className="flex items-center justify-between rounded-lg border border-dashed border-gray-300 bg-background/50 px-4 py-3"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-gray-600">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-muted-foreground">
                       {user.first_name?.[0] ?? ""}
                       {user.last_name?.[0] ?? ""}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-foreground">
                         {user.first_name} {user.last_name}
                       </p>
-                      <p className="text-xs text-gray-500">{user.email}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {user.email}
+                      </p>
                     </div>
                   </div>
 
@@ -341,7 +343,7 @@ export function EmployeeMappingClient({
                       <button
                         onClick={handleCreate}
                         disabled={isPending || !externalId.trim()}
-                        className="rounded bg-amber-600 px-3 py-1 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+                        className="rounded bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
                       >
                         Link
                       </button>
@@ -351,7 +353,7 @@ export function EmployeeMappingClient({
                           setExternalId("");
                           setExternalName("");
                         }}
-                        className="text-xs text-gray-500 hover:text-gray-700"
+                        className="text-xs text-muted-foreground hover:text-foreground"
                       >
                         Cancel
                       </button>
@@ -374,7 +376,7 @@ export function EmployeeMappingClient({
       {/* Inactive Mappings */}
       {inactiveMappings.length > 0 && (
         <section>
-          <h2 className="text-sm font-semibold text-gray-500">
+          <h2 className="text-sm font-semibold text-muted-foreground">
             Inactive Mappings ({inactiveMappings.length})
           </h2>
 
@@ -382,20 +384,20 @@ export function EmployeeMappingClient({
             {inactiveMappings.map((mapping) => (
               <div
                 key={mapping.id}
-                className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 opacity-60"
+                className="flex items-center justify-between rounded-lg borderborder-border bg-background px-4 py-3 opacity-60"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-gray-500">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-muted-foreground">
                     {mapping.user_name
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">
+                    <p className="text-sm font-medium text-muted-foreground">
                       {mapping.user_name}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-muted-foreground">
                       {mapping.external_id}
                     </p>
                   </div>
@@ -403,7 +405,7 @@ export function EmployeeMappingClient({
                 <button
                   onClick={() => handleReactivate(mapping.id)}
                   disabled={isPending}
-                  className="text-xs text-amber-600 hover:text-amber-700"
+                  className="text-xs text-primary hover:text-amber-700"
                 >
                   Reactivate
                 </button>

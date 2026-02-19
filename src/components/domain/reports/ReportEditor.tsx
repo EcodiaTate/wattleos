@@ -62,8 +62,8 @@ const STATUS_CONFIG: Record<
 > = {
   draft: {
     label: "Draft",
-    bgColor: "bg-gray-100",
-    textColor: "text-gray-700",
+    bgColor: "bg-muted",
+    textColor: "text-foreground",
     actions: [
       {
         targetStatus: "review",
@@ -109,9 +109,10 @@ const STATUS_CONFIG: Record<
 };
 
 const VARIANT_STYLES = {
-  primary: "bg-amber-600 text-white hover:bg-amber-700",
-  secondary: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50",
-  danger: "border border-red-300 bg-white text-red-700 hover:bg-red-50",
+  primary: "bg-primary text-primary-foreground hover:bg-amber-700",
+  secondary:
+    "border border-gray-300 bg-background text-foreground hover:bg-background",
+  danger: "border border-red-300 bg-background text-red-700 hover:bg-red-50",
 };
 
 // ============================================================
@@ -242,8 +243,8 @@ export function ReportEditor({
   return (
     <div className="space-y-6">
       {/* Status bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white px-5 py-4">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-[var(--density-card-padding)] rounded-lg borderborder-border bg-background px-5 py-4">
+        <div className="flex items-center gap-[var(--density-card-padding)]">
           {/* Status badge */}
           <span
             className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${statusConfig.bgColor} ${statusConfig.textColor}`}
@@ -253,20 +254,20 @@ export function ReportEditor({
 
           {/* Progress */}
           <div className="flex items-center gap-2">
-            <div className="h-2 w-24 overflow-hidden rounded-full bg-gray-100">
+            <div className="h-2 w-24 overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-amber-500 transition-all duration-300"
+                className="h-full rounded-full bg-primary transition-all duration-300"
                 style={{ width: `${livePercent}%` }}
               />
             </div>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground">
               {completedEditable}/{editableCount} sections complete
             </span>
           </div>
 
           {/* Save indicator */}
           {hasChanges && (
-            <span className="text-xs text-amber-600 font-medium">
+            <span className="text-xs text-primary font-medium">
               Unsaved changes
             </span>
           )}
@@ -289,7 +290,7 @@ export function ReportEditor({
             <button
               onClick={handleSave}
               disabled={isSaving || !hasChanges}
-              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
+              className="rounded-md border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-background disabled:opacity-50"
             >
               {isSaving ? "Saving..." : "Save"}
             </button>
@@ -309,7 +310,7 @@ export function ReportEditor({
 
       {/* Report period info */}
       {reportContent.reportingPeriod && (
-        <div className="flex items-center gap-4 rounded-md bg-gray-50 px-4 py-2 text-xs text-gray-500">
+        <div className="flex items-center gap-[var(--density-card-padding)] rounded-md bg-background px-4 py-2 text-xs text-muted-foreground">
           <span>
             Reporting period:{" "}
             {formatDate(reportContent.reportingPeriod.startDate)} –{" "}
@@ -357,8 +358,8 @@ function ReportSection({
 
   return (
     <div
-      className={`rounded-lg border bg-white transition-shadow ${
-        section.completed ? "border-green-200" : "border-gray-200"
+      className={`rounded-lg border bg-background transition-shadow ${
+        section.completed ? "border-green-200" : "border-border"
       }`}
     >
       {/* Section header */}
@@ -377,13 +378,13 @@ function ReportSection({
               disabled={!isEditable}
               className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border transition-colors ${
                 section.completed
-                  ? "border-green-500 bg-green-500"
+                  ? "border-green-500 bg-[var(--mastery-mastered)]"
                   : "border-gray-300 hover:border-gray-400"
               } ${!isEditable ? "opacity-60" : ""}`}
             >
               {section.completed && (
                 <svg
-                  className="h-3.5 w-3.5 text-white"
+                  className="h-3.5 w-3.5 text-primary-foreground"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={3}
@@ -416,15 +417,15 @@ function ReportSection({
             </div>
           )}
 
-          <h3 className="text-sm font-semibold text-gray-900">
+          <h3 className="text-sm font-semibold text-foreground">
             {section.title}
           </h3>
-          <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500">
+          <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
             {getSectionTypeLabel(section.type)}
           </span>
         </div>
         <svg
-          className={`h-4 w-4 text-gray-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+          className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`}
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={2}
@@ -464,17 +465,17 @@ function ReportSection({
                     className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm leading-relaxed focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                   {section.narrative && (
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {countWords(section.narrative)} words
                     </p>
                   )}
                 </div>
               ) : (
-                <div className="prose prose-sm max-w-none text-gray-700">
+                <div className="prose prose-sm max-w-none text-foreground">
                   {section.narrative ? (
                     <p className="whitespace-pre-wrap">{section.narrative}</p>
                   ) : (
-                    <p className="italic text-gray-400">
+                    <p className="italic text-muted-foreground">
                       No content written yet.
                     </p>
                   )}
@@ -503,7 +504,7 @@ function AutoDataRenderer({
   if (type === "student_info" && autoData.studentInfo) {
     const info = autoData.studentInfo;
     return (
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-[var(--density-card-padding)]">
         {info.photoUrl ? (
           <img
             src={info.photoUrl}
@@ -511,25 +512,25 @@ function AutoDataRenderer({
             className="h-16 w-16 rounded-lg object-cover"
           />
         ) : (
-          <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-100 text-lg font-medium text-gray-400">
+          <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-muted text-lg font-medium text-muted-foreground">
             {info.firstName[0]}
             {info.lastName[0]}
           </div>
         )}
         <div className="space-y-1 text-sm">
-          <p className="font-medium text-gray-900">
+          <p className="font-medium text-foreground">
             {info.preferredName
               ? `${info.preferredName} (${info.firstName} ${info.lastName})`
               : `${info.firstName} ${info.lastName}`}
           </p>
           {info.className && (
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Class: {info.className}
               {info.cycleLevelName ? ` (${info.cycleLevelName})` : ""}
             </p>
           )}
           {info.dob && (
-            <p className="text-gray-500">DOB: {formatDate(info.dob)}</p>
+            <p className="text-muted-foreground">DOB: {formatDate(info.dob)}</p>
           )}
         </div>
       </div>
@@ -561,13 +562,13 @@ function AutoDataRenderer({
           <MasteryStatCard label="Mastered" value={ms.mastered} color="green" />
         </div>
         <div className="flex items-center gap-2">
-          <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
+          <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-green-500 transition-all"
+              className="h-full rounded-full bg-[var(--mastery-mastered)] transition-all"
               style={{ width: `${ms.percentMastered}%` }}
             />
           </div>
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-foreground">
             {ms.percentMastered}% mastered
           </span>
         </div>
@@ -578,7 +579,7 @@ function AutoDataRenderer({
   // ── Mastery Grid ──────────────────────────────────────
   if (type === "mastery_grid" && autoData.masteryGrid) {
     const statusColors: Record<string, string> = {
-      not_started: "bg-gray-100 text-gray-500",
+      not_started: "bg-muted text-muted-foreground",
       presented: "bg-blue-100 text-blue-700",
       practicing: "bg-amber-100 text-amber-700",
       mastered: "bg-green-100 text-green-700",
@@ -589,9 +590,9 @@ function AutoDataRenderer({
         {autoData.masteryGrid.map((item) => (
           <div
             key={item.nodeId}
-            className="flex items-center justify-between rounded px-3 py-1.5 text-sm hover:bg-gray-50"
+            className="flex items-center justify-between rounded px-3 py-1.5 text-sm hover:bg-background"
           >
-            <span className="text-gray-700">{item.nodeTitle}</span>
+            <span className="text-foreground">{item.nodeTitle}</span>
             <span
               className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                 statusColors[item.status] ?? statusColors.not_started
@@ -602,7 +603,7 @@ function AutoDataRenderer({
           </div>
         ))}
         {autoData.masteryGrid.length === 0 && (
-          <p className="text-sm text-gray-400 italic">
+          <p className="text-sm text-muted-foreground italic">
             No mastery data recorded.
           </p>
         )}
@@ -635,9 +636,9 @@ function AutoDataRenderer({
             color="gray"
           />
         </div>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Attendance rate:{" "}
-          <span className="font-medium text-gray-900">
+          <span className="font-medium text-foreground">
             {att.attendanceRate}%
           </span>
         </p>
@@ -650,21 +651,21 @@ function AutoDataRenderer({
     return (
       <div className="space-y-3">
         {autoData.observationHighlights.length === 0 ? (
-          <p className="text-sm text-gray-400 italic">
+          <p className="text-sm text-muted-foreground italic">
             No published observations found for this period.
           </p>
         ) : (
           autoData.observationHighlights.map((obs) => (
             <div
               key={obs.id}
-              className="rounded-md border border-gray-100 bg-gray-50 p-3"
+              className="rounded-md border border-gray-100 bg-background p-3"
             >
-              <div className="flex items-center justify-between text-xs text-gray-500">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{formatDate(obs.createdAt)}</span>
                 <span>By {obs.authorName}</span>
               </div>
               {obs.content && (
-                <p className="mt-1 text-sm text-gray-700 line-clamp-3">
+                <p className="mt-1 text-sm text-foreground line-clamp-3">
                   {obs.content}
                 </p>
               )}
@@ -678,7 +679,7 @@ function AutoDataRenderer({
                   </span>
                 ))}
                 {obs.mediaCount > 0 && (
-                  <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-600">
+                  <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                     📷 {obs.mediaCount}
                   </span>
                 )}
@@ -707,7 +708,7 @@ function MasteryStatCard({
   color: "gray" | "blue" | "amber" | "green";
 }) {
   const colors = {
-    gray: "bg-gray-50 text-gray-700",
+    gray: "bg-background text-foreground",
     blue: "bg-blue-50 text-blue-700",
     amber: "bg-amber-50 text-amber-700",
     green: "bg-green-50 text-green-700",
@@ -735,17 +736,17 @@ function AttendanceStatCard({
     red: "text-red-700",
     amber: "text-amber-700",
     blue: "text-blue-700",
-    gray: "text-gray-700",
+    gray: "text-foreground",
   };
 
   return (
-    <div className="rounded-md border border-gray-100 bg-gray-50 p-2 text-center">
+    <div className="rounded-md border border-gray-100 bg-background p-2 text-center">
       <p
-        className={`text-lg font-bold ${color ? colors[color] : "text-gray-900"}`}
+        className={`text-lg font-bold ${color ? colors[color] : "text-foreground"}`}
       >
         {value}
       </p>
-      <p className="text-[10px] uppercase tracking-wide text-gray-500">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
     </div>

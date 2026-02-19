@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect } from 'react';
-import type { Student } from '@/types/domain';
+import type { Student } from "@/types/domain";
+import { useEffect, useRef, useState } from "react";
 
 interface StudentPickerProps {
   students: Student[];
@@ -15,7 +15,7 @@ export function StudentPicker({
   onSelect,
 }: StudentPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -29,8 +29,8 @@ export function StudentPicker({
         setIsOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const selected = students.find((s) => s.id === selectedStudentId);
@@ -54,7 +54,7 @@ export function StudentPicker({
             setTimeout(() => inputRef.current?.focus(), 50);
           }
         }}
-        className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors hover:bg-gray-50"
+        className="flex items-center gap-2 rounded-lg border border-gray-300 bg-background px-3 py-2 text-sm transition-colors hover:bg-background"
       >
         {selected ? (
           <>
@@ -70,16 +70,16 @@ export function StudentPicker({
                 {selected.last_name.charAt(0)}
               </div>
             )}
-            <span className="font-medium text-gray-900">
-              {selected.preferred_name ?? selected.first_name}{' '}
+            <span className="font-medium text-foreground">
+              {selected.preferred_name ?? selected.first_name}{" "}
               {selected.last_name}
             </span>
           </>
         ) : (
-          <span className="text-gray-500">Select a student...</span>
+          <span className="text-muted-foreground">Select a student...</span>
         )}
         <svg
-          className="ml-1 h-4 w-4 text-gray-400"
+          className="ml-1 h-4 w-4 text-muted-foreground"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={1.5}
@@ -95,7 +95,7 @@ export function StudentPicker({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute left-0 top-full z-20 mt-1 w-72 rounded-lg border border-gray-200 bg-white shadow-lg">
+        <div className="absolute left-0 top-full z-20 mt-1 w-72 rounded-lg borderborder-border bg-background shadow-lg">
           {/* Search input */}
           <div className="border-b border-gray-100 p-2">
             <input
@@ -104,14 +104,14 @@ export function StudentPicker({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search students..."
-              className="w-full rounded border border-gray-200 px-2 py-1.5 text-sm focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+              className="w-full rounded borderborder-border px-2 py-1.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
 
           {/* Student list */}
           <div className="max-h-64 overflow-y-auto py-1">
             {filtered.length === 0 ? (
-              <div className="px-3 py-2 text-xs text-gray-500">
+              <div className="px-3 py-2 text-xs text-muted-foreground">
                 No students found.
               </div>
             ) : (
@@ -121,10 +121,10 @@ export function StudentPicker({
                   onClick={() => {
                     onSelect(student.id);
                     setIsOpen(false);
-                    setQuery('');
+                    setQuery("");
                   }}
-                  className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-gray-50 ${
-                    student.id === selectedStudentId ? 'bg-amber-50' : ''
+                  className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-background ${
+                    student.id === selectedStudentId ? "bg-amber-50" : ""
                   }`}
                 >
                   {student.photo_url ? (
@@ -134,20 +134,20 @@ export function StudentPicker({
                       className="h-7 w-7 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-[10px] font-semibold text-gray-600">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
                       {student.first_name.charAt(0)}
                       {student.last_name.charAt(0)}
                     </div>
                   )}
                   <div>
-                    <span className="font-medium text-gray-900">
-                      {student.preferred_name ?? student.first_name}{' '}
+                    <span className="font-medium text-foreground">
+                      {student.preferred_name ?? student.first_name}{" "}
                       {student.last_name}
                     </span>
                   </div>
                   {student.id === selectedStudentId && (
                     <svg
-                      className="ml-auto h-4 w-4 text-amber-600"
+                      className="ml-auto h-4 w-4 text-primary"
                       fill="none"
                       viewBox="0 0 24 24"
                       strokeWidth={2}

@@ -8,9 +8,9 @@
 // classes. Read status tracked for unread badge accuracy.
 // ============================================================
 
-import { getTenantContext } from '@/lib/auth/tenant-context';
-import { getAnnouncementsForParent } from '@/lib/actions/announcements';
-import { ParentAnnouncementFeed } from '@/components/domain/comms/parent-announcement-feed';
+import { ParentAnnouncementFeed } from "@/components/domain/comms/parent-announcement-feed";
+import { getAnnouncementsForParent } from "@/lib/actions/comms/announcements";
+import { getTenantContext } from "@/lib/auth/tenant-context";
 
 export default async function ParentAnnouncementsPage() {
   const context = await getTenantContext();
@@ -21,15 +21,15 @@ export default async function ParentAnnouncementsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Announcements</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold text-foreground">
+          Announcements
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           News and updates from your school
         </p>
       </div>
 
-      <ParentAnnouncementFeed
-        initialAnnouncements={announcements}
-      />
+      <ParentAnnouncementFeed initialAnnouncements={announcements} />
     </div>
   );
 }

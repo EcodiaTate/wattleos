@@ -1,7 +1,7 @@
-'use server';
+"use server";
 
 // ============================================================
-// WattleOS V2 — Guardian Server Actions
+// WattleOS V2 - Guardian Server Actions
 // ============================================================
 // Links users (parents/carers) to students.
 // Manages consent flags and pickup authorization.
@@ -9,10 +9,10 @@
 // Fix: createGuardian now calls getTenantContext() for tenant_id.
 // ============================================================
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getTenantContext } from '@/lib/auth/tenant-context';
-import { ActionResponse, success, failure } from '@/types/api';
-import { Guardian, GuardianWithUser } from '@/types/domain';
+import { getTenantContext } from "@/lib/auth/tenant-context";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ActionResponse, failure, success } from "@/types/api";
+import { Guardian, GuardianWithUser } from "@/types/domain";
 
 // ============================================================
 // Input Types
@@ -45,26 +45,27 @@ export interface UpdateGuardianInput {
 // ============================================================
 
 export async function listGuardians(
-  studentId: string
+  studentId: string,
 ): Promise<ActionResponse<GuardianWithUser[]>> {
   try {
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
-      .from('guardians')
-      .select('*, user:users(id, email, first_name, last_name, avatar_url)')
-      .eq('student_id', studentId)
-      .is('deleted_at', null)
-      .order('is_primary', { ascending: false });
+      .from("guardians")
+      .select("*, user:users(id, email, first_name, last_name, avatar_url)")
+      .eq("student_id", studentId)
+      .is("deleted_at", null)
+      .order("is_primary", { ascending: false });
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     return success((data ?? []) as GuardianWithUser[]);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to list guardians';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to list guardians";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -73,18 +74,20 @@ export async function listGuardians(
 // ============================================================
 
 export async function createGuardian(
-  input: CreateGuardianInput
+  input: CreateGuardianInput,
 ): Promise<ActionResponse<Guardian>> {
   try {
     const context = await getTenantContext();
     const supabase = await createSupabaseServerClient();
 
-    if (!input.user_id) return failure('User is required', 'VALIDATION_ERROR');
-    if (!input.student_id) return failure('Student is required', 'VALIDATION_ERROR');
-    if (!input.relationship?.trim()) return failure('Relationship is required', 'VALIDATION_ERROR');
+    if (!input.user_id) return failure("User is required", "VALIDATION_ERROR");
+    if (!input.student_id)
+      return failure("Student is required", "VALIDATION_ERROR");
+    if (!input.relationship?.trim())
+      return failure("Relationship is required", "VALIDATION_ERROR");
 
     const { data, error } = await supabase
-      .from('guardians')
+      .from("guardians")
       .insert({
         tenant_id: context.tenant.id,
         user_id: input.user_id,
@@ -101,16 +104,20 @@ export async function createGuardian(
       .single();
 
     if (error) {
-      if (error.code === '23505') {
-        return failure('This user is already linked as a guardian for this student', 'DUPLICATE');
+      if (error.code === "23505") {
+        return failure(
+          "This user is already linked as a guardian for this student",
+          "DUPLICATE",
+        );
       }
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     return success(data as Guardian);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to create guardian';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to create guardian";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -120,44 +127,52 @@ export async function createGuardian(
 
 export async function updateGuardian(
   guardianId: string,
-  input: UpdateGuardianInput
+  input: UpdateGuardianInput,
 ): Promise<ActionResponse<Guardian>> {
   try {
     const supabase = await createSupabaseServerClient();
 
     const updateData: Record<string, unknown> = {};
-    if (input.relationship !== undefined) updateData.relationship = input.relationship.trim();
-    if (input.is_primary !== undefined) updateData.is_primary = input.is_primary;
-    if (input.is_emergency_contact !== undefined) updateData.is_emergency_contact = input.is_emergency_contact;
-    if (input.pickup_authorized !== undefined) updateData.pickup_authorized = input.pickup_authorized;
-    if (input.phone !== undefined) updateData.phone = input.phone?.trim() || null;
-    if (input.media_consent !== undefined) updateData.media_consent = input.media_consent;
-    if (input.directory_consent !== undefined) updateData.directory_consent = input.directory_consent;
+    if (input.relationship !== undefined)
+      updateData.relationship = input.relationship.trim();
+    if (input.is_primary !== undefined)
+      updateData.is_primary = input.is_primary;
+    if (input.is_emergency_contact !== undefined)
+      updateData.is_emergency_contact = input.is_emergency_contact;
+    if (input.pickup_authorized !== undefined)
+      updateData.pickup_authorized = input.pickup_authorized;
+    if (input.phone !== undefined)
+      updateData.phone = input.phone?.trim() || null;
+    if (input.media_consent !== undefined)
+      updateData.media_consent = input.media_consent;
+    if (input.directory_consent !== undefined)
+      updateData.directory_consent = input.directory_consent;
 
     if (Object.keys(updateData).length === 0) {
-      return failure('No fields to update', 'VALIDATION_ERROR');
+      return failure("No fields to update", "VALIDATION_ERROR");
     }
 
     const { data, error } = await supabase
-      .from('guardians')
+      .from("guardians")
       .update(updateData)
-      .eq('id', guardianId)
-      .is('deleted_at', null)
+      .eq("id", guardianId)
+      .is("deleted_at", null)
       .select()
       .single();
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     if (!data) {
-      return failure('Guardian not found', 'NOT_FOUND');
+      return failure("Guardian not found", "NOT_FOUND");
     }
 
     return success(data as Guardian);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to update guardian';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to update guardian";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -165,23 +180,26 @@ export async function updateGuardian(
 // REMOVE GUARDIAN LINK (soft delete)
 // ============================================================
 
-export async function removeGuardian(guardianId: string): Promise<ActionResponse<{ id: string }>> {
+export async function removeGuardian(
+  guardianId: string,
+): Promise<ActionResponse<{ id: string }>> {
   try {
     const supabase = await createSupabaseServerClient();
 
     const { error } = await supabase
-      .from('guardians')
+      .from("guardians")
       .update({ deleted_at: new Date().toISOString() })
-      .eq('id', guardianId)
-      .is('deleted_at', null);
+      .eq("id", guardianId)
+      .is("deleted_at", null);
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     return success({ id: guardianId });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to remove guardian';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to remove guardian";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import type { MasteryHistoryWithMeta } from '@/lib/actions/mastery';
-import { MASTERY_STATUS_CONFIG } from '@/lib/utils/mastery-status';
-import type { MasteryStatus } from '@/types/domain';
+import type { MasteryHistoryWithMeta } from "@/lib/actions/mastery";
+import { MASTERY_STATUS_CONFIG } from "@/lib/utils/mastery-status";
+import type { MasteryStatus } from "@/types/domain";
 
 interface MasteryHistoryPanelProps {
   history: MasteryHistoryWithMeta[];
@@ -15,17 +15,17 @@ export function MasteryHistoryPanel({
 }: MasteryHistoryPanelProps) {
   if (history.length === 0) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-4 text-center text-xs text-gray-500">
+      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] text-center text-xs text-muted-foreground">
         No mastery changes recorded yet.
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white">
+    <div className="rounded-lg borderborder-border bg-background">
       {showTitle && (
         <div className="border-b border-gray-100 px-4 py-3">
-          <h3 className="text-sm font-semibold text-gray-900">
+          <h3 className="text-sm font-semibold text-foreground">
             Recent Progress
           </h3>
         </div>
@@ -40,25 +40,25 @@ export function MasteryHistoryPanel({
             : null;
 
           const changedByName = entry.changed_by_user
-            ? `${entry.changed_by_user.first_name ?? ''} ${entry.changed_by_user.last_name ?? ''}`.trim()
-            : 'System';
+            ? `${entry.changed_by_user.first_name ?? ""} ${entry.changed_by_user.last_name ?? ""}`.trim()
+            : "System";
 
           const date = new Date(entry.changed_at);
-          const dateStr = date.toLocaleDateString('en-AU', {
-            day: 'numeric',
-            month: 'short',
+          const dateStr = date.toLocaleDateString("en-AU", {
+            day: "numeric",
+            month: "short",
           });
-          const timeStr = date.toLocaleTimeString('en-AU', {
-            hour: '2-digit',
-            minute: '2-digit',
+          const timeStr = date.toLocaleTimeString("en-AU", {
+            hour: "2-digit",
+            minute: "2-digit",
           });
 
           return (
             <div key={entry.id} className="px-4 py-3">
               <div className="flex items-start justify-between">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-medium text-gray-900">
-                    {entry.curriculum_node_title || 'Unknown outcome'}
+                  <p className="truncate text-xs font-medium text-foreground">
+                    {entry.curriculum_node_title || "Unknown outcome"}
                   </p>
                   <div className="mt-1 flex items-center gap-1.5">
                     {prevConfig && (
@@ -69,7 +69,7 @@ export function MasteryHistoryPanel({
                           {prevConfig.shortLabel}
                         </span>
                         <svg
-                          className="h-2.5 w-2.5 text-gray-400"
+                          className="h-2.5 w-2.5 text-muted-foreground"
                           fill="none"
                           viewBox="0 0 24 24"
                           strokeWidth={2}
@@ -91,11 +91,11 @@ export function MasteryHistoryPanel({
                   </div>
                 </div>
                 <div className="ml-3 flex-shrink-0 text-right">
-                  <p className="text-[10px] text-gray-500">{dateStr}</p>
-                  <p className="text-[10px] text-gray-400">{timeStr}</p>
+                  <p className="text-[10px] text-muted-foreground">{dateStr}</p>
+                  <p className="text-[10px] text-muted-foreground">{timeStr}</p>
                 </div>
               </div>
-              <p className="mt-1 text-[10px] text-gray-400">
+              <p className="mt-1 text-[10px] text-muted-foreground">
                 by {changedByName}
               </p>
             </div>

@@ -1,7 +1,7 @@
 // src/lib/actions/integrations.ts
 //
 // ============================================================
-// WattleOS V2 — Integration Server Actions
+// WattleOS V2 - Integration Server Actions
 // ============================================================
 // Manages integration configuration (CRUD) and orchestrates
 // integration operations (provision folders, upload files).
@@ -12,18 +12,18 @@
 // that know nothing about WattleOS.
 // ============================================================
 
-'use server';
+"use server";
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getTenantContext, requirePermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { ActionResponse, success, failure, ErrorCodes } from '@/types/api';
+import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
+import type { IntegrationProvider } from "@/lib/constants/integrations";
+import { Permissions } from "@/lib/constants/permissions";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ActionResponse, ErrorCodes, failure, success } from "@/types/api";
 import type {
   IntegrationConfig,
   IntegrationSyncLog,
   StudentPortfolioFolder,
-} from '@/types/domain';
-import type { IntegrationProvider } from '@/lib/constants/integrations';
+} from "@/types/domain";
 
 // ============================================================
 // Input Types
@@ -55,10 +55,10 @@ export async function listIntegrationConfigs(): Promise<
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
-      .from('integration_configs')
-      .select('*')
-      .is('deleted_at', null)
-      .order('provider');
+      .from("integration_configs")
+      .select("*")
+      .is("deleted_at", null)
+      .order("provider");
 
     if (error) {
       return failure(error.message, ErrorCodes.DATABASE_ERROR);
@@ -67,7 +67,7 @@ export async function listIntegrationConfigs(): Promise<
     return success((data ?? []) as IntegrationConfig[]);
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : 'Failed to list configs';
+      err instanceof Error ? err.message : "Failed to list configs";
     return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
@@ -77,17 +77,17 @@ export async function listIntegrationConfigs(): Promise<
 // ============================================================
 
 export async function getIntegrationConfig(
-  provider: IntegrationProvider
+  provider: IntegrationProvider,
 ): Promise<ActionResponse<IntegrationConfig | null>> {
   try {
     await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
-      .from('integration_configs')
-      .select('*')
-      .eq('provider', provider)
-      .is('deleted_at', null)
+      .from("integration_configs")
+      .select("*")
+      .eq("provider", provider)
+      .is("deleted_at", null)
       .maybeSingle();
 
     if (error) {
@@ -96,8 +96,7 @@ export async function getIntegrationConfig(
 
     return success(data as IntegrationConfig | null);
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : 'Failed to get config';
+    const message = err instanceof Error ? err.message : "Failed to get config";
     return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
@@ -107,14 +106,14 @@ export async function getIntegrationConfig(
 // ============================================================
 
 export async function saveIntegrationConfig(
-  input: SaveIntegrationConfigInput
+  input: SaveIntegrationConfigInput,
 ): Promise<ActionResponse<IntegrationConfig>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
-      .from('integration_configs')
+      .from("integration_configs")
       .upsert(
         {
           tenant_id: context.tenant.id,
@@ -123,7 +122,7 @@ export async function saveIntegrationConfig(
           credentials: input.credentials,
           settings: input.settings,
         },
-        { onConflict: 'tenant_id,provider' }
+        { onConflict: "tenant_id,provider" },
       )
       .select()
       .single();
@@ -135,15 +134,15 @@ export async function saveIntegrationConfig(
     // Log the config change
     await logSyncOperation(supabase, context.tenant.id, {
       provider: input.provider,
-      operation: 'config_updated',
-      status: 'success',
+      operation: "config_updated",
+      status: "success",
       request_data: { is_enabled: input.is_enabled },
     });
 
     return success(data as IntegrationConfig);
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : 'Failed to save config';
+      err instanceof Error ? err.message : "Failed to save config";
     return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
@@ -153,17 +152,17 @@ export async function saveIntegrationConfig(
 // ============================================================
 
 export async function deleteIntegrationConfig(
-  provider: IntegrationProvider
+  provider: IntegrationProvider,
 ): Promise<ActionResponse<{ deleted: boolean }>> {
   try {
     await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const { error } = await supabase
-      .from('integration_configs')
+      .from("integration_configs")
       .update({ deleted_at: new Date().toISOString(), is_enabled: false })
-      .eq('provider', provider)
-      .is('deleted_at', null);
+      .eq("provider", provider)
+      .is("deleted_at", null);
 
     if (error) {
       return failure(error.message, ErrorCodes.DELETE_FAILED);
@@ -172,7 +171,7 @@ export async function deleteIntegrationConfig(
     return success({ deleted: true });
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : 'Failed to delete config';
+      err instanceof Error ? err.message : "Failed to delete config";
     return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
@@ -185,7 +184,7 @@ export async function deleteIntegrationConfig(
 // ============================================================
 
 export async function provisionStudentPortfolio(
-  input: ProvisionPortfolioInput
+  input: ProvisionPortfolioInput,
 ): Promise<ActionResponse<StudentPortfolioFolder>> {
   try {
     const context = await getTenantContext();
@@ -194,11 +193,11 @@ export async function provisionStudentPortfolio(
 
     // 1. Check if folder already exists for this student + year
     const { data: existing } = await supabase
-      .from('student_portfolio_folders')
-      .select('*')
-      .eq('student_id', input.student_id)
-      .eq('year', year)
-      .is('deleted_at', null)
+      .from("student_portfolio_folders")
+      .select("*")
+      .eq("student_id", input.student_id)
+      .eq("year", year)
+      .is("deleted_at", null)
       .maybeSingle();
 
     if (existing) {
@@ -207,17 +206,17 @@ export async function provisionStudentPortfolio(
 
     // 2. Get Google Drive config
     const { data: config } = await supabase
-      .from('integration_configs')
-      .select('*')
-      .eq('provider', 'google_drive')
-      .eq('is_enabled', true)
-      .is('deleted_at', null)
+      .from("integration_configs")
+      .select("*")
+      .eq("provider", "google_drive")
+      .eq("is_enabled", true)
+      .is("deleted_at", null)
       .maybeSingle();
 
     if (!config) {
       return failure(
-        'Google Drive integration is not configured or enabled',
-        ErrorCodes.INTEGRATION_ERROR
+        "Google Drive integration is not configured or enabled",
+        ErrorCodes.INTEGRATION_ERROR,
       );
     }
 
@@ -234,8 +233,8 @@ export async function provisionStudentPortfolio(
       !credentials.root_folder_id
     ) {
       return failure(
-        'Google Drive credentials are incomplete',
-        ErrorCodes.INTEGRATION_ERROR
+        "Google Drive credentials are incomplete",
+        ErrorCodes.INTEGRATION_ERROR,
       );
     }
 
@@ -243,7 +242,7 @@ export async function provisionStudentPortfolio(
     // WHY dynamic import: googleapis is a large package. Only load it
     // when actually needed, not on every server action import.
     const { createDriveClient, provisionPortfolioFolder, shareFolderWithUser } =
-      await import('@/lib/integrations/google-drive/client');
+      await import("@/lib/integrations/google-drive/client");
 
     const drive = createDriveClient(credentials);
 
@@ -251,12 +250,12 @@ export async function provisionStudentPortfolio(
       drive,
       credentials.root_folder_id,
       input.student_name,
-      year
+      year,
     );
 
     // 4. Store the folder mapping
     const { data: folderRecord, error: insertError } = await supabase
-      .from('student_portfolio_folders')
+      .from("student_portfolio_folders")
       .insert({
         tenant_id: context.tenant.id,
         student_id: input.student_id,
@@ -272,19 +271,21 @@ export async function provisionStudentPortfolio(
     }
 
     // 5. Share with parent emails if configured
-    const settings = configData.settings as { auto_share_with_parents?: boolean };
+    const settings = configData.settings as {
+      auto_share_with_parents?: boolean;
+    };
     if (settings.auto_share_with_parents && input.parent_emails) {
       for (const email of input.parent_emails) {
         try {
-          await shareFolderWithUser(drive, result.folder_id, email, 'reader');
+          await shareFolderWithUser(drive, result.folder_id, email, "reader");
         } catch {
-          // Non-critical — log but don't fail the provisioning
+          // Non-critical - log but don't fail the provisioning
           await logSyncOperation(supabase, context.tenant.id, {
-            provider: 'google_drive',
-            operation: 'share_folder',
-            entity_type: 'student',
+            provider: "google_drive",
+            operation: "share_folder",
+            entity_type: "student",
             entity_id: input.student_id,
-            status: 'failure',
+            status: "failure",
             error_message: `Failed to share with ${email}`,
           });
         }
@@ -293,18 +294,18 @@ export async function provisionStudentPortfolio(
 
     // 6. Log success
     await logSyncOperation(supabase, context.tenant.id, {
-      provider: 'google_drive',
-      operation: 'provision_folder',
-      entity_type: 'student',
+      provider: "google_drive",
+      operation: "provision_folder",
+      entity_type: "student",
       entity_id: input.student_id,
-      status: 'success',
+      status: "success",
       response_data: { folder_id: result.folder_id, year },
     });
 
     return success(folderRecord as StudentPortfolioFolder);
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : 'Failed to provision portfolio';
+      err instanceof Error ? err.message : "Failed to provision portfolio";
     return failure(message, ErrorCodes.INTEGRATION_ERROR);
   }
 }
@@ -315,21 +316,21 @@ export async function provisionStudentPortfolio(
 
 export async function getStudentPortfolioFolder(
   studentId: string,
-  year?: number
+  year?: number,
 ): Promise<ActionResponse<StudentPortfolioFolder | null>> {
   try {
     await getTenantContext();
     const supabase = await createSupabaseServerClient();
 
     let query = supabase
-      .from('student_portfolio_folders')
-      .select('*')
-      .eq('student_id', studentId)
-      .is('deleted_at', null)
-      .order('year', { ascending: false });
+      .from("student_portfolio_folders")
+      .select("*")
+      .eq("student_id", studentId)
+      .is("deleted_at", null)
+      .order("year", { ascending: false });
 
     if (year) {
-      query = query.eq('year', year);
+      query = query.eq("year", year);
     }
 
     const { data, error } = await query.limit(1).maybeSingle();
@@ -341,7 +342,7 @@ export async function getStudentPortfolioFolder(
     return success(data as StudentPortfolioFolder | null);
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : 'Failed to get portfolio folder';
+      err instanceof Error ? err.message : "Failed to get portfolio folder";
     return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
@@ -352,7 +353,7 @@ export async function getStudentPortfolioFolder(
 
 export async function listSyncLogs(params: {
   provider?: IntegrationProvider;
-  status?: 'success' | 'failure' | 'pending';
+  status?: "success" | "failure" | "pending";
   limit?: number;
 }): Promise<ActionResponse<IntegrationSyncLog[]>> {
   try {
@@ -362,16 +363,16 @@ export async function listSyncLogs(params: {
     const limit = params.limit ?? 50;
 
     let query = supabase
-      .from('integration_sync_logs')
-      .select('*')
-      .order('created_at', { ascending: false })
+      .from("integration_sync_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
       .limit(limit);
 
     if (params.provider) {
-      query = query.eq('provider', params.provider);
+      query = query.eq("provider", params.provider);
     }
     if (params.status) {
-      query = query.eq('status', params.status);
+      query = query.eq("status", params.status);
     }
 
     const { data, error } = await query;
@@ -383,7 +384,7 @@ export async function listSyncLogs(params: {
     return success((data ?? []) as IntegrationSyncLog[]);
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : 'Failed to list sync logs';
+      err instanceof Error ? err.message : "Failed to list sync logs";
     return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
@@ -397,47 +398,46 @@ export async function listSyncLogs(params: {
 // ============================================================
 
 export async function testIntegrationConnection(
-  provider: IntegrationProvider
+  provider: IntegrationProvider,
 ): Promise<ActionResponse<{ connected: boolean; message: string }>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const { data: config } = await supabase
-      .from('integration_configs')
-      .select('*')
-      .eq('provider', provider)
-      .is('deleted_at', null)
+      .from("integration_configs")
+      .select("*")
+      .eq("provider", provider)
+      .is("deleted_at", null)
       .maybeSingle();
 
     if (!config) {
-      return failure('Integration not configured', ErrorCodes.NOT_FOUND);
+      return failure("Integration not configured", ErrorCodes.NOT_FOUND);
     }
 
     const configData = config as IntegrationConfig;
 
-    if (provider === 'google_drive') {
+    if (provider === "google_drive") {
       const credentials = configData.credentials as {
         service_account_email: string;
         private_key: string;
         root_folder_id: string;
       };
 
-      const { createDriveClient } = await import(
-        '@/lib/integrations/google-drive/client'
-      );
+      const { createDriveClient } =
+        await import("@/lib/integrations/google-drive/client");
       const drive = createDriveClient(credentials);
 
       // Try to get the root folder
       const response = await drive.files.get({
         fileId: credentials.root_folder_id,
-        fields: 'id, name',
+        fields: "id, name",
       });
 
       await logSyncOperation(supabase, context.tenant.id, {
-        provider: 'google_drive',
-        operation: 'test_connection',
-        status: 'success',
+        provider: "google_drive",
+        operation: "test_connection",
+        status: "success",
       });
 
       return success({
@@ -449,11 +449,11 @@ export async function testIntegrationConnection(
     // Add other providers here as they're implemented
     return failure(
       `Test not implemented for ${provider}`,
-      ErrorCodes.INTEGRATION_ERROR
+      ErrorCodes.INTEGRATION_ERROR,
     );
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : 'Connection test failed';
+      err instanceof Error ? err.message : "Connection test failed";
     return success({
       connected: false,
       message,
@@ -473,14 +473,14 @@ async function logSyncOperation(
     operation: string;
     entity_type?: string;
     entity_id?: string;
-    status: 'success' | 'failure' | 'pending';
+    status: "success" | "failure" | "pending";
     request_data?: Record<string, unknown>;
     response_data?: Record<string, unknown>;
     error_message?: string;
-  }
+  },
 ): Promise<void> {
   try {
-    await supabase.from('integration_sync_logs').insert({
+    await supabase.from("integration_sync_logs").insert({
       tenant_id: tenantId,
       provider: log.provider,
       operation: log.operation,
@@ -492,7 +492,7 @@ async function logSyncOperation(
       error_message: log.error_message ?? null,
     });
   } catch {
-    // Sync logging is non-critical — don't fail the main operation
-    console.error('Failed to write sync log');
+    // Sync logging is non-critical - don't fail the main operation
+    console.error("Failed to write sync log");
   }
 }

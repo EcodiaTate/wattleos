@@ -1,15 +1,19 @@
-import { getTenantContext, hasPermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { getStudent } from '@/lib/actions/students';
-import { listCurriculumInstances } from '@/lib/actions/curriculum';
+import { PortfolioTimeline } from "@/components/domain/mastery/portfolio-timeline";
+import { listCurriculumInstances } from "@/lib/actions/curriculum";
 import {
   getStudentMasterySummary,
   getStudentPortfolioTimeline,
-} from '@/lib/actions/mastery';
-import { PortfolioTimeline } from '@/components/domain/mastery/portfolio-timeline';
-import { MASTERY_STATUS_CONFIG, MASTERY_STATUS_ORDER, masteryPercentage } from '@/lib/utils/mastery-status';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
+} from "@/lib/actions/mastery";
+import { getStudent } from "@/lib/actions/students";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import {
+  MASTERY_STATUS_CONFIG,
+  MASTERY_STATUS_ORDER,
+  masteryPercentage,
+} from "@/lib/utils/mastery-status";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 interface PageProps {
   params: Promise<{ studentId: string }>;
@@ -23,7 +27,7 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
   // Get the student
   const studentResult = await getStudent(studentId);
   if (!studentResult.data) {
-    redirect('/pedagogy/mastery');
+    redirect("/pedagogy/mastery");
   }
   const student = studentResult.data;
   const studentName = `${student.preferred_name ?? student.first_name} ${student.last_name}`;
@@ -46,7 +50,7 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
           mastered: 0,
         },
       };
-    })
+    }),
   );
 
   // Get portfolio timeline
@@ -61,24 +65,24 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
           <div className="flex items-center gap-2">
             <Link
               href="/pedagogy/mastery"
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-muted-foreground hover:text-foreground"
             >
               Mastery
             </Link>
-            <span className="text-sm text-gray-400">/</span>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <span className="text-sm text-muted-foreground">/</span>
+            <h1 className="text-2xl font-bold text-foreground">
               {studentName}&apos;s Portfolio
             </h1>
           </div>
-          <p className="mt-1 text-sm text-gray-500">
-            A complete view of {student.preferred_name ?? student.first_name}&apos;s
-            learning journey
+          <p className="mt-1 text-sm text-muted-foreground">
+            A complete view of {student.preferred_name ?? student.first_name}
+            &apos;s learning journey
           </p>
         </div>
         {canViewStudents && (
           <Link
             href={`/pedagogy/mastery?student=${studentId}`}
-            className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-foreground hover:bg-background"
           >
             <svg
               className="h-4 w-4"
@@ -99,8 +103,8 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
       </div>
 
       {/* Student info card */}
-      <div className="rounded-lg border border-gray-200 bg-white p-5">
-        <div className="flex items-center gap-4">
+      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+        <div className="flex items-center gap-[var(--density-card-padding)]">
           {student.photo_url ? (
             <img
               src={student.photo_url}
@@ -114,24 +118,24 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
             </div>
           )}
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               {studentName}
             </h2>
             {student.dob && (
-              <p className="text-sm text-gray-500">
-                Born{' '}
-                {new Date(student.dob).toLocaleDateString('en-AU', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
+              <p className="text-sm text-muted-foreground">
+                Born{" "}
+                {new Date(student.dob).toLocaleDateString("en-AU", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
                 })}
               </p>
             )}
             <span
               className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                student.enrollment_status === 'active'
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-gray-100 text-gray-500'
+                student.enrollment_status === "active"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-muted text-muted-foreground"
               }`}
             >
               {student.enrollment_status.charAt(0).toUpperCase() +
@@ -144,28 +148,28 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
       {/* Mastery summaries per curriculum */}
       {summaries.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-foreground">
             Curriculum Progress
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-[var(--density-card-padding)] sm:grid-cols-2">
             {summaries.map(({ instance, summary }) => {
               const pct = masteryPercentage(summary);
               return (
                 <div
                   key={instance.id}
-                  className="rounded-lg border border-gray-200 bg-white p-4"
+                  className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]"
                 >
                   <div className="mb-2 flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-gray-900">
+                    <h3 className="text-sm font-semibold text-foreground">
                       {instance.name}
                     </h3>
-                    <span className="text-lg font-bold text-amber-600">
+                    <span className="text-lg font-bold text-primary">
                       {pct}%
                     </span>
                   </div>
 
                   {/* Progress bar */}
-                  <div className="mb-3 flex h-2.5 overflow-hidden rounded-full bg-gray-100">
+                  <div className="mb-3 flex h-2.5 overflow-hidden rounded-full bg-muted">
                     {summary.total > 0 && (
                       <>
                         <div
@@ -175,7 +179,7 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
                           }}
                         />
                         <div
-                          className="bg-amber-400 transition-all"
+                          className="bg-primary transition-all"
                           style={{
                             width: `${(summary.practicing / summary.total) * 100}%`,
                           }}
@@ -199,8 +203,8 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
                           <span
                             className={`inline-block h-2 w-2 rounded-full ${config.dotColor}`}
                           />
-                          <span className="text-[10px] text-gray-600">
-                            {config.shortLabel}:{' '}
+                          <span className="text-[10px] text-muted-foreground">
+                            {config.shortLabel}:{" "}
                             <span className="font-semibold">
                               {summary[status]}
                             </span>
@@ -218,7 +222,7 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
 
       {/* Timeline */}
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-foreground">
           Learning Journey
         </h2>
         <PortfolioTimeline items={timelineItems} studentName={studentName} />

@@ -95,9 +95,9 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-wrap items-end gap-4 rounded-lg border border-gray-200 bg-white p-4">
+      <div className="flex flex-wrap items-end gap-[var(--density-card-padding)] rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
         <div className="min-w-[180px]">
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             Class
           </label>
           <select
@@ -115,7 +115,7 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             From
           </label>
           <input
@@ -127,7 +127,9 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700">To</label>
+          <label className="block text-xs font-medium text-foreground">
+            To
+          </label>
           <input
             type="date"
             value={endDate}
@@ -136,14 +138,14 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
           />
         </div>
 
-        <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
+        <label className="flex cursor-pointer items-center gap-2 rounded-lg borderborder-border px-3 py-2">
           <input
             type="checkbox"
             checked={unexplainedOnly}
             onChange={(e) => setUnexplainedOnly(e.target.checked)}
             className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
           />
-          <span className="text-sm text-gray-700">Unexplained only</span>
+          <span className="text-sm text-foreground">Unexplained only</span>
         </label>
       </div>
 
@@ -170,16 +172,16 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
 
       {/* Loading */}
       {loading && (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
+        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-amber-600" />
         </div>
       )}
 
       {/* Results */}
       {!loading && rows.length === 0 && (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
+        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
           <svg
-            className="mx-auto h-10 w-10 text-green-400"
+            className="mx-auto h-[var(--density-button-height)] w-10 text-green-400"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}
@@ -191,10 +193,10 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
               d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
             />
           </svg>
-          <p className="mt-3 text-sm font-medium text-gray-900">
+          <p className="mt-3 text-sm font-medium text-foreground">
             {unexplainedOnly ? "No unexplained absences" : "No absences found"}
           </p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             {unexplainedOnly
               ? "All absences in this period have been explained."
               : "No absent or late records for this date range."}
@@ -203,20 +205,20 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
       )}
 
       {!loading && rows.length > 0 && (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div className="overflow-hidden rounded-lg borderborder-border bg-background">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-background">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Student
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Date
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Notes
                 </th>
               </tr>
@@ -230,14 +232,14 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
                 return (
                   <tr
                     key={`${row.student.id}-${row.date}-${i}`}
-                    className="hover:bg-gray-50"
+                    className="hover:bg-background"
                   >
                     <td className="whitespace-nowrap px-4 py-3">
                       <Link
                         href={`/students/${row.student.id}`}
-                        className="flex items-center gap-2 text-sm font-medium text-gray-900 hover:text-amber-700"
+                        className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-amber-700"
                       >
-                        <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-gray-600">
+                        <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-muted-foreground">
                           {row.student.photo_url ? (
                             <img
                               src={row.student.photo_url}
@@ -251,7 +253,7 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
                         {displayName} {row.student.last_name}
                       </Link>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
                       {formatDate(row.date)}
                     </td>
                     <td className="px-4 py-3">
@@ -263,7 +265,7 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
                     </td>
                     <td className="px-4 py-3">
                       {row.notes ? (
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-muted-foreground">
                           {row.notes}
                         </span>
                       ) : (

@@ -89,17 +89,19 @@ export function MasteryPageClient({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-[var(--density-card-padding)] sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mastery Tracking</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">
+            Mastery Tracking
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Track student progress across curriculum outcomes
           </p>
         </div>
         {selectedStudentId && (
           <Link
             href={`/pedagogy/portfolio/${selectedStudentId}`}
-            className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-foreground hover:bg-background"
           >
             <svg
               className="h-4 w-4"
@@ -131,7 +133,7 @@ export function MasteryPageClient({
           <select
             value={selectedInstanceId}
             onChange={(e) => setSelectedInstanceId(e.target.value)}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="rounded-lg border border-gray-300 bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           >
             {instances.map((inst) => (
               <option key={inst.id} value={inst.id}>
@@ -143,7 +145,7 @@ export function MasteryPageClient({
 
         <Link
           href="/pedagogy/mastery/heatmap"
-          className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-foreground hover:bg-background"
         >
           <svg
             className="h-4 w-4"
@@ -165,13 +167,13 @@ export function MasteryPageClient({
       {/* Loading */}
       {isLoading && (
         <div className="flex items-center justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-amber-500" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4border-border border-t-amber-500" />
         </div>
       )}
 
       {/* Content */}
       {!isLoading && selectedStudentId && (
-        <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+        <div className="grid gap-[var(--density-card-padding)] lg:grid-cols-[1fr_300px]">
           {/* Main mastery grid */}
           <div>
             <MasteryGrid

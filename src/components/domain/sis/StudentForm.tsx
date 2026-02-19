@@ -1,40 +1,4 @@
 // src/components/domain/sis/StudentForm.tsx
-//
-// ============================================================
-// WattleOS V2 — Student Create/Edit Form (DESIGN SYSTEM MIGRATED)
-// ============================================================
-// MIGRATION CHANGES:
-// • Error banner: bg-red-50 text-red-700
-//   → bg-destructive/10 text-destructive
-// • Cards: border-gray-200 bg-white p-6
-//   → border-border bg-card p-[var(--density-card-padding)]
-// • Section headings: text-lg text-gray-900
-//   → text-[length:var(--text-lg)] text-foreground
-// • Labels: text-sm text-gray-700
-//   → text-[length:var(--text-sm)] text-foreground
-// • Required asterisk: text-red-500 → text-destructive
-// • Hint text: text-xs text-gray-500
-//   → text-[length:var(--text-xs)] text-muted-foreground
-// • All inputs: border-gray-300 px-4 py-2.5 text-sm
-//     placeholder:text-muted-foreground focus:border-ring focus:ring-ring
-//   → border-input bg-card px-4 py-2.5 text-[length:var(--text-sm)]
-//     text-foreground placeholder:text-muted-foreground
-//     focus:border-ring focus:ring-ring
-// • Disabled input: disabled:bg-gray-50 disabled:text-gray-500
-//   → disabled:bg-[var(--input-disabled-bg)] disabled:text-[var(--input-disabled-fg)]
-// • Primary btn: bg-amber-600 hover:bg-amber-700 text-white
-//     focus:ring-ring
-//   → bg-primary hover:bg-primary/90 text-primary-foreground
-//     focus:ring-ring
-// • Cancel link: border-gray-300 bg-white text-gray-700
-//     hover:bg-gray-50 focus:ring-ring
-//   → border-border bg-card text-foreground
-//     hover:bg-muted focus:ring-ring
-// • Section spacing: space-y-8 → space-y-[var(--density-section-gap)]
-// • Grid gaps: gap-6 → gap-[var(--density-md)]
-// • Section margin: mb-4 → mb-[var(--density-md)]
-// • Shadow: shadow-sm → shadow-[var(--shadow-xs)]
-// ============================================================
 
 "use client";
 
@@ -74,10 +38,10 @@ const GENDER_OPTIONS = [
 // Changing one token here changes every input in the form.
 
 const INPUT_CLASS =
-  "mt-1 block w-full rounded-lg border border-input bg-card px-4 py-2.5 text-[length:var(--text-sm)] text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring";
+  "mt-1 block w-full rounded-lg border border-input bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring";
 
 const SELECT_CLASS =
-  "mt-1 block w-full rounded-lg border border-input bg-card px-4 py-2.5 text-[length:var(--text-sm)] text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring";
+  "mt-1 block w-full rounded-lg border border-input bg-card px-4 py-2.5 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring";
 
 // ── Component ───────────────────────────────────────────────
 
@@ -167,16 +131,14 @@ export function StudentForm({
     >
       {/* Error banner */}
       {error && (
-        <div className="rounded-md bg-destructive/10 p-4">
-          <p className="text-[length:var(--text-sm)] text-destructive">
-            {error}
-          </p>
+        <div className="rounded-md bg-destructive/10 p-[var(--density-card-padding)]">
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
 
       {/* ── Section: Basic Information ───────────────────── */}
       <div className="rounded-lg border border-border bg-card p-[var(--density-card-padding)]">
-        <h2 className="mb-[var(--density-md)] text-[length:var(--text-lg)] font-semibold text-foreground">
+        <h2 className="mb-[var(--density-md)] text-lg font-semibold text-foreground">
           Basic Information
         </h2>
 
@@ -185,7 +147,7 @@ export function StudentForm({
           <div>
             <label
               htmlFor="firstName"
-              className="block text-[length:var(--text-sm)] font-medium text-foreground"
+              className="block text-sm font-medium text-foreground"
             >
               First Name <span className="text-destructive">*</span>
             </label>
@@ -204,7 +166,7 @@ export function StudentForm({
           <div>
             <label
               htmlFor="lastName"
-              className="block text-[length:var(--text-sm)] font-medium text-foreground"
+              className="block text-sm font-medium text-foreground"
             >
               Last Name <span className="text-destructive">*</span>
             </label>
@@ -223,7 +185,7 @@ export function StudentForm({
           <div>
             <label
               htmlFor="preferredName"
-              className="block text-[length:var(--text-sm)] font-medium text-foreground"
+              className="block text-sm font-medium text-foreground"
             >
               Preferred Name
             </label>
@@ -235,7 +197,7 @@ export function StudentForm({
               placeholder="e.g. Charlie"
               className={INPUT_CLASS}
             />
-            <p className="mt-1 text-[length:var(--text-xs)] text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground">
               The name the child goes by day-to-day, if different from their
               first name.
             </p>
@@ -245,7 +207,7 @@ export function StudentForm({
           <div>
             <label
               htmlFor="dob"
-              className="block text-[length:var(--text-sm)] font-medium text-foreground"
+              className="block text-sm font-medium text-foreground"
             >
               Date of Birth
             </label>
@@ -263,7 +225,7 @@ export function StudentForm({
           <div>
             <label
               htmlFor="gender"
-              className="block text-[length:var(--text-sm)] font-medium text-foreground"
+              className="block text-sm font-medium text-foreground"
             >
               Gender
             </label>
@@ -285,7 +247,7 @@ export function StudentForm({
           <div>
             <label
               htmlFor="enrollmentStatus"
-              className="block text-[length:var(--text-sm)] font-medium text-foreground"
+              className="block text-sm font-medium text-foreground"
             >
               Enrollment Status
             </label>
@@ -305,7 +267,7 @@ export function StudentForm({
               ))}
             </select>
             {!canManageEnrollment && (
-              <p className="mt-1 text-[length:var(--text-xs)] text-muted-foreground">
+              <p className="mt-1 text-xs text-muted-foreground">
                 You don&apos;t have permission to change enrollment status.
               </p>
             )}
@@ -315,7 +277,7 @@ export function StudentForm({
 
       {/* ── Section: Notes ───────────────────────────────── */}
       <div className="rounded-lg border border-border bg-card p-[var(--density-card-padding)]">
-        <h2 className="mb-[var(--density-md)] text-[length:var(--text-lg)] font-semibold text-foreground">
+        <h2 className="mb-[var(--density-md)] text-lg font-semibold text-foreground">
           Notes
         </h2>
         <textarea
@@ -324,7 +286,7 @@ export function StudentForm({
           onChange={(e) => setNotes(e.target.value)}
           rows={4}
           placeholder="Any additional notes about this student (dietary requirements, learning preferences, etc.)"
-          className="block w-full rounded-lg border border-input bg-card px-4 py-3 text-[length:var(--text-sm)] text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+          className="block w-full rounded-lg border border-input bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
         />
       </div>
 
@@ -332,14 +294,14 @@ export function StudentForm({
       <div className="flex items-center justify-end gap-3">
         <Link
           href={isEditing ? `/students/${initialData!.id}` : "/students"}
-          className="rounded-lg border border-border bg-card px-4 py-2.5 text-[length:var(--text-sm)] font-medium text-foreground shadow-[var(--shadow-xs)] hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          className="rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground shadow-[var(--shadow-xs)] hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         >
           Cancel
         </Link>
         <button
           type="submit"
           disabled={isSaving || !firstName.trim() || !lastName.trim()}
-          className="rounded-lg bg-primary px-6 py-2.5 text-[length:var(--text-sm)] font-medium text-primary-foreground shadow-[var(--shadow-xs)] hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-[var(--shadow-xs)] hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSaving
             ? isEditing

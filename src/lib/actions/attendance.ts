@@ -1,11 +1,11 @@
 // src/lib/actions/attendance.ts
 //
 // ============================================================
-// WattleOS V2 — Attendance Server Actions
+// WattleOS V2 - Attendance Server Actions
 // ============================================================
 // All attendance mutations and queries. Uses upsert pattern
 // for markAttendance since there's a UNIQUE(tenant_id, student_id, date)
-// constraint — marking the same student twice on the same day
+// constraint - marking the same student twice on the same day
 // updates the existing record rather than failing.
 //
 // WHY upsert: Roll call is a "tap to toggle" UI. The guide taps
@@ -14,13 +14,22 @@
 // if a record already exists.
 // ============================================================
 
-'use server';
+"use server";
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getTenantContext, requirePermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { ActionResponse, PaginatedResponse, success, failure } from '@/types/api';
-import type { AttendanceRecord, AttendanceStatus, Student } from '@/types/domain';
+import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  ActionResponse,
+  failure,
+  PaginatedResponse,
+  success,
+} from "@/types/api";
+import type {
+  AttendanceRecord,
+  AttendanceStatus,
+  Student,
+} from "@/types/domain";
 
 // ============================================================
 // Input Types
@@ -52,7 +61,10 @@ export interface BulkMarkAttendanceInput {
 
 /** Student row enriched with their attendance status for a given date */
 export interface StudentAttendanceRow {
-  student: Pick<Student, 'id' | 'first_name' | 'last_name' | 'preferred_name' | 'photo_url'>;
+  student: Pick<
+    Student,
+    "id" | "first_name" | "last_name" | "preferred_name" | "photo_url"
+  >;
   record: AttendanceRecord | null;
   /** Critical medical conditions surfaced in roll call */
   medicalAlerts: Array<{
@@ -74,7 +86,10 @@ export interface AttendanceDaySummary {
 
 /** Absence report row */
 export interface AbsenceReportRow {
-  student: Pick<Student, 'id' | 'first_name' | 'last_name' | 'preferred_name' | 'photo_url'>;
+  student: Pick<
+    Student,
+    "id" | "first_name" | "last_name" | "preferred_name" | "photo_url"
+  >;
   date: string;
   status: AttendanceStatus;
   notes: string | null;
@@ -86,19 +101,20 @@ export interface AbsenceReportRow {
 // ============================================================
 
 export async function markAttendance(
-  input: MarkAttendanceInput
+  input: MarkAttendanceInput,
 ): Promise<ActionResponse<AttendanceRecord>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_ATTENDANCE);
     const supabase = await createSupabaseServerClient();
 
-    if (!input.studentId) return failure('Student is required', 'VALIDATION_ERROR');
-    if (!input.date) return failure('Date is required', 'VALIDATION_ERROR');
-    if (!input.status) return failure('Status is required', 'VALIDATION_ERROR');
+    if (!input.studentId)
+      return failure("Student is required", "VALIDATION_ERROR");
+    if (!input.date) return failure("Date is required", "VALIDATION_ERROR");
+    if (!input.status) return failure("Status is required", "VALIDATION_ERROR");
 
     // Upsert: insert or update if record exists for this student+date
     const { data, error } = await supabase
-      .from('attendance_records')
+      .from("attendance_records")
       .upsert(
         {
           tenant_id: context.tenant.id,
@@ -113,20 +129,21 @@ export async function markAttendance(
           deleted_at: null, // un-soft-delete if re-marking
         },
         {
-          onConflict: 'tenant_id,student_id,date',
-        }
+          onConflict: "tenant_id,student_id,date",
+        },
       )
       .select()
       .single();
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     return success(data as AttendanceRecord);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to mark attendance';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to mark attendance";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -135,15 +152,16 @@ export async function markAttendance(
 // ============================================================
 
 export async function bulkMarkAttendance(
-  input: BulkMarkAttendanceInput
+  input: BulkMarkAttendanceInput,
 ): Promise<ActionResponse<{ marked: number; errors: number }>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_ATTENDANCE);
     const supabase = await createSupabaseServerClient();
 
-    if (!input.classId) return failure('Class is required', 'VALIDATION_ERROR');
-    if (!input.date) return failure('Date is required', 'VALIDATION_ERROR');
-    if (input.records.length === 0) return failure('No records to mark', 'VALIDATION_ERROR');
+    if (!input.classId) return failure("Class is required", "VALIDATION_ERROR");
+    if (!input.date) return failure("Date is required", "VALIDATION_ERROR");
+    if (input.records.length === 0)
+      return failure("No records to mark", "VALIDATION_ERROR");
 
     const rows = input.records.map((r) => ({
       tenant_id: context.tenant.id,
@@ -157,14 +175,14 @@ export async function bulkMarkAttendance(
     }));
 
     const { data, error } = await supabase
-      .from('attendance_records')
+      .from("attendance_records")
       .upsert(rows, {
-        onConflict: 'tenant_id,student_id,date',
+        onConflict: "tenant_id,student_id,date",
       })
       .select();
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     return success({
@@ -172,8 +190,9 @@ export async function bulkMarkAttendance(
       errors: input.records.length - (data?.length ?? 0),
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to bulk mark attendance';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to bulk mark attendance";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -186,7 +205,7 @@ export async function bulkMarkAttendance(
 
 export async function getClassAttendance(
   classId: string,
-  date: string
+  date: string,
 ): Promise<ActionResponse<StudentAttendanceRow[]>> {
   try {
     await requirePermission(Permissions.MANAGE_ATTENDANCE);
@@ -194,14 +213,16 @@ export async function getClassAttendance(
 
     // 1. Get active enrollments for this class
     const { data: enrollments, error: enrollError } = await supabase
-      .from('enrollments')
-      .select('student_id, student:students(id, first_name, last_name, preferred_name, photo_url)')
-      .eq('class_id', classId)
-      .eq('status', 'active')
-      .is('deleted_at', null);
+      .from("enrollments")
+      .select(
+        "student_id, student:students(id, first_name, last_name, preferred_name, photo_url)",
+      )
+      .eq("class_id", classId)
+      .eq("status", "active")
+      .is("deleted_at", null);
 
     if (enrollError) {
-      return failure(enrollError.message, 'DB_ERROR');
+      return failure(enrollError.message, "DB_ERROR");
     }
 
     const studentRows = (enrollments ?? [])
@@ -209,7 +230,7 @@ export async function getClassAttendance(
       .map((e) => {
         const student = (e as Record<string, unknown>).student as Pick<
           Student,
-          'id' | 'first_name' | 'last_name' | 'preferred_name' | 'photo_url'
+          "id" | "first_name" | "last_name" | "preferred_name" | "photo_url"
         >;
         return { studentId: e.student_id as string, student };
       });
@@ -222,14 +243,14 @@ export async function getClassAttendance(
 
     // 2. Get existing attendance records for these students on this date
     const { data: records, error: recError } = await supabase
-      .from('attendance_records')
-      .select('*')
-      .eq('date', date)
-      .in('student_id', studentIds)
-      .is('deleted_at', null);
+      .from("attendance_records")
+      .select("*")
+      .eq("date", date)
+      .in("student_id", studentIds)
+      .is("deleted_at", null);
 
     if (recError) {
-      return failure(recError.message, 'DB_ERROR');
+      return failure(recError.message, "DB_ERROR");
     }
 
     const recordMap = new Map<string, AttendanceRecord>();
@@ -239,14 +260,21 @@ export async function getClassAttendance(
 
     // 3. Get critical medical conditions (severe + life_threatening)
     const { data: medicals } = await supabase
-      .from('medical_conditions')
-      .select('student_id, condition_name, severity')
-      .in('student_id', studentIds)
-      .in('severity', ['severe', 'life_threatening'])
-      .is('deleted_at', null);
+      .from("medical_conditions")
+      .select("student_id, condition_name, severity")
+      .in("student_id", studentIds)
+      .in("severity", ["severe", "life_threatening"])
+      .is("deleted_at", null);
 
-    const medicalMap = new Map<string, Array<{ condition_name: string; severity: string }>>();
-    for (const m of (medicals ?? []) as Array<{ student_id: string; condition_name: string; severity: string }>) {
+    const medicalMap = new Map<
+      string,
+      Array<{ condition_name: string; severity: string }>
+    >();
+    for (const m of (medicals ?? []) as Array<{
+      student_id: string;
+      condition_name: string;
+      severity: string;
+    }>) {
       if (!medicalMap.has(m.student_id)) medicalMap.set(m.student_id, []);
       medicalMap.get(m.student_id)!.push({
         condition_name: m.condition_name,
@@ -261,14 +289,13 @@ export async function getClassAttendance(
         record: recordMap.get(s.studentId) ?? null,
         medicalAlerts: medicalMap.get(s.studentId) ?? [],
       }))
-      .sort((a, b) =>
-        a.student.last_name.localeCompare(b.student.last_name)
-      );
+      .sort((a, b) => a.student.last_name.localeCompare(b.student.last_name));
 
     return success(rows);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to get class attendance';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to get class attendance";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -293,26 +320,26 @@ export async function getStudentAttendanceHistory(params: {
     const to = from + perPage - 1;
 
     let countQuery = supabase
-      .from('attendance_records')
-      .select('*', { count: 'exact', head: true })
-      .eq('student_id', params.studentId)
-      .is('deleted_at', null);
+      .from("attendance_records")
+      .select("*", { count: "exact", head: true })
+      .eq("student_id", params.studentId)
+      .is("deleted_at", null);
 
     let dataQuery = supabase
-      .from('attendance_records')
-      .select('*')
-      .eq('student_id', params.studentId)
-      .is('deleted_at', null)
-      .order('date', { ascending: false })
+      .from("attendance_records")
+      .select("*")
+      .eq("student_id", params.studentId)
+      .is("deleted_at", null)
+      .order("date", { ascending: false })
       .range(from, to);
 
     if (params.startDate) {
-      countQuery = countQuery.gte('date', params.startDate);
-      dataQuery = dataQuery.gte('date', params.startDate);
+      countQuery = countQuery.gte("date", params.startDate);
+      dataQuery = dataQuery.gte("date", params.startDate);
     }
     if (params.endDate) {
-      countQuery = countQuery.lte('date', params.endDate);
-      dataQuery = dataQuery.lte('date', params.endDate);
+      countQuery = countQuery.lte("date", params.endDate);
+      dataQuery = dataQuery.lte("date", params.endDate);
     }
 
     const { count, error: countError } = await countQuery;
@@ -320,7 +347,7 @@ export async function getStudentAttendanceHistory(params: {
       return {
         data: [],
         pagination: { total: 0, page, per_page: perPage, total_pages: 0 },
-        error: { message: countError.message, code: 'DB_ERROR' },
+        error: { message: countError.message, code: "DB_ERROR" },
       };
     }
 
@@ -329,7 +356,7 @@ export async function getStudentAttendanceHistory(params: {
       return {
         data: [],
         pagination: { total: 0, page, per_page: perPage, total_pages: 0 },
-        error: { message: dataError.message, code: 'DB_ERROR' },
+        error: { message: dataError.message, code: "DB_ERROR" },
       };
     }
 
@@ -344,11 +371,12 @@ export async function getStudentAttendanceHistory(params: {
       error: null,
     };
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to get attendance history';
+    const message =
+      err instanceof Error ? err.message : "Failed to get attendance history";
     return {
       data: [],
       pagination: { total: 0, page: 1, per_page: 30, total_pages: 0 },
-      error: { message, code: 'UNEXPECTED_ERROR' },
+      error: { message, code: "UNEXPECTED_ERROR" },
     };
   }
 }
@@ -367,59 +395,63 @@ export async function getAttendanceSummary(params: {
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
-      .from('attendance_records')
-      .select('date, status')
-      .eq('class_id', params.classId)
-      .gte('date', params.startDate)
-      .lte('date', params.endDate)
-      .is('deleted_at', null);
+      .from("attendance_records")
+      .select("date, status")
+      .eq("class_id", params.classId)
+      .gte("date", params.startDate)
+      .lte("date", params.endDate)
+      .is("deleted_at", null);
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     // Aggregate by date
     const dayMap = new Map<string, AttendanceDaySummary>();
 
-    type AttendanceCountKey = Exclude<keyof AttendanceDaySummary, "date" | "total">;
+    type AttendanceCountKey = Exclude<
+      keyof AttendanceDaySummary,
+      "date" | "total"
+    >;
 
-const isAttendanceCountKey = (v: string): v is AttendanceCountKey =>
-  v === "present" ||
-  v === "absent" ||
-  v === "late" ||
-  v === "excused" ||
-  v === "half_day";
+    const isAttendanceCountKey = (v: string): v is AttendanceCountKey =>
+      v === "present" ||
+      v === "absent" ||
+      v === "late" ||
+      v === "excused" ||
+      v === "half_day";
 
     for (const row of (data ?? []) as Array<{ date: string; status: string }>) {
-  if (!dayMap.has(row.date)) {
-    dayMap.set(row.date, {
-      date: row.date,
-      total: 0,
-      present: 0,
-      absent: 0,
-      late: 0,
-      excused: 0,
-      half_day: 0,
-    });
-  }
+      if (!dayMap.has(row.date)) {
+        dayMap.set(row.date, {
+          date: row.date,
+          total: 0,
+          present: 0,
+          absent: 0,
+          late: 0,
+          excused: 0,
+          half_day: 0,
+        });
+      }
 
-  const summary = dayMap.get(row.date)!;
-  summary.total += 1;
+      const summary = dayMap.get(row.date)!;
+      summary.total += 1;
 
-  if (isAttendanceCountKey(row.status)) {
-    summary[row.status] += 1;
-  }
-}
+      if (isAttendanceCountKey(row.status)) {
+        summary[row.status] += 1;
+      }
+    }
 
     // Sort by date descending
-    const summaries = Array.from(dayMap.values()).sort(
-      (a, b) => b.date.localeCompare(a.date)
+    const summaries = Array.from(dayMap.values()).sort((a, b) =>
+      b.date.localeCompare(a.date),
     );
 
     return success(summaries);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to get attendance summary';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to get attendance summary";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -438,28 +470,35 @@ export async function getAbsenceReport(params: {
     const supabase = await createSupabaseServerClient();
 
     let query = supabase
-      .from('attendance_records')
-      .select('*, student:students(id, first_name, last_name, preferred_name, photo_url)')
-      .in('status', ['absent', 'late'])
-      .gte('date', params.startDate)
-      .lte('date', params.endDate)
-      .is('deleted_at', null)
-      .order('date', { ascending: false });
+      .from("attendance_records")
+      .select(
+        "*, student:students(id, first_name, last_name, preferred_name, photo_url)",
+      )
+      .in("status", ["absent", "late"])
+      .gte("date", params.startDate)
+      .lte("date", params.endDate)
+      .is("deleted_at", null)
+      .order("date", { ascending: false });
 
     if (params.classId) {
-      query = query.eq('class_id', params.classId);
+      query = query.eq("class_id", params.classId);
     }
 
     const { data, error } = await query;
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
-    let rows: AbsenceReportRow[] = ((data ?? []) as Array<Record<string, unknown>>)
+    let rows: AbsenceReportRow[] = (
+      (data ?? []) as Array<Record<string, unknown>>
+    )
       .filter((r) => r.student)
       .map((r) => ({
-        student: r.student as Pick<Student, 'id' | 'first_name' | 'last_name' | 'preferred_name' | 'photo_url'>,
+        student: r.student as Pick<
+          Student,
+          "id" | "first_name" | "last_name" | "preferred_name" | "photo_url"
+        >,
         date: r.date as string,
         status: r.status as AttendanceStatus,
         notes: (r.notes as string) ?? null,
@@ -472,8 +511,9 @@ export async function getAbsenceReport(params: {
 
     return success(rows);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to get absence report';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to get absence report";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -483,19 +523,19 @@ export async function getAbsenceReport(params: {
 
 export async function checkInStudent(
   studentId: string,
-  date: string
+  date: string,
 ): Promise<ActionResponse<AttendanceRecord>> {
   return markAttendance({
     studentId,
     date,
-    status: 'present',
+    status: "present",
     checkInAt: new Date().toISOString(),
   });
 }
 
 export async function checkOutStudent(
   studentId: string,
-  date: string
+  date: string,
 ): Promise<ActionResponse<AttendanceRecord>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_ATTENDANCE);
@@ -503,34 +543,38 @@ export async function checkOutStudent(
 
     // Find existing record for today
     const { data: existing, error: findError } = await supabase
-      .from('attendance_records')
-      .select('*')
-      .eq('student_id', studentId)
-      .eq('date', date)
-      .is('deleted_at', null)
+      .from("attendance_records")
+      .select("*")
+      .eq("student_id", studentId)
+      .eq("date", date)
+      .is("deleted_at", null)
       .single();
 
     if (findError || !existing) {
-      return failure('No attendance record found for this student today', 'NOT_FOUND');
+      return failure(
+        "No attendance record found for this student today",
+        "NOT_FOUND",
+      );
     }
 
     const { data, error } = await supabase
-      .from('attendance_records')
+      .from("attendance_records")
       .update({
         check_out_at: new Date().toISOString(),
         recorded_by: context.user.id,
       })
-      .eq('id', (existing as AttendanceRecord).id)
+      .eq("id", (existing as AttendanceRecord).id)
       .select()
       .single();
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     return success(data as AttendanceRecord);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to check out student';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to check out student";
+    return failure(message, "UNEXPECTED_ERROR");
   }
-} 
+}

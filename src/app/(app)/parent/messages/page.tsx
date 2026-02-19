@@ -9,10 +9,9 @@
 // threads they're recipients of (enforced by RLS).
 // ============================================================
 
-import { getTenantContext } from '@/lib/auth/tenant-context';
-import { getInbox } from '@/lib/actions/messaging';
-import Link from 'next/link';
-import { ParentInboxClient } from '@/components/domain/comms/parent-inbox-client';
+import { ParentInboxClient } from "@/components/domain/comms/parent-inbox-client";
+import { getInbox } from "@/lib/actions/comms/messaging";
+import { getTenantContext } from "@/lib/auth/tenant-context";
 
 export default async function ParentMessagesPage() {
   const context = await getTenantContext();
@@ -23,8 +22,8 @@ export default async function ParentMessagesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Messages</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold text-foreground">Messages</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Conversations with your child&apos;s guides
         </p>
       </div>

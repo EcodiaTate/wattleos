@@ -169,9 +169,9 @@ export function TemplateBuilder({
   return (
     <div className="space-y-6">
       {/* Toolbar */}
-      <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
+      <div className="flex items-center justify-between rounded-lg borderborder-border bg-background px-4 py-3">
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-muted-foreground">
             {sections.length} section{sections.length !== 1 ? "s" : ""}
           </span>
           {hasChanges && (
@@ -188,14 +188,14 @@ export function TemplateBuilder({
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowCatalog(!showCatalog)}
-            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            className="rounded-md border border-gray-300 bg-background px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-background"
           >
             + Add Section
           </button>
           <button
             onClick={handleSave}
             disabled={isSaving || !hasChanges}
-            className="rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-amber-700 disabled:opacity-50"
           >
             {isSaving ? "Saving..." : "Save Template"}
           </button>
@@ -211,20 +211,20 @@ export function TemplateBuilder({
 
       {/* Section catalog (add panel) */}
       {showCatalog && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-[var(--density-card-padding)]">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-gray-900">
+            <h3 className="text-sm font-semibold text-foreground">
               Add a Section
             </h3>
             <button
               onClick={() => setShowCatalog(false)}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-muted-foreground hover:text-foreground"
             >
               Close
             </button>
           </div>
           {availableSections.length === 0 ? (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               All single-use section types are already in the template.
             </p>
           ) : (
@@ -233,18 +233,18 @@ export function TemplateBuilder({
                 <button
                   key={info.type}
                   onClick={() => addSection(info.type)}
-                  className="rounded-md border border-amber-200 bg-white p-3 text-left transition-all hover:border-amber-400 hover:shadow-sm"
+                  className="rounded-md border border-amber-200 bg-background p-3 text-left transition-all hover:border-primary hover:shadow-sm"
                 >
                   <div className="flex items-center gap-2">
                     <SectionIcon
                       type={info.type}
-                      className="h-4 w-4 text-amber-600"
+                      className="h-4 w-4 text-primary"
                     />
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-foreground">
                       {info.label}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {info.description}
                   </p>
                   <div className="mt-2 flex gap-1">
@@ -269,7 +269,7 @@ export function TemplateBuilder({
       {/* Section list */}
       {sections.length === 0 ? (
         <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             No sections yet. Click &ldquo;Add Section&rdquo; to start building
             your template.
           </p>
@@ -336,8 +336,8 @@ function SectionCard({
 
   return (
     <div
-      className={`rounded-lg border bg-white transition-shadow ${
-        isExpanded ? "border-amber-300 shadow-sm" : "border-gray-200"
+      className={`rounded-lg border bg-background transition-shadow ${
+        isExpanded ? "border-amber-300 shadow-sm" : "border-border"
       }`}
     >
       {/* Header */}
@@ -347,7 +347,7 @@ function SectionCard({
           <button
             onClick={onMoveUp}
             disabled={index === 0}
-            className="rounded p-0.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:opacity-30"
+            className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-muted-foreground disabled:opacity-30"
             aria-label="Move section up"
           >
             <svg
@@ -367,7 +367,7 @@ function SectionCard({
           <button
             onClick={onMoveDown}
             disabled={index === totalSections - 1}
-            className="rounded p-0.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:opacity-30"
+            className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-muted-foreground disabled:opacity-30"
             aria-label="Move section down"
           >
             <svg
@@ -387,23 +387,23 @@ function SectionCard({
         </div>
 
         {/* Section number */}
-        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-500">
+        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
           {index + 1}
         </span>
 
         {/* Icon + title */}
         <SectionIcon
           type={section.type}
-          className="h-4 w-4 flex-shrink-0 text-gray-400"
+          className="h-4 w-4 flex-shrink-0 text-muted-foreground"
         />
         <button
           onClick={onToggleExpand}
           className="flex min-w-0 flex-1 items-center gap-2 text-left"
         >
-          <span className="truncate text-sm font-medium text-gray-900">
+          <span className="truncate text-sm font-medium text-foreground">
             {section.title}
           </span>
-          <span className="flex-shrink-0 text-xs text-gray-400">
+          <span className="flex-shrink-0 text-xs text-muted-foreground">
             {info?.label !== section.title ? `(${info?.label})` : ""}
           </span>
         </button>
@@ -425,7 +425,7 @@ function SectionCard({
         {/* Expand toggle */}
         <button
           onClick={onToggleExpand}
-          className="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-muted-foreground"
         >
           <svg
             className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
@@ -445,7 +445,7 @@ function SectionCard({
         {/* Remove */}
         <button
           onClick={onRemove}
-          className="rounded p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+          className="rounded p-1 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600"
           aria-label="Remove section"
         >
           <svg
@@ -499,7 +499,7 @@ function SectionConfigPanel({
     <div className="space-y-4">
       {/* Section title (always editable) */}
       <div>
-        <label className="block text-xs font-medium text-gray-600">
+        <label className="block text-xs font-medium text-muted-foreground">
           Section Heading
         </label>
         <input
@@ -515,7 +515,7 @@ function SectionConfigPanel({
         section.type === "mastery_summary") && (
         <>
           <div>
-            <label className="block text-xs font-medium text-gray-600">
+            <label className="block text-xs font-medium text-muted-foreground">
               Curriculum Area Filter
             </label>
             <input
@@ -530,14 +530,14 @@ function SectionConfigPanel({
               placeholder="all (or enter an area name)"
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-muted-foreground">
               Enter &ldquo;all&rdquo; for all areas, or a specific area name
               like &ldquo;Practical Life&rdquo;
             </p>
           </div>
           {section.type === "mastery_summary" && (
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Display Mode
               </label>
               <select
@@ -564,7 +564,7 @@ function SectionConfigPanel({
 
       {section.type === "observation_highlights" && (
         <div>
-          <label className="block text-xs font-medium text-gray-600">
+          <label className="block text-xs font-medium text-muted-foreground">
             Max Observations
           </label>
           <input
@@ -580,7 +580,7 @@ function SectionConfigPanel({
             }
             className="mt-1 block w-24 rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           />
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-muted-foreground">
             Number of recent published observations to include
           </p>
         </div>
@@ -599,7 +599,7 @@ function SectionConfigPanel({
           />
           <label
             htmlFor={`showDetails-${section.id}`}
-            className="text-xs text-gray-600"
+            className="text-xs text-muted-foreground"
           >
             Show daily breakdown (in addition to totals)
           </label>
@@ -611,7 +611,7 @@ function SectionConfigPanel({
         section.type === "goals") && (
         <>
           <div>
-            <label className="block text-xs font-medium text-gray-600">
+            <label className="block text-xs font-medium text-muted-foreground">
               Placeholder Text
             </label>
             <textarea
@@ -625,7 +625,7 @@ function SectionConfigPanel({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600">
+            <label className="block text-xs font-medium text-muted-foreground">
               Suggested Minimum Words
             </label>
             <input
@@ -640,7 +640,7 @@ function SectionConfigPanel({
               }
               className="mt-1 block w-24 rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-muted-foreground">
               Guidance only - not enforced. Set to 0 to disable.
             </p>
           </div>
@@ -648,7 +648,7 @@ function SectionConfigPanel({
       )}
 
       {section.type === "student_info" && (
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-muted-foreground">
           This section automatically shows the student&apos;s name, class, date
           of birth, and photo. No configuration needed.
         </p>

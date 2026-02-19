@@ -8,8 +8,8 @@
 // status and Stripe hosted payment links.
 // ============================================================
 
-import { getParentInvoices } from '@/lib/actions/billing';
-import { ParentBillingClient } from '@/components/domain/billing/parent-billing-client';
+import { ParentBillingClient } from "@/components/domain/billing/parent-billing-client";
+import { getParentInvoices } from "@/lib/actions/billing";
 
 export default async function ParentBillingPage() {
   const result = await getParentInvoices();
@@ -18,8 +18,8 @@ export default async function ParentBillingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Billing</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold text-foreground">Billing</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           View your invoices and payment history.
         </p>
       </div>

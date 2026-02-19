@@ -58,16 +58,18 @@ export function ContactInfoForm({
   if (!isEditing) {
     return (
       <div className="mt-2 flex items-center gap-3">
-        <div className="text-sm text-gray-700">
+        <div className="text-sm text-foreground">
           {savedPhone ? (
             <span>📞 {savedPhone}</span>
           ) : (
-            <span className="italic text-gray-400">No phone number set</span>
+            <span className="italic text-muted-foreground">
+              No phone number set
+            </span>
           )}
         </div>
         <button
           onClick={() => setIsEditing(true)}
-          className="text-xs font-medium text-amber-600 hover:text-amber-700"
+          className="text-xs font-medium text-primary hover:text-amber-700"
         >
           Edit
         </button>
@@ -90,14 +92,14 @@ export function ContactInfoForm({
         <button
           onClick={handleSave}
           disabled={isPending}
-          className="rounded-md bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+          className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
         >
           {isPending ? "Saving..." : "Save"}
         </button>
         <button
           onClick={handleCancel}
           disabled={isPending}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-background"
         >
           Cancel
         </button>

@@ -1,10 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import type { MasteryStatus } from '@/types/domain';
-import type { ClassHeatmapRow } from '@/lib/actions/mastery';
-import type { CurriculumTreeNode } from '@/lib/utils/curriculum-tree';
-import { MASTERY_STATUS_CONFIG, MASTERY_STATUS_ORDER } from '@/lib/utils/mastery-status';
+import type { ClassHeatmapRow } from "@/lib/actions/mastery";
+import type { CurriculumTreeNode } from "@/lib/utils/curriculum-tree";
+import {
+  MASTERY_STATUS_CONFIG,
+  MASTERY_STATUS_ORDER,
+} from "@/lib/utils/mastery-status";
+import type { MasteryStatus } from "@/types/domain";
+import { useState } from "react";
 
 // ============================================================
 // Props
@@ -20,7 +23,7 @@ interface ClassHeatmapProps {
 // ============================================================
 export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
   const [selectedArea, setSelectedArea] = useState<string | null>(
-    tree.length > 0 ? tree[0].id : null
+    tree.length > 0 ? tree[0].id : null,
   );
   const [hoveredCell, setHoveredCell] = useState<{
     studentName: string;
@@ -35,7 +38,7 @@ export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
   if (selectedAreaNode) {
     for (const strand of selectedAreaNode.children) {
       for (const outcome of strand.children) {
-        if (outcome.level === 'outcome') {
+        if (outcome.level === "outcome") {
           outcomes.push({
             id: outcome.id,
             title: outcome.title,
@@ -56,8 +59,8 @@ export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
             onClick={() => setSelectedArea(area.id)}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
               selectedArea === area.id
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? "bg-purple-600 text-primary-foreground"
+                : "bg-muted text-foreground hover:bg-gray-200"
             }`}
           >
             {area.title}
@@ -66,7 +69,7 @@ export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-[var(--density-card-padding)]">
         {MASTERY_STATUS_ORDER.map((status) => {
           const config = MASTERY_STATUS_CONFIG[status];
           return (
@@ -75,7 +78,9 @@ export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
                 className="inline-block h-3 w-3 rounded-sm"
                 style={{ backgroundColor: config.heatmapColor }}
               />
-              <span className="text-xs text-gray-600">{config.label}</span>
+              <span className="text-xs text-muted-foreground">
+                {config.label}
+              </span>
             </div>
           );
         })}
@@ -83,11 +88,13 @@ export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
 
       {/* Hover tooltip */}
       {hoveredCell && (
-        <div className="rounded-md border border-gray-200 bg-white px-3 py-2 text-xs shadow-sm">
+        <div className="rounded-md borderborder-border bg-background px-3 py-2 text-xs shadow-sm">
           <span className="font-semibold">{hoveredCell.studentName}</span>
-          {' - '}
-          <span className="text-gray-600">{hoveredCell.outcomeName}</span>
-          {' - '}
+          {" - "}
+          <span className="text-muted-foreground">
+            {hoveredCell.outcomeName}
+          </span>
+          {" - "}
           <span className={MASTERY_STATUS_CONFIG[hoveredCell.status].color}>
             {MASTERY_STATUS_CONFIG[hoveredCell.status].label}
           </span>
@@ -96,29 +103,29 @@ export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
 
       {/* Heatmap grid */}
       {outcomes.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
+        <div className="rounded-lg borderborder-border bg-background p-8 text-center text-sm text-muted-foreground">
           Select an area to view the heatmap.
         </div>
       ) : rows.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
+        <div className="rounded-lg borderborder-border bg-background p-8 text-center text-sm text-muted-foreground">
           No students to display. Add students to this class first.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+        <div className="overflow-x-auto rounded-lg borderborder-border bg-background">
           <table className="min-w-full">
             <thead>
               <tr>
-                <th className="sticky left-0 z-10 border-b border-r border-gray-200 bg-gray-50 px-3 py-2 text-left text-xs font-semibold text-gray-700">
+                <th className="sticky left-0 z-10 border-b border-rborder-border bg-background px-3 py-2 text-left text-xs font-semibold text-foreground">
                   Student
                 </th>
                 {outcomes.map((outcome) => (
                   <th
                     key={outcome.id}
-                    className="border-b border-gray-200 px-1 py-2 text-center"
+                    className="border-bborder-border px-1 py-2 text-center"
                     title={`${outcome.strandTitle} → ${outcome.title}`}
                   >
                     <div className="w-8">
-                      <span className="block truncate text-[9px] font-normal text-gray-500">
+                      <span className="block truncate text-[9px] font-normal text-muted-foreground">
                         {abbreviate(outcome.title)}
                       </span>
                     </div>
@@ -128,13 +135,13 @@ export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row.student_id} className="hover:bg-gray-50">
-                  <td className="sticky left-0 z-10 border-r border-gray-100 bg-white px-3 py-1.5 text-xs font-medium text-gray-900">
+                <tr key={row.student_id} className="hover:bg-background">
+                  <td className="sticky left-0 z-10 border-r border-gray-100 bg-background px-3 py-1.5 text-xs font-medium text-foreground">
                     {row.student_first_name} {row.student_last_name}
                   </td>
                   {outcomes.map((outcome) => {
                     const status: MasteryStatus =
-                      row.statuses[outcome.id] ?? 'not_started';
+                      row.statuses[outcome.id] ?? "not_started";
                     const config = MASTERY_STATUS_CONFIG[status];
                     return (
                       <td
@@ -173,7 +180,7 @@ export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
 function abbreviate(title: string): string {
   if (title.length <= 8) return title;
   // Take first word, or first 6 chars
-  const words = title.split(' ');
+  const words = title.split(" ");
   if (words[0].length <= 8) return words[0];
-  return title.slice(0, 6) + '…';
+  return title.slice(0, 6) + "…";
 }

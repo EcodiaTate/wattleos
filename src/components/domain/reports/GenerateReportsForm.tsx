@@ -161,10 +161,10 @@ export function GenerateReportsForm({
   // ── Result screen ───────────────────────────────────────
   if (result) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-8">
+      <div className="rounded-lg borderborder-border bg-background p-8">
         <div className="mx-auto max-w-md text-center">
           {result.generated > 0 ? (
-            <div className="mb-4 flex h-12 w-12 mx-auto items-center justify-center rounded-full bg-green-100">
+            <div className="mb-4 flex h-[var(--density-button-height)] w-12 mx-auto items-center justify-center rounded-full bg-green-100">
               <svg
                 className="h-6 w-6 text-green-600"
                 fill="none"
@@ -180,9 +180,9 @@ export function GenerateReportsForm({
               </svg>
             </div>
           ) : (
-            <div className="mb-4 flex h-12 w-12 mx-auto items-center justify-center rounded-full bg-amber-100">
+            <div className="mb-4 flex h-[var(--density-button-height)] w-12 mx-auto items-center justify-center rounded-full bg-amber-100">
               <svg
-                className="h-6 w-6 text-amber-600"
+                className="h-6 w-6 text-primary"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={2}
@@ -197,7 +197,7 @@ export function GenerateReportsForm({
             </div>
           )}
 
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-foreground">
             Generation Complete
           </h2>
 
@@ -237,7 +237,7 @@ export function GenerateReportsForm({
                 setResult(null);
                 setSelectedStudentIds(new Set());
               }}
-              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-md border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
             >
               Generate More
             </button>
@@ -245,7 +245,7 @@ export function GenerateReportsForm({
               onClick={() =>
                 router.push(`/reports?term=${encodeURIComponent(term)}`)
               }
-              className="rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700"
             >
               View Reports
             </button>
@@ -259,11 +259,11 @@ export function GenerateReportsForm({
   return (
     <div className="space-y-6">
       {/* Step 1: Template */}
-      <div className="rounded-lg border border-gray-200 bg-white p-5">
-        <h2 className="text-sm font-semibold text-gray-900">
+      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+        <h2 className="text-sm font-semibold text-foreground">
           1. Choose a Template
         </h2>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           The template determines what sections appear in each report.
         </p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -273,12 +273,12 @@ export function GenerateReportsForm({
               onClick={() => setSelectedTemplateId(t.id)}
               className={`rounded-md border p-3 text-left transition-all ${
                 selectedTemplateId === t.id
-                  ? "border-amber-400 bg-amber-50 ring-1 ring-amber-400"
-                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  ? "border-primary bg-amber-50 ring-1 ring-primary"
+                  : "border-border hover:border-gray-300 hover:bg-background"
               }`}
             >
-              <p className="text-sm font-medium text-gray-900">{t.name}</p>
-              <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+              <p className="text-sm font-medium text-foreground">{t.name}</p>
+              <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                 {t.cycleLevel && <span>{t.cycleLevel}</span>}
                 <span>{t.sectionCount} sections</span>
               </div>
@@ -288,11 +288,11 @@ export function GenerateReportsForm({
       </div>
 
       {/* Step 2: Students */}
-      <div className="rounded-lg border border-gray-200 bg-white p-5">
-        <h2 className="text-sm font-semibold text-gray-900">
+      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+        <h2 className="text-sm font-semibold text-foreground">
           2. Select Students
         </h2>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           Pick a class to load its students, then select which ones to generate
           reports for.
         </p>
@@ -317,7 +317,9 @@ export function GenerateReportsForm({
 
         {/* Student list */}
         {isLoadingStudents && (
-          <div className="mt-4 text-sm text-gray-500">Loading students...</div>
+          <div className="mt-4 text-sm text-muted-foreground">
+            Loading students...
+          </div>
         )}
 
         {!isLoadingStudents && students.length > 0 && (
@@ -325,13 +327,13 @@ export function GenerateReportsForm({
             <div className="mb-2 flex items-center justify-between">
               <button
                 onClick={toggleAllStudents}
-                className="text-xs font-medium text-amber-600 hover:text-amber-700"
+                className="text-xs font-medium text-primary hover:text-amber-700"
               >
                 {selectedStudentIds.size === students.length
                   ? "Deselect All"
                   : "Select All"}
               </button>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-muted-foreground">
                 {selectedStudentIds.size} of {students.length} selected
               </span>
             </div>
@@ -345,19 +347,19 @@ export function GenerateReportsForm({
                     className={`flex items-center gap-2 rounded-md border px-3 py-2 text-left text-sm transition-all ${
                       isSelected
                         ? "border-amber-300 bg-amber-50"
-                        : "border-gray-200 text-gray-500 hover:border-gray-300"
+                        : "border-border text-muted-foreground hover:border-gray-300"
                     }`}
                   >
                     <div
                       className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border ${
                         isSelected
-                          ? "border-amber-500 bg-amber-500"
+                          ? "border-primary bg-primary"
                           : "border-gray-300"
                       }`}
                     >
                       {isSelected && (
                         <svg
-                          className="h-3 w-3 text-white"
+                          className="h-3 w-3 text-primary-foreground"
                           fill="none"
                           viewBox="0 0 24 24"
                           strokeWidth={3}
@@ -378,13 +380,13 @@ export function GenerateReportsForm({
                         className="h-6 w-6 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-[10px] font-medium text-gray-500">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
                         {student.first_name?.[0]}
                         {student.last_name?.[0]}
                       </div>
                     )}
                     <span
-                      className={`truncate ${isSelected ? "text-gray-900" : ""}`}
+                      className={`truncate ${isSelected ? "text-foreground" : ""}`}
                     >
                       {student.preferred_name ?? student.first_name}{" "}
                       {student.last_name}
@@ -397,24 +399,24 @@ export function GenerateReportsForm({
         )}
 
         {!isLoadingStudents && selectedClassId && students.length === 0 && (
-          <p className="mt-4 text-sm text-gray-500">
+          <p className="mt-4 text-sm text-muted-foreground">
             No active students in this class.
           </p>
         )}
       </div>
 
       {/* Step 3: Term & Period */}
-      <div className="rounded-lg border border-gray-200 bg-white p-5">
-        <h2 className="text-sm font-semibold text-gray-900">
+      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+        <h2 className="text-sm font-semibold text-foreground">
           3. Reporting Period
         </h2>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           Set the term label and date range. Auto-populated data (attendance,
           observations) will be pulled from this period.
         </p>
-        <div className="mt-3 grid gap-4 sm:grid-cols-3">
+        <div className="mt-3 grid gap-[var(--density-card-padding)] sm:grid-cols-3">
           <div>
-            <label className="block text-xs font-medium text-gray-600">
+            <label className="block text-xs font-medium text-muted-foreground">
               Term Label <span className="text-red-500">*</span>
             </label>
             <input
@@ -426,7 +428,7 @@ export function GenerateReportsForm({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600">
+            <label className="block text-xs font-medium text-muted-foreground">
               Period Start <span className="text-red-500">*</span>
             </label>
             <input
@@ -437,7 +439,7 @@ export function GenerateReportsForm({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600">
+            <label className="block text-xs font-medium text-muted-foreground">
               Period End <span className="text-red-500">*</span>
             </label>
             <input
@@ -458,12 +460,12 @@ export function GenerateReportsForm({
       )}
 
       {/* Generate button */}
-      <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-5 py-4">
-        <div className="text-sm text-gray-500">
+      <div className="flex items-center justify-between rounded-lg borderborder-border bg-background px-5 py-4">
+        <div className="text-sm text-muted-foreground">
           {selectedStudentIds.size > 0 ? (
             <>
               Ready to generate{" "}
-              <span className="font-medium text-gray-900">
+              <span className="font-medium text-foreground">
                 {selectedStudentIds.size}
               </span>{" "}
               report{selectedStudentIds.size !== 1 ? "s" : ""}
@@ -471,7 +473,7 @@ export function GenerateReportsForm({
                 <>
                   {" "}
                   using{" "}
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-foreground">
                     {templates.find((t) => t.id === selectedTemplateId)?.name}
                   </span>
                 </>
@@ -484,7 +486,7 @@ export function GenerateReportsForm({
         <button
           onClick={handleGenerate}
           disabled={!isValid || isGenerating}
-          className="rounded-md bg-amber-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+          className="rounded-md bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-amber-700 disabled:opacity-50"
         >
           {isGenerating
             ? `Generating ${selectedStudentIds.size} report${selectedStudentIds.size !== 1 ? "s" : ""}...`

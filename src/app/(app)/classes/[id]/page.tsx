@@ -50,34 +50,34 @@ export default async function ClassDetailPage({
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/classes" className="hover:text-gray-700">
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/classes" className="hover:text-foreground">
           Classes
         </Link>
         <span>/</span>
-        <span className="text-gray-900">{classData.name}</span>
+        <span className="text-foreground">{classData.name}</span>
       </nav>
 
       {/* ── Class Header ─────────────────────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold text-gray-900">
+              <h1 className="text-2xl font-semibold text-foreground">
                 {classData.name}
               </h1>
               <span
                 className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                   classData.is_active
                     ? "bg-green-50 text-green-700"
-                    : "bg-gray-100 text-gray-600"
+                    : "bg-muted text-muted-foreground"
                 }`}
               >
                 {classData.is_active ? "Active" : "Inactive"}
               </span>
             </div>
 
-            <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
+            <div className="mt-2 flex flex-wrap gap-[var(--density-card-padding)] text-sm text-muted-foreground">
               {classData.cycle_level && (
                 <span className="flex items-center gap-1">
                   <svg
@@ -137,7 +137,7 @@ export default async function ClassDetailPage({
           {(canManageEnrollment || canManageStudents) && (
             <Link
               href={`/classes/${id}/edit`}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              className="rounded-lg border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
               Edit Class
             </Link>
@@ -146,15 +146,15 @@ export default async function ClassDetailPage({
       </div>
 
       {/* ── Student Roster ───────────────────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-white">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+      <div className="rounded-lg borderborder-border bg-background">
+        <div className="flex items-center justify-between border-bborder-border px-6 py-4">
+          <h2 className="text-lg font-semibold text-foreground">
             Student Roster
           </h2>
           {canManageEnrollment && (
             <Link
               href={`/classes/${id}/enroll`}
-              className="inline-flex items-center rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
               + Enroll Student
             </Link>
@@ -164,7 +164,7 @@ export default async function ClassDetailPage({
         {roster.length === 0 ? (
           <div className="p-12 text-center">
             <svg
-              className="mx-auto h-12 w-12 text-gray-300"
+              className="mx-auto h-[var(--density-button-height)] w-12 text-gray-300"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -176,13 +176,13 @@ export default async function ClassDetailPage({
                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
               />
             </svg>
-            <p className="mt-3 text-sm text-gray-500">
+            <p className="mt-3 text-sm text-muted-foreground">
               No students enrolled in this class yet.
             </p>
             {canManageEnrollment && (
               <Link
                 href={`/classes/${id}/enroll`}
-                className="mt-4 inline-flex items-center text-sm font-medium text-amber-600 hover:text-amber-700"
+                className="mt-4 inline-flex items-center text-sm font-medium text-primary hover:text-amber-700"
               >
                 Enroll your first student →
               </Link>
@@ -202,22 +202,22 @@ export default async function ClassDetailPage({
               return (
                 <div
                   key={enrollment.id}
-                  className="flex items-center justify-between px-6 py-4 hover:bg-gray-50"
+                  className="flex items-center justify-between px-6 py-4 hover:bg-background"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-[var(--density-card-padding)]">
                     {/* Avatar placeholder */}
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-sm font-medium text-amber-700">
+                    <div className="flex h-[var(--density-button-height)] w-10 items-center justify-center rounded-full bg-amber-100 text-sm font-medium text-amber-700">
                       {student.first_name[0]}
                       {student.last_name[0]}
                     </div>
                     <div>
                       <Link
                         href={`/students/${student.id}`}
-                        className="text-sm font-medium text-gray-900 hover:text-amber-700"
+                        className="text-sm font-medium text-foreground hover:text-amber-700"
                       >
                         {displayName}
                       </Link>
-                      <div className="flex gap-3 text-xs text-gray-500">
+                      <div className="flex gap-3 text-xs text-muted-foreground">
                         {age !== null && <span>Age {age}</span>}
                         <span>
                           Enrolled {formatDate(enrollment.start_date)}

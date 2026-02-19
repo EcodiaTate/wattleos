@@ -1,10 +1,10 @@
 // src/lib/utils/image-compression.ts
 //
 // ============================================================
-// WattleOS V2 — Client-Side Image Compression
+// WattleOS V2 - Client-Side Image Compression
 // ============================================================
 // Uses canvas to resize and compress images before upload.
-// No external dependencies — runs in the browser only.
+// No external dependencies - runs in the browser only.
 //
 // WHY: Phone cameras produce 5–15MB photos. Supabase free-tier
 // storage is limited, and uploading large files on school Wi-Fi
@@ -21,7 +21,7 @@ interface CompressOptions {
   /** Minimum JPEG quality before giving up. Default: 0.4. */
   minQuality?: number;
   /** Output MIME type. Default: 'image/jpeg'. */
-  outputType?: 'image/jpeg' | 'image/webp';
+  outputType?: "image/jpeg" | "image/webp";
 }
 
 const DEFAULT_OPTIONS: Required<CompressOptions> = {
@@ -29,7 +29,7 @@ const DEFAULT_OPTIONS: Required<CompressOptions> = {
   maxSizeBytes: 2_097_152, // 2MB
   initialQuality: 0.85,
   minQuality: 0.4,
-  outputType: 'image/jpeg',
+  outputType: "image/jpeg",
 };
 
 /**
@@ -43,12 +43,12 @@ const DEFAULT_OPTIONS: Required<CompressOptions> = {
  */
 export async function compressImage(
   file: File,
-  options?: CompressOptions
+  options?: CompressOptions,
 ): Promise<File> {
   const opts = { ...DEFAULT_OPTIONS, ...options };
 
   // Skip non-image files
-  if (!file.type.startsWith('image/')) {
+  if (!file.type.startsWith("image/")) {
     return file;
   }
 
@@ -68,16 +68,16 @@ export async function compressImage(
   const { width, height } = calculateDimensions(
     img.naturalWidth,
     img.naturalHeight,
-    opts.maxDimension
+    opts.maxDimension,
   );
 
   // Draw to canvas
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext("2d");
   if (!ctx) {
-    // Canvas not available (SSR safety) — return original
+    // Canvas not available (SSR safety) - return original
     return file;
   }
   ctx.drawImage(img, 0, 0, width, height);
@@ -92,8 +92,8 @@ export async function compressImage(
   }
 
   // Build a new File with the original name (but correct extension)
-  const ext = opts.outputType === 'image/webp' ? '.webp' : '.jpg';
-  const nameBase = file.name.replace(/\.[^.]+$/, '');
+  const ext = opts.outputType === "image/webp" ? ".webp" : ".jpg";
+  const nameBase = file.name.replace(/\.[^.]+$/, "");
   const compressedFile = new File([blob], `${nameBase}${ext}`, {
     type: opts.outputType,
     lastModified: Date.now(),
@@ -124,7 +124,7 @@ function loadImage(file: File): Promise<HTMLImageElement> {
 function calculateDimensions(
   origWidth: number,
   origHeight: number,
-  maxDimension: number
+  maxDimension: number,
 ): { width: number; height: number } {
   if (origWidth <= maxDimension && origHeight <= maxDimension) {
     return { width: origWidth, height: origHeight };
@@ -140,7 +140,7 @@ function calculateDimensions(
 function canvasToBlob(
   canvas: HTMLCanvasElement,
   type: string,
-  quality: number
+  quality: number,
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -148,18 +148,18 @@ function canvasToBlob(
         if (blob) {
           resolve(blob);
         } else {
-          reject(new Error('Canvas toBlob returned null'));
+          reject(new Error("Canvas toBlob returned null"));
         }
       },
       type,
-      quality
+      quality,
     );
   });
 }
 
 async function imageDimensionsExceed(
   file: File,
-  maxDimension: number
+  maxDimension: number,
 ): Promise<boolean> {
   try {
     const img = await loadImage(file);

@@ -1,7 +1,7 @@
 // src/app/(auth)/tenant-picker/page.tsx
 //
 // ============================================================
-// WattleOS V2 — Tenant Picker Page
+// WattleOS V2 - Tenant Picker Page
 // ============================================================
 // Server Component. Shown when a user belongs to multiple
 // tenants and needs to choose which school to work in.
@@ -18,10 +18,10 @@
 //    when getTenantContext() runs on the dashboard page.
 // ============================================================
 
-import { redirect } from 'next/navigation';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getUserTenants, setUserTenant } from '@/lib/auth/tenant-context';
-import { TenantPickerClient } from './tenant-picker-client';
+import { getUserTenants, setUserTenant } from "@/lib/auth/tenant-context";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { TenantPickerClient } from "./tenant-picker-client";
 
 export default async function TenantPickerPage() {
   const supabase = await createSupabaseServerClient();
@@ -31,13 +31,13 @@ export default async function TenantPickerPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   const tenants = await getUserTenants(user.id);
 
   if (tenants.length === 0) {
-    redirect('/login?error=no_school');
+    redirect("/login?error=no_school");
   }
 
   if (tenants.length === 1) {
@@ -45,17 +45,17 @@ export default async function TenantPickerPage() {
     // Without this, /dashboard → getTenantContext() → no tenant_id
     // → redirect back to /tenant-picker → infinite 307 loop.
     await setUserTenant(user.id, tenants[0].tenant.id);
-    redirect('/dashboard');
+    redirect("/dashboard");
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-lg space-y-6 rounded-xl bg-white p-8 shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="w-full max-w-lg space-y-6 rounded-xl bg-background p-8 shadow-lg">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Choose a School
           </h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-muted-foreground">
             You have access to multiple schools. Select one to continue.
           </p>
         </div>

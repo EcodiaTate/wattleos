@@ -1,25 +1,25 @@
 // src/app/api/webhooks/stripe/route.ts
 //
 // ============================================================
-// WattleOS V2 — Stripe Webhook Handler
+// WattleOS V2 - Stripe Webhook Handler
 // ============================================================
 // Receives events from Stripe and updates WattleOS state.
 //
 // EVENTS HANDLED:
-// • invoice.paid — mark invoice paid, create payment record
-// • invoice.payment_failed — mark payment failed, log attempt
-// • charge.refunded — create refund payment record
+// • invoice.paid - mark invoice paid, create payment record
+// • invoice.payment_failed - mark payment failed, log attempt
+// • charge.refunded - create refund payment record
 //
 // SECURITY: Verifies webhook signature using the secret from
 // the tenant's integration config. Uses Supabase admin client
 // (service role) since webhooks run outside user auth context.
 //
 // NOTE: This route must NOT use authentication middleware.
-// Stripe calls it directly — there's no user session.
+// Stripe calls it directly - there's no user session.
 // ============================================================
 
-import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
 
 // ============================================================
@@ -35,7 +35,7 @@ type SupabaseAdmin = ReturnType<typeof createSupabaseAdminClient>;
  * This helper safely extracts the id string.
  */
 function expandableId<T extends { id: string }>(
-  v: string | T | null | undefined
+  v: string | T | null | undefined,
 ): string | null {
   if (!v) return null;
   return typeof v === "string" ? v : v.id;
@@ -71,9 +71,8 @@ export async function POST(request: NextRequest) {
       return jsonErr("Server config error", 500);
     }
 
-    const { verifyWebhookSignature } = await import(
-      "@/lib/integrations/stripe/client"
-    );
+    const { verifyWebhookSignature } =
+      await import("@/lib/integrations/stripe/client");
 
     event = verifyWebhookSignature(rawBody, signature, webhookSecret);
   } catch (err) {
@@ -93,7 +92,7 @@ export async function POST(request: NextRequest) {
       case "invoice.payment_failed": {
         await handleInvoicePaymentFailed(
           supabase,
-          event.data.object as Stripe.Invoice
+          event.data.object as Stripe.Invoice,
         );
         break;
       }
@@ -101,7 +100,7 @@ export async function POST(request: NextRequest) {
       case "charge.refunded": {
         await handleChargeRefunded(
           supabase,
-          event.data.object as Stripe.Charge
+          event.data.object as Stripe.Charge,
         );
         break;
       }
@@ -124,7 +123,7 @@ export async function POST(request: NextRequest) {
 
 async function handleInvoicePaid(
   supabase: SupabaseAdmin,
-  stripeInvoice: Stripe.Invoice
+  stripeInvoice: Stripe.Invoice,
 ) {
   const wattleosInvoiceId = stripeInvoice.metadata?.wattleos_invoice_id;
   if (!wattleosInvoiceId) return; // Not a WattleOS-managed invoice
@@ -135,10 +134,10 @@ async function handleInvoicePaid(
   // Stripe fields can be expandable; types may differ across SDK versions.
   // We avoid hard dependency on Invoice having these properties in types.
   const paymentIntentId = expandableId(
-    (stripeInvoice as any).payment_intent as string | { id: string } | null
+    (stripeInvoice as any).payment_intent as string | { id: string } | null,
   );
   const chargeId = expandableId(
-    (stripeInvoice as any).charge as string | { id: string } | null
+    (stripeInvoice as any).charge as string | { id: string } | null,
   );
 
   // Update invoice status
@@ -183,7 +182,7 @@ async function handleInvoicePaid(
 
 async function handleInvoicePaymentFailed(
   supabase: SupabaseAdmin,
-  stripeInvoice: Stripe.Invoice
+  stripeInvoice: Stripe.Invoice,
 ) {
   const wattleosInvoiceId = stripeInvoice.metadata?.wattleos_invoice_id;
   if (!wattleosInvoiceId) return;
@@ -192,10 +191,10 @@ async function handleInvoicePaymentFailed(
   if (!tenantId) return;
 
   const paymentIntentId = expandableId(
-    (stripeInvoice as any).payment_intent as string | { id: string } | null
+    (stripeInvoice as any).payment_intent as string | { id: string } | null,
   );
 
-  // Update invoice — don't change to 'void', it might retry
+  // Update invoice - don't change to 'void', it might retry
   await supabase
     .from("invoices")
     .update({ status: "overdue" })
@@ -228,9 +227,12 @@ async function handleInvoicePaymentFailed(
   });
 }
 
-async function handleChargeRefunded(supabase: SupabaseAdmin, charge: Stripe.Charge) {
+async function handleChargeRefunded(
+  supabase: SupabaseAdmin,
+  charge: Stripe.Charge,
+) {
   const paymentIntentId = expandableId(
-    charge.payment_intent as unknown as string | { id: string } | null
+    charge.payment_intent as unknown as string | { id: string } | null,
   );
   if (!paymentIntentId) return;
 

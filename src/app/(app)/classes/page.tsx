@@ -12,8 +12,8 @@
 // RLS + JWT, not URL segments.
 // ============================================================
 
-import { listClasses } from '@/lib/actions/classes';
-import Link from 'next/link';
+import { listClasses } from "@/lib/actions/classes";
+import Link from "next/link";
 
 export default async function ClassesPage() {
   const result = await listClasses();
@@ -27,42 +27,43 @@ export default async function ClassesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Classes</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-semibold text-foreground">Classes</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Montessori classrooms and environments
           </p>
         </div>
         <Link
           href="/classes/new"
-          className="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          className="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         >
           + New Class
         </Link>
       </div>
 
       {result.error ? (
-        <div className="rounded-md bg-red-50 p-4">
+        <div className="rounded-md bg-red-50 p-[var(--density-card-padding)]">
           <p className="text-sm text-red-700">{result.error.message}</p>
         </div>
       ) : classes.length === 0 ? (
         <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-sm text-gray-500">
-            No classes yet. Create your first classroom to start enrolling students.
+          <p className="text-sm text-muted-foreground">
+            No classes yet. Create your first classroom to start enrolling
+            students.
           </p>
         </div>
       ) : (
         <>
           {/* Active Classes */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-2 lg:grid-cols-3">
             {activeClasses.map((cls) => (
               <Link
                 key={cls.id}
                 href={`/classes/${cls.id}`}
-                className="group rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition hover:border-indigo-300 hover:shadow-md"
+                className="group rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] shadow-sm transition hover:border-indigo-300 hover:shadow-md"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="text-base font-semibold text-gray-900 group-hover:text-indigo-600">
+                    <h3 className="text-base font-semibold text-foreground group-hover:text-indigo-600">
                       {cls.name}
                     </h3>
                     {cls.cycle_level && (
@@ -72,12 +73,16 @@ export default async function ClassesPage() {
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-gray-900">{cls.active_enrollment_count}</p>
-                    <p className="text-xs text-gray-500">students</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {cls.active_enrollment_count}
+                    </p>
+                    <p className="text-xs text-muted-foreground">students</p>
                   </div>
                 </div>
                 {cls.room && (
-                  <p className="mt-3 text-sm text-gray-500">Room: {cls.room}</p>
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    Room: {cls.room}
+                  </p>
                 )}
               </Link>
             ))}
@@ -86,23 +91,27 @@ export default async function ClassesPage() {
           {/* Inactive Classes */}
           {inactiveClasses.length > 0 && (
             <div>
-              <h2 className="mb-3 text-sm font-medium uppercase tracking-wider text-gray-500">
+              <h2 className="mb-3 text-sm font-medium uppercase tracking-wider text-muted-foreground">
                 Inactive Classes
               </h2>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-2 lg:grid-cols-3">
                 {inactiveClasses.map((cls) => (
                   <div
                     key={cls.id}
-                    className="rounded-lg border border-gray-200 bg-gray-50 p-5 opacity-60"
+                    className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] opacity-60"
                   >
-                    <h3 className="text-base font-semibold text-gray-700">{cls.name}</h3>
+                    <h3 className="text-base font-semibold text-foreground">
+                      {cls.name}
+                    </h3>
                     {cls.cycle_level && (
-                      <span className="mt-1 inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+                      <span className="mt-1 inline-block rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                         Ages {cls.cycle_level}
                       </span>
                     )}
                     {cls.room && (
-                      <p className="mt-3 text-sm text-gray-400">Room: {cls.room}</p>
+                      <p className="mt-3 text-sm text-muted-foreground">
+                        Room: {cls.room}
+                      </p>
                     )}
                   </div>
                 ))}

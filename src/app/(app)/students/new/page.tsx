@@ -10,37 +10,41 @@
 // they shouldn't see the create form at all.
 // ============================================================
 
-import { getTenantContext } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { redirect } from 'next/navigation';
-import { StudentForm } from '@/components/domain/sis/StudentForm';
-import Link from 'next/link';
+import { StudentForm } from "@/components/domain/sis/StudentForm";
+import { getTenantContext } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function CreateStudentPage() {
   const context = await getTenantContext();
 
   // Gate: only users with manage_students can create
   if (!context.permissions.includes(Permissions.MANAGE_STUDENTS)) {
-    redirect('/students');
+    redirect("/students");
   }
 
-  const canManageEnrollment = context.permissions.includes(Permissions.MANAGE_ENROLLMENT);
+  const canManageEnrollment = context.permissions.includes(
+    Permissions.MANAGE_ENROLLMENT,
+  );
 
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/students" className="hover:text-gray-700">
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/students" className="hover:text-foreground">
           Students
         </Link>
         <span>/</span>
-        <span className="text-gray-900">New Student</span>
+        <span className="text-foreground">New Student</span>
       </nav>
 
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Add New Student</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold text-foreground">
+          Add New Student
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Enter the student&apos;s details below. You can add guardians, medical
           conditions, and enrollment information after creating the record.
         </p>

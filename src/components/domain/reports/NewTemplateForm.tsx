@@ -44,13 +44,13 @@ export function NewTemplateForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-5 rounded-lg border border-gray-200 bg-white p-6"
+      className="space-y-5 rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]"
     >
       {/* Template name */}
       <div>
         <label
           htmlFor="name"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-foreground"
         >
           Template Name <span className="text-red-500">*</span>
         </label>
@@ -69,11 +69,11 @@ export function NewTemplateForm() {
       <div>
         <label
           htmlFor="cycleLevel"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-foreground"
         >
           Cycle Level
         </label>
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-muted-foreground">
           Optionally scope this template to a specific age group
         </p>
         <select
@@ -112,14 +112,14 @@ export function NewTemplateForm() {
       <div className="flex items-center justify-end gap-3">
         <a
           href="/reports/templates"
-          className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-md border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
         >
           Cancel
         </a>
         <button
           type="submit"
           disabled={isLoading || !name.trim()}
-          className="rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-amber-700 disabled:opacity-50"
         >
           {isLoading ? "Creating..." : "Create & Customize"}
         </button>

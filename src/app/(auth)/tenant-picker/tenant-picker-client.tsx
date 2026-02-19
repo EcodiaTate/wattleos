@@ -40,7 +40,7 @@ export function TenantPickerClient({ tenants }: TenantPickerClientProps) {
   return (
     <div className="space-y-3">
       {error && (
-        <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-md bg-red-50 p-[var(--density-card-padding)] text-sm text-red-700">
           {error}
         </div>
       )}
@@ -50,27 +50,27 @@ export function TenantPickerClient({ tenants }: TenantPickerClientProps) {
           key={tenant.tenantId}
           onClick={() => handleSelect(tenant.tenantId)}
           disabled={isLoading !== null}
-          className="flex w-full items-center gap-4 rounded-lg border border-gray-200 p-4 text-left transition-colors hover:border-amber-300 hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex w-full items-center gap-[var(--density-card-padding)] rounded-lg borderborder-border p-[var(--density-card-padding)] text-left transition-colors hover:border-amber-300 hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100 text-lg font-bold text-amber-700">
+          <div className="flex h-[var(--density-button-height)] w-12 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100 text-lg font-bold text-amber-700">
             {tenant.logoUrl ? (
               <img
                 src={tenant.logoUrl}
                 alt={tenant.tenantName}
-                className="h-12 w-12 rounded-lg object-cover"
+                className="h-[var(--density-button-height)] w-12 rounded-lg object-cover"
               />
             ) : (
               tenant.tenantName.charAt(0).toUpperCase()
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-gray-900">
+            <p className="truncate text-sm font-medium text-foreground">
               {tenant.tenantName}
             </p>
-            <p className="text-xs text-gray-500">{tenant.roleName}</p>
+            <p className="text-xs text-muted-foreground">{tenant.roleName}</p>
           </div>
           {isLoading === tenant.tenantId && (
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           )}
         </button>
       ))}

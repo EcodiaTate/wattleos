@@ -1,21 +1,24 @@
 // src/lib/actions/parent/settings.ts
 //
 // ============================================================
-// WattleOS V2 — Parent Portal: Settings Actions
+// WattleOS V2 - Parent Portal: Settings Actions
 // ============================================================
 // Parents can update their consent preferences and contact
 // information without staff intervention.
 //
 // WHY self-service: Consent toggles (media, directory) change
-// frequently — parents should be able to update at any time.
+// frequently - parents should be able to update at any time.
 // Contact info updates reduce admin workload.
 // ============================================================
 
-'use server';
+"use server";
 
-import { createSupabaseServerClient, createSupabaseAdminClient } from '@/lib/supabase/server';
-import { getTenantContext } from '@/lib/auth/tenant-context';
-import type { ActionResponse } from '@/types/api';
+import { getTenantContext } from "@/lib/auth/tenant-context";
+import {
+  createSupabaseAdminClient,
+  createSupabaseServerClient,
+} from "@/lib/supabase/server";
+import type { ActionResponse } from "@/types/api";
 
 // ============================================================
 // Types
@@ -46,16 +49,18 @@ export interface UpdateContactInfoInput {
 }
 
 // ============================================================
-// getMySettings — all guardian records with consent/contact info
+// getMySettings - all guardian records with consent/contact info
 // ============================================================
 
-export async function getMySettings(): Promise<ActionResponse<ParentGuardianSettings[]>> {
+export async function getMySettings(): Promise<
+  ActionResponse<ParentGuardianSettings[]>
+> {
   try {
     const context = await getTenantContext();
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
-      .from('guardians')
+      .from("guardians")
       .select(
         `
         id,
@@ -72,14 +77,17 @@ export async function getMySettings(): Promise<ActionResponse<ParentGuardianSett
           preferred_name,
           photo_url
         )
-      `
+      `,
       )
-      .eq('tenant_id', context.tenant.id)
-      .eq('user_id', context.user.id)
-      .is('deleted_at', null);
+      .eq("tenant_id", context.tenant.id)
+      .eq("user_id", context.user.id)
+      .is("deleted_at", null);
 
     if (error) {
-      return { data: null, error: { message: error.message, code: 'QUERY_ERROR' } };
+      return {
+        data: null,
+        error: { message: error.message, code: "QUERY_ERROR" },
+      };
     }
 
     const settings: ParentGuardianSettings[] = (data ?? []).map((g) => {
@@ -107,17 +115,20 @@ export async function getMySettings(): Promise<ActionResponse<ParentGuardianSett
   } catch (err) {
     return {
       data: null,
-      error: { message: err instanceof Error ? err.message : 'Unknown error', code: 'INTERNAL_ERROR' },
+      error: {
+        message: err instanceof Error ? err.message : "Unknown error",
+        code: "INTERNAL_ERROR",
+      },
     };
   }
 }
 
 // ============================================================
-// updateConsent — toggle media/directory consent per child
+// updateConsent - toggle media/directory consent per child
 // ============================================================
 
 export async function updateConsent(
-  input: UpdateConsentInput
+  input: UpdateConsentInput,
 ): Promise<ActionResponse<{ success: boolean }>> {
   try {
     const context = await getTenantContext();
@@ -125,16 +136,19 @@ export async function updateConsent(
 
     // Verify this guardian record belongs to the current user
     const { data: guardian } = await admin
-      .from('guardians')
-      .select('id, user_id')
-      .eq('id', input.guardianId)
-      .eq('tenant_id', context.tenant.id)
-      .eq('user_id', context.user.id)
-      .is('deleted_at', null)
+      .from("guardians")
+      .select("id, user_id")
+      .eq("id", input.guardianId)
+      .eq("tenant_id", context.tenant.id)
+      .eq("user_id", context.user.id)
+      .is("deleted_at", null)
       .single();
 
     if (!guardian) {
-      return { data: null, error: { message: 'Guardian record not found', code: 'NOT_FOUND' } };
+      return {
+        data: null,
+        error: { message: "Guardian record not found", code: "NOT_FOUND" },
+      };
     }
 
     // Build update object
@@ -151,21 +165,24 @@ export async function updateConsent(
     }
 
     const { error } = await admin
-      .from('guardians')
+      .from("guardians")
       .update(updates)
-      .eq('id', input.guardianId)
-      .eq('tenant_id', context.tenant.id);
+      .eq("id", input.guardianId)
+      .eq("tenant_id", context.tenant.id);
 
     if (error) {
-      return { data: null, error: { message: error.message, code: 'UPDATE_ERROR' } };
+      return {
+        data: null,
+        error: { message: error.message, code: "UPDATE_ERROR" },
+      };
     }
 
     // Audit log
-    await admin.from('audit_logs').insert({
+    await admin.from("audit_logs").insert({
       tenant_id: context.tenant.id,
       user_id: context.user.id,
-      action: 'guardian.consent_updated',
-      entity_type: 'guardian',
+      action: "guardian.consent_updated",
+      entity_type: "guardian",
       entity_id: input.guardianId,
       metadata: { changes: updates },
     });
@@ -174,17 +191,20 @@ export async function updateConsent(
   } catch (err) {
     return {
       data: null,
-      error: { message: err instanceof Error ? err.message : 'Unknown error', code: 'INTERNAL_ERROR' },
+      error: {
+        message: err instanceof Error ? err.message : "Unknown error",
+        code: "INTERNAL_ERROR",
+      },
     };
   }
 }
 
 // ============================================================
-// updateContactInfo — parent updates their own phone number
+// updateContactInfo - parent updates their own phone number
 // ============================================================
 
 export async function updateContactInfo(
-  input: UpdateContactInfoInput
+  input: UpdateContactInfoInput,
 ): Promise<ActionResponse<{ success: boolean }>> {
   try {
     const context = await getTenantContext();
@@ -192,16 +212,19 @@ export async function updateContactInfo(
 
     // Verify ownership
     const { data: guardian } = await admin
-      .from('guardians')
-      .select('id, user_id')
-      .eq('id', input.guardianId)
-      .eq('tenant_id', context.tenant.id)
-      .eq('user_id', context.user.id)
-      .is('deleted_at', null)
+      .from("guardians")
+      .select("id, user_id")
+      .eq("id", input.guardianId)
+      .eq("tenant_id", context.tenant.id)
+      .eq("user_id", context.user.id)
+      .is("deleted_at", null)
       .single();
 
     if (!guardian) {
-      return { data: null, error: { message: 'Guardian record not found', code: 'NOT_FOUND' } };
+      return {
+        data: null,
+        error: { message: "Guardian record not found", code: "NOT_FOUND" },
+      };
     }
 
     const updates: Record<string, string | null> = {};
@@ -214,21 +237,24 @@ export async function updateContactInfo(
     }
 
     const { error } = await admin
-      .from('guardians')
+      .from("guardians")
       .update(updates)
-      .eq('id', input.guardianId)
-      .eq('tenant_id', context.tenant.id);
+      .eq("id", input.guardianId)
+      .eq("tenant_id", context.tenant.id);
 
     if (error) {
-      return { data: null, error: { message: error.message, code: 'UPDATE_ERROR' } };
+      return {
+        data: null,
+        error: { message: error.message, code: "UPDATE_ERROR" },
+      };
     }
 
     // Audit log
-    await admin.from('audit_logs').insert({
+    await admin.from("audit_logs").insert({
       tenant_id: context.tenant.id,
       user_id: context.user.id,
-      action: 'guardian.contact_updated',
-      entity_type: 'guardian',
+      action: "guardian.contact_updated",
+      entity_type: "guardian",
       entity_id: input.guardianId,
       metadata: { fields: Object.keys(updates) },
     });
@@ -237,7 +263,10 @@ export async function updateContactInfo(
   } catch (err) {
     return {
       data: null,
-      error: { message: err instanceof Error ? err.message : 'Unknown error', code: 'INTERNAL_ERROR' },
+      error: {
+        message: err instanceof Error ? err.message : "Unknown error",
+        code: "INTERNAL_ERROR",
+      },
     };
   }
 }

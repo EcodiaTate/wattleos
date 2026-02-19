@@ -129,15 +129,15 @@ export function PayrollSettingsClient({
       )}
 
       {/* Pay Cycle Section */}
-      <section className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="text-base font-semibold text-gray-900">Pay Cycle</h2>
-        <p className="mt-1 text-sm text-gray-500">
+      <section className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+        <h2 className="text-base font-semibold text-foreground">Pay Cycle</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
           How often staff get paid and when the cycle starts.
         </p>
 
-        <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="mt-5 grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-foreground">
               Pay Frequency
             </label>
             <select
@@ -157,7 +157,7 @@ export function PayrollSettingsClient({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-foreground">
               Cycle Start Day
             </label>
             <select
@@ -188,7 +188,7 @@ export function PayrollSettingsClient({
             }}
             className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
           />
-          <label htmlFor="auto-create" className="text-sm text-gray-700">
+          <label htmlFor="auto-create" className="text-sm text-foreground">
             Automatically create the next pay period when the current one is
             locked
           </label>
@@ -196,17 +196,17 @@ export function PayrollSettingsClient({
       </section>
 
       {/* Default Work Hours Section */}
-      <section className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="text-base font-semibold text-gray-900">
+      <section className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+        <h2 className="text-base font-semibold text-foreground">
           Default Work Hours
         </h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Pre-filled in the timesheet grid. Staff can override per day.
         </p>
 
-        <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <div className="mt-5 grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-foreground">
               Start Time
             </label>
             <input
@@ -221,7 +221,7 @@ export function PayrollSettingsClient({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-foreground">
               End Time
             </label>
             <input
@@ -236,7 +236,7 @@ export function PayrollSettingsClient({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-foreground">
               Break (minutes)
             </label>
             <input
@@ -256,7 +256,7 @@ export function PayrollSettingsClient({
 
         {/* Calculated daily hours preview */}
         {defaultStartTime && defaultEndTime && (
-          <p className="mt-3 text-xs text-gray-500">
+          <p className="mt-3 text-xs text-muted-foreground">
             {(() => {
               const [sh, sm] = defaultStartTime.split(":").map(Number);
               const [eh, em] = defaultEndTime.split(":").map(Number);
@@ -270,18 +270,18 @@ export function PayrollSettingsClient({
       </section>
 
       {/* Payroll Provider Section */}
-      <section className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="text-base font-semibold text-gray-900">
+      <section className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+        <h2 className="text-base font-semibold text-foreground">
           Payroll Provider
         </h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Connect to an external payroll system to automatically push approved
           timesheets. WattleOS handles time logging and approval - your payroll
           system handles tax, super, and leave calculations.
         </p>
 
         <div className="mt-5">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-foreground">
             Provider
           </label>
           <select
@@ -316,7 +316,7 @@ export function PayrollSettingsClient({
         <button
           onClick={handleSave}
           disabled={isPending || !isDirty}
-          className="rounded-lg bg-amber-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-amber-700 disabled:opacity-50"
+          className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:opacity-50"
         >
           {isPending ? "Saving…" : "Save Settings"}
         </button>

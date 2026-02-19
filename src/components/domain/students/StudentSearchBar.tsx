@@ -1,24 +1,9 @@
 // src/components/domain/sis/StudentSearchBar.tsx
-//
-// ============================================================
-// WattleOS V2 — Student Search Bar (DESIGN SYSTEM MIGRATED)
-// ============================================================
-// MIGRATION CHANGES:
-// • text-gray-400 (icon) → text-muted-foreground
-// • border-gray-300 bg-white → border-input bg-card
-// • placeholder:text-muted-foreground → placeholder:text-muted-foreground
-// • text-sm → text-[length:var(--text-sm)]
-// • focus:border-ring focus:ring-ring
-//   → focus:border-ring focus:ring-ring
-//   WHY: indigo was an inconsistency — rest of app used amber.
-//   Now both resolve to --ring which follows the brand color.
-// • shadow-sm → shadow-[var(--shadow-xs)]
-// ============================================================
 
-'use client';
+"use client";
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useRef, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface StudentSearchBarProps {
   defaultValue: string;
@@ -40,17 +25,17 @@ export function StudentSearchBar({ defaultValue }: StudentSearchBarProps) {
       timeoutRef.current = setTimeout(() => {
         const params = new URLSearchParams(searchParams.toString());
         if (term.trim()) {
-          params.set('search', term.trim());
+          params.set("search", term.trim());
         } else {
-          params.delete('search');
+          params.delete("search");
         }
         // Reset to page 1 on new search
-        params.delete('page');
+        params.delete("page");
         const qs = params.toString();
-        router.push(`/students${qs ? `?${qs}` : ''}`);
+        router.push(`/students${qs ? `?${qs}` : ""}`);
       }, 300);
     },
-    [router, searchParams]
+    [router, searchParams],
   );
 
   // Cleanup timeout on unmount
@@ -86,7 +71,7 @@ export function StudentSearchBar({ defaultValue }: StudentSearchBarProps) {
           setValue(e.target.value);
           handleSearch(e.target.value);
         }}
-        className="block w-full rounded-md border border-input bg-card py-2 pl-10 pr-3 text-[length:var(--text-sm)] text-foreground placeholder:text-muted-foreground shadow-[var(--shadow-xs)] focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+        className="block w-full rounded-md border border-input bg-card py-2 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground shadow-[var(--shadow-xs)] focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
       />
     </div>
   );

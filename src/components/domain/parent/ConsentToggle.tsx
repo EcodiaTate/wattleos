@@ -7,14 +7,14 @@
 // action on change with immediate visual feedback.
 // ============================================================
 
-'use client';
+"use client";
 
-import { useState, useTransition } from 'react';
-import { updateConsent } from '@/lib/actions/parent';
+import { updateConsent } from "@/lib/actions/parent";
+import { useState, useTransition } from "react";
 
 interface ConsentToggleProps {
   guardianId: string;
-  consentType: 'media' | 'directory';
+  consentType: "media" | "directory";
   label: string;
   description: string;
   initialValue: boolean;
@@ -38,7 +38,7 @@ export function ConsentToggle({
 
     startTransition(async () => {
       const input =
-        consentType === 'media'
+        consentType === "media"
           ? { guardianId, mediaConsent: newValue }
           : { guardianId, directoryConsent: newValue };
 
@@ -60,18 +60,18 @@ export function ConsentToggle({
         onClick={handleToggle}
         disabled={isPending}
         className={`relative mt-0.5 flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
-          isEnabled ? 'bg-amber-500' : 'bg-gray-200'
-        } ${isPending ? 'opacity-60' : ''}`}
+          isEnabled ? "bg-primary" : "bg-gray-200"
+        } ${isPending ? "opacity-60" : ""}`}
       >
         <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-            isEnabled ? 'translate-x-6' : 'translate-x-1'
+          className={`inline-block h-4 w-4 transform rounded-full bg-background shadow transition-transform ${
+            isEnabled ? "translate-x-6" : "translate-x-1"
           }`}
         />
       </button>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-gray-900">{label}</p>
-        <p className="text-xs text-gray-500">{description}</p>
+        <p className="text-sm font-medium text-foreground">{label}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
         {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
       </div>
     </div>

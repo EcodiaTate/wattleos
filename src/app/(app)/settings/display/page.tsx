@@ -1,7 +1,7 @@
 // src/app/(app)/settings/display/page.tsx
 //
 // ============================================================
-// WattleOS V2 — User Display Settings Page
+// WattleOS V2 - User Display Settings Page
 // ============================================================
 // Any authenticated user can access this page to set their
 // personal theme, density, and font scale preferences.
@@ -50,10 +50,10 @@ export default async function UserDisplaySettingsPage() {
   return (
     <div className="space-y-[var(--density-section-gap)]">
       <div>
-        <h1 className="text-[var(--text-2xl)] font-semibold text-foreground">
+        <h1 className="text-2xl font-semibold text-foreground">
           Display Settings
         </h1>
-        <p className="mt-1 text-[var(--text-sm)] text-muted-foreground">
+        <p className="mt-1 text-sm text-muted-foreground">
           Personalise how WattleOS looks for you. These settings override the
           school defaults set by your administrator.
         </p>
@@ -66,4 +66,4 @@ export default async function UserDisplaySettingsPage() {
       />
     </div>
   );
-} 
+}

@@ -1,7 +1,7 @@
 // src/types/display.ts
 //
 // ============================================================
-// WattleOS V2 — Display & Theme Configuration Types
+// WattleOS V2 - Display & Theme Configuration Types
 // ============================================================
 // Shared types for the configurable design system.
 //
@@ -29,17 +29,17 @@ export const DENSITY_OPTIONS: {
   {
     value: "compact",
     label: "Compact",
-    description: "Denser layout — fits more on screen",
+    description: "Denser layout - fits more on screen",
   },
   {
     value: "comfortable",
     label: "Comfortable",
-    description: "Balanced spacing — the default",
+    description: "Balanced spacing - the default",
   },
   {
     value: "spacious",
     label: "Spacious",
-    description: "More breathing room — larger touch targets",
+    description: "More breathing room - larger touch targets",
   },
 ];
 

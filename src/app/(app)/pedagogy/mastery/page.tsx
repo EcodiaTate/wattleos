@@ -1,8 +1,8 @@
-import { getTenantContext, hasPermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { listStudents } from '@/lib/actions/students';
-import { listCurriculumInstances } from '@/lib/actions/curriculum';
-import { MasteryPageClient } from './mastery-page-client';
+import { listCurriculumInstances } from "@/lib/actions/curriculum";
+import { listStudents } from "@/lib/actions/students";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import { MasteryPageClient } from "./mastery-page-client";
 
 export default async function MasteryPage() {
   const context = await getTenantContext();
@@ -11,8 +11,8 @@ export default async function MasteryPage() {
 
   if (!canViewStudents) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-        <p className="text-sm text-gray-500">
+      <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+        <p className="text-sm text-muted-foreground">
           You do not have permission to view student data.
         </p>
       </div>
@@ -31,18 +31,20 @@ export default async function MasteryPage() {
     return (
       <div className="space-y-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mastery Tracking</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">
+            Mastery Tracking
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Track student progress across curriculum outcomes
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+          <p className="text-sm text-muted-foreground">
             Set up a curriculum first before tracking mastery.
           </p>
           <a
             href="/pedagogy/curriculum"
-            className="mt-3 inline-block rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+            className="mt-3 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700"
           >
             Go to Curriculum
           </a>
@@ -55,18 +57,20 @@ export default async function MasteryPage() {
     return (
       <div className="space-y-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mastery Tracking</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">
+            Mastery Tracking
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Track student progress across curriculum outcomes
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+          <p className="text-sm text-muted-foreground">
             Add students before tracking mastery.
           </p>
           <a
             href="/students"
-            className="mt-3 inline-block rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+            className="mt-3 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700"
           >
             Manage Students
           </a>

@@ -11,12 +11,12 @@
 // different layout (table vs tap-to-mark).
 // ============================================================
 
-import { getTenantContext, hasPermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { listClasses } from '@/lib/actions/classes';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { AttendanceHistoryClient } from '@/components/domain/attendance/attendance-history-client';
+import { AttendanceHistoryClient } from "@/components/domain/attendance/attendance-history-client";
+import { listClasses } from "@/lib/actions/classes";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function AttendanceHistoryPage() {
   const context = await getTenantContext();
@@ -25,7 +25,7 @@ export default async function AttendanceHistoryPage() {
     !hasPermission(context, Permissions.MANAGE_ATTENDANCE) &&
     !hasPermission(context, Permissions.VIEW_ATTENDANCE_REPORTS)
   ) {
-    redirect('/dashboard');
+    redirect("/dashboard");
   }
 
   const classesResult = await listClasses();
@@ -36,20 +36,20 @@ export default async function AttendanceHistoryPage() {
       {/* Breadcrumb */}
       <div className="flex items-center justify-between">
         <div>
-          <nav className="flex items-center gap-2 text-sm text-gray-500">
-            <Link href="/attendance" className="hover:text-gray-700">
+          <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Link href="/attendance" className="hover:text-foreground">
               Attendance
             </Link>
             <span>/</span>
-            <span className="text-gray-900">History</span>
+            <span className="text-foreground">History</span>
           </nav>
-          <h1 className="mt-1 text-xl font-bold text-gray-900">
+          <h1 className="mt-1 text-xl font-bold text-foreground">
             Attendance History
           </h1>
         </div>
         <Link
           href="/attendance/absences"
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-foreground hover:bg-background"
         >
           Absence Report
         </Link>

@@ -1,7 +1,7 @@
 // src/lib/integrations/stripe/client.ts
 //
 // ============================================================
-// WattleOS V2 — Stripe Integration Client
+// WattleOS V2 - Stripe Integration Client
 // ============================================================
 // Isolated integration module. Handles:
 // • Customer creation (parent → Stripe Customer)
@@ -12,7 +12,7 @@
 // DEPENDENCY: npm install stripe
 // ============================================================
 
-import Stripe from 'stripe';
+import Stripe from "stripe";
 
 // ============================================================
 // Types
@@ -47,7 +47,7 @@ export interface CreateCheckoutInput {
   customer_id: string;
   success_url: string;
   cancel_url: string;
-  mode: 'setup'; // For saving payment methods
+  mode: "setup"; // For saving payment methods
 }
 
 // ============================================================
@@ -62,16 +62,13 @@ export function createStripeClient(secretKey: string): Stripe {
   });
 }
 
-
-
-
 // ============================================================
 // CUSTOMER OPERATIONS
 // ============================================================
 
 export async function createCustomer(
   stripe: Stripe,
-  input: CreateCustomerInput
+  input: CreateCustomerInput,
 ): Promise<Stripe.Customer> {
   return stripe.customers.create({
     email: input.email,
@@ -82,7 +79,7 @@ export async function createCustomer(
 
 export async function getCustomer(
   stripe: Stripe,
-  customerId: string
+  customerId: string,
 ): Promise<Stripe.Customer | null> {
   try {
     const customer = await stripe.customers.retrieve(customerId);
@@ -99,7 +96,7 @@ export async function getCustomer(
 
 export async function createInvoice(
   stripe: Stripe,
-  input: CreateInvoiceInput
+  input: CreateInvoiceInput,
 ): Promise<Stripe.Invoice> {
   // 1. Create invoice
   const invoice = await stripe.invoices.create({
@@ -107,7 +104,7 @@ export async function createInvoice(
     currency: input.currency,
     due_date: input.due_date,
     auto_advance: input.auto_advance ?? false,
-    collection_method: 'send_invoice',
+    collection_method: "send_invoice",
     metadata: input.metadata ?? {},
   });
 
@@ -128,21 +125,21 @@ export async function createInvoice(
 
 export async function finalizeInvoice(
   stripe: Stripe,
-  invoiceId: string
+  invoiceId: string,
 ): Promise<Stripe.Invoice> {
   return stripe.invoices.finalizeInvoice(invoiceId);
 }
 
 export async function sendInvoice(
   stripe: Stripe,
-  invoiceId: string
+  invoiceId: string,
 ): Promise<Stripe.Invoice> {
   return stripe.invoices.sendInvoice(invoiceId);
 }
 
 export async function voidInvoice(
   stripe: Stripe,
-  invoiceId: string
+  invoiceId: string,
 ): Promise<Stripe.Invoice> {
   return stripe.invoices.voidInvoice(invoiceId);
 }
@@ -152,17 +149,17 @@ export async function voidInvoice(
 // ============================================================
 // Creates a Stripe Checkout Session in 'setup' mode.
 // The parent is redirected to Stripe's hosted page to save
-// their card. No payment is taken — just card details stored.
+// their card. No payment is taken - just card details stored.
 // ============================================================
 
 export async function createSetupCheckout(
   stripe: Stripe,
-  input: CreateCheckoutInput
+  input: CreateCheckoutInput,
 ): Promise<Stripe.Checkout.Session> {
   return stripe.checkout.sessions.create({
     customer: input.customer_id,
-    mode: 'setup',
-    payment_method_types: ['card'],
+    mode: "setup",
+    payment_method_types: ["card"],
     success_url: input.success_url,
     cancel_url: input.cancel_url,
   });
@@ -176,12 +173,13 @@ export async function createRefund(
   stripe: Stripe,
   paymentIntentId: string,
   amountCents?: number,
-  reason?: string
+  reason?: string,
 ): Promise<Stripe.Refund> {
   return stripe.refunds.create({
     payment_intent: paymentIntentId,
     amount: amountCents, // undefined = full refund
-    reason: (reason as Stripe.RefundCreateParams.Reason) ?? 'requested_by_customer',
+    reason:
+      (reason as Stripe.RefundCreateParams.Reason) ?? "requested_by_customer",
   });
 }
 
@@ -191,7 +189,7 @@ export async function createRefund(
 export function verifyWebhookSignature(
   payload: string | Buffer,
   signature: string,
-  secret: string
+  secret: string,
 ): Stripe.Event {
   // Keep this consistent with createStripeClient (or omit apiVersion).
   const stripe = new Stripe("", {

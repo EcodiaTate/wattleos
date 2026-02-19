@@ -1,7 +1,7 @@
 // src/lib/actions/payroll-integration.ts
 //
 // ============================================================
-// WattleOS V2 — Payroll Integration Server Actions
+// WattleOS V2 - Payroll Integration Server Actions
 // ============================================================
 // Manages the connection between WattleOS and external payroll
 // systems (Xero / KeyPay). Three concerns:
@@ -14,20 +14,20 @@
 // integration clients are built.
 // ============================================================
 
-'use server';
+"use server";
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { requirePermission, getTenantContext } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import type { ActionResponse } from '@/types/api';
-import { success, failure } from '@/types/api';
+import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { ActionResponse } from "@/types/api";
+import { failure, success } from "@/types/api";
 import type {
-  PayrollSettings,
   EmployeeMapping,
-  PayrollProvider,
   PayFrequency,
+  PayrollProvider,
+  PayrollSettings,
   Timesheet,
-} from '@/types/domain';
+} from "@/types/domain";
 
 // ============================================================
 // PAYROLL SETTINGS
@@ -36,31 +36,33 @@ import type {
 /**
  * Get the tenant's payroll settings. Creates a default row if none exists.
  */
-export async function getPayrollSettings(): Promise<ActionResponse<PayrollSettings>> {
+export async function getPayrollSettings(): Promise<
+  ActionResponse<PayrollSettings>
+> {
   try {
     const context = await getTenantContext();
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
-      .from('payroll_settings')
-      .select('*')
-      .eq('tenant_id', context.tenant.id)
+      .from("payroll_settings")
+      .select("*")
+      .eq("tenant_id", context.tenant.id)
       .maybeSingle();
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     // Auto-create default settings if none exist
     if (!data) {
       const { data: created, error: createError } = await supabase
-        .from('payroll_settings')
+        .from("payroll_settings")
         .insert({ tenant_id: context.tenant.id })
         .select()
         .single();
 
       if (createError) {
-        return failure(createError.message, 'DB_ERROR');
+        return failure(createError.message, "DB_ERROR");
       }
 
       return success(created as PayrollSettings);
@@ -68,8 +70,9 @@ export async function getPayrollSettings(): Promise<ActionResponse<PayrollSettin
 
     return success(data as PayrollSettings);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to get payroll settings';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to get payroll settings";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -93,45 +96,60 @@ export async function updatePayrollSettings(input: {
     // Validate start day
     if (input.payCycleStartDay !== undefined) {
       if (input.payCycleStartDay < 1 || input.payCycleStartDay > 7) {
-        return failure('Pay cycle start day must be between 1 (Monday) and 7 (Sunday)', 'VALIDATION_ERROR');
+        return failure(
+          "Pay cycle start day must be between 1 (Monday) and 7 (Sunday)",
+          "VALIDATION_ERROR",
+        );
       }
     }
 
     // Validate break minutes
-    if (input.defaultBreakMinutes !== undefined && input.defaultBreakMinutes < 0) {
-      return failure('Break minutes cannot be negative', 'VALIDATION_ERROR');
+    if (
+      input.defaultBreakMinutes !== undefined &&
+      input.defaultBreakMinutes < 0
+    ) {
+      return failure("Break minutes cannot be negative", "VALIDATION_ERROR");
     }
 
     // Build update payload (only include provided fields)
     const updates: Record<string, unknown> = {};
-    if (input.payFrequency !== undefined) updates.pay_frequency = input.payFrequency;
-    if (input.payCycleStartDay !== undefined) updates.pay_cycle_start_day = input.payCycleStartDay;
-    if (input.defaultStartTime !== undefined) updates.default_start_time = input.defaultStartTime;
-    if (input.defaultEndTime !== undefined) updates.default_end_time = input.defaultEndTime;
-    if (input.defaultBreakMinutes !== undefined) updates.default_break_minutes = input.defaultBreakMinutes;
-    if (input.payrollProvider !== undefined) updates.payroll_provider = input.payrollProvider;
-    if (input.providerConfig !== undefined) updates.provider_config = input.providerConfig;
-    if (input.autoCreatePeriods !== undefined) updates.auto_create_periods = input.autoCreatePeriods;
+    if (input.payFrequency !== undefined)
+      updates.pay_frequency = input.payFrequency;
+    if (input.payCycleStartDay !== undefined)
+      updates.pay_cycle_start_day = input.payCycleStartDay;
+    if (input.defaultStartTime !== undefined)
+      updates.default_start_time = input.defaultStartTime;
+    if (input.defaultEndTime !== undefined)
+      updates.default_end_time = input.defaultEndTime;
+    if (input.defaultBreakMinutes !== undefined)
+      updates.default_break_minutes = input.defaultBreakMinutes;
+    if (input.payrollProvider !== undefined)
+      updates.payroll_provider = input.payrollProvider;
+    if (input.providerConfig !== undefined)
+      updates.provider_config = input.providerConfig;
+    if (input.autoCreatePeriods !== undefined)
+      updates.auto_create_periods = input.autoCreatePeriods;
 
     if (Object.keys(updates).length === 0) {
-      return failure('No fields to update', 'VALIDATION_ERROR');
+      return failure("No fields to update", "VALIDATION_ERROR");
     }
 
     const { data, error } = await supabase
-      .from('payroll_settings')
+      .from("payroll_settings")
       .update(updates)
-      .eq('tenant_id', context.tenant.id)
+      .eq("tenant_id", context.tenant.id)
       .select()
       .single();
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     return success(data as PayrollSettings);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to update payroll settings';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to update payroll settings";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -143,37 +161,49 @@ export async function updatePayrollSettings(input: {
  * List all employee mappings for the tenant (with user details).
  */
 export async function listEmployeeMappings(): Promise<
-  ActionResponse<Array<EmployeeMapping & { user_name: string; user_email: string }>>
+  ActionResponse<
+    Array<EmployeeMapping & { user_name: string; user_email: string }>
+  >
 > {
   try {
     await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
-      .from('employee_mappings')
-      .select(`
+      .from("employee_mappings")
+      .select(
+        `
         *,
         user:users(id, first_name, last_name, email)
-      `)
-      .order('created_at', { ascending: true });
+      `,
+      )
+      .order("created_at", { ascending: true });
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
-    const mappings = ((data ?? []) as Array<Record<string, unknown>>).map((row) => {
-      const user = row.user as { id: string; first_name: string; last_name: string; email: string } | null;
-      return {
-        ...(row as unknown as EmployeeMapping),
-        user_name: user ? `${user.first_name} ${user.last_name}` : 'Unknown',
-        user_email: user?.email ?? '',
-      };
-    });
+    const mappings = ((data ?? []) as Array<Record<string, unknown>>).map(
+      (row) => {
+        const user = row.user as {
+          id: string;
+          first_name: string;
+          last_name: string;
+          email: string;
+        } | null;
+        return {
+          ...(row as unknown as EmployeeMapping),
+          user_name: user ? `${user.first_name} ${user.last_name}` : "Unknown",
+          user_email: user?.email ?? "",
+        };
+      },
+    );
 
     return success(mappings);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to list employee mappings';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to list employee mappings";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -191,11 +221,11 @@ export async function createEmployeeMapping(input: {
     const supabase = await createSupabaseServerClient();
 
     if (!input.externalId.trim()) {
-      return failure('External employee ID is required', 'VALIDATION_ERROR');
+      return failure("External employee ID is required", "VALIDATION_ERROR");
     }
 
     const { data, error } = await supabase
-      .from('employee_mappings')
+      .from("employee_mappings")
       .insert({
         tenant_id: context.tenant.id,
         user_id: input.userId,
@@ -208,16 +238,23 @@ export async function createEmployeeMapping(input: {
       .single();
 
     if (error) {
-      if (error.message.includes('duplicate') || error.message.includes('unique')) {
-        return failure('This user already has a mapping for this provider', 'VALIDATION_ERROR');
+      if (
+        error.message.includes("duplicate") ||
+        error.message.includes("unique")
+      ) {
+        return failure(
+          "This user already has a mapping for this provider",
+          "VALIDATION_ERROR",
+        );
       }
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     return success(data as EmployeeMapping);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to create employee mapping';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to create employee mapping";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -230,40 +267,43 @@ export async function updateEmployeeMapping(
     externalId?: string;
     externalName?: string;
     isActive?: boolean;
-  }
+  },
 ): Promise<ActionResponse<EmployeeMapping>> {
   try {
     await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const updates: Record<string, unknown> = {};
-    if (input.externalId !== undefined) updates.external_id = input.externalId.trim();
-    if (input.externalName !== undefined) updates.external_name = input.externalName.trim();
+    if (input.externalId !== undefined)
+      updates.external_id = input.externalId.trim();
+    if (input.externalName !== undefined)
+      updates.external_name = input.externalName.trim();
     if (input.isActive !== undefined) updates.is_active = input.isActive;
 
     if (Object.keys(updates).length === 0) {
-      return failure('No fields to update', 'VALIDATION_ERROR');
+      return failure("No fields to update", "VALIDATION_ERROR");
     }
 
     const { data, error } = await supabase
-      .from('employee_mappings')
+      .from("employee_mappings")
       .update(updates)
-      .eq('id', mappingId)
+      .eq("id", mappingId)
       .select()
       .single();
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     if (!data) {
-      return failure('Employee mapping not found', 'NOT_FOUND');
+      return failure("Employee mapping not found", "NOT_FOUND");
     }
 
     return success(data as EmployeeMapping);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to update employee mapping';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to update employee mapping";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -271,25 +311,28 @@ export async function updateEmployeeMapping(
  * Deactivate an employee mapping (soft-disable, not delete).
  */
 export async function removeEmployeeMapping(
-  mappingId: string
+  mappingId: string,
 ): Promise<ActionResponse<{ deactivated: boolean }>> {
   try {
     await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const { error } = await supabase
-      .from('employee_mappings')
+      .from("employee_mappings")
       .update({ is_active: false })
-      .eq('id', mappingId);
+      .eq("id", mappingId);
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     return success({ deactivated: true });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to deactivate employee mapping';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Failed to deactivate employee mapping";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -312,7 +355,7 @@ export async function removeEmployeeMapping(
  * performs all validation and marks as synced for testing.
  */
 export async function syncTimesheetToPayroll(
-  timesheetId: string
+  timesheetId: string,
 ): Promise<ActionResponse<Timesheet>> {
   try {
     await requirePermission(Permissions.MANAGE_INTEGRATIONS);
@@ -320,56 +363,56 @@ export async function syncTimesheetToPayroll(
 
     // 1. Fetch the timesheet
     const { data: timesheet, error: fetchError } = await supabase
-      .from('timesheets')
-      .select('*')
-      .eq('id', timesheetId)
-      .is('deleted_at', null)
+      .from("timesheets")
+      .select("*")
+      .eq("id", timesheetId)
+      .is("deleted_at", null)
       .single();
 
     if (fetchError || !timesheet) {
-      return failure('Timesheet not found', 'NOT_FOUND');
+      return failure("Timesheet not found", "NOT_FOUND");
     }
 
     const typed = timesheet as Timesheet;
 
-    if (typed.status !== 'approved') {
+    if (typed.status !== "approved") {
       return failure(
         `Cannot sync a timesheet in '${typed.status}' status. Must be 'approved'.`,
-        'VALIDATION_ERROR'
+        "VALIDATION_ERROR",
       );
     }
 
     // 2. Check employee mapping exists
     const { data: mapping, error: mappingError } = await supabase
-      .from('employee_mappings')
-      .select('*')
-      .eq('user_id', typed.user_id)
-      .eq('is_active', true)
+      .from("employee_mappings")
+      .select("*")
+      .eq("user_id", typed.user_id)
+      .eq("is_active", true)
       .limit(1)
       .maybeSingle();
 
     if (mappingError) {
-      return failure(mappingError.message, 'DB_ERROR');
+      return failure(mappingError.message, "DB_ERROR");
     }
 
     if (!mapping) {
       return failure(
-        'No employee mapping found for this staff member. Configure the mapping in Payroll Settings first.',
-        'VALIDATION_ERROR'
+        "No employee mapping found for this staff member. Configure the mapping in Payroll Settings first.",
+        "VALIDATION_ERROR",
       );
     }
 
     // 3. Check payroll provider is configured
     const { data: settings } = await supabase
-      .from('payroll_settings')
-      .select('payroll_provider, provider_config')
+      .from("payroll_settings")
+      .select("payroll_provider, provider_config")
       .limit(1)
       .maybeSingle();
 
     if (!settings || !(settings as PayrollSettings).payroll_provider) {
       return failure(
-        'No payroll provider configured. Set up Xero or KeyPay in Payroll Settings first.',
-        'VALIDATION_ERROR'
+        "No payroll provider configured. Set up Xero or KeyPay in Payroll Settings first.",
+        "VALIDATION_ERROR",
       );
     }
 
@@ -392,24 +435,27 @@ export async function syncTimesheetToPayroll(
     const syncReference = `STUB-${Date.now()}-${timesheetId.slice(0, 8)}`;
 
     const { data: updated, error: updateError } = await supabase
-      .from('timesheets')
+      .from("timesheets")
       .update({
-        status: 'synced',
+        status: "synced",
         synced_at: new Date().toISOString(),
         sync_reference: syncReference,
       })
-      .eq('id', timesheetId)
+      .eq("id", timesheetId)
       .select()
       .single();
 
     if (updateError) {
-      return failure(updateError.message, 'DB_ERROR');
+      return failure(updateError.message, "DB_ERROR");
     }
 
     return success(updated as Timesheet);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to sync timesheet to payroll';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Failed to sync timesheet to payroll";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -417,28 +463,33 @@ export async function syncTimesheetToPayroll(
  * Bulk sync all approved timesheets for a pay period.
  */
 export async function bulkSyncTimesheets(
-  payPeriodId: string
-): Promise<ActionResponse<{ synced: number; failed: number; errors: string[] }>> {
+  payPeriodId: string,
+): Promise<
+  ActionResponse<{ synced: number; failed: number; errors: string[] }>
+> {
   try {
     await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     // Get all approved timesheets for this period
     const { data: timesheets, error } = await supabase
-      .from('timesheets')
-      .select('id')
-      .eq('pay_period_id', payPeriodId)
-      .eq('status', 'approved')
-      .is('deleted_at', null);
+      .from("timesheets")
+      .select("id")
+      .eq("pay_period_id", payPeriodId)
+      .eq("status", "approved")
+      .is("deleted_at", null);
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     const ids = ((timesheets ?? []) as Array<{ id: string }>).map((t) => t.id);
 
     if (ids.length === 0) {
-      return failure('No approved timesheets found for this pay period', 'VALIDATION_ERROR');
+      return failure(
+        "No approved timesheets found for this pay period",
+        "VALIDATION_ERROR",
+      );
     }
 
     let synced = 0;
@@ -457,7 +508,8 @@ export async function bulkSyncTimesheets(
 
     return success({ synced, failed, errors });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to bulk sync timesheets';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error ? err.message : "Failed to bulk sync timesheets";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }

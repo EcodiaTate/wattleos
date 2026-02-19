@@ -14,10 +14,13 @@
 // triggering a browser download after the server action completes.
 // ============================================================
 
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { exportReportToPdf, getReportPdfUrl } from '@/lib/actions/report-export';
+import {
+  exportReportToPdf,
+  getReportPdfUrl,
+} from "@/lib/actions/report-export";
+import { useCallback, useState } from "react";
 
 interface ReportPdfActionsProps {
   reportId: string;
@@ -38,7 +41,7 @@ export function ReportPdfActions({
   const [error, setError] = useState<string | null>(null);
   const [lastExportedAt, setLastExportedAt] = useState<string | null>(null);
 
-  const canExport = reportStatus === 'approved' || reportStatus === 'published';
+  const canExport = reportStatus === "approved" || reportStatus === "published";
 
   // ── Export (generate + upload) ────────────────────────────
 
@@ -71,7 +74,7 @@ export function ReportPdfActions({
 
     if (isParentView) {
       // Parents use the direct API route
-      window.open(`/api/reports/${reportId}/pdf?parent=true`, '_blank');
+      window.open(`/api/reports/${reportId}/pdf?parent=true`, "_blank");
       setIsDownloading(false);
       return;
     }
@@ -100,10 +103,10 @@ export function ReportPdfActions({
       <button
         onClick={handleDownload}
         disabled={isDownloading}
-        className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <DownloadIcon />
-        {isDownloading ? 'Preparing...' : 'Download PDF'}
+        {isDownloading ? "Preparing..." : "Download PDF"}
       </button>
     );
   }
@@ -119,20 +122,20 @@ export function ReportPdfActions({
             <button
               onClick={handleDownload}
               disabled={isDownloading}
-              className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <DownloadIcon />
-              {isDownloading ? 'Preparing...' : 'Download PDF'}
+              {isDownloading ? "Preparing..." : "Download PDF"}
             </button>
             {canExport && (
               <button
                 onClick={handleExport}
                 disabled={isExporting}
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-background px-3 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
                 title="Regenerate the PDF with the latest report content"
               >
                 <RefreshIcon />
-                {isExporting ? 'Generating...' : 'Re-export'}
+                {isExporting ? "Generating..." : "Re-export"}
               </button>
             )}
           </>
@@ -140,22 +143,20 @@ export function ReportPdfActions({
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <ExportIcon />
-            {isExporting ? 'Generating PDF...' : 'Export PDF'}
+            {isExporting ? "Generating PDF..." : "Export PDF"}
           </button>
         ) : (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             Report must be approved or published before exporting to PDF.
           </p>
         )}
       </div>
 
       {/* Status messages */}
-      {error && (
-        <p className="text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-600">{error}</p>}
       {lastExportedAt && !error && (
         <p className="text-sm text-green-600">
           PDF exported successfully at {lastExportedAt}
@@ -170,10 +171,10 @@ export function ReportPdfActions({
 // ============================================================
 
 function triggerDownload(url: string, filename: string) {
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   link.href = url;
   link.download = filename;
-  link.target = '_blank';
+  link.target = "_blank";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

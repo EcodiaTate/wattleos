@@ -11,10 +11,10 @@
 // navigating away to a raw image URL.
 // ============================================================
 
-'use client';
+"use client";
 
-import { useEffect, useCallback } from 'react';
-import type { ObservationMedia } from '@/types/domain';
+import type { ObservationMedia } from "@/types/domain";
+import { useCallback, useEffect } from "react";
 
 interface MediaLightboxProps {
   media: ObservationMedia[];
@@ -36,25 +36,25 @@ export function MediaLightbox({
   // Keyboard navigation
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         onClose();
-      } else if (e.key === 'ArrowLeft' && hasPrev) {
+      } else if (e.key === "ArrowLeft" && hasPrev) {
         onNavigate(currentIndex - 1);
-      } else if (e.key === 'ArrowRight' && hasNext) {
+      } else if (e.key === "ArrowRight" && hasNext) {
         onNavigate(currentIndex + 1);
       }
     },
-    [currentIndex, hasPrev, hasNext, onClose, onNavigate]
+    [currentIndex, hasPrev, hasNext, onClose, onNavigate],
   );
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     // Prevent body scroll while lightbox is open
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
     };
   }, [handleKeyDown]);
 
@@ -75,7 +75,7 @@ export function MediaLightbox({
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
+        className="absolute right-4 top-[var(--density-card-padding)] z-10 flex h-[var(--density-button-height)] w-10 items-center justify-center rounded-full bg-black/50 text-primary-foreground transition-colors hover:bg-black/70"
         aria-label="Close"
       >
         <svg
@@ -95,7 +95,7 @@ export function MediaLightbox({
 
       {/* Counter */}
       {media.length > 1 && (
-        <div className="absolute left-4 top-4 rounded-full bg-black/50 px-3 py-1 text-sm font-medium text-white">
+        <div className="absolute left-4 top-[var(--density-card-padding)] rounded-full bg-black/50 px-3 py-1 text-sm font-medium text-primary-foreground">
           {currentIndex + 1} / {media.length}
         </div>
       )}
@@ -107,7 +107,7 @@ export function MediaLightbox({
             e.stopPropagation();
             onNavigate(currentIndex - 1);
           }}
-          className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
+          className="absolute left-4 top-1/2 z-10 flex h-[var(--density-button-height)] w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-primary-foreground transition-colors hover:bg-black/70"
           aria-label="Previous image"
         >
           <svg
@@ -133,7 +133,7 @@ export function MediaLightbox({
             e.stopPropagation();
             onNavigate(currentIndex + 1);
           }}
-          className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
+          className="absolute right-4 top-1/2 z-10 flex h-[var(--density-button-height)] w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-primary-foreground transition-colors hover:bg-black/70"
           aria-label="Next image"
         >
           <svg
@@ -160,24 +160,24 @@ export function MediaLightbox({
         {imageUrl ? (
           <img
             src={imageUrl}
-            alt={current.file_name ?? 'Observation photo'}
+            alt={current.file_name ?? "Observation photo"}
             className="max-h-[85vh] max-w-[85vw] rounded-lg object-contain shadow-2xl"
           />
         ) : (
-          <div className="flex h-64 w-64 items-center justify-center rounded-lg bg-gray-800 text-gray-400">
+          <div className="flex h-64 w-64 items-center justify-center rounded-lg bg-gray-800 text-muted-foreground">
             <div className="text-center">
               <MediaTypeIcon type={current.media_type} />
-              <p className="mt-2 text-sm">{current.file_name ?? current.media_type}</p>
+              <p className="mt-2 text-sm">
+                {current.file_name ?? current.media_type}
+              </p>
             </div>
           </div>
         )}
       </div>
 
       {/* File info bar */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-1.5 text-xs text-white/80">
-        {current.file_name && (
-          <span>{current.file_name}</span>
-        )}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-1.5 text-xs text-primary-foreground/80">
+        {current.file_name && <span>{current.file_name}</span>}
         {current.file_size_bytes && (
           <span className="ml-2">
             ({formatFileSize(current.file_size_bytes)})
@@ -199,10 +199,10 @@ function formatFileSize(bytes: number): string {
 }
 
 function MediaTypeIcon({ type }: { type: string }) {
-  if (type === 'video') {
+  if (type === "video") {
     return (
       <svg
-        className="mx-auto h-12 w-12"
+        className="mx-auto h-[var(--density-button-height)] w-12"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
@@ -218,7 +218,7 @@ function MediaTypeIcon({ type }: { type: string }) {
   }
   return (
     <svg
-      className="mx-auto h-12 w-12"
+      className="mx-auto h-[var(--density-button-height)] w-12"
       fill="none"
       viewBox="0 0 24 24"
       strokeWidth={1.5}

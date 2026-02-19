@@ -1,8 +1,5 @@
 // src/components/domain/sis/GuardianSection.tsx
 //
-// ============================================================
-// WattleOS V2 — Guardian Management Section (DESIGN SYSTEM MIGRATED)
-// ============================================================
 
 "use client";
 
@@ -158,14 +155,14 @@ export function GuardianSection({
     return (
       <div className="space-y-[var(--density-md)] rounded-md border border-primary/30 bg-primary/5 p-[var(--density-card-padding)]">
         {error && (
-          <div className="rounded bg-destructive/10 p-2 text-[length:var(--text-xs)] text-destructive">
+          <div className="rounded bg-destructive/10 p-2 text-xs text-destructive">
             {error}
           </div>
         )}
 
         {mode === "add" && (
           <div>
-            <label className="block text-[length:var(--text-xs)] font-medium text-foreground">
+            <label className="block text-xs font-medium text-foreground">
               User ID <span className="text-destructive">*</span>
             </label>
             <input
@@ -173,9 +170,9 @@ export function GuardianSection({
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
               placeholder="Paste the parent/guardian's user UUID"
-              className="mt-1 block w-full rounded border border-input bg-card px-3 py-2 text-[length:var(--text-sm)] text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1 block w-full rounded border border-input bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
-            <p className="mt-1 text-[length:var(--text-xs)] text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground">
               The parent must already have a WattleOS account. Use their UUID
               from the Users page.
             </p>
@@ -184,13 +181,13 @@ export function GuardianSection({
 
         <div className="grid grid-cols-1 gap-[var(--density-md)] sm:grid-cols-2">
           <div>
-            <label className="block text-[length:var(--text-xs)] font-medium text-foreground">
+            <label className="block text-xs font-medium text-foreground">
               Relationship <span className="text-destructive">*</span>
             </label>
             <select
               value={relationship}
               onChange={(e) => setRelationship(e.target.value)}
-              className="mt-1 block w-full rounded border border-input bg-card px-3 py-2 text-[length:var(--text-sm)] text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1 block w-full rounded border border-input bg-card px-3 py-2 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             >
               <option value="">Select...</option>
               {GUARDIAN_RELATIONSHIPS.map((r) => (
@@ -202,7 +199,7 @@ export function GuardianSection({
           </div>
 
           <div>
-            <label className="block text-[length:var(--text-xs)] font-medium text-foreground">
+            <label className="block text-xs font-medium text-foreground">
               Phone
             </label>
             <input
@@ -210,7 +207,7 @@ export function GuardianSection({
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="e.g. 0412 345 678"
-              className="mt-1 block w-full rounded border border-input bg-card px-3 py-2 text-[length:var(--text-sm)] text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1 block w-full rounded border border-input bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
         </div>
@@ -246,7 +243,7 @@ export function GuardianSection({
           ].map((toggle) => (
             <label
               key={toggle.label}
-              className="flex items-center gap-2 text-[length:var(--text-sm)] text-foreground"
+              className="flex items-center gap-2 text-sm text-foreground"
             >
               <input
                 type="checkbox"
@@ -266,7 +263,7 @@ export function GuardianSection({
               mode === "add" ? handleAdd() : handleUpdate(guardianId!)
             }
             disabled={isPending}
-            className="rounded bg-primary px-3 py-1.5 text-[length:var(--text-sm)] font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {isPending
               ? "Saving..."
@@ -276,7 +273,7 @@ export function GuardianSection({
           </button>
           <button
             onClick={closeForm}
-            className="rounded border border-border px-3 py-1.5 text-[length:var(--text-sm)] font-medium text-muted-foreground hover:bg-muted"
+            className="rounded border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted"
           >
             Cancel
           </button>
@@ -288,13 +285,11 @@ export function GuardianSection({
   return (
     <section className="rounded-lg border border-border bg-card shadow-[var(--shadow-xs)]">
       <div className="flex items-center justify-between border-b border-border px-[var(--density-card-padding)] py-[var(--density-card-padding)]">
-        <h2 className="text-[length:var(--text-lg)] font-medium text-foreground">
-          Guardians
-        </h2>
+        <h2 className="font-medium text-foreground">Guardians</h2>
         {canManage && !showAddForm && !editingId && (
           <button
             onClick={openAdd}
-            className="text-[length:var(--text-sm)] font-medium text-primary hover:text-primary/80"
+            className="text-sm font-medium text-primary hover:text-primary/80"
           >
             + Add Guardian
           </button>
@@ -302,9 +297,7 @@ export function GuardianSection({
       </div>
       <div className="p-[var(--density-card-padding)]">
         {guardians.length === 0 && !showAddForm ? (
-          <p className="text-[length:var(--text-sm)] text-muted-foreground">
-            No guardians linked.
-          </p>
+          <p className="text-sm text-muted-foreground">No guardians linked.</p>
         ) : (
           <div className="space-y-[var(--density-sm)]">
             {guardians.map((guardian) => {
@@ -320,15 +313,15 @@ export function GuardianSection({
                   className="flex items-center justify-between rounded-md border border-border/50 p-3"
                 >
                   <div>
-                    <p className="text-[length:var(--text-sm)] font-medium text-foreground">
+                    <p className="text-sm font-medium text-foreground">
                       {guardian.user?.first_name} {guardian.user?.last_name}
                       {guardian.is_primary && (
-                        <span className="ml-2 text-[length:var(--text-xs)] font-normal text-primary">
+                        <span className="ml-2 text-xs font-normal text-primary">
                           Primary
                         </span>
                       )}
                     </p>
-                    <p className="text-[length:var(--text-xs)] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {guardian.relationship}
                       {guardian.phone && ` · ${guardian.phone}`}
                       {guardian.user?.email && ` · ${guardian.user.email}`}
@@ -338,7 +331,7 @@ export function GuardianSection({
                     <div className="flex gap-1">
                       {guardian.pickup_authorized && (
                         <span
-                          className="rounded px-1.5 py-0.5 text-[length:var(--text-xs)]"
+                          className="rounded px-1.5 py-0.5 text-xs"
                           style={{
                             backgroundColor:
                               "color-mix(in srgb, var(--success) 12%, transparent)",
@@ -350,7 +343,7 @@ export function GuardianSection({
                       )}
                       {guardian.media_consent && (
                         <span
-                          className="rounded px-1.5 py-0.5 text-[length:var(--text-xs)]"
+                          className="rounded px-1.5 py-0.5 text-xs"
                           style={{
                             backgroundColor:
                               "color-mix(in srgb, var(--info) 12%, transparent)",
@@ -362,7 +355,7 @@ export function GuardianSection({
                       )}
                       {guardian.is_emergency_contact && (
                         <span
-                          className="rounded px-1.5 py-0.5 text-[length:var(--text-xs)]"
+                          className="rounded px-1.5 py-0.5 text-xs"
                           style={{
                             backgroundColor:
                               "color-mix(in srgb, var(--warning) 12%, transparent)",

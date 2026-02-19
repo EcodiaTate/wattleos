@@ -1,7 +1,7 @@
 // src/app/(app)/admin/appearance/page.tsx
 //
 // ============================================================
-// WattleOS V2 — Admin: School Appearance Settings
+// WattleOS V2 - Admin: School Appearance Settings
 // ============================================================
 // Permission-gated to MANAGE_TENANT_SETTINGS.
 // Allows admins to configure brand color, default density,
@@ -41,10 +41,10 @@ export default async function AppearancePage() {
   return (
     <div className="space-y-[var(--density-section-gap)]">
       <div>
-        <h1 className="text-[var(--text-2xl)] font-semibold text-foreground">
+        <h1 className="text-2xl font-semibold text-foreground">
           School Appearance
         </h1>
-        <p className="mt-1 text-[var(--text-sm)] text-muted-foreground">
+        <p className="mt-1 text-sm text-muted-foreground">
           Customise how WattleOS looks for everyone at {context.tenant.name}.
           Individual users can override theme and density in their own settings.
         </p>

@@ -1,10 +1,10 @@
-import { getObservationFeed } from '@/lib/actions/observations';
-import { listStudents } from '@/lib/actions/students';
-import { getTenantContext, hasPermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import Link from 'next/link';
-import { ObservationCard } from '@/components/domain/observations/observation-card';
-import { FeedFilters } from '@/components/domain/observations/feed-filters';
+import { FeedFilters } from "@/components/domain/observations/feed-filters";
+import { ObservationCard } from "@/components/domain/observations/observation-card";
+import { getObservationFeed } from "@/lib/actions/observations";
+import { listStudents } from "@/lib/actions/students";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import Link from "next/link";
 
 interface PageProps {
   searchParams: Promise<{
@@ -20,8 +20,9 @@ export default async function ObservationsPage({ searchParams }: PageProps) {
   const canCreate = hasPermission(context, Permissions.CREATE_OBSERVATION);
   const canPublish = hasPermission(context, Permissions.PUBLISH_OBSERVATION);
 
-  const page = parseInt(params.page ?? '1', 10);
-  const status = (params.status as 'draft' | 'published' | 'archived') || undefined;
+  const page = parseInt(params.page ?? "1", 10);
+  const status =
+    (params.status as "draft" | "published" | "archived") || undefined;
   const studentId = params.student || undefined;
 
   const [feedResult, studentsResult] = await Promise.all([
@@ -38,18 +39,28 @@ export default async function ObservationsPage({ searchParams }: PageProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Observations</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">Observations</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Capture and review learning moments
           </p>
         </div>
         {canCreate && (
           <Link
             href="/pedagogy/observations/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-amber-700"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700"
           >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+              />
             </svg>
             New Observation
           </Link>
@@ -70,21 +81,37 @@ export default async function ObservationsPage({ searchParams }: PageProps) {
 
       {/* Feed */}
       {feed.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
-          <svg className="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+          <svg
+            className="mx-auto h-[var(--density-button-height)] w-12 text-gray-300"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+            />
           </svg>
-          <p className="mt-4 text-sm font-medium text-gray-900">No observations yet</p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-4 text-sm font-medium text-foreground">
+            No observations yet
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
             {canCreate
-              ? 'Create your first observation to get started.'
-              : 'Observations will appear here once guides start recording.'}
+              ? "Create your first observation to get started."
+              : "Observations will appear here once guides start recording."}
           </p>
           {canCreate && (
             <Link
               href="/pedagogy/observations/new"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700"
             >
               New Observation
             </Link>
@@ -105,25 +132,25 @@ export default async function ObservationsPage({ searchParams }: PageProps) {
 
       {/* Pagination */}
       {pagination.total_pages > 1 && (
-        <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-          <p className="text-sm text-gray-500">
-            Showing {(page - 1) * pagination.per_page + 1} to{' '}
-            {Math.min(page * pagination.per_page, pagination.total)} of{' '}
+        <div className="flex items-center justify-between border-tborder-border pt-4">
+          <p className="text-sm text-muted-foreground">
+            Showing {(page - 1) * pagination.per_page + 1} to{" "}
+            {Math.min(page * pagination.per_page, pagination.total)} of{" "}
             {pagination.total} observations
           </p>
           <div className="flex gap-2">
             {page > 1 && (
               <Link
-                href={`/pedagogy/observations?page=${page - 1}${status ? `&status=${status}` : ''}${studentId ? `&student=${studentId}` : ''}`}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                href={`/pedagogy/observations?page=${page - 1}${status ? `&status=${status}` : ""}${studentId ? `&student=${studentId}` : ""}`}
+                className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-background"
               >
                 Previous
               </Link>
             )}
             {page < pagination.total_pages && (
               <Link
-                href={`/pedagogy/observations?page=${page + 1}${status ? `&status=${status}` : ''}${studentId ? `&student=${studentId}` : ''}`}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                href={`/pedagogy/observations?page=${page + 1}${status ? `&status=${status}` : ""}${studentId ? `&student=${studentId}` : ""}`}
+                className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-background"
               >
                 Next
               </Link>

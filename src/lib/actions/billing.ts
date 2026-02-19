@@ -1,7 +1,7 @@
 // src/lib/actions/billing.ts
 //
 // ============================================================
-// WattleOS V2 — Billing Server Actions
+// WattleOS V2 - Billing Server Actions
 // ============================================================
 // Manages fee schedules, invoices, and Stripe synchronization.
 //
@@ -14,20 +14,19 @@
 // 6. Webhook updates invoice status + creates payment record
 // ============================================================
 
-'use server';
+"use server";
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getTenantContext, requirePermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { ActionResponse, success, failure, ErrorCodes } from '@/types/api';
+import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ActionResponse, ErrorCodes, failure, success } from "@/types/api";
 import type {
   FeeSchedule,
   Invoice,
-  InvoiceWithDetails,
   InvoiceLineItem,
+  InvoiceWithDetails,
   Payment,
-  StripeCustomer,
-} from '@/types/domain';
+} from "@/types/domain";
 
 // ============================================================
 // FEE SCHEDULE ACTIONS
@@ -45,17 +44,19 @@ export interface CreateFeeScheduleInput {
 }
 
 export async function createFeeSchedule(
-  input: CreateFeeScheduleInput
+  input: CreateFeeScheduleInput,
 ): Promise<ActionResponse<FeeSchedule>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
-    if (!input.name?.trim()) return failure('Name is required', ErrorCodes.VALIDATION_ERROR);
-    if (input.amount_cents < 0) return failure('Amount must be positive', ErrorCodes.VALIDATION_ERROR);
+    if (!input.name?.trim())
+      return failure("Name is required", ErrorCodes.VALIDATION_ERROR);
+    if (input.amount_cents < 0)
+      return failure("Amount must be positive", ErrorCodes.VALIDATION_ERROR);
 
     const { data, error } = await supabase
-      .from('fee_schedules')
+      .from("fee_schedules")
       .insert({
         tenant_id: context.tenant.id,
         name: input.name.trim(),
@@ -64,7 +65,8 @@ export async function createFeeSchedule(
         currency: input.currency ?? context.tenant.currency.toLowerCase(),
         frequency: input.frequency,
         description: input.description?.trim() || null,
-        effective_from: input.effective_from ?? new Date().toISOString().split('T')[0],
+        effective_from:
+          input.effective_from ?? new Date().toISOString().split("T")[0],
         effective_until: input.effective_until || null,
       })
       .select()
@@ -73,31 +75,39 @@ export async function createFeeSchedule(
     if (error) return failure(error.message, ErrorCodes.CREATE_FAILED);
     return success(data as FeeSchedule);
   } catch (err) {
-    return failure(err instanceof Error ? err.message : 'Failed', ErrorCodes.INTERNAL_ERROR);
+    return failure(
+      err instanceof Error ? err.message : "Failed",
+      ErrorCodes.INTERNAL_ERROR,
+    );
   }
 }
 
-export async function listFeeSchedules(): Promise<ActionResponse<FeeSchedule[]>> {
+export async function listFeeSchedules(): Promise<
+  ActionResponse<FeeSchedule[]>
+> {
   try {
     await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
-      .from('fee_schedules')
-      .select('*')
-      .is('deleted_at', null)
-      .order('created_at', { ascending: false });
+      .from("fee_schedules")
+      .select("*")
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false });
 
     if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
     return success((data ?? []) as FeeSchedule[]);
   } catch (err) {
-    return failure(err instanceof Error ? err.message : 'Failed', ErrorCodes.INTERNAL_ERROR);
+    return failure(
+      err instanceof Error ? err.message : "Failed",
+      ErrorCodes.INTERNAL_ERROR,
+    );
   }
 }
 
 export async function updateFeeSchedule(
   id: string,
-  input: Partial<CreateFeeScheduleInput> & { is_active?: boolean }
+  input: Partial<CreateFeeScheduleInput> & { is_active?: boolean },
 ): Promise<ActionResponse<FeeSchedule>> {
   try {
     await requirePermission(Permissions.MANAGE_INTEGRATIONS);
@@ -105,24 +115,30 @@ export async function updateFeeSchedule(
 
     const updateData: Record<string, unknown> = {};
     if (input.name !== undefined) updateData.name = input.name.trim();
-    if (input.amount_cents !== undefined) updateData.amount_cents = input.amount_cents;
+    if (input.amount_cents !== undefined)
+      updateData.amount_cents = input.amount_cents;
     if (input.frequency !== undefined) updateData.frequency = input.frequency;
-    if (input.description !== undefined) updateData.description = input.description?.trim() || null;
+    if (input.description !== undefined)
+      updateData.description = input.description?.trim() || null;
     if (input.is_active !== undefined) updateData.is_active = input.is_active;
-    if (input.effective_until !== undefined) updateData.effective_until = input.effective_until;
+    if (input.effective_until !== undefined)
+      updateData.effective_until = input.effective_until;
 
     const { data, error } = await supabase
-      .from('fee_schedules')
+      .from("fee_schedules")
       .update(updateData)
-      .eq('id', id)
-      .is('deleted_at', null)
+      .eq("id", id)
+      .is("deleted_at", null)
       .select()
       .single();
 
     if (error) return failure(error.message, ErrorCodes.UPDATE_FAILED);
     return success(data as FeeSchedule);
   } catch (err) {
-    return failure(err instanceof Error ? err.message : 'Failed', ErrorCodes.INTERNAL_ERROR);
+    return failure(
+      err instanceof Error ? err.message : "Failed",
+      ErrorCodes.INTERNAL_ERROR,
+    );
   }
 }
 
@@ -146,38 +162,46 @@ export interface CreateInvoiceInput {
 }
 
 export async function createInvoice(
-  input: CreateInvoiceInput
+  input: CreateInvoiceInput,
 ): Promise<ActionResponse<Invoice>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
-    if (!input.student_id) return failure('Student is required', ErrorCodes.VALIDATION_ERROR);
-    if (!input.guardian_id) return failure('Guardian is required', ErrorCodes.VALIDATION_ERROR);
-    if (!input.due_date) return failure('Due date is required', ErrorCodes.VALIDATION_ERROR);
-    if (!input.line_items.length) return failure('At least one line item is required', ErrorCodes.VALIDATION_ERROR);
+    if (!input.student_id)
+      return failure("Student is required", ErrorCodes.VALIDATION_ERROR);
+    if (!input.guardian_id)
+      return failure("Guardian is required", ErrorCodes.VALIDATION_ERROR);
+    if (!input.due_date)
+      return failure("Due date is required", ErrorCodes.VALIDATION_ERROR);
+    if (!input.line_items.length)
+      return failure(
+        "At least one line item is required",
+        ErrorCodes.VALIDATION_ERROR,
+      );
 
     // Generate invoice number
-    const { data: numResult } = await supabase
-      .rpc('next_invoice_number', { p_tenant_id: context.tenant.id });
+    const { data: numResult } = await supabase.rpc("next_invoice_number", {
+      p_tenant_id: context.tenant.id,
+    });
 
     const invoiceNumber = numResult ?? `INV-${new Date().getFullYear()}-0001`;
 
     // Calculate totals
     const subtotal = input.line_items.reduce(
       (sum, li) => sum + li.quantity * li.unit_amount_cents,
-      0
+      0,
     );
 
     // Create invoice
     const { data: invoice, error: invoiceError } = await supabase
-      .from('invoices')
+      .from("invoices")
       .insert({
         tenant_id: context.tenant.id,
         student_id: input.student_id,
         guardian_id: input.guardian_id,
         invoice_number: invoiceNumber,
-        status: 'draft',
+        status: "draft",
         subtotal_cents: subtotal,
         total_cents: subtotal, // No tax/discount for now
         currency: context.tenant.currency.toLowerCase(),
@@ -191,7 +215,10 @@ export async function createInvoice(
       .single();
 
     if (invoiceError || !invoice) {
-      return failure(invoiceError?.message ?? 'Failed to create invoice', ErrorCodes.CREATE_FAILED);
+      return failure(
+        invoiceError?.message ?? "Failed to create invoice",
+        ErrorCodes.CREATE_FAILED,
+      );
     }
 
     // Create line items
@@ -206,18 +233,21 @@ export async function createInvoice(
     }));
 
     const { error: lineError } = await supabase
-      .from('invoice_line_items')
+      .from("invoice_line_items")
       .insert(lineItems);
 
     if (lineError) {
       // Cleanup: delete the invoice if line items fail
-      await supabase.from('invoices').delete().eq('id', invoice.id);
+      await supabase.from("invoices").delete().eq("id", invoice.id);
       return failure(lineError.message, ErrorCodes.CREATE_FAILED);
     }
 
     return success(invoice as Invoice);
   } catch (err) {
-    return failure(err instanceof Error ? err.message : 'Failed', ErrorCodes.INTERNAL_ERROR);
+    return failure(
+      err instanceof Error ? err.message : "Failed",
+      ErrorCodes.INTERNAL_ERROR,
+    );
   }
 }
 
@@ -231,62 +261,74 @@ export async function listInvoices(params?: {
     const supabase = await createSupabaseServerClient();
 
     let query = supabase
-      .from('invoices')
-      .select(`
+      .from("invoices")
+      .select(
+        `
         *,
         student:students(id, first_name, last_name, photo_url),
         guardian:guardians(id, user_id, relationship, user:users(id, first_name, last_name, email)),
         line_items:invoice_line_items(*)
-      `)
-      .is('deleted_at', null)
-      .order('created_at', { ascending: false })
+      `,
+      )
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
       .limit(params?.limit ?? 50);
 
-    if (params?.status) query = query.eq('status', params.status);
-    if (params?.student_id) query = query.eq('student_id', params.student_id);
+    if (params?.status) query = query.eq("status", params.status);
+    if (params?.student_id) query = query.eq("student_id", params.student_id);
 
     const { data, error } = await query;
 
     if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
     return success((data ?? []) as InvoiceWithDetails[]);
   } catch (err) {
-    return failure(err instanceof Error ? err.message : 'Failed', ErrorCodes.INTERNAL_ERROR);
+    return failure(
+      err instanceof Error ? err.message : "Failed",
+      ErrorCodes.INTERNAL_ERROR,
+    );
   }
 }
 
-export async function getParentInvoices(): Promise<ActionResponse<InvoiceWithDetails[]>> {
+export async function getParentInvoices(): Promise<
+  ActionResponse<InvoiceWithDetails[]>
+> {
   try {
     const context = await getTenantContext();
     const supabase = await createSupabaseServerClient();
 
     // Get guardian records for this user
     const { data: guardians } = await supabase
-      .from('guardians')
-      .select('id')
-      .eq('user_id', context.user.id)
-      .is('deleted_at', null);
+      .from("guardians")
+      .select("id")
+      .eq("user_id", context.user.id)
+      .is("deleted_at", null);
 
     const guardianIds = (guardians ?? []).map((g) => g.id);
     if (guardianIds.length === 0) return success([]);
 
     const { data, error } = await supabase
-      .from('invoices')
-      .select(`
+      .from("invoices")
+      .select(
+        `
         *,
         student:students(id, first_name, last_name, photo_url),
         guardian:guardians(id, user_id, relationship),
         line_items:invoice_line_items(*)
-      `)
-      .in('guardian_id', guardianIds)
-      .is('deleted_at', null)
-      .not('status', 'eq', 'draft') // Parents don't see drafts
-      .order('created_at', { ascending: false })
+      `,
+      )
+      .in("guardian_id", guardianIds)
+      .is("deleted_at", null)
+      .not("status", "eq", "draft") // Parents don't see drafts
+      .order("created_at", { ascending: false })
       .limit(50);
 
     if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
     return success((data ?? []) as InvoiceWithDetails[]);
   } catch (err) {
-    return failure(err instanceof Error ? err.message : 'Failed', ErrorCodes.INTERNAL_ERROR);
+    return failure(
+      err instanceof Error ? err.message : "Failed",
+      ErrorCodes.INTERNAL_ERROR,
+    );
   }
 }
 
@@ -295,7 +337,7 @@ export async function getParentInvoices(): Promise<ActionResponse<InvoiceWithDet
 // ============================================================
 
 export async function syncInvoiceToStripe(
-  invoiceId: string
+  invoiceId: string,
 ): Promise<ActionResponse<Invoice>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
@@ -303,33 +345,35 @@ export async function syncInvoiceToStripe(
 
     // 1. Get invoice with guardian details
     const { data: invoice } = await supabase
-      .from('invoices')
-      .select(`
+      .from("invoices")
+      .select(
+        `
         *,
         guardian:guardians(id, user_id, user:users(id, email, first_name, last_name)),
         line_items:invoice_line_items(*)
-      `)
-      .eq('id', invoiceId)
+      `,
+      )
+      .eq("id", invoiceId)
       .single();
 
-    if (!invoice) return failure('Invoice not found', ErrorCodes.NOT_FOUND);
+    if (!invoice) return failure("Invoice not found", ErrorCodes.NOT_FOUND);
 
     // 2. Get Stripe config
     const { data: config } = await supabase
-      .from('integration_configs')
-      .select('credentials')
-      .eq('provider', 'stripe')
-      .eq('is_enabled', true)
-      .is('deleted_at', null)
+      .from("integration_configs")
+      .select("credentials")
+      .eq("provider", "stripe")
+      .eq("is_enabled", true)
+      .is("deleted_at", null)
       .maybeSingle();
 
     if (!config) {
-      return failure('Stripe is not configured', ErrorCodes.INTEGRATION_ERROR);
+      return failure("Stripe is not configured", ErrorCodes.INTEGRATION_ERROR);
     }
 
     const creds = config.credentials as { secret_key: string };
     if (!creds.secret_key) {
-      return failure('Stripe secret key missing', ErrorCodes.INTEGRATION_ERROR);
+      return failure("Stripe secret key missing", ErrorCodes.INTEGRATION_ERROR);
     }
 
     // 3. Dynamic import
@@ -338,7 +382,7 @@ export async function syncInvoiceToStripe(
       createCustomer,
       createInvoice: createStripeInvoice,
       finalizeInvoice: finalizeStripeInvoice,
-    } = await import('@/lib/integrations/stripe/client');
+    } = await import("@/lib/integrations/stripe/client");
 
     const stripe = createStripeClient(creds.secret_key);
 
@@ -346,18 +390,22 @@ export async function syncInvoiceToStripe(
     let stripeCustomer: { stripe_customer_id: string } | null = null;
 
     const { data: existingCustomer } = await supabase
-      .from('stripe_customers')
-      .select('stripe_customer_id')
-      .eq('guardian_id', invoice.guardian_id)
+      .from("stripe_customers")
+      .select("stripe_customer_id")
+      .eq("guardian_id", invoice.guardian_id)
       .maybeSingle();
 
     if (existingCustomer) {
       stripeCustomer = existingCustomer;
     } else {
       // Create new Stripe customer
-      const guardianUser = (invoice as unknown as {
-        guardian: { user: { email: string; first_name: string; last_name: string } };
-      }).guardian.user;
+      const guardianUser = (
+        invoice as unknown as {
+          guardian: {
+            user: { email: string; first_name: string; last_name: string };
+          };
+        }
+      ).guardian.user;
 
       const customer = await createCustomer(stripe, {
         email: guardianUser.email,
@@ -368,7 +416,7 @@ export async function syncInvoiceToStripe(
         },
       });
 
-      await supabase.from('stripe_customers').insert({
+      await supabase.from("stripe_customers").insert({
         tenant_id: context.tenant.id,
         guardian_id: invoice.guardian_id,
         stripe_customer_id: customer.id,
@@ -404,117 +452,130 @@ export async function syncInvoiceToStripe(
 
     // 7. Update WattleOS invoice with Stripe IDs
     const { data: updated, error: updateError } = await supabase
-      .from('invoices')
+      .from("invoices")
       .update({
         stripe_invoice_id: finalized.id,
         stripe_hosted_url: finalized.hosted_invoice_url,
-        status: 'pending',
+        status: "pending",
       })
-      .eq('id', invoiceId)
+      .eq("id", invoiceId)
       .select()
       .single();
 
-    if (updateError) return failure(updateError.message, ErrorCodes.UPDATE_FAILED);
+    if (updateError)
+      return failure(updateError.message, ErrorCodes.UPDATE_FAILED);
     return success(updated as Invoice);
   } catch (err) {
-    return failure(err instanceof Error ? err.message : 'Stripe sync failed', ErrorCodes.INTEGRATION_ERROR);
+    return failure(
+      err instanceof Error ? err.message : "Stripe sync failed",
+      ErrorCodes.INTEGRATION_ERROR,
+    );
   }
 }
 
 export async function sendStripeInvoice(
-  invoiceId: string
+  invoiceId: string,
 ): Promise<ActionResponse<Invoice>> {
   try {
     await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const { data: invoice } = await supabase
-      .from('invoices')
-      .select('stripe_invoice_id')
-      .eq('id', invoiceId)
+      .from("invoices")
+      .select("stripe_invoice_id")
+      .eq("id", invoiceId)
       .single();
 
     if (!invoice?.stripe_invoice_id) {
-      return failure('Invoice not synced to Stripe yet', ErrorCodes.INTEGRATION_ERROR);
+      return failure(
+        "Invoice not synced to Stripe yet",
+        ErrorCodes.INTEGRATION_ERROR,
+      );
     }
 
     const { data: config } = await supabase
-      .from('integration_configs')
-      .select('credentials')
-      .eq('provider', 'stripe')
-      .eq('is_enabled', true)
-      .is('deleted_at', null)
+      .from("integration_configs")
+      .select("credentials")
+      .eq("provider", "stripe")
+      .eq("is_enabled", true)
+      .is("deleted_at", null)
       .maybeSingle();
 
-    if (!config) return failure('Stripe not configured', ErrorCodes.INTEGRATION_ERROR);
+    if (!config)
+      return failure("Stripe not configured", ErrorCodes.INTEGRATION_ERROR);
 
     const creds = config.credentials as { secret_key: string };
-    const { createStripeClient, sendInvoice: stripeSend } = await import(
-      '@/lib/integrations/stripe/client'
-    );
+    const { createStripeClient, sendInvoice: stripeSend } =
+      await import("@/lib/integrations/stripe/client");
 
     const stripe = createStripeClient(creds.secret_key);
     await stripeSend(stripe, invoice.stripe_invoice_id);
 
     const { data: updated } = await supabase
-      .from('invoices')
-      .update({ status: 'sent', sent_at: new Date().toISOString() })
-      .eq('id', invoiceId)
+      .from("invoices")
+      .update({ status: "sent", sent_at: new Date().toISOString() })
+      .eq("id", invoiceId)
       .select()
       .single();
 
     return success(updated as Invoice);
   } catch (err) {
-    return failure(err instanceof Error ? err.message : 'Send failed', ErrorCodes.INTEGRATION_ERROR);
+    return failure(
+      err instanceof Error ? err.message : "Send failed",
+      ErrorCodes.INTEGRATION_ERROR,
+    );
   }
 }
 
 export async function voidInvoice(
-  invoiceId: string
+  invoiceId: string,
 ): Promise<ActionResponse<Invoice>> {
   try {
     await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const { data: invoice } = await supabase
-      .from('invoices')
-      .select('stripe_invoice_id, status')
-      .eq('id', invoiceId)
+      .from("invoices")
+      .select("stripe_invoice_id, status")
+      .eq("id", invoiceId)
       .single();
 
-    if (!invoice) return failure('Invoice not found', ErrorCodes.NOT_FOUND);
-    if (invoice.status === 'paid') return failure('Cannot void a paid invoice', ErrorCodes.VALIDATION_ERROR);
+    if (!invoice) return failure("Invoice not found", ErrorCodes.NOT_FOUND);
+    if (invoice.status === "paid")
+      return failure("Cannot void a paid invoice", ErrorCodes.VALIDATION_ERROR);
 
     // Void in Stripe if synced
     if (invoice.stripe_invoice_id) {
       const { data: config } = await supabase
-        .from('integration_configs')
-        .select('credentials')
-        .eq('provider', 'stripe')
-        .eq('is_enabled', true)
-        .is('deleted_at', null)
+        .from("integration_configs")
+        .select("credentials")
+        .eq("provider", "stripe")
+        .eq("is_enabled", true)
+        .is("deleted_at", null)
         .maybeSingle();
 
       if (config) {
         const creds = config.credentials as { secret_key: string };
-        const { createStripeClient, voidInvoice: stripeVoid } = await import(
-          '@/lib/integrations/stripe/client'
-        );
+        const { createStripeClient, voidInvoice: stripeVoid } =
+          await import("@/lib/integrations/stripe/client");
         const stripe = createStripeClient(creds.secret_key);
         await stripeVoid(stripe, invoice.stripe_invoice_id);
       }
     }
 
     const { data: updated } = await supabase
-      .from('invoices')
-      .update({ status: 'void', voided_at: new Date().toISOString() })
-      .eq('id', invoiceId)
+      .from("invoices")
+      .update({ status: "void", voided_at: new Date().toISOString() })
+      .eq("id", invoiceId)
       .select()
       .single();
 
     return success(updated as Invoice);
   } catch (err) {
-    return failure(err instanceof Error ? err.message : 'Void failed', ErrorCodes.INTERNAL_ERROR);
+    return failure(
+      err instanceof Error ? err.message : "Void failed",
+      ErrorCodes.INTERNAL_ERROR,
+    );
   }
 }
 
@@ -523,21 +584,24 @@ export async function voidInvoice(
 // ============================================================
 
 export async function listPaymentsForInvoice(
-  invoiceId: string
+  invoiceId: string,
 ): Promise<ActionResponse<Payment[]>> {
   try {
     await getTenantContext();
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
-      .from('payments')
-      .select('*')
-      .eq('invoice_id', invoiceId)
-      .order('created_at', { ascending: false });
+      .from("payments")
+      .select("*")
+      .eq("invoice_id", invoiceId)
+      .order("created_at", { ascending: false });
 
     if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
     return success((data ?? []) as Payment[]);
   } catch (err) {
-    return failure(err instanceof Error ? err.message : 'Failed', ErrorCodes.INTERNAL_ERROR);
+    return failure(
+      err instanceof Error ? err.message : "Failed",
+      ErrorCodes.INTERNAL_ERROR,
+    );
   }
 }

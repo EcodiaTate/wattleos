@@ -74,21 +74,21 @@ export function IntegrationDashboardClient({
         return (
           <div
             key={provider.key}
-            className={`rounded-lg border bg-white shadow-sm transition-all ${
-              config?.is_enabled ? "border-green-200" : "border-gray-200"
+            className={`rounded-lg border bg-background shadow-sm transition-all ${
+              config?.is_enabled ? "border-green-200" : "border-border"
             }`}
           >
             {/* Card header */}
             <div className="flex items-center justify-between px-6 py-4">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-[var(--density-card-padding)]">
                 <span
-                  className={`inline-flex h-10 w-10 items-center justify-center rounded-lg text-lg ${provider.bgColor}`}
+                  className={`inline-flex h-[var(--density-button-height)] w-10 items-center justify-center rounded-lg text-lg ${provider.bgColor}`}
                 >
                   {provider.icon}
                 </span>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-gray-900">
+                    <h3 className="text-sm font-semibold text-foreground">
                       {provider.label}
                     </h3>
                     {config?.is_enabled && (
@@ -97,12 +97,12 @@ export function IntegrationDashboardClient({
                       </span>
                     )}
                     {!provider.implemented && (
-                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                      <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
                         Coming Soon
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 text-xs text-gray-500">
+                  <p className="mt-0.5 text-xs text-muted-foreground">
                     {provider.description}
                   </p>
                 </div>
@@ -112,7 +112,7 @@ export function IntegrationDashboardClient({
                 {config?.is_enabled && (
                   <button
                     onClick={() => handleLoadLogs(provider.key)}
-                    className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-background transition-colors"
                   >
                     Sync Logs
                   </button>
@@ -122,7 +122,7 @@ export function IntegrationDashboardClient({
                     setExpandedProvider(isExpanded ? null : provider.key)
                   }
                   disabled={!provider.implemented}
-                  className="rounded-md bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                  className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
                 >
                   {isExpanded ? "Close" : config ? "Configure" : "Set Up"}
                 </button>
@@ -153,12 +153,14 @@ export function IntegrationDashboardClient({
       {/* Sync Logs Modal */}
       {showLogs && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 max-h-[80vh] w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-              <h3 className="text-lg font-semibold text-gray-900">Sync Logs</h3>
+          <div className="mx-4 max-h-[80vh] w-full max-w-2xl overflow-hidden rounded-lg bg-background shadow-xl">
+            <div className="flex items-center justify-between border-bborder-border px-6 py-4">
+              <h3 className="text-lg font-semibold text-foreground">
+                Sync Logs
+              </h3>
               <button
                 onClick={() => setShowLogs(false)}
-                className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
               >
                 <svg
                   className="h-5 w-5"
@@ -177,7 +179,9 @@ export function IntegrationDashboardClient({
             </div>
             <div className="max-h-[60vh] overflow-y-auto px-6 py-4">
               {syncLogs.length === 0 ? (
-                <p className="text-sm text-gray-500">No sync logs found.</p>
+                <p className="text-sm text-muted-foreground">
+                  No sync logs found.
+                </p>
               ) : (
                 <div className="space-y-3">
                   {syncLogs.map((log) => {
@@ -194,16 +198,16 @@ export function IntegrationDashboardClient({
                             >
                               {statusConfig.label}
                             </span>
-                            <span className="text-sm font-medium text-gray-900">
+                            <span className="text-sm font-medium text-foreground">
                               {log.operation}
                             </span>
                           </div>
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-muted-foreground">
                             {new Date(log.created_at).toLocaleString("en-AU")}
                           </span>
                         </div>
                         {log.entity_type && (
-                          <p className="mt-1 text-xs text-gray-500">
+                          <p className="mt-1 text-xs text-muted-foreground">
                             {log.entity_type}{" "}
                             {log.entity_id
                               ? `(${log.entity_id.slice(0, 8)}...)`
@@ -396,14 +400,14 @@ function IntegrationConfigForm({
           onChange={(e) => setIsEnabled(e.target.checked)}
           className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
         />
-        <span className="text-sm font-medium text-gray-700">
+        <span className="text-sm font-medium text-foreground">
           Enable {provider.label} integration
         </span>
       </label>
 
       {/* Credential fields */}
       <div>
-        <h4 className="text-sm font-semibold text-gray-900">Credentials</h4>
+        <h4 className="text-sm font-semibold text-foreground">Credentials</h4>
         <div className="mt-3 space-y-4">
           {provider.credentialFields.map((field) => (
             <CredentialInput
@@ -419,7 +423,7 @@ function IntegrationConfigForm({
       {/* Setting fields */}
       {provider.settingFields.length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-gray-900">Settings</h4>
+          <h4 className="text-sm font-semibold text-foreground">Settings</h4>
           <div className="mt-3 space-y-4">
             {provider.settingFields.map((field) => (
               <SettingInput
@@ -438,14 +442,14 @@ function IntegrationConfigForm({
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-700 disabled:opacity-50 transition-colors"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 disabled:opacity-50 transition-colors"
         >
           {isSaving ? "Saving..." : "Save Configuration"}
         </button>
         <button
           onClick={handleTest}
           disabled={isTesting}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background disabled:opacity-50 transition-colors"
         >
           {isTesting ? "Testing..." : "Test Connection"}
         </button>
@@ -480,7 +484,7 @@ function CredentialInput({
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-foreground">
         {field.label}
         {field.required && <span className="ml-1 text-red-500">*</span>}
       </label>
@@ -502,7 +506,7 @@ function CredentialInput({
         />
       )}
       {field.helpText && (
-        <p className="mt-1 text-xs text-gray-500">{field.helpText}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{field.helpText}</p>
       )}
     </div>
   );
@@ -527,11 +531,11 @@ function SettingInput({
           className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
         />
         <div>
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-foreground">
             {field.label}
           </span>
           {field.helpText && (
-            <p className="text-xs text-gray-500">{field.helpText}</p>
+            <p className="text-xs text-muted-foreground">{field.helpText}</p>
           )}
         </div>
       </label>
@@ -540,7 +544,7 @@ function SettingInput({
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-foreground">
         {field.label}
       </label>
       <input
@@ -550,7 +554,7 @@ function SettingInput({
         className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
       />
       {field.helpText && (
-        <p className="mt-1 text-xs text-gray-500">{field.helpText}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{field.helpText}</p>
       )}
     </div>
   );

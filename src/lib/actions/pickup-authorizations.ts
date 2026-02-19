@@ -1,22 +1,22 @@
 // src/lib/actions/pickup-authorizations.ts
 //
 // ============================================================
-// WattleOS V2 — Pickup Authorization Server Actions
+// WattleOS V2 - Pickup Authorization Server Actions
 // ============================================================
 // Manages who is authorized to pick up each student.
-// Separate from guardians — covers grandparents, nannies,
+// Separate from guardians - covers grandparents, nannies,
 // family friends, etc.
 //
 // WHY separate file: Pickup is managed on the student detail
 // page (SIS context), not the daily attendance workflow.
 // ============================================================
 
-'use server';
+"use server";
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getTenantContext } from '@/lib/auth/tenant-context';
-import { ActionResponse, success, failure } from '@/types/api';
-import type { PickupAuthorization } from '@/types/domain';
+import { getTenantContext } from "@/lib/auth/tenant-context";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ActionResponse, failure, success } from "@/types/api";
+import type { PickupAuthorization } from "@/types/domain";
 
 // ============================================================
 // Input Types
@@ -48,28 +48,31 @@ export interface UpdatePickupAuthorizationInput {
 // ============================================================
 
 export async function listPickupAuthorizations(
-  studentId: string
+  studentId: string,
 ): Promise<ActionResponse<PickupAuthorization[]>> {
   try {
     await getTenantContext();
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
-      .from('pickup_authorizations')
-      .select('*')
-      .eq('student_id', studentId)
-      .is('deleted_at', null)
-      .order('is_permanent', { ascending: false })
-      .order('authorized_name', { ascending: true });
+      .from("pickup_authorizations")
+      .select("*")
+      .eq("student_id", studentId)
+      .is("deleted_at", null)
+      .order("is_permanent", { ascending: false })
+      .order("authorized_name", { ascending: true });
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     return success((data ?? []) as PickupAuthorization[]);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to list pickup authorizations';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Failed to list pickup authorizations";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -78,17 +81,19 @@ export async function listPickupAuthorizations(
 // ============================================================
 
 export async function createPickupAuthorization(
-  input: CreatePickupAuthorizationInput
+  input: CreatePickupAuthorizationInput,
 ): Promise<ActionResponse<PickupAuthorization>> {
   try {
     const context = await getTenantContext();
     const supabase = await createSupabaseServerClient();
 
-    if (!input.studentId) return failure('Student is required', 'VALIDATION_ERROR');
-    if (!input.authorizedName?.trim()) return failure('Name is required', 'VALIDATION_ERROR');
+    if (!input.studentId)
+      return failure("Student is required", "VALIDATION_ERROR");
+    if (!input.authorizedName?.trim())
+      return failure("Name is required", "VALIDATION_ERROR");
 
     const { data, error } = await supabase
-      .from('pickup_authorizations')
+      .from("pickup_authorizations")
       .insert({
         tenant_id: context.tenant.id,
         student_id: input.studentId,
@@ -105,13 +110,16 @@ export async function createPickupAuthorization(
       .single();
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     return success(data as PickupAuthorization);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to create pickup authorization';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Failed to create pickup authorization";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -121,41 +129,48 @@ export async function createPickupAuthorization(
 
 export async function updatePickupAuthorization(
   id: string,
-  input: UpdatePickupAuthorizationInput
+  input: UpdatePickupAuthorizationInput,
 ): Promise<ActionResponse<PickupAuthorization>> {
   try {
     await getTenantContext();
     const supabase = await createSupabaseServerClient();
 
     const updates: Record<string, unknown> = {};
-    if (input.authorizedName !== undefined) updates.authorized_name = input.authorizedName.trim();
-    if (input.relationship !== undefined) updates.relationship = input.relationship?.trim() || null;
+    if (input.authorizedName !== undefined)
+      updates.authorized_name = input.authorizedName.trim();
+    if (input.relationship !== undefined)
+      updates.relationship = input.relationship?.trim() || null;
     if (input.phone !== undefined) updates.phone = input.phone?.trim() || null;
-    if (input.photoUrl !== undefined) updates.photo_url = input.photoUrl || null;
-    if (input.isPermanent !== undefined) updates.is_permanent = input.isPermanent;
+    if (input.photoUrl !== undefined)
+      updates.photo_url = input.photoUrl || null;
+    if (input.isPermanent !== undefined)
+      updates.is_permanent = input.isPermanent;
     if (input.validFrom !== undefined) updates.valid_from = input.validFrom;
     if (input.validUntil !== undefined) updates.valid_until = input.validUntil;
 
     if (Object.keys(updates).length === 0) {
-      return failure('No fields to update', 'VALIDATION_ERROR');
+      return failure("No fields to update", "VALIDATION_ERROR");
     }
 
     const { data, error } = await supabase
-      .from('pickup_authorizations')
+      .from("pickup_authorizations")
       .update(updates)
-      .eq('id', id)
-      .is('deleted_at', null)
+      .eq("id", id)
+      .is("deleted_at", null)
       .select()
       .single();
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     return success(data as PickupAuthorization);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to update pickup authorization';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Failed to update pickup authorization";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }
 
@@ -164,25 +179,28 @@ export async function updatePickupAuthorization(
 // ============================================================
 
 export async function deletePickupAuthorization(
-  id: string
+  id: string,
 ): Promise<ActionResponse<{ success: boolean }>> {
   try {
     await getTenantContext();
     const supabase = await createSupabaseServerClient();
 
     const { error } = await supabase
-      .from('pickup_authorizations')
+      .from("pickup_authorizations")
       .update({ deleted_at: new Date().toISOString() })
-      .eq('id', id)
-      .is('deleted_at', null);
+      .eq("id", id)
+      .is("deleted_at", null);
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     return success({ success: true });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to delete pickup authorization';
-    return failure(message, 'UNEXPECTED_ERROR');
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Failed to delete pickup authorization";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }

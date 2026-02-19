@@ -155,16 +155,16 @@ export function EmergencyContactSection({
   // ── Inline form ─────────────────────────────────────────
   function renderForm(mode: "add" | "edit", contactId?: string) {
     return (
-      <div className="space-y-4 rounded-md border border-amber-200 bg-amber-50/50 p-4">
+      <div className="space-y-4 rounded-md border border-amber-200 bg-amber-50/50 p-[var(--density-card-padding)]">
         {error && (
           <div className="rounded bg-red-50 p-2 text-xs text-red-700">
             {error}
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-3">
           <div>
-            <label className="block text-xs font-medium text-gray-700">
+            <label className="block text-xs font-medium text-foreground">
               Full Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -177,7 +177,7 @@ export function EmergencyContactSection({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-700">
+            <label className="block text-xs font-medium text-foreground">
               Relationship <span className="text-red-500">*</span>
             </label>
             <input
@@ -190,7 +190,7 @@ export function EmergencyContactSection({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-700">
+            <label className="block text-xs font-medium text-foreground">
               Priority
             </label>
             <input
@@ -201,13 +201,15 @@ export function EmergencyContactSection({
               onChange={(e) => setPriorityOrder(Number(e.target.value))}
               className="mt-1 block w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
-            <p className="mt-1 text-xs text-gray-500">1 = first to call</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              1 = first to call
+            </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-3">
           <div>
-            <label className="block text-xs font-medium text-gray-700">
+            <label className="block text-xs font-medium text-foreground">
               Primary Phone <span className="text-red-500">*</span>
             </label>
             <input
@@ -220,7 +222,7 @@ export function EmergencyContactSection({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-700">
+            <label className="block text-xs font-medium text-foreground">
               Secondary Phone
             </label>
             <input
@@ -233,7 +235,7 @@ export function EmergencyContactSection({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-700">
+            <label className="block text-xs font-medium text-foreground">
               Email
             </label>
             <input
@@ -247,7 +249,7 @@ export function EmergencyContactSection({
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             Notes
           </label>
           <input
@@ -265,7 +267,7 @@ export function EmergencyContactSection({
               mode === "add" ? handleAdd() : handleUpdate(contactId!)
             }
             disabled={isPending}
-            className="rounded bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+            className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
           >
             {isPending
               ? "Saving..."
@@ -275,7 +277,7 @@ export function EmergencyContactSection({
           </button>
           <button
             onClick={closeForm}
-            className="rounded border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
+            className="rounded border border-gray-300 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-background"
           >
             Cancel
           </button>
@@ -285,15 +287,15 @@ export function EmergencyContactSection({
   }
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-        <h2 className="text-lg font-medium text-gray-900">
+    <section className="rounded-lg borderborder-border bg-background shadow-sm">
+      <div className="flex items-center justify-between border-bborder-border px-6 py-4">
+        <h2 className="text-lg font-medium text-foreground">
           Emergency Contacts
         </h2>
         {canManage && !showAddForm && !editingId && (
           <button
             onClick={openAdd}
-            className="text-sm font-medium text-amber-600 hover:text-amber-700"
+            className="text-sm font-medium text-primary hover:text-amber-700"
           >
             + Add Contact
           </button>
@@ -301,7 +303,7 @@ export function EmergencyContactSection({
       </div>
       <div className="px-6 py-4">
         {contacts.length === 0 && !showAddForm ? (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             No emergency contacts recorded.
           </p>
         ) : (
@@ -319,21 +321,23 @@ export function EmergencyContactSection({
                   className="flex items-center justify-between rounded-md border border-gray-100 p-3"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-gray-600">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-muted-foreground">
                       {contact.priority_order}
                     </span>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-foreground">
                         {contact.name}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {contact.relationship} · {contact.phone_primary}
                         {contact.phone_secondary &&
                           ` / ${contact.phone_secondary}`}
                         {contact.email && ` · ${contact.email}`}
                       </p>
                       {contact.notes && (
-                        <p className="text-xs text-gray-400">{contact.notes}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {contact.notes}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -341,7 +345,7 @@ export function EmergencyContactSection({
                     <div className="flex gap-1">
                       <button
                         onClick={() => openEdit(contact)}
-                        className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                        className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
                         title="Edit"
                       >
                         <svg
@@ -360,7 +364,7 @@ export function EmergencyContactSection({
                       </button>
                       <button
                         onClick={() => handleDelete(contact.id, contact.name)}
-                        className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                        className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-600"
                         title="Delete"
                       >
                         <svg

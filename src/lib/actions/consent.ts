@@ -1,7 +1,7 @@
 // src/lib/actions/consent.ts
 //
 // ============================================================
-// WattleOS V2 — Consent Check Server Actions
+// WattleOS V2 - Consent Check Server Actions
 // ============================================================
 // Queries guardian consent flags for students. Used by the
 // observation capture form to warn when publishing photos of
@@ -12,11 +12,11 @@
 // circular dependencies between action modules.
 // ============================================================
 
-'use server';
+"use server";
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getTenantContext } from '@/lib/auth/tenant-context';
-import { ActionResponse, success, failure } from '@/types/api';
+import { getTenantContext } from "@/lib/auth/tenant-context";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ActionResponse, failure, success } from "@/types/api";
 
 /**
  * For a list of student IDs, returns a record mapping each
@@ -25,7 +25,7 @@ import { ActionResponse, success, failure } from '@/types/api';
  * considered as NOT having consent (safe default).
  */
 export async function getStudentMediaConsentMap(
-  studentIds: string[]
+  studentIds: string[],
 ): Promise<ActionResponse<Record<string, boolean>>> {
   try {
     await getTenantContext();
@@ -36,13 +36,13 @@ export async function getStudentMediaConsentMap(
     }
 
     const { data, error } = await supabase
-      .from('guardians')
-      .select('student_id, media_consent')
-      .in('student_id', studentIds)
-      .is('deleted_at', null);
+      .from("guardians")
+      .select("student_id, media_consent")
+      .in("student_id", studentIds)
+      .is("deleted_at", null);
 
     if (error) {
-      return failure(error.message, 'DB_ERROR');
+      return failure(error.message, "DB_ERROR");
     }
 
     // Build map: studentId → true if ANY guardian has media_consent = true
@@ -64,7 +64,7 @@ export async function getStudentMediaConsentMap(
     return success(consentMap);
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : 'Failed to check media consent';
-    return failure(message, 'UNEXPECTED_ERROR');
+      err instanceof Error ? err.message : "Failed to check media consent";
+    return failure(message, "UNEXPECTED_ERROR");
   }
 }

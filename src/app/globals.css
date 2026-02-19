@@ -1,14 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
+@source "../components/**/*.{ts,tsx}";
+@source "../app/**/*.{ts,tsx}";
+@source "../lib/**/*.{ts,tsx}";
 
 /*
  * ============================================================
- * WattleOS V2 — Design System (Tailwind v4)
+ * WattleOS V2 - Design System (Tailwind v4)
  * ============================================================
  *
  * Named after the Australian Golden Wattle.
- * Warm, natural, clear — built for educators, not accountants.
+ * Warm, natural, clear - built for educators, not accountants.
  *
  * CONFIGURABILITY ARCHITECTURE:
  *   Admin sets: brand color, density, sidebar style
@@ -21,7 +24,7 @@
  * HOW TO USE:
  *   1. Server component reads tenant_settings + user_preferences
  *   2. Applies data attributes to <html> in layout.tsx
- *   3. CSS variables cascade automatically — no JS theming needed
+ *   3. CSS variables cascade automatically - no JS theming needed
  *
  * STRUCTURE:
  *   1.  Font imports (above)
@@ -35,7 +38,7 @@
  *   9.  Elevation / shadow system
  *   10. Transition tokens
  *   11. Component tokens (forms, tables, toasts, etc.)
- *   12. @theme inline — Tailwind class mapping
+ *   12. @theme inline - Tailwind class mapping
  *   13. Base typography & resets
  *   14. Scrollbar styling
  *   15. Focus & accessibility
@@ -44,7 +47,6 @@
  *   18. Print styles
  * ============================================================
  */
-
 
 /* ============================================================
    2. DENSITY SYSTEM
@@ -64,95 +66,94 @@
 /* Default: comfortable (applied when no attribute present) */
 :root {
   /* --- Micro spacing (icon gaps, badge padding) --- */
-  --density-xs:             0.25rem;   /* 4px */
-  --density-sm:             0.5rem;    /* 8px */
-  --density-md:             0.75rem;   /* 12px */
-  --density-lg:             1rem;      /* 16px */
-  --density-xl:             1.5rem;    /* 24px */
-  --density-2xl:            2rem;      /* 32px */
+  --density-xs: 0.25rem; /* 4px */
+  --density-sm: 0.5rem; /* 8px */
+  --density-md: 0.75rem; /* 12px */
+  --density-lg: 1rem; /* 16px */
+  --density-xl: 1.5rem; /* 24px */
+  --density-2xl: 2rem; /* 32px */
 
   /* --- Component-level spacing --- */
-  --density-card-padding:   1.25rem;   /* 20px */
-  --density-section-gap:    1.5rem;    /* 24px */
-  --density-page-padding:   2rem;      /* 32px — main content area */
-  --density-input-padding-x: 0.75rem;  /* 12px */
-  --density-input-padding-y: 0.5rem;   /* 8px */
-  --density-input-height:   2.5rem;    /* 40px */
-  --density-button-height:  2.5rem;    /* 40px */
-  --density-button-padding-x: 1rem;    /* 16px */
+  --density-card-padding: 1.25rem; /* 20px */
+  --density-section-gap: 1.5rem; /* 24px */
+  --density-page-padding: 2rem; /* 32px - main content area */
+  --density-input-padding-x: 0.75rem; /* 12px */
+  --density-input-padding-y: 0.5rem; /* 8px */
+  --density-input-height: 2.5rem; /* 40px */
+  --density-button-height: 2.5rem; /* 40px */
+  --density-button-padding-x: 1rem; /* 16px */
 
   /* --- Table-specific --- */
-  --density-table-cell-x:   0.75rem;
-  --density-table-cell-y:   0.625rem;  /* 10px */
+  --density-table-cell-x: 0.75rem;
+  --density-table-cell-y: 0.625rem; /* 10px */
   --density-table-header-y: 0.75rem;
 
   /* --- Row / list items --- */
-  --density-row-height:     3rem;      /* 48px — comfortable click target */
+  --density-row-height: 3rem; /* 48px - comfortable click target */
 
   /* --- Iconography --- */
-  --density-icon-sm:        1rem;      /* 16px */
-  --density-icon-md:        1.25rem;   /* 20px */
-  --density-icon-lg:        1.5rem;    /* 24px */
+  --density-icon-sm: 1rem; /* 16px */
+  --density-icon-md: 1.25rem; /* 20px */
+  --density-icon-lg: 1.5rem; /* 24px */
 }
 
 /* Compact: denser layout for power users / small screens */
 [data-density="compact"] {
-  --density-xs:             0.125rem;
-  --density-sm:             0.25rem;
-  --density-md:             0.5rem;
-  --density-lg:             0.75rem;
-  --density-xl:             1rem;
-  --density-2xl:            1.5rem;
+  --density-xs: 0.125rem;
+  --density-sm: 0.25rem;
+  --density-md: 0.5rem;
+  --density-lg: 0.75rem;
+  --density-xl: 1rem;
+  --density-2xl: 1.5rem;
 
-  --density-card-padding:   0.75rem;
-  --density-section-gap:    1rem;
-  --density-page-padding:   1rem;
+  --density-card-padding: 0.75rem;
+  --density-section-gap: 1rem;
+  --density-page-padding: 1rem;
   --density-input-padding-x: 0.5rem;
   --density-input-padding-y: 0.25rem;
-  --density-input-height:   2rem;
-  --density-button-height:  2rem;
+  --density-input-height: 2rem;
+  --density-button-height: 2rem;
   --density-button-padding-x: 0.75rem;
 
-  --density-table-cell-x:   0.5rem;
-  --density-table-cell-y:   0.25rem;
+  --density-table-cell-x: 0.5rem;
+  --density-table-cell-y: 0.25rem;
   --density-table-header-y: 0.375rem;
 
-  --density-row-height:     2.25rem;
+  --density-row-height: 2.25rem;
 
-  --density-icon-sm:        0.875rem;
-  --density-icon-md:        1rem;
-  --density-icon-lg:        1.25rem;
+  --density-icon-sm: 0.875rem;
+  --density-icon-md: 1rem;
+  --density-icon-lg: 1.25rem;
 }
 
 /* Spacious: accessibility-first, touch-optimized */
 [data-density="spacious"] {
-  --density-xs:             0.375rem;
-  --density-sm:             0.75rem;
-  --density-md:             1rem;
-  --density-lg:             1.25rem;
-  --density-xl:             2rem;
-  --density-2xl:            2.5rem;
+  --density-xs: 0.375rem;
+  --density-sm: 0.75rem;
+  --density-md: 1rem;
+  --density-lg: 1.25rem;
+  --density-xl: 2rem;
+  --density-2xl: 2.5rem;
 
-  --density-card-padding:   1.75rem;
-  --density-section-gap:    2rem;
-  --density-page-padding:   2.5rem;
+  --density-card-padding: 1.75rem;
+  --density-section-gap: 2rem;
+  --density-page-padding: 2.5rem;
   --density-input-padding-x: 1rem;
   --density-input-padding-y: 0.75rem;
-  --density-input-height:   3rem;
-  --density-button-height:  3rem;
+  --density-input-height: 3rem;
+  --density-button-height: 3rem;
   --density-button-padding-x: 1.5rem;
 
-  --density-table-cell-x:   1rem;
-  --density-table-cell-y:   0.75rem;
+  --density-table-cell-x: 1rem;
+  --density-table-cell-y: 0.75rem;
   --density-table-header-y: 1rem;
 
-  --density-row-height:     3.5rem;
+  --density-row-height: 3.5rem;
 
-  --density-icon-sm:        1.125rem;
-  --density-icon-md:        1.5rem;
-  --density-icon-lg:        1.75rem;
+  --density-icon-sm: 1.125rem;
+  --density-icon-md: 1.5rem;
+  --density-icon-lg: 1.75rem;
 }
-
 
 /* ============================================================
    3. FONT SCALE SYSTEM
@@ -166,29 +167,18 @@
 
 :root {
   --font-scale: 1;
-
-  /* --- Type scale (all reference --font-scale) --- */
-  --text-xs:    calc(0.75rem  * var(--font-scale));   /* 12px at 1x */
-  --text-sm:    calc(0.8125rem * var(--font-scale));   /* 13px at 1x */
-  --text-base:  calc(0.875rem * var(--font-scale));    /* 14px at 1x — app default, not 16px */
-  --text-md:    calc(1rem     * var(--font-scale));    /* 16px at 1x */
-  --text-lg:    calc(1.125rem * var(--font-scale));    /* 18px at 1x */
-  --text-xl:    calc(1.25rem  * var(--font-scale));    /* 20px at 1x */
-  --text-2xl:   calc(1.5rem   * var(--font-scale));    /* 24px at 1x */
-  --text-3xl:   calc(1.875rem * var(--font-scale));    /* 30px at 1x */
 }
 
 [data-font-scale="sm"] {
   --font-scale: 0.9;
 }
-/* base is default — no override needed */
+/* base is default - no override needed */
 [data-font-scale="lg"] {
   --font-scale: 1.1;
 }
 [data-font-scale="xl"] {
   --font-scale: 1.2;
 }
-
 
 /* ============================================================
    4. LIGHT THEME (Default)
@@ -202,190 +192,188 @@
   --radius: 0.625rem;
 
   /* --- Core Surfaces --- */
-  --background:         hsl(40 30% 98%);
-  --foreground:         hsl(30 10% 12%);
+  --background: hsl(40 30% 98%);
+  --foreground: hsl(30 10% 12%);
 
   /* --- Cards & Containers --- */
-  --card:               hsl(40 25% 99%);
-  --card-foreground:    hsl(30 10% 12%);
+  --card: hsl(40 25% 99%);
+  --card-foreground: hsl(30 10% 12%);
 
   /* --- Popovers, Dropdowns, Floating --- */
-  --popover:            hsl(40 25% 99%);
+  --popover: hsl(40 25% 99%);
   --popover-foreground: hsl(30 10% 12%);
 
   /* --- Primary: Golden Wattle --- */
-  --primary:            hsl(38 92% 50%);
+  --primary: hsl(38 92% 50%);
   --primary-foreground: hsl(38 10% 8%);
 
   /* --- Primary scale (for hover, active, subtle backgrounds) --- */
-  --primary-50:         hsl(38 90% 96%);
-  --primary-100:        hsl(38 88% 90%);
-  --primary-200:        hsl(38 85% 80%);
-  --primary-300:        hsl(38 85% 68%);
-  --primary-400:        hsl(38 90% 58%);
-  --primary-500:        hsl(38 92% 50%);   /* = --primary */
-  --primary-600:        hsl(38 92% 42%);
-  --primary-700:        hsl(38 90% 34%);
-  --primary-800:        hsl(38 85% 26%);
-  --primary-900:        hsl(38 80% 18%);
+  --primary-50: hsl(38 90% 96%);
+  --primary-100: hsl(38 88% 90%);
+  --primary-200: hsl(38 85% 80%);
+  --primary-300: hsl(38 85% 68%);
+  --primary-400: hsl(38 90% 58%);
+  --primary-500: hsl(38 92% 50%); /* = --primary */
+  --primary-600: hsl(38 92% 42%);
+  --primary-700: hsl(38 90% 34%);
+  --primary-800: hsl(38 85% 26%);
+  --primary-900: hsl(38 80% 18%);
 
   /* --- Secondary: Eucalyptus --- */
-  --secondary:          hsl(152 25% 92%);
+  --secondary: hsl(152 25% 92%);
   --secondary-foreground: hsl(152 30% 20%);
 
   /* --- Muted: Subdued backgrounds --- */
-  --muted:              hsl(35 15% 93%);
-  --muted-foreground:   hsl(30 8% 46%);
+  --muted: hsl(35 15% 93%);
+  --muted-foreground: hsl(30 8% 46%);
 
   /* --- Accent: Interactive highlights --- */
-  --accent:             hsl(152 35% 42%);
-  --accent-foreground:  hsl(152 10% 98%);
+  --accent: hsl(152 35% 42%);
+  --accent-foreground: hsl(152 10% 98%);
 
   /* --- Destructive --- */
-  --destructive:        hsl(0 72% 51%);
+  --destructive: hsl(0 72% 51%);
   --destructive-foreground: hsl(0 0% 100%);
 
   /* --- Warning (distinct from destructive) --- */
-  --warning:            hsl(38 92% 50%);
+  --warning: hsl(38 92% 50%);
   --warning-foreground: hsl(38 80% 12%);
 
   /* --- Success --- */
-  --success:            hsl(152 55% 42%);
+  --success: hsl(152 55% 42%);
   --success-foreground: hsl(152 50% 98%);
 
   /* --- Info --- */
-  --info:               hsl(210 60% 55%);
-  --info-foreground:    hsl(210 60% 98%);
+  --info: hsl(210 60% 55%);
+  --info-foreground: hsl(210 60% 98%);
 
   /* --- Borders & Inputs --- */
-  --border:             hsl(35 15% 88%);
-  --border-strong:      hsl(35 15% 78%);
-  --input:              hsl(35 15% 88%);
-  --input-focus:        hsl(38 92% 50%);
-  --input-invalid:      hsl(0 72% 51%);
-  --input-disabled-bg:  hsl(35 10% 95%);
-  --input-disabled-fg:  hsl(30 5% 60%);
-  --ring:               hsl(38 92% 50%);
+  --border: hsl(35 15% 88%);
+  --border-strong: hsl(35 15% 78%);
+  --input: hsl(35 15% 88%);
+  --input-focus: hsl(38 92% 50%);
+  --input-invalid: hsl(0 72% 51%);
+  --input-disabled-bg: hsl(35 10% 95%);
+  --input-disabled-fg: hsl(30 5% 60%);
+  --ring: hsl(38 92% 50%);
 
   /* --- Interactive states --- */
-  --hover-overlay:      hsl(30 10% 12% / 0.04);
-  --active-overlay:     hsl(30 10% 12% / 0.08);
-  --selected-bg:        hsl(38 70% 95%);
-  --selected-fg:        hsl(38 80% 30%);
-  --focus-ring:         hsl(38 92% 50%);
+  --hover-overlay: hsl(30 10% 12% / 0.04);
+  --active-overlay: hsl(30 10% 12% / 0.08);
+  --selected-bg: hsl(38 70% 95%);
+  --selected-fg: hsl(38 80% 30%);
+  --focus-ring: hsl(38 92% 50%);
 
   /* --- Overlay / Backdrop --- */
-  --overlay:            hsl(30 10% 12% / 0.5);
+  --overlay: hsl(30 10% 12% / 0.5);
 
   /* --- Chart Palette (6 colors for recharts/d3) --- */
-  --chart-1:            hsl(38 92% 50%);
-  --chart-2:            hsl(152 35% 42%);
-  --chart-3:            hsl(210 60% 55%);
-  --chart-4:            hsl(340 65% 55%);
-  --chart-5:            hsl(270 50% 55%);
-  --chart-6:            hsl(25 80% 55%);
+  --chart-1: hsl(38 92% 50%);
+  --chart-2: hsl(152 35% 42%);
+  --chart-3: hsl(210 60% 55%);
+  --chart-4: hsl(340 65% 55%);
+  --chart-5: hsl(270 50% 55%);
+  --chart-6: hsl(25 80% 55%);
 
   /* --- Sidebar --- */
-  --sidebar-width:        16rem;     /* 256px */
-  --sidebar-width-collapsed: 4rem;   /* 64px — icon-only */
-  --sidebar-background:   hsl(40 20% 96%);
-  --sidebar-foreground:   hsl(30 10% 25%);
-  --sidebar-primary:      hsl(38 92% 50%);
+  --sidebar-width: 16rem; /* 256px */
+  --sidebar-width-collapsed: 4rem; /* 64px - icon-only */
+  --sidebar-background: hsl(40 20% 96%);
+  --sidebar-foreground: hsl(30 10% 25%);
+  --sidebar-primary: hsl(38 92% 50%);
   --sidebar-primary-foreground: hsl(38 10% 8%);
-  --sidebar-accent:       hsl(35 20% 90%);
+  --sidebar-accent: hsl(35 20% 90%);
   --sidebar-accent-foreground: hsl(30 10% 20%);
-  --sidebar-border:       hsl(35 12% 88%);
-  --sidebar-ring:         hsl(38 92% 50%);
-  --sidebar-item-radius:  calc(var(--radius) - 2px);
+  --sidebar-border: hsl(35 12% 88%);
+  --sidebar-ring: hsl(38 92% 50%);
+  --sidebar-item-radius: calc(var(--radius) - 2px);
 }
-
 
 /* ============================================================
    5. DARK THEME
    ============================================================
    Guides using iPads at end-of-day, parents checking at night.
-   Warm dark — not blue-dark like most tech apps.
+   Warm dark - not blue-dark like most tech apps.
    ============================================================ */
 
 .dark {
-  --background:         hsl(25 15% 8%);
-  --foreground:         hsl(35 15% 90%);
+  --background: hsl(25 15% 8%);
+  --foreground: hsl(35 15% 90%);
 
-  --card:               hsl(25 12% 11%);
-  --card-foreground:    hsl(35 15% 90%);
+  --card: hsl(25 12% 11%);
+  --card-foreground: hsl(35 15% 90%);
 
-  --popover:            hsl(25 12% 11%);
+  --popover: hsl(25 12% 11%);
   --popover-foreground: hsl(35 15% 90%);
 
-  --primary:            hsl(40 90% 55%);
+  --primary: hsl(40 90% 55%);
   --primary-foreground: hsl(40 10% 8%);
 
-  --primary-50:         hsl(40 30% 12%);
-  --primary-100:        hsl(40 35% 16%);
-  --primary-200:        hsl(40 40% 22%);
-  --primary-300:        hsl(40 50% 30%);
-  --primary-400:        hsl(40 70% 42%);
-  --primary-500:        hsl(40 90% 55%);
-  --primary-600:        hsl(40 90% 62%);
-  --primary-700:        hsl(40 88% 70%);
-  --primary-800:        hsl(40 85% 80%);
-  --primary-900:        hsl(40 80% 90%);
+  --primary-50: hsl(40 30% 12%);
+  --primary-100: hsl(40 35% 16%);
+  --primary-200: hsl(40 40% 22%);
+  --primary-300: hsl(40 50% 30%);
+  --primary-400: hsl(40 70% 42%);
+  --primary-500: hsl(40 90% 55%);
+  --primary-600: hsl(40 90% 62%);
+  --primary-700: hsl(40 88% 70%);
+  --primary-800: hsl(40 85% 80%);
+  --primary-900: hsl(40 80% 90%);
 
-  --secondary:          hsl(152 15% 16%);
+  --secondary: hsl(152 15% 16%);
   --secondary-foreground: hsl(152 15% 80%);
 
-  --muted:              hsl(25 10% 16%);
-  --muted-foreground:   hsl(30 8% 55%);
+  --muted: hsl(25 10% 16%);
+  --muted-foreground: hsl(30 8% 55%);
 
-  --accent:             hsl(152 30% 35%);
-  --accent-foreground:  hsl(152 10% 95%);
+  --accent: hsl(152 30% 35%);
+  --accent-foreground: hsl(152 10% 95%);
 
-  --destructive:        hsl(0 62% 45%);
+  --destructive: hsl(0 62% 45%);
   --destructive-foreground: hsl(0 0% 100%);
 
-  --warning:            hsl(38 75% 48%);
+  --warning: hsl(38 75% 48%);
   --warning-foreground: hsl(38 70% 95%);
 
-  --success:            hsl(152 40% 35%);
+  --success: hsl(152 40% 35%);
   --success-foreground: hsl(152 40% 95%);
 
-  --info:               hsl(210 50% 50%);
-  --info-foreground:    hsl(210 50% 95%);
+  --info: hsl(210 50% 50%);
+  --info-foreground: hsl(210 50% 95%);
 
-  --border:             hsl(25 10% 18%);
-  --border-strong:      hsl(25 10% 28%);
-  --input:              hsl(25 10% 18%);
-  --input-focus:        hsl(40 90% 55%);
-  --input-invalid:      hsl(0 62% 45%);
-  --input-disabled-bg:  hsl(25 8% 12%);
-  --input-disabled-fg:  hsl(25 5% 40%);
-  --ring:               hsl(40 90% 55%);
+  --border: hsl(25 10% 18%);
+  --border-strong: hsl(25 10% 28%);
+  --input: hsl(25 10% 18%);
+  --input-focus: hsl(40 90% 55%);
+  --input-invalid: hsl(0 62% 45%);
+  --input-disabled-bg: hsl(25 8% 12%);
+  --input-disabled-fg: hsl(25 5% 40%);
+  --ring: hsl(40 90% 55%);
 
-  --hover-overlay:      hsl(35 15% 90% / 0.04);
-  --active-overlay:     hsl(35 15% 90% / 0.08);
-  --selected-bg:        hsl(40 40% 15%);
-  --selected-fg:        hsl(40 80% 70%);
-  --focus-ring:         hsl(40 90% 55%);
+  --hover-overlay: hsl(35 15% 90% / 0.04);
+  --active-overlay: hsl(35 15% 90% / 0.08);
+  --selected-bg: hsl(40 40% 15%);
+  --selected-fg: hsl(40 80% 70%);
+  --focus-ring: hsl(40 90% 55%);
 
-  --overlay:            hsl(0 0% 0% / 0.6);
+  --overlay: hsl(0 0% 0% / 0.6);
 
-  --chart-1:            hsl(40 90% 60%);
-  --chart-2:            hsl(152 30% 50%);
-  --chart-3:            hsl(220 55% 60%);
-  --chart-4:            hsl(340 60% 60%);
-  --chart-5:            hsl(270 45% 60%);
-  --chart-6:            hsl(25 75% 60%);
+  --chart-1: hsl(40 90% 60%);
+  --chart-2: hsl(152 30% 50%);
+  --chart-3: hsl(220 55% 60%);
+  --chart-4: hsl(340 60% 60%);
+  --chart-5: hsl(270 45% 60%);
+  --chart-6: hsl(25 75% 60%);
 
-  --sidebar-background:   hsl(25 12% 10%);
-  --sidebar-foreground:   hsl(35 12% 75%);
-  --sidebar-primary:      hsl(40 90% 55%);
+  --sidebar-background: hsl(25 12% 10%);
+  --sidebar-foreground: hsl(35 12% 75%);
+  --sidebar-primary: hsl(40 90% 55%);
   --sidebar-primary-foreground: hsl(40 10% 8%);
-  --sidebar-accent:       hsl(25 10% 15%);
+  --sidebar-accent: hsl(25 10% 15%);
   --sidebar-accent-foreground: hsl(35 12% 85%);
-  --sidebar-border:       hsl(25 8% 16%);
-  --sidebar-ring:         hsl(40 90% 55%);
+  --sidebar-border: hsl(25 8% 16%);
+  --sidebar-ring: hsl(40 90% 55%);
 }
-
 
 /* ============================================================
    6. ADMIN BRAND OVERRIDE MECHANISM
@@ -407,7 +395,7 @@
    no brand-hue attribute is present.
    ============================================================ */
 
-/* Brand hue overrides — applied when data-brand-hue is present.
+/* Brand hue overrides - applied when data-brand-hue is present.
    We use a custom property and recalculate the primary scale.
    Note: This requires a tiny inline style in layout.tsx:
      style={{ '--brand-hue': tenantSettings.brandHue } as React.CSSProperties}
@@ -420,56 +408,55 @@
 
 /* When a brand hue is provided via inline style, override primary */
 [style*="--brand-hue"] {
-  --primary:            hsl(var(--brand-hue) var(--brand-sat) 50%);
+  --primary: hsl(var(--brand-hue) var(--brand-sat) 50%);
   --primary-foreground: hsl(var(--brand-hue) 10% 8%);
-  --primary-50:         hsl(var(--brand-hue) 90% 96%);
-  --primary-100:        hsl(var(--brand-hue) 88% 90%);
-  --primary-200:        hsl(var(--brand-hue) 85% 80%);
-  --primary-300:        hsl(var(--brand-hue) 85% 68%);
-  --primary-400:        hsl(var(--brand-hue) 90% 58%);
-  --primary-500:        hsl(var(--brand-hue) var(--brand-sat) 50%);
-  --primary-600:        hsl(var(--brand-hue) var(--brand-sat) 42%);
-  --primary-700:        hsl(var(--brand-hue) 90% 34%);
-  --primary-800:        hsl(var(--brand-hue) 85% 26%);
-  --primary-900:        hsl(var(--brand-hue) 80% 18%);
+  --primary-50: hsl(var(--brand-hue) 90% 96%);
+  --primary-100: hsl(var(--brand-hue) 88% 90%);
+  --primary-200: hsl(var(--brand-hue) 85% 80%);
+  --primary-300: hsl(var(--brand-hue) 85% 68%);
+  --primary-400: hsl(var(--brand-hue) 90% 58%);
+  --primary-500: hsl(var(--brand-hue) var(--brand-sat) 50%);
+  --primary-600: hsl(var(--brand-hue) var(--brand-sat) 42%);
+  --primary-700: hsl(var(--brand-hue) 90% 34%);
+  --primary-800: hsl(var(--brand-hue) 85% 26%);
+  --primary-900: hsl(var(--brand-hue) 80% 18%);
 
-  --ring:               hsl(var(--brand-hue) var(--brand-sat) 50%);
-  --input-focus:        hsl(var(--brand-hue) var(--brand-sat) 50%);
-  --focus-ring:         hsl(var(--brand-hue) var(--brand-sat) 50%);
-  --selected-bg:        hsl(var(--brand-hue) 70% 95%);
-  --selected-fg:        hsl(var(--brand-hue) 80% 30%);
+  --ring: hsl(var(--brand-hue) var(--brand-sat) 50%);
+  --input-focus: hsl(var(--brand-hue) var(--brand-sat) 50%);
+  --focus-ring: hsl(var(--brand-hue) var(--brand-sat) 50%);
+  --selected-bg: hsl(var(--brand-hue) 70% 95%);
+  --selected-fg: hsl(var(--brand-hue) 80% 30%);
 
-  --sidebar-primary:    hsl(var(--brand-hue) var(--brand-sat) 50%);
+  --sidebar-primary: hsl(var(--brand-hue) var(--brand-sat) 50%);
   --sidebar-primary-foreground: hsl(var(--brand-hue) 10% 8%);
-  --sidebar-ring:       hsl(var(--brand-hue) var(--brand-sat) 50%);
+  --sidebar-ring: hsl(var(--brand-hue) var(--brand-sat) 50%);
 }
 
 /* Dark mode brand overrides */
 .dark[style*="--brand-hue"] {
-  --primary:            hsl(var(--brand-hue) 90% 55%);
+  --primary: hsl(var(--brand-hue) 90% 55%);
   --primary-foreground: hsl(var(--brand-hue) 10% 8%);
-  --primary-50:         hsl(var(--brand-hue) 30% 12%);
-  --primary-100:        hsl(var(--brand-hue) 35% 16%);
-  --primary-200:        hsl(var(--brand-hue) 40% 22%);
-  --primary-300:        hsl(var(--brand-hue) 50% 30%);
-  --primary-400:        hsl(var(--brand-hue) 70% 42%);
-  --primary-500:        hsl(var(--brand-hue) 90% 55%);
-  --primary-600:        hsl(var(--brand-hue) 90% 62%);
-  --primary-700:        hsl(var(--brand-hue) 88% 70%);
-  --primary-800:        hsl(var(--brand-hue) 85% 80%);
-  --primary-900:        hsl(var(--brand-hue) 80% 90%);
+  --primary-50: hsl(var(--brand-hue) 30% 12%);
+  --primary-100: hsl(var(--brand-hue) 35% 16%);
+  --primary-200: hsl(var(--brand-hue) 40% 22%);
+  --primary-300: hsl(var(--brand-hue) 50% 30%);
+  --primary-400: hsl(var(--brand-hue) 70% 42%);
+  --primary-500: hsl(var(--brand-hue) 90% 55%);
+  --primary-600: hsl(var(--brand-hue) 90% 62%);
+  --primary-700: hsl(var(--brand-hue) 88% 70%);
+  --primary-800: hsl(var(--brand-hue) 85% 80%);
+  --primary-900: hsl(var(--brand-hue) 80% 90%);
 
-  --ring:               hsl(var(--brand-hue) 90% 55%);
-  --input-focus:        hsl(var(--brand-hue) 90% 55%);
-  --focus-ring:         hsl(var(--brand-hue) 90% 55%);
-  --selected-bg:        hsl(var(--brand-hue) 40% 15%);
-  --selected-fg:        hsl(var(--brand-hue) 80% 70%);
+  --ring: hsl(var(--brand-hue) 90% 55%);
+  --input-focus: hsl(var(--brand-hue) 90% 55%);
+  --focus-ring: hsl(var(--brand-hue) 90% 55%);
+  --selected-bg: hsl(var(--brand-hue) 40% 15%);
+  --selected-fg: hsl(var(--brand-hue) 80% 70%);
 
-  --sidebar-primary:    hsl(var(--brand-hue) 90% 55%);
+  --sidebar-primary: hsl(var(--brand-hue) 90% 55%);
   --sidebar-primary-foreground: hsl(var(--brand-hue) 10% 8%);
-  --sidebar-ring:       hsl(var(--brand-hue) 90% 55%);
+  --sidebar-ring: hsl(var(--brand-hue) 90% 55%);
 }
-
 
 /* ============================================================
    7. DOMAIN-SPECIFIC TOKENS
@@ -483,104 +470,104 @@
   /* --- Mastery Status ---
      Progression: cool → warm (not started → mastered)
   */
-  --mastery-not-started:    hsl(220 15% 90%);
+  --mastery-not-started: hsl(220 15% 90%);
   --mastery-not-started-fg: hsl(220 10% 40%);
-  --mastery-presented:      hsl(210 60% 72%);
-  --mastery-presented-fg:   hsl(210 60% 20%);
-  --mastery-practicing:     hsl(38 85% 62%);
-  --mastery-practicing-fg:  hsl(38 80% 15%);
-  --mastery-mastered:       hsl(152 55% 45%);
-  --mastery-mastered-fg:    hsl(152 50% 98%);
+  --mastery-presented: hsl(210 60% 72%);
+  --mastery-presented-fg: hsl(210 60% 20%);
+  --mastery-practicing: hsl(38 85% 62%);
+  --mastery-practicing-fg: hsl(38 80% 15%);
+  --mastery-mastered: hsl(152 55% 45%);
+  --mastery-mastered-fg: hsl(152 50% 98%);
 
   /* --- Attendance Status --- */
-  --attendance-present:     hsl(152 55% 45%);
-  --attendance-present-fg:  hsl(152 50% 98%);
-  --attendance-absent:      hsl(0 65% 55%);
-  --attendance-absent-fg:   hsl(0 0% 100%);
-  --attendance-late:        hsl(38 85% 55%);
-  --attendance-late-fg:     hsl(38 80% 12%);
-  --attendance-excused:     hsl(210 50% 60%);
-  --attendance-excused-fg:  hsl(210 50% 98%);
-  --attendance-half-day:    hsl(270 40% 60%);
+  --attendance-present: hsl(152 55% 45%);
+  --attendance-present-fg: hsl(152 50% 98%);
+  --attendance-absent: hsl(0 65% 55%);
+  --attendance-absent-fg: hsl(0 0% 100%);
+  --attendance-late: hsl(38 85% 55%);
+  --attendance-late-fg: hsl(38 80% 12%);
+  --attendance-excused: hsl(210 50% 60%);
+  --attendance-excused-fg: hsl(210 50% 98%);
+  --attendance-half-day: hsl(270 40% 60%);
   --attendance-half-day-fg: hsl(270 40% 98%);
 
   /* --- Observation Status --- */
-  --observation-draft:      hsl(35 20% 75%);
-  --observation-draft-fg:   hsl(35 15% 20%);
-  --observation-published:  hsl(152 55% 45%);
+  --observation-draft: hsl(35 20% 75%);
+  --observation-draft-fg: hsl(35 15% 20%);
+  --observation-published: hsl(152 55% 45%);
   --observation-published-fg: hsl(152 50% 98%);
-  --observation-archived:   hsl(220 10% 65%);
+  --observation-archived: hsl(220 10% 65%);
   --observation-archived-fg: hsl(220 10% 98%);
 
   /* --- Enrollment Status --- */
-  --enrollment-inquiry:     hsl(270 40% 60%);
-  --enrollment-inquiry-fg:  hsl(270 40% 98%);
-  --enrollment-applicant:   hsl(210 55% 58%);
+  --enrollment-inquiry: hsl(270 40% 60%);
+  --enrollment-inquiry-fg: hsl(270 40% 98%);
+  --enrollment-applicant: hsl(210 55% 58%);
   --enrollment-applicant-fg: hsl(210 55% 98%);
-  --enrollment-active:      hsl(152 55% 45%);
-  --enrollment-active-fg:   hsl(152 50% 98%);
-  --enrollment-withdrawn:   hsl(0 50% 55%);
+  --enrollment-active: hsl(152 55% 45%);
+  --enrollment-active-fg: hsl(152 50% 98%);
+  --enrollment-withdrawn: hsl(0 50% 55%);
   --enrollment-withdrawn-fg: hsl(0 0% 100%);
-  --enrollment-graduated:   hsl(38 85% 55%);
+  --enrollment-graduated: hsl(38 85% 55%);
   --enrollment-graduated-fg: hsl(38 80% 12%);
 
   /* --- Medical Severity --- */
-  --medical-mild:               hsl(210 40% 70%);
-  --medical-mild-fg:            hsl(210 40% 15%);
-  --medical-moderate:           hsl(38 75% 55%);
-  --medical-moderate-fg:        hsl(38 70% 12%);
-  --medical-severe:             hsl(15 80% 50%);
-  --medical-severe-fg:          hsl(0 0% 100%);
-  --medical-life-threatening:   hsl(0 80% 45%);
+  --medical-mild: hsl(210 40% 70%);
+  --medical-mild-fg: hsl(210 40% 15%);
+  --medical-moderate: hsl(38 75% 55%);
+  --medical-moderate-fg: hsl(38 70% 12%);
+  --medical-severe: hsl(15 80% 50%);
+  --medical-severe-fg: hsl(0 0% 100%);
+  --medical-life-threatening: hsl(0 80% 45%);
   --medical-life-threatening-fg: hsl(0 0% 100%);
 
   /* --- Curriculum Depth --- */
-  --curriculum-area:        hsl(38 85% 55%);
-  --curriculum-area-fg:     hsl(38 80% 12%);
-  --curriculum-area-bg:     hsl(38 60% 95%);
-  --curriculum-strand:      hsl(152 40% 45%);
-  --curriculum-strand-fg:   hsl(152 40% 98%);
-  --curriculum-strand-bg:   hsl(152 30% 94%);
-  --curriculum-outcome:     hsl(210 50% 55%);
-  --curriculum-outcome-fg:  hsl(210 50% 98%);
-  --curriculum-outcome-bg:  hsl(210 40% 95%);
-  --curriculum-activity:    hsl(270 35% 55%);
+  --curriculum-area: hsl(38 85% 55%);
+  --curriculum-area-fg: hsl(38 80% 12%);
+  --curriculum-area-bg: hsl(38 60% 95%);
+  --curriculum-strand: hsl(152 40% 45%);
+  --curriculum-strand-fg: hsl(152 40% 98%);
+  --curriculum-strand-bg: hsl(152 30% 94%);
+  --curriculum-outcome: hsl(210 50% 55%);
+  --curriculum-outcome-fg: hsl(210 50% 98%);
+  --curriculum-outcome-bg: hsl(210 40% 95%);
+  --curriculum-activity: hsl(270 35% 55%);
   --curriculum-activity-fg: hsl(270 35% 98%);
   --curriculum-activity-bg: hsl(270 25% 95%);
 
   /* --- Report Status --- */
-  --report-draft:           hsl(35 20% 75%);
-  --report-draft-fg:        hsl(35 15% 20%);
-  --report-review:          hsl(38 85% 55%);
-  --report-review-fg:       hsl(38 80% 12%);
-  --report-approved:        hsl(210 55% 55%);
-  --report-approved-fg:     hsl(210 55% 98%);
-  --report-published:       hsl(152 55% 45%);
-  --report-published-fg:    hsl(152 50% 98%);
+  --report-draft: hsl(35 20% 75%);
+  --report-draft-fg: hsl(35 15% 20%);
+  --report-review: hsl(38 85% 55%);
+  --report-review-fg: hsl(38 80% 12%);
+  --report-approved: hsl(210 55% 55%);
+  --report-approved-fg: hsl(210 55% 98%);
+  --report-published: hsl(152 55% 45%);
+  --report-published-fg: hsl(152 50% 98%);
 
   /* --- Timesheet Status --- */
-  --timesheet-draft:        hsl(35 20% 75%);
-  --timesheet-draft-fg:     hsl(35 15% 20%);
-  --timesheet-submitted:    hsl(210 55% 58%);
+  --timesheet-draft: hsl(35 20% 75%);
+  --timesheet-draft-fg: hsl(35 15% 20%);
+  --timesheet-submitted: hsl(210 55% 58%);
   --timesheet-submitted-fg: hsl(210 55% 98%);
-  --timesheet-approved:     hsl(152 55% 45%);
-  --timesheet-approved-fg:  hsl(152 50% 98%);
-  --timesheet-rejected:     hsl(0 65% 55%);
-  --timesheet-rejected-fg:  hsl(0 0% 100%);
+  --timesheet-approved: hsl(152 55% 45%);
+  --timesheet-approved-fg: hsl(152 50% 98%);
+  --timesheet-rejected: hsl(0 65% 55%);
+  --timesheet-rejected-fg: hsl(0 0% 100%);
 
   /* --- Consent Indicators --- */
-  --consent-granted:        hsl(152 55% 45%);
-  --consent-denied:         hsl(0 65% 55%);
-  --consent-pending:        hsl(38 75% 55%);
+  --consent-granted: hsl(152 55% 45%);
+  --consent-denied: hsl(0 65% 55%);
+  --consent-pending: hsl(38 75% 55%);
 
   /* --- Communication / Notification --- */
-  --comms-announcement:     hsl(38 85% 55%);
-  --comms-announcement-fg:  hsl(38 80% 12%);
-  --comms-message:          hsl(210 50% 55%);
-  --comms-message-fg:       hsl(210 50% 98%);
-  --comms-alert:            hsl(0 65% 55%);
-  --comms-alert-fg:         hsl(0 0% 100%);
-  --comms-unread:           hsl(38 92% 50%);
+  --comms-announcement: hsl(38 85% 55%);
+  --comms-announcement-fg: hsl(38 80% 12%);
+  --comms-message: hsl(210 50% 55%);
+  --comms-message-fg: hsl(210 50% 98%);
+  --comms-alert: hsl(0 65% 55%);
+  --comms-alert-fg: hsl(0 0% 100%);
+  --comms-unread: hsl(38 92% 50%);
 
   /* --- Avatar palette (for initials when no photo) ---
      Deterministic: hash student name → pick index 0-7
@@ -598,78 +585,78 @@
 
 /* Dark mode overrides for domain tokens */
 .dark {
-  --mastery-not-started:    hsl(220 10% 22%);
+  --mastery-not-started: hsl(220 10% 22%);
   --mastery-not-started-fg: hsl(220 10% 65%);
-  --mastery-presented:      hsl(210 45% 35%);
-  --mastery-presented-fg:   hsl(210 50% 90%);
-  --mastery-practicing:     hsl(38 65% 38%);
-  --mastery-practicing-fg:  hsl(38 70% 92%);
-  --mastery-mastered:       hsl(152 40% 30%);
-  --mastery-mastered-fg:    hsl(152 40% 92%);
+  --mastery-presented: hsl(210 45% 35%);
+  --mastery-presented-fg: hsl(210 50% 90%);
+  --mastery-practicing: hsl(38 65% 38%);
+  --mastery-practicing-fg: hsl(38 70% 92%);
+  --mastery-mastered: hsl(152 40% 30%);
+  --mastery-mastered-fg: hsl(152 40% 92%);
 
-  --attendance-present:     hsl(152 40% 32%);
-  --attendance-present-fg:  hsl(152 40% 92%);
-  --attendance-absent:      hsl(0 55% 40%);
-  --attendance-absent-fg:   hsl(0 0% 95%);
-  --attendance-late:        hsl(38 65% 38%);
-  --attendance-late-fg:     hsl(38 60% 92%);
-  --attendance-excused:     hsl(210 40% 38%);
-  --attendance-excused-fg:  hsl(210 40% 92%);
-  --attendance-half-day:    hsl(270 30% 38%);
+  --attendance-present: hsl(152 40% 32%);
+  --attendance-present-fg: hsl(152 40% 92%);
+  --attendance-absent: hsl(0 55% 40%);
+  --attendance-absent-fg: hsl(0 0% 95%);
+  --attendance-late: hsl(38 65% 38%);
+  --attendance-late-fg: hsl(38 60% 92%);
+  --attendance-excused: hsl(210 40% 38%);
+  --attendance-excused-fg: hsl(210 40% 92%);
+  --attendance-half-day: hsl(270 30% 38%);
   --attendance-half-day-fg: hsl(270 30% 92%);
 
-  --observation-draft:      hsl(35 12% 28%);
-  --observation-draft-fg:   hsl(35 12% 75%);
-  --observation-published:  hsl(152 40% 30%);
+  --observation-draft: hsl(35 12% 28%);
+  --observation-draft-fg: hsl(35 12% 75%);
+  --observation-published: hsl(152 40% 30%);
   --observation-published-fg: hsl(152 40% 92%);
-  --observation-archived:   hsl(220 8% 30%);
+  --observation-archived: hsl(220 8% 30%);
   --observation-archived-fg: hsl(220 8% 70%);
 
-  --enrollment-inquiry:     hsl(270 30% 38%);
-  --enrollment-inquiry-fg:  hsl(270 30% 90%);
-  --enrollment-applicant:   hsl(210 40% 38%);
+  --enrollment-inquiry: hsl(270 30% 38%);
+  --enrollment-inquiry-fg: hsl(270 30% 90%);
+  --enrollment-applicant: hsl(210 40% 38%);
   --enrollment-applicant-fg: hsl(210 40% 92%);
-  --enrollment-active:      hsl(152 40% 30%);
-  --enrollment-active-fg:   hsl(152 40% 92%);
-  --enrollment-withdrawn:   hsl(0 45% 38%);
+  --enrollment-active: hsl(152 40% 30%);
+  --enrollment-active-fg: hsl(152 40% 92%);
+  --enrollment-withdrawn: hsl(0 45% 38%);
   --enrollment-withdrawn-fg: hsl(0 0% 95%);
-  --enrollment-graduated:   hsl(38 60% 38%);
+  --enrollment-graduated: hsl(38 60% 38%);
   --enrollment-graduated-fg: hsl(38 55% 92%);
 
-  --medical-mild:               hsl(210 30% 32%);
-  --medical-mild-fg:            hsl(210 30% 85%);
-  --medical-moderate:           hsl(38 55% 35%);
-  --medical-moderate-fg:        hsl(38 55% 90%);
-  --medical-severe:             hsl(15 60% 38%);
-  --medical-severe-fg:          hsl(0 0% 95%);
-  --medical-life-threatening:   hsl(0 65% 35%);
+  --medical-mild: hsl(210 30% 32%);
+  --medical-mild-fg: hsl(210 30% 85%);
+  --medical-moderate: hsl(38 55% 35%);
+  --medical-moderate-fg: hsl(38 55% 90%);
+  --medical-severe: hsl(15 60% 38%);
+  --medical-severe-fg: hsl(0 0% 95%);
+  --medical-life-threatening: hsl(0 65% 35%);
   --medical-life-threatening-fg: hsl(0 0% 95%);
 
-  --curriculum-area-bg:     hsl(38 30% 14%);
-  --curriculum-strand-bg:   hsl(152 18% 14%);
-  --curriculum-outcome-bg:  hsl(210 22% 14%);
+  --curriculum-area-bg: hsl(38 30% 14%);
+  --curriculum-strand-bg: hsl(152 18% 14%);
+  --curriculum-outcome-bg: hsl(210 22% 14%);
   --curriculum-activity-bg: hsl(270 15% 14%);
 
-  --timesheet-draft:        hsl(35 12% 28%);
-  --timesheet-draft-fg:     hsl(35 12% 75%);
-  --timesheet-submitted:    hsl(210 40% 38%);
+  --timesheet-draft: hsl(35 12% 28%);
+  --timesheet-draft-fg: hsl(35 12% 75%);
+  --timesheet-submitted: hsl(210 40% 38%);
   --timesheet-submitted-fg: hsl(210 40% 92%);
-  --timesheet-approved:     hsl(152 40% 30%);
-  --timesheet-approved-fg:  hsl(152 40% 92%);
-  --timesheet-rejected:     hsl(0 55% 40%);
-  --timesheet-rejected-fg:  hsl(0 0% 95%);
+  --timesheet-approved: hsl(152 40% 30%);
+  --timesheet-approved-fg: hsl(152 40% 92%);
+  --timesheet-rejected: hsl(0 55% 40%);
+  --timesheet-rejected-fg: hsl(0 0% 95%);
 
-  --consent-granted:        hsl(152 40% 35%);
-  --consent-denied:         hsl(0 55% 42%);
-  --consent-pending:        hsl(38 55% 40%);
+  --consent-granted: hsl(152 40% 35%);
+  --consent-denied: hsl(0 55% 42%);
+  --consent-pending: hsl(38 55% 40%);
 
-  --comms-announcement:     hsl(38 60% 40%);
-  --comms-announcement-fg:  hsl(38 55% 92%);
-  --comms-message:          hsl(210 40% 38%);
-  --comms-message-fg:       hsl(210 40% 92%);
-  --comms-alert:            hsl(0 55% 40%);
-  --comms-alert-fg:         hsl(0 0% 95%);
-  --comms-unread:           hsl(40 90% 55%);
+  --comms-announcement: hsl(38 60% 40%);
+  --comms-announcement-fg: hsl(38 55% 92%);
+  --comms-message: hsl(210 40% 38%);
+  --comms-message-fg: hsl(210 40% 92%);
+  --comms-alert: hsl(0 55% 40%);
+  --comms-alert-fg: hsl(0 0% 95%);
+  --comms-unread: hsl(40 90% 55%);
 
   --avatar-0: hsl(38 55% 42%);
   --avatar-1: hsl(152 30% 35%);
@@ -680,7 +667,6 @@
   --avatar-6: hsl(25 50% 42%);
   --avatar-7: hsl(300 25% 42%);
 }
-
 
 /* ============================================================
    8. LAYOUT TOKENS
@@ -694,11 +680,11 @@
 
 :root {
   /* --- Header --- */
-  --header-height:          3.5rem;    /* 56px */
+  --header-height: 3.5rem; /* 56px */
 
   /* --- Content --- */
-  --content-max-width:      80rem;     /* 1280px */
-  --content-narrow-width:   42rem;     /* 672px — for forms, detail views */
+  --content-max-width: 80rem; /* 1280px */
+  --content-narrow-width: 42rem; /* 672px - for forms, detail views */
 
   /* --- Breakpoint reference (informational, not used in CSS) ---
      sm: 640px, md: 768px, lg: 1024px, xl: 1280px, 2xl: 1536px
@@ -706,15 +692,14 @@
 }
 
 [data-density="compact"] {
-  --header-height:          3rem;
-  --sidebar-width:          14rem;
+  --header-height: 3rem;
+  --sidebar-width: 14rem;
 }
 
 [data-density="spacious"] {
-  --header-height:          4rem;
-  --sidebar-width:          18rem;
+  --header-height: 4rem;
+  --sidebar-width: 18rem;
 }
-
 
 /* ============================================================
    9. ELEVATION / SHADOW SYSTEM
@@ -724,40 +709,35 @@
    ============================================================ */
 
 :root {
-  --shadow-xs:    0 1px 2px  hsl(30 15% 20% / 0.05);
-  --shadow-sm:    0 1px 3px  hsl(30 15% 20% / 0.08),
-                  0 1px 2px  hsl(30 15% 20% / 0.04);
-  --shadow-md:    0 4px 6px  hsl(30 15% 20% / 0.07),
-                  0 2px 4px  hsl(30 15% 20% / 0.04);
-  --shadow-lg:    0 10px 15px hsl(30 15% 20% / 0.08),
-                  0 4px 6px  hsl(30 15% 20% / 0.04);
-  --shadow-xl:    0 20px 25px hsl(30 15% 20% / 0.08),
-                  0 8px 10px hsl(30 15% 20% / 0.04);
-  --shadow-2xl:   0 25px 50px hsl(30 15% 20% / 0.18);
+  --shadow-xs: 0 1px 2px hsl(30 15% 20% / 0.05);
+  --shadow-sm:
+    0 1px 3px hsl(30 15% 20% / 0.08), 0 1px 2px hsl(30 15% 20% / 0.04);
+  --shadow-md:
+    0 4px 6px hsl(30 15% 20% / 0.07), 0 2px 4px hsl(30 15% 20% / 0.04);
+  --shadow-lg:
+    0 10px 15px hsl(30 15% 20% / 0.08), 0 4px 6px hsl(30 15% 20% / 0.04);
+  --shadow-xl:
+    0 20px 25px hsl(30 15% 20% / 0.08), 0 8px 10px hsl(30 15% 20% / 0.04);
+  --shadow-2xl: 0 25px 50px hsl(30 15% 20% / 0.18);
 
   /* --- Colored shadows for interactive elements --- */
   --shadow-primary: 0 4px 14px hsl(38 92% 50% / 0.25);
   --shadow-success: 0 4px 14px hsl(152 55% 45% / 0.2);
-  --shadow-danger:  0 4px 14px hsl(0 72% 51% / 0.2);
+  --shadow-danger: 0 4px 14px hsl(0 72% 51% / 0.2);
 }
 
 .dark {
-  --shadow-xs:    0 1px 2px  hsl(0 0% 0% / 0.2);
-  --shadow-sm:    0 1px 3px  hsl(0 0% 0% / 0.3),
-                  0 1px 2px  hsl(0 0% 0% / 0.2);
-  --shadow-md:    0 4px 6px  hsl(0 0% 0% / 0.3),
-                  0 2px 4px  hsl(0 0% 0% / 0.2);
-  --shadow-lg:    0 10px 15px hsl(0 0% 0% / 0.3),
-                  0 4px 6px  hsl(0 0% 0% / 0.2);
-  --shadow-xl:    0 20px 25px hsl(0 0% 0% / 0.3),
-                  0 8px 10px hsl(0 0% 0% / 0.2);
-  --shadow-2xl:   0 25px 50px hsl(0 0% 0% / 0.5);
+  --shadow-xs: 0 1px 2px hsl(0 0% 0% / 0.2);
+  --shadow-sm: 0 1px 3px hsl(0 0% 0% / 0.3), 0 1px 2px hsl(0 0% 0% / 0.2);
+  --shadow-md: 0 4px 6px hsl(0 0% 0% / 0.3), 0 2px 4px hsl(0 0% 0% / 0.2);
+  --shadow-lg: 0 10px 15px hsl(0 0% 0% / 0.3), 0 4px 6px hsl(0 0% 0% / 0.2);
+  --shadow-xl: 0 20px 25px hsl(0 0% 0% / 0.3), 0 8px 10px hsl(0 0% 0% / 0.2);
+  --shadow-2xl: 0 25px 50px hsl(0 0% 0% / 0.5);
 
   --shadow-primary: 0 4px 14px hsl(40 90% 55% / 0.15);
   --shadow-success: 0 4px 14px hsl(152 40% 35% / 0.15);
-  --shadow-danger:  0 4px 14px hsl(0 62% 45% / 0.15);
+  --shadow-danger: 0 4px 14px hsl(0 62% 45% / 0.15);
 }
-
 
 /* ============================================================
    10. TRANSITION TOKENS
@@ -767,23 +747,22 @@
    ============================================================ */
 
 :root {
-  --transition-fast:     150ms ease;
-  --transition-base:     200ms ease;
-  --transition-slow:     300ms ease;
-  --transition-spring:   300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+  --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* --- Durations (for animation-duration, JS timeouts) --- */
-  --duration-fast:       150ms;
-  --duration-base:       200ms;
-  --duration-slow:       300ms;
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
 
   /* --- Easings --- */
-  --ease-default:        cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-in:             cubic-bezier(0.4, 0, 1, 1);
-  --ease-out:            cubic-bezier(0, 0, 0.2, 1);
-  --ease-spring:         cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
 
 /* ============================================================
    11. COMPONENT TOKENS
@@ -795,94 +774,93 @@
 
 :root {
   /* --- Tables --- */
-  --table-header-bg:        hsl(35 15% 95%);
-  --table-header-fg:        hsl(30 8% 40%);
-  --table-row-hover:        hsl(35 15% 96%);
-  --table-row-stripe:       hsl(35 10% 98%);
-  --table-row-selected:     var(--selected-bg);
-  --table-border:           var(--border);
+  --table-header-bg: hsl(35 15% 95%);
+  --table-header-fg: hsl(30 8% 40%);
+  --table-row-hover: hsl(35 15% 96%);
+  --table-row-stripe: hsl(35 10% 98%);
+  --table-row-selected: var(--selected-bg);
+  --table-border: var(--border);
 
   /* --- Forms --- */
-  --form-label-fg:          hsl(30 8% 35%);
-  --form-helper-fg:         hsl(30 5% 55%);
-  --form-error-fg:          hsl(0 72% 48%);
-  --form-error-bg:          hsl(0 72% 97%);
+  --form-label-fg: hsl(30 8% 35%);
+  --form-helper-fg: hsl(30 5% 55%);
+  --form-error-fg: hsl(0 72% 48%);
+  --form-error-bg: hsl(0 72% 97%);
   --form-required-indicator: hsl(0 72% 51%);
 
   /* --- Toasts / Notifications --- */
-  --toast-bg:               var(--card);
-  --toast-fg:               var(--card-foreground);
-  --toast-border:           var(--border);
-  --toast-success-accent:   var(--success);
-  --toast-error-accent:     var(--destructive);
-  --toast-warning-accent:   var(--warning);
-  --toast-info-accent:      var(--info);
+  --toast-bg: var(--card);
+  --toast-fg: var(--card-foreground);
+  --toast-border: var(--border);
+  --toast-success-accent: var(--success);
+  --toast-error-accent: var(--destructive);
+  --toast-warning-accent: var(--warning);
+  --toast-info-accent: var(--info);
 
   /* --- Tooltips --- */
-  --tooltip-bg:             hsl(30 10% 15%);
-  --tooltip-fg:             hsl(35 15% 95%);
+  --tooltip-bg: hsl(30 10% 15%);
+  --tooltip-fg: hsl(35 15% 95%);
 
   /* --- Badges (generic, beyond status-badge) --- */
-  --badge-neutral-bg:       hsl(35 12% 92%);
-  --badge-neutral-fg:       hsl(30 8% 40%);
+  --badge-neutral-bg: hsl(35 12% 92%);
+  --badge-neutral-fg: hsl(30 8% 40%);
 
   /* --- Empty states --- */
-  --empty-state-fg:         hsl(30 5% 55%);
-  --empty-state-icon:       hsl(30 8% 75%);
+  --empty-state-fg: hsl(30 5% 55%);
+  --empty-state-icon: hsl(30 8% 75%);
 
   /* --- Skeleton / loading --- */
-  --skeleton-base:          hsl(35 12% 92%);
-  --skeleton-shine:         hsl(35 12% 96%);
+  --skeleton-base: hsl(35 12% 92%);
+  --skeleton-shine: hsl(35 12% 96%);
 
   /* --- Breadcrumb --- */
-  --breadcrumb-fg:          var(--muted-foreground);
-  --breadcrumb-active-fg:   var(--foreground);
-  --breadcrumb-separator:   hsl(30 5% 70%);
+  --breadcrumb-fg: var(--muted-foreground);
+  --breadcrumb-active-fg: var(--foreground);
+  --breadcrumb-separator: hsl(30 5% 70%);
 
   /* --- Tabs --- */
-  --tab-inactive-fg:        var(--muted-foreground);
-  --tab-active-fg:          var(--foreground);
-  --tab-active-border:      var(--primary);
-  --tab-hover-bg:           var(--hover-overlay);
+  --tab-inactive-fg: var(--muted-foreground);
+  --tab-active-fg: var(--foreground);
+  --tab-active-border: var(--primary);
+  --tab-hover-bg: var(--hover-overlay);
 
   /* --- KPI / Stat cards --- */
-  --stat-value-fg:          var(--foreground);
-  --stat-label-fg:          var(--muted-foreground);
-  --stat-trend-up:          var(--success);
-  --stat-trend-down:        var(--destructive);
-  --stat-trend-neutral:     var(--muted-foreground);
+  --stat-value-fg: var(--foreground);
+  --stat-label-fg: var(--muted-foreground);
+  --stat-trend-up: var(--success);
+  --stat-trend-down: var(--destructive);
+  --stat-trend-neutral: var(--muted-foreground);
 }
 
 .dark {
-  --table-header-bg:        hsl(25 10% 13%);
-  --table-header-fg:        hsl(30 8% 60%);
-  --table-row-hover:        hsl(25 10% 14%);
-  --table-row-stripe:       hsl(25 8% 10%);
-  --table-border:           var(--border);
+  --table-header-bg: hsl(25 10% 13%);
+  --table-header-fg: hsl(30 8% 60%);
+  --table-row-hover: hsl(25 10% 14%);
+  --table-row-stripe: hsl(25 8% 10%);
+  --table-border: var(--border);
 
-  --form-label-fg:          hsl(30 8% 70%);
-  --form-helper-fg:         hsl(30 5% 50%);
-  --form-error-fg:          hsl(0 60% 60%);
-  --form-error-bg:          hsl(0 50% 12%);
+  --form-label-fg: hsl(30 8% 70%);
+  --form-helper-fg: hsl(30 5% 50%);
+  --form-error-fg: hsl(0 60% 60%);
+  --form-error-bg: hsl(0 50% 12%);
 
-  --tooltip-bg:             hsl(25 12% 18%);
-  --tooltip-fg:             hsl(35 12% 90%);
+  --tooltip-bg: hsl(25 12% 18%);
+  --tooltip-fg: hsl(35 12% 90%);
 
-  --badge-neutral-bg:       hsl(25 8% 20%);
-  --badge-neutral-fg:       hsl(30 8% 65%);
+  --badge-neutral-bg: hsl(25 8% 20%);
+  --badge-neutral-fg: hsl(30 8% 65%);
 
-  --empty-state-fg:         hsl(30 5% 45%);
-  --empty-state-icon:       hsl(30 5% 30%);
+  --empty-state-fg: hsl(30 5% 45%);
+  --empty-state-icon: hsl(30 5% 30%);
 
-  --skeleton-base:          hsl(25 8% 16%);
-  --skeleton-shine:         hsl(25 8% 20%);
+  --skeleton-base: hsl(25 8% 16%);
+  --skeleton-shine: hsl(25 8% 20%);
 
-  --breadcrumb-separator:   hsl(30 5% 35%);
+  --breadcrumb-separator: hsl(30 5% 35%);
 }
 
-
 /* ============================================================
-   12. @theme inline — TAILWIND CLASS MAPPING
+   12. @theme inline - TAILWIND CLASS MAPPING
    ============================================================
    Maps CSS variables to Tailwind's namespace.
    `inline` keeps output clean by inlining at usage.
@@ -951,11 +929,18 @@
   --shadow-2xl: var(--shadow-2xl);
 
   /* --- Fonts --- */
-  --font-sans: 'DM Sans', system-ui, sans-serif;
-  --font-serif: 'Source Serif 4', Georgia, serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-}
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-serif: "Source Serif 4", Georgia, serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
 
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+}
 
 /* ============================================================
    13. BASE TYPOGRAPHY & RESETS
@@ -980,22 +965,38 @@
     font-family: var(--font-sans);
     font-size: var(--text-base);
     line-height: 1.5;
-    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+    font-feature-settings:
+      "kern" 1,
+      "liga" 1,
+      "calt" 1;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-weight: 600;
     letter-spacing: -0.01em;
     line-height: 1.2;
     color: var(--foreground);
   }
 
-  h1 { font-size: var(--text-3xl); }
-  h2 { font-size: var(--text-2xl); }
-  h3 { font-size: var(--text-xl); }
-  h4 { font-size: var(--text-lg); }
+  h1 {
+    font-size: var(--text-3xl);
+  }
+  h2 {
+    font-size: var(--text-2xl);
+  }
+  h3 {
+    font-size: var(--text-xl);
+  }
+  h4 {
+    font-size: var(--text-lg);
+  }
 
-  /* Report prose — used in parent-facing reports and portfolios */
+  /* Report prose - used in parent-facing reports and portfolios */
   .prose-report {
     font-family: var(--font-serif);
     font-size: calc(1.0625rem * var(--font-scale));
@@ -1016,12 +1017,12 @@
   }
 
   /* Code blocks */
-  code, pre {
+  code,
+  pre {
     font-family: var(--font-mono);
     font-size: var(--text-sm);
   }
 }
-
 
 /* ============================================================
    14. SCROLLBAR STYLING
@@ -1064,7 +1065,6 @@
   }
 }
 
-
 /* ============================================================
    15. FOCUS & ACCESSIBILITY
    ============================================================ */
@@ -1076,7 +1076,7 @@
     border-radius: var(--radius);
   }
 
-  /* Skip to content link — hidden until focused */
+  /* Skip to content link - hidden until focused */
   .skip-to-content {
     position: absolute;
     top: -100%;
@@ -1094,7 +1094,7 @@
     top: 0;
   }
 
-  /* Reduced motion — respects OS preference */
+  /* Reduced motion - respects OS preference */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -1117,71 +1117,129 @@
   }
 }
 
-
 /* ============================================================
    16. ANIMATION KEYFRAMES
    ============================================================ */
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fade-in-down {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.96); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes slide-in-right {
-  from { transform: translateX(100%); }
-  to   { transform: translateX(0); }
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 @keyframes slide-in-left {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(0); }
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 @keyframes slide-down {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulse-soft {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes bounce-subtle {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-4px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
-
 
 /* ============================================================
    17. CUSTOM UTILITIES (v4 @utility directive)
@@ -1246,14 +1304,30 @@
 
 /* --- Stagger delays --- */
 
-@utility stagger-1 { animation-delay: 0.05s; }
-@utility stagger-2 { animation-delay: 0.10s; }
-@utility stagger-3 { animation-delay: 0.15s; }
-@utility stagger-4 { animation-delay: 0.20s; }
-@utility stagger-5 { animation-delay: 0.25s; }
-@utility stagger-6 { animation-delay: 0.30s; }
-@utility stagger-7 { animation-delay: 0.35s; }
-@utility stagger-8 { animation-delay: 0.40s; }
+@utility stagger-1 {
+  animation-delay: 0.05s;
+}
+@utility stagger-2 {
+  animation-delay: 0.1s;
+}
+@utility stagger-3 {
+  animation-delay: 0.15s;
+}
+@utility stagger-4 {
+  animation-delay: 0.2s;
+}
+@utility stagger-5 {
+  animation-delay: 0.25s;
+}
+@utility stagger-6 {
+  animation-delay: 0.3s;
+}
+@utility stagger-7 {
+  animation-delay: 0.35s;
+}
+@utility stagger-8 {
+  animation-delay: 0.4s;
+}
 
 /* --- Touch targets (WCAG 2.5.8 compliance) --- */
 
@@ -1312,7 +1386,7 @@
   background: var(--badge-bg);
   color: var(--badge-fg);
   &::before {
-    content: '';
+    content: "";
     width: 0.375rem;
     height: 0.375rem;
     border-radius: 50%;
@@ -1337,7 +1411,9 @@
   font-size: var(--text-xs);
   font-weight: 600;
   cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
   &:hover {
     transform: scale(1.15);
     box-shadow: var(--shadow-md);
@@ -1356,7 +1432,7 @@
 @utility tree-connector {
   position: relative;
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     left: calc(var(--depth, 0) * 1.5rem - 0.75rem);
     top: 0;
@@ -1368,9 +1444,10 @@
 
 /* --- Card hover pattern --- */
 @utility card-interactive {
-  transition: border-color var(--transition-fast),
-              box-shadow var(--transition-fast),
-              transform var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
   &:hover {
     border-color: var(--primary-300);
     box-shadow: var(--shadow-md);
@@ -1402,7 +1479,6 @@
   overflow: hidden;
 }
 
-
 /* ============================================================
    18. PRINT STYLES
    ============================================================ */
@@ -1428,21 +1504,30 @@
   }
 
   body {
-    font-family: 'Source Serif 4', Georgia, serif;
+    font-family: "Source Serif 4", Georgia, serif;
     font-size: 11pt;
     line-height: 1.6;
     color: #000;
     background: #fff;
   }
 
-  h1, h2, h3, h4 {
-    font-family: 'DM Sans', sans-serif;
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "DM Sans", sans-serif;
     page-break-after: avoid;
   }
 
-  .print-break-before { page-break-before: always; }
-  .print-break-after  { page-break-after: always; }
-  .print-no-break     { page-break-inside: avoid; }
+  .print-break-before {
+    page-break-before: always;
+  }
+  .print-break-after {
+    page-break-after: always;
+  }
+  .print-no-break {
+    page-break-inside: avoid;
+  }
 
   [data-mastery-status] {
     -webkit-print-color-adjust: exact;
@@ -1473,7 +1558,8 @@
     width: 100%;
   }
 
-  th, td {
+  th,
+  td {
     border: 1px solid #ccc;
     padding: 0.35rem 0.5rem;
     font-size: 9pt;

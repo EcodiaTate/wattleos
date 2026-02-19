@@ -1,12 +1,12 @@
-import { getCurriculumTree } from '@/lib/actions/curriculum';
-import { getTenantContext, hasPermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { buildTree, countNodes } from '@/lib/utils/curriculum-tree';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { CurriculumTreeView } from '@/components/domain/curriculum/curriculum-tree-view';
-import type { CurriculumInstance } from '@/types/domain';
+import { CurriculumTreeView } from "@/components/domain/curriculum/curriculum-tree-view";
+import { getCurriculumTree } from "@/lib/actions/curriculum";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { buildTree, countNodes } from "@/lib/utils/curriculum-tree";
+import type { CurriculumInstance } from "@/types/domain";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 interface PageProps {
   params: Promise<{ instanceId: string }>;
@@ -20,14 +20,14 @@ export default async function CurriculumInstancePage({ params }: PageProps) {
 
   // Fetch the instance metadata
   const { data: instance, error: instanceError } = await supabase
-    .from('curriculum_instances')
-    .select('*')
-    .eq('id', instanceId)
-    .is('deleted_at', null)
+    .from("curriculum_instances")
+    .select("*")
+    .eq("id", instanceId)
+    .is("deleted_at", null)
     .single();
 
   if (instanceError || !instance) {
-    redirect('/pedagogy/curriculum');
+    redirect("/pedagogy/curriculum");
   }
 
   // Fetch the full node tree
@@ -37,10 +37,10 @@ export default async function CurriculumInstancePage({ params }: PageProps) {
   const totalNodes = countNodes(tree);
 
   // Count by level
-  const areaCt = flatNodes.filter((n) => n.level === 'area').length;
-  const strandCt = flatNodes.filter((n) => n.level === 'strand').length;
-  const outcomeCt = flatNodes.filter((n) => n.level === 'outcome').length;
-  const activityCt = flatNodes.filter((n) => n.level === 'activity').length;
+  const areaCt = flatNodes.filter((n) => n.level === "area").length;
+  const strandCt = flatNodes.filter((n) => n.level === "strand").length;
+  const outcomeCt = flatNodes.filter((n) => n.level === "outcome").length;
+  const activityCt = flatNodes.filter((n) => n.level === "activity").length;
 
   return (
     <div className="space-y-6">
@@ -50,17 +50,17 @@ export default async function CurriculumInstancePage({ params }: PageProps) {
           <div className="flex items-center gap-2">
             <Link
               href="/pedagogy/curriculum"
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-muted-foreground hover:text-foreground"
             >
               Curriculum
             </Link>
-            <span className="text-sm text-gray-400">/</span>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <span className="text-sm text-muted-foreground">/</span>
+            <h1 className="text-2xl font-bold text-foreground">
               {(instance as CurriculumInstance).name}
             </h1>
           </div>
           {(instance as CurriculumInstance).description && (
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               {(instance as CurriculumInstance).description}
             </p>
           )}
@@ -98,11 +98,11 @@ function StatBadge({
   color: string;
 }) {
   const colors: Record<string, string> = {
-    gray: 'bg-gray-100 text-gray-700',
-    purple: 'bg-purple-100 text-purple-700',
-    blue: 'bg-blue-100 text-blue-700',
-    green: 'bg-green-100 text-green-700',
-    amber: 'bg-amber-100 text-amber-700',
+    gray: "bg-muted text-foreground",
+    purple: "bg-purple-100 text-purple-700",
+    blue: "bg-blue-100 text-blue-700",
+    green: "bg-green-100 text-green-700",
+    amber: "bg-amber-100 text-amber-700",
   };
 
   return (

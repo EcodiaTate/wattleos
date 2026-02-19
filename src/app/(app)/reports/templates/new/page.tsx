@@ -12,39 +12,40 @@
 // template. The name is required upfront.
 // ============================================================
 
-import { getTenantContext, hasPermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { NewTemplateForm } from '@/components/domain/reports/NewTemplateForm';
+import { NewTemplateForm } from "@/components/domain/reports/NewTemplateForm";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function NewTemplatePage() {
   const context = await getTenantContext();
 
   if (!hasPermission(context, Permissions.MANAGE_REPORTS)) {
-    redirect('/dashboard');
+    redirect("/dashboard");
   }
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
       {/* Header */}
       <div>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Link href="/reports" className="hover:text-gray-700">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Link href="/reports" className="hover:text-foreground">
             Reports
           </Link>
-          <span className="text-gray-400">/</span>
-          <Link href="/reports/templates" className="hover:text-gray-700">
+          <span className="text-muted-foreground">/</span>
+          <Link href="/reports/templates" className="hover:text-foreground">
             Templates
           </Link>
-          <span className="text-gray-400">/</span>
-          <span className="text-gray-900">New</span>
+          <span className="text-muted-foreground">/</span>
+          <span className="text-foreground">New</span>
         </div>
-        <h1 className="mt-2 text-2xl font-bold text-gray-900">
+        <h1 className="mt-2 text-2xl font-bold text-foreground">
           Create Report Template
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Name your template and choose a cycle level. You&apos;ll customize the sections next.
+        <p className="mt-1 text-sm text-muted-foreground">
+          Name your template and choose a cycle level. You&apos;ll customize the
+          sections next.
         </p>
       </div>
 

@@ -241,8 +241,8 @@ export function PendingApprovalsClient({
       )}
 
       {/* Batch actions bar */}
-      <div className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white px-4 py-3">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
+      <div className="flex items-center gap-[var(--density-card-padding)] rounded-lg borderborder-border bg-background px-4 py-3">
+        <label className="flex items-center gap-2 text-sm text-foreground">
           <input
             type="checkbox"
             checked={
@@ -258,7 +258,7 @@ export function PendingApprovalsClient({
           <button
             onClick={handleBatchApprove}
             disabled={isPending}
-            className="rounded-lg bg-green-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+            className="rounded-lg bg-[var(--mastery-mastered)] px-4 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-green-700 disabled:opacity-50"
           >
             Approve Selected ({selectedIds.size})
           </button>
@@ -270,10 +270,10 @@ export function PendingApprovalsClient({
         <div key={periodId} className="space-y-3">
           {/* Period header */}
           <div className="flex items-center gap-3">
-            <h3 className="text-sm font-semibold text-gray-700">
+            <h3 className="text-sm font-semibold text-foreground">
               {group.period?.name ?? "Unknown Period"}
             </h3>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-muted-foreground">
               {group.period
                 ? `${new Date(group.period.start_date + "T00:00:00").toLocaleDateString("en-AU", { day: "numeric", month: "short" })} – ${new Date(group.period.end_date + "T00:00:00").toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}`
                 : ""}
@@ -291,10 +291,10 @@ export function PendingApprovalsClient({
             return (
               <div
                 key={ts.id}
-                className="rounded-lg border border-gray-200 bg-white shadow-sm"
+                className="rounded-lg borderborder-border bg-background shadow-sm"
               >
                 {/* Card header */}
-                <div className="flex items-center gap-4 px-4 py-3">
+                <div className="flex items-center gap-[var(--density-card-padding)] px-4 py-3">
                   <input
                     type="checkbox"
                     checked={selectedIds.has(ts.id)}
@@ -304,7 +304,7 @@ export function PendingApprovalsClient({
 
                   <button
                     onClick={() => toggleExpand(ts.id)}
-                    className="flex flex-1 items-center gap-4 text-left"
+                    className="flex flex-1 items-center gap-[var(--density-card-padding)] text-left"
                   >
                     {/* Avatar placeholder */}
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 text-sm font-medium text-amber-700">
@@ -313,10 +313,10 @@ export function PendingApprovalsClient({
                     </div>
 
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-foreground">
                         {ts.user.first_name} {ts.user.last_name}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {ts.total_hours.toFixed(1)}h total
                         {ts.overtime_hours > 0 &&
                           ` · ${ts.overtime_hours.toFixed(1)}h OT`}
@@ -327,7 +327,7 @@ export function PendingApprovalsClient({
 
                     {/* Expand chevron */}
                     <svg
-                      className={`h-5 w-5 text-gray-400 transition-transform ${
+                      className={`h-5 w-5 text-muted-foreground transition-transform ${
                         isExpanded ? "rotate-180" : ""
                       }`}
                       fill="none"
@@ -348,7 +348,7 @@ export function PendingApprovalsClient({
                     <button
                       onClick={() => handleApprove(ts.id)}
                       disabled={isPending}
-                      className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+                      className="rounded-lg bg-[var(--mastery-mastered)] px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-green-700 disabled:opacity-50"
                     >
                       Approve
                     </button>
@@ -369,13 +369,15 @@ export function PendingApprovalsClient({
                 {isExpanded && (
                   <div className="border-t border-gray-100 px-4 py-3">
                     {detail?.loading && (
-                      <p className="text-sm text-gray-400">Loading entries…</p>
+                      <p className="text-sm text-muted-foreground">
+                        Loading entries…
+                      </p>
                     )}
                     {detail?.data && detail.data.time_entries.length > 0 && (
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
-                            <tr className="border-b border-gray-100 text-left text-xs font-medium uppercase text-gray-500">
+                            <tr className="border-b border-gray-100 text-left text-xs font-medium uppercase text-muted-foreground">
                               <th className="pb-2 pr-4">Date</th>
                               <th className="pb-2 pr-4">Start</th>
                               <th className="pb-2 pr-4">End</th>
@@ -401,19 +403,19 @@ export function PendingApprovalsClient({
                                     key={entry.id}
                                     className="border-b border-gray-50"
                                   >
-                                    <td className="py-2 pr-4 font-medium text-gray-900">
+                                    <td className="py-2 pr-4 font-medium text-foreground">
                                       {formatDate(entry.date)}
                                     </td>
-                                    <td className="py-2 pr-4 text-gray-600">
+                                    <td className="py-2 pr-4 text-muted-foreground">
                                       {formatTime(entry.start_time)}
                                     </td>
-                                    <td className="py-2 pr-4 text-gray-600">
+                                    <td className="py-2 pr-4 text-muted-foreground">
                                       {formatTime(entry.end_time)}
                                     </td>
-                                    <td className="py-2 pr-4 text-gray-600">
+                                    <td className="py-2 pr-4 text-muted-foreground">
                                       {entry.break_minutes}m
                                     </td>
-                                    <td className="py-2 pr-4 font-medium text-gray-900">
+                                    <td className="py-2 pr-4 font-medium text-foreground">
                                       {entry.total_hours.toFixed(1)}h
                                     </td>
                                     <td className="py-2 pr-4">
@@ -423,7 +425,7 @@ export function PendingApprovalsClient({
                                         {typeConfig.shortLabel}
                                       </span>
                                     </td>
-                                    <td className="py-2 text-gray-500">
+                                    <td className="py-2 text-muted-foreground">
                                       {entry.notes || "—"}
                                     </td>
                                   </tr>
@@ -434,11 +436,11 @@ export function PendingApprovalsClient({
                             <tr className="font-medium">
                               <td
                                 colSpan={4}
-                                className="pt-2 text-right text-gray-500"
+                                className="pt-2 text-right text-muted-foreground"
                               >
                                 Period Total:
                               </td>
-                              <td className="pt-2 text-gray-900">
+                              <td className="pt-2 text-foreground">
                                 {detail.data.total_hours.toFixed(1)}h
                               </td>
                               <td colSpan={2} />
@@ -448,7 +450,7 @@ export function PendingApprovalsClient({
                       </div>
                     )}
                     {detail?.data && detail.data.time_entries.length === 0 && (
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         No individual entries found for this timesheet.
                       </p>
                     )}
@@ -463,11 +465,11 @@ export function PendingApprovalsClient({
       {/* Reject modal */}
       {rejectingId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900">
+          <div className="mx-4 w-full max-w-md rounded-xl bg-background p-[var(--density-card-padding)] shadow-xl">
+            <h3 className="text-lg font-semibold text-foreground">
               Reject Timesheet
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               The staff member will be notified and can revise and resubmit.
             </p>
             <textarea
@@ -484,14 +486,14 @@ export function PendingApprovalsClient({
                   setRejectingId(null);
                   setRejectionNotes("");
                 }}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
               >
                 Cancel
               </button>
               <button
                 onClick={handleReject}
                 disabled={!rejectionNotes.trim() || isPending}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                className="rounded-lg bg-[var(--attendance-absent)] px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-red-700 disabled:opacity-50"
               >
                 Reject Timesheet
               </button>

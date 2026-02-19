@@ -1,7 +1,7 @@
 // src/lib/actions/reports/index.ts
 //
 // ============================================================
-// WattleOS V2 — Reports Actions Barrel Export
+// WattleOS V2 - Reports Actions Barrel Export
 // ============================================================
 // Re-exports all Reporting actions for convenient importing.
 // Usage:
@@ -10,38 +10,38 @@
 
 // ── Template CRUD ───────────────────────────────────────────
 export {
-  listReportTemplates,
-  getReportTemplate,
   createReportTemplate,
-  updateReportTemplate,
-  duplicateReportTemplate,
   deleteReportTemplate,
-} from './templates';
+  duplicateReportTemplate,
+  getReportTemplate,
+  listReportTemplates,
+  updateReportTemplate,
+} from "./templates";
 
 export type {
   CreateTemplateInput,
-  UpdateTemplateInput,
   TemplateWithStats,
-} from './templates';
+  UpdateTemplateInput,
+} from "./templates";
 
 // ── Student Report CRUD + Generation ────────────────────────
 export {
-  listStudentReports,
-  getStudentReport,
-  generateStudentReport,
   bulkGenerateReports,
-  updateReportContent,
-  updateReportStatus,
   deleteStudentReport,
+  generateStudentReport,
   getReportCompletionStats,
   getReportTerms,
-} from './student-reports';
+  getStudentReport,
+  listStudentReports,
+  updateReportContent,
+  updateReportStatus,
+} from "./student-reports";
 
 export type {
-  GenerateReportInput,
   BulkGenerateReportsInput,
-  UpdateReportContentInput,
+  GenerateReportInput,
   ListReportsParams,
-  ReportWithDetails,
   ReportCompletionStats,
-} from './student-reports';
+  ReportWithDetails,
+  UpdateReportContentInput,
+} from "./student-reports";

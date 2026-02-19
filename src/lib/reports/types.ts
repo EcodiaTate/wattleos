@@ -1,14 +1,14 @@
 // src/lib/reports/types.ts
 //
 // ============================================================
-// WattleOS V2 — Report Template & Content Types
+// WattleOS V2 - Report Template & Content Types
 // ============================================================
 // Defines the JSONB structure stored in report_templates.content
 // and student_reports.content. These types are the contract
 // between the template builder UI, the report generator, and
 // the report editor.
 //
-// WHY JSONB: Report templates are inherently flexible — every
+// WHY JSONB: Report templates are inherently flexible - every
 // school wants different sections, orderings, and data pulls.
 // A rigid relational schema would require migrations for every
 // new section type. JSONB with TypeScript types gives us
@@ -24,14 +24,14 @@
 //   3. How it renders in the report viewer / PDF
 
 export type TemplateSectionType =
-  | 'student_info'           // Auto: student name, class, DOB, photo
-  | 'narrative'              // Manual: teacher writes free-text prose
-  | 'mastery_grid'           // Auto: mastery statuses for a curriculum area
-  | 'mastery_summary'        // Auto: counts/percentages of mastery progress
-  | 'attendance_summary'     // Auto: attendance stats for the reporting period
-  | 'observation_highlights' // Semi-auto: recent observations, teacher can curate
-  | 'custom_text'            // Manual: freeform section (e.g., goals, social development)
-  | 'goals';                 // Manual: teacher sets goals for next term
+  | "student_info" // Auto: student name, class, DOB, photo
+  | "narrative" // Manual: teacher writes free-text prose
+  | "mastery_grid" // Auto: mastery statuses for a curriculum area
+  | "mastery_summary" // Auto: counts/percentages of mastery progress
+  | "attendance_summary" // Auto: attendance stats for the reporting period
+  | "observation_highlights" // Semi-auto: recent observations, teacher can curate
+  | "custom_text" // Manual: freeform section (e.g., goals, social development)
+  | "goals"; // Manual: teacher sets goals for next term
 
 // ============================================================
 // Template Section
@@ -40,7 +40,7 @@ export type TemplateSectionType =
 // templates by composing these sections in order.
 
 export interface TemplateSection {
-  /** Stable UUID for this section — survives reordering */
+  /** Stable UUID for this section - survives reordering */
   id: string;
   /** What kind of section this is */
   type: TemplateSectionType;
@@ -63,7 +63,7 @@ export interface TemplateSectionConfig {
   /** Which curriculum instance to pull from */
   curriculumInstanceId?: string;
   /** For mastery_summary: show as percentage or counts */
-  displayMode?: 'percentage' | 'counts' | 'both';
+  displayMode?: "percentage" | "counts" | "both";
 
   // ── observation_highlights ─────────────────────────────
   /** Max observations to auto-include */
@@ -103,42 +103,44 @@ export function createDefaultTemplateContent(): TemplateContent {
     sections: [
       {
         id: crypto.randomUUID(),
-        type: 'student_info',
-        title: 'Student Information',
+        type: "student_info",
+        title: "Student Information",
         order: 0,
         config: {},
       },
       {
         id: crypto.randomUUID(),
-        type: 'attendance_summary',
-        title: 'Attendance Summary',
+        type: "attendance_summary",
+        title: "Attendance Summary",
         order: 1,
         config: { showDetails: false },
       },
       {
         id: crypto.randomUUID(),
-        type: 'mastery_summary',
-        title: 'Learning Progress',
+        type: "mastery_summary",
+        title: "Learning Progress",
         order: 2,
-        config: { curriculumAreaFilter: 'all', displayMode: 'both' },
+        config: { curriculumAreaFilter: "all", displayMode: "both" },
       },
       {
         id: crypto.randomUUID(),
-        type: 'narrative',
-        title: 'Teacher Comments',
+        type: "narrative",
+        title: "Teacher Comments",
         order: 3,
         config: {
-          placeholder: 'Write about the student\'s progress, strengths, and areas for growth...',
+          placeholder:
+            "Write about the student's progress, strengths, and areas for growth...",
           suggestedMinWords: 50,
         },
       },
       {
         id: crypto.randomUUID(),
-        type: 'goals',
-        title: 'Goals for Next Term',
+        type: "goals",
+        title: "Goals for Next Term",
         order: 4,
         config: {
-          placeholder: 'Outline learning goals and focus areas for the upcoming term...',
+          placeholder:
+            "Outline learning goals and focus areas for the upcoming term...",
         },
       },
     ],
@@ -271,73 +273,75 @@ export interface SectionTypeInfo {
 
 export const SECTION_TYPE_CATALOG: SectionTypeInfo[] = [
   {
-    type: 'student_info',
-    label: 'Student Information',
-    description: 'Auto-populated student details: name, class, date of birth, photo',
-    icon: 'user',
+    type: "student_info",
+    label: "Student Information",
+    description:
+      "Auto-populated student details: name, class, date of birth, photo",
+    icon: "user",
     isAutoPopulated: true,
     isEditable: false,
     allowMultiple: false,
   },
   {
-    type: 'narrative',
-    label: 'Narrative / Teacher Comments',
-    description: 'Free-text area for the teacher to write about the student',
-    icon: 'edit',
+    type: "narrative",
+    label: "Narrative / Teacher Comments",
+    description: "Free-text area for the teacher to write about the student",
+    icon: "edit",
     isAutoPopulated: false,
     isEditable: true,
     allowMultiple: true,
   },
   {
-    type: 'mastery_grid',
-    label: 'Mastery Grid',
-    description: 'Detailed mastery statuses for curriculum outcomes in an area',
-    icon: 'grid',
+    type: "mastery_grid",
+    label: "Mastery Grid",
+    description: "Detailed mastery statuses for curriculum outcomes in an area",
+    icon: "grid",
     isAutoPopulated: true,
     isEditable: false,
     allowMultiple: true,
   },
   {
-    type: 'mastery_summary',
-    label: 'Mastery Summary',
-    description: 'Progress counts and percentages across curriculum areas',
-    icon: 'chart',
+    type: "mastery_summary",
+    label: "Mastery Summary",
+    description: "Progress counts and percentages across curriculum areas",
+    icon: "chart",
     isAutoPopulated: true,
     isEditable: false,
     allowMultiple: true,
   },
   {
-    type: 'attendance_summary',
-    label: 'Attendance Summary',
-    description: 'Attendance statistics for the reporting period',
-    icon: 'clipboard',
+    type: "attendance_summary",
+    label: "Attendance Summary",
+    description: "Attendance statistics for the reporting period",
+    icon: "clipboard",
     isAutoPopulated: true,
     isEditable: false,
     allowMultiple: false,
   },
   {
-    type: 'observation_highlights',
-    label: 'Observation Highlights',
-    description: 'Key observations from the term, auto-selected or teacher-curated',
-    icon: 'eye',
+    type: "observation_highlights",
+    label: "Observation Highlights",
+    description:
+      "Key observations from the term, auto-selected or teacher-curated",
+    icon: "eye",
     isAutoPopulated: true,
     isEditable: true,
     allowMultiple: false,
   },
   {
-    type: 'custom_text',
-    label: 'Custom Section',
-    description: 'A freeform text section with a custom title',
-    icon: 'file-text',
+    type: "custom_text",
+    label: "Custom Section",
+    description: "A freeform text section with a custom title",
+    icon: "file-text",
     isAutoPopulated: false,
     isEditable: true,
     allowMultiple: true,
   },
   {
-    type: 'goals',
-    label: 'Goals for Next Term',
-    description: 'Teacher-set learning goals for the upcoming period',
-    icon: 'target',
+    type: "goals",
+    label: "Goals for Next Term",
+    description: "Teacher-set learning goals for the upcoming period",
+    icon: "target",
     isAutoPopulated: false,
     isEditable: true,
     allowMultiple: false,
@@ -349,23 +353,27 @@ export const SECTION_TYPE_CATALOG: SectionTypeInfo[] = [
 // ============================================================
 
 /** Get the catalog entry for a section type */
-export function getSectionTypeInfo(type: TemplateSectionType): SectionTypeInfo | undefined {
+export function getSectionTypeInfo(
+  type: TemplateSectionType,
+): SectionTypeInfo | undefined {
   return SECTION_TYPE_CATALOG.find((s) => s.type === type);
 }
 
 /** Check if a template content object is valid */
-export function validateTemplateContent(content: unknown): content is TemplateContent {
-  if (!content || typeof content !== 'object') return false;
+export function validateTemplateContent(
+  content: unknown,
+): content is TemplateContent {
+  if (!content || typeof content !== "object") return false;
   const c = content as Record<string, unknown>;
   if (c.version !== 1) return false;
   if (!Array.isArray(c.sections)) return false;
   for (const section of c.sections as unknown[]) {
-    if (!section || typeof section !== 'object') return false;
+    if (!section || typeof section !== "object") return false;
     const s = section as Record<string, unknown>;
-    if (typeof s.id !== 'string') return false;
-    if (typeof s.type !== 'string') return false;
-    if (typeof s.title !== 'string') return false;
-    if (typeof s.order !== 'number') return false;
+    if (typeof s.id !== "string") return false;
+    if (typeof s.type !== "string") return false;
+    if (typeof s.title !== "string") return false;
+    if (typeof s.order !== "number") return false;
   }
   return true;
 }

@@ -1,22 +1,22 @@
 // src/lib/actions/parent/attendance.ts
 //
 // ============================================================
-// WattleOS V2 — Parent Portal: Attendance Actions
+// WattleOS V2 - Parent Portal: Attendance Actions
 // ============================================================
 // Fetches attendance records for a parent's child. Read-only
-// view — parents can see but not modify attendance.
+// view - parents can see but not modify attendance.
 //
 // WHY separate from staff attendance: Parents see a simplified
 // view without class-level aggregation or recording controls.
 // ============================================================
 
-'use server';
+"use server";
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getTenantContext } from '@/lib/auth/tenant-context';
-import { isGuardianOf } from './children';
-import type { ActionResponse } from '@/types/api';
-import type { AttendanceStatus } from '@/types/domain';
+import { getTenantContext } from "@/lib/auth/tenant-context";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { ActionResponse } from "@/types/api";
+import type { AttendanceStatus } from "@/types/domain";
+import { isGuardianOf } from "./children";
 
 // ============================================================
 // Types
@@ -47,7 +47,7 @@ export interface ChildAttendanceResponse {
 }
 
 // ============================================================
-// getChildAttendance — records + summary for a date range
+// getChildAttendance - records + summary for a date range
 // ============================================================
 
 export async function getChildAttendance(
@@ -57,14 +57,17 @@ export async function getChildAttendance(
     endDate?: string;
     page?: number;
     perPage?: number;
-  }
+  },
 ): Promise<ActionResponse<ChildAttendanceResponse>> {
   try {
     const context = await getTenantContext();
 
     const isGuardian = await isGuardianOf(studentId);
     if (!isGuardian) {
-      return { data: null, error: { message: 'Not authorized', code: 'FORBIDDEN' } };
+      return {
+        data: null,
+        error: { message: "Not authorized", code: "FORBIDDEN" },
+      };
     }
 
     const supabase = await createSupabaseServerClient();
@@ -73,21 +76,22 @@ export async function getChildAttendance(
     const offset = (page - 1) * perPage;
 
     // Default to current term (last 90 days if no dates provided)
-    const endDate = params?.endDate ?? new Date().toISOString().split('T')[0];
+    const endDate = params?.endDate ?? new Date().toISOString().split("T")[0];
     const defaultStart = new Date();
     defaultStart.setDate(defaultStart.getDate() - 90);
-    const startDate = params?.startDate ?? defaultStart.toISOString().split('T')[0];
+    const startDate =
+      params?.startDate ?? defaultStart.toISOString().split("T")[0];
 
     // Fetch records
     let query = supabase
-      .from('attendance_records')
-      .select('id, date, status, check_in_at, check_out_at, notes')
-      .eq('tenant_id', context.tenant.id)
-      .eq('student_id', studentId)
-      .gte('date', startDate)
-      .lte('date', endDate)
-      .is('deleted_at', null)
-      .order('date', { ascending: false });
+      .from("attendance_records")
+      .select("id, date, status, check_in_at, check_out_at, notes")
+      .eq("tenant_id", context.tenant.id)
+      .eq("student_id", studentId)
+      .gte("date", startDate)
+      .lte("date", endDate)
+      .is("deleted_at", null)
+      .order("date", { ascending: false });
 
     // Paginate
     query = query.range(offset, offset + perPage - 1);
@@ -95,7 +99,10 @@ export async function getChildAttendance(
     const { data, error } = await query;
 
     if (error) {
-      return { data: null, error: { message: error.message, code: 'QUERY_ERROR' } };
+      return {
+        data: null,
+        error: { message: error.message, code: "QUERY_ERROR" },
+      };
     }
 
     const records: ChildAttendanceRecord[] = (data ?? []).map((r) => ({
@@ -109,53 +116,68 @@ export async function getChildAttendance(
 
     // Summary for the full date range (not paginated)
     const { data: allRecords } = await supabase
-      .from('attendance_records')
-      .select('status')
-      .eq('tenant_id', context.tenant.id)
-      .eq('student_id', studentId)
-      .gte('date', startDate)
-      .lte('date', endDate)
-      .is('deleted_at', null);
+      .from("attendance_records")
+      .select("status")
+      .eq("tenant_id", context.tenant.id)
+      .eq("student_id", studentId)
+      .gte("date", startDate)
+      .lte("date", endDate)
+      .is("deleted_at", null);
 
     const all = allRecords ?? [];
     const totalDays = all.length;
-    const present = all.filter((r) => r.status === 'present').length;
-    const absent = all.filter((r) => r.status === 'absent').length;
-    const late = all.filter((r) => r.status === 'late').length;
-    const excused = all.filter((r) => r.status === 'excused').length;
-    const halfDay = all.filter((r) => r.status === 'half_day').length;
-    const attendanceRate = totalDays > 0
-      ? Math.round(((present + late + halfDay) / totalDays) * 100)
-      : 0;
+    const present = all.filter((r) => r.status === "present").length;
+    const absent = all.filter((r) => r.status === "absent").length;
+    const late = all.filter((r) => r.status === "late").length;
+    const excused = all.filter((r) => r.status === "excused").length;
+    const halfDay = all.filter((r) => r.status === "half_day").length;
+    const attendanceRate =
+      totalDays > 0
+        ? Math.round(((present + late + halfDay) / totalDays) * 100)
+        : 0;
 
     return {
       data: {
         records,
-        summary: { totalDays, present, absent, late, excused, halfDay, attendanceRate },
+        summary: {
+          totalDays,
+          present,
+          absent,
+          late,
+          excused,
+          halfDay,
+          attendanceRate,
+        },
       },
       error: null,
     };
   } catch (err) {
     return {
       data: null,
-      error: { message: err instanceof Error ? err.message : 'Unknown error', code: 'INTERNAL_ERROR' },
+      error: {
+        message: err instanceof Error ? err.message : "Unknown error",
+        code: "INTERNAL_ERROR",
+      },
     };
   }
 }
 
 // ============================================================
-// getChildAttendanceWeek — current week at a glance
+// getChildAttendanceWeek - current week at a glance
 // ============================================================
 
 export async function getChildAttendanceWeek(
-  studentId: string
+  studentId: string,
 ): Promise<ActionResponse<ChildAttendanceRecord[]>> {
   try {
     const context = await getTenantContext();
 
     const isGuardian = await isGuardianOf(studentId);
     if (!isGuardian) {
-      return { data: null, error: { message: 'Not authorized', code: 'FORBIDDEN' } };
+      return {
+        data: null,
+        error: { message: "Not authorized", code: "FORBIDDEN" },
+      };
     }
 
     const supabase = await createSupabaseServerClient();
@@ -165,24 +187,27 @@ export async function getChildAttendanceWeek(
     const day = now.getDay();
     const monday = new Date(now);
     monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
-    const mondayStr = monday.toISOString().split('T')[0];
+    const mondayStr = monday.toISOString().split("T")[0];
 
     const friday = new Date(monday);
     friday.setDate(monday.getDate() + 4);
-    const fridayStr = friday.toISOString().split('T')[0];
+    const fridayStr = friday.toISOString().split("T")[0];
 
     const { data, error } = await supabase
-      .from('attendance_records')
-      .select('id, date, status, check_in_at, check_out_at, notes')
-      .eq('tenant_id', context.tenant.id)
-      .eq('student_id', studentId)
-      .gte('date', mondayStr)
-      .lte('date', fridayStr)
-      .is('deleted_at', null)
-      .order('date', { ascending: true });
+      .from("attendance_records")
+      .select("id, date, status, check_in_at, check_out_at, notes")
+      .eq("tenant_id", context.tenant.id)
+      .eq("student_id", studentId)
+      .gte("date", mondayStr)
+      .lte("date", fridayStr)
+      .is("deleted_at", null)
+      .order("date", { ascending: true });
 
     if (error) {
-      return { data: null, error: { message: error.message, code: 'QUERY_ERROR' } };
+      return {
+        data: null,
+        error: { message: error.message, code: "QUERY_ERROR" },
+      };
     }
 
     return {
@@ -199,7 +224,10 @@ export async function getChildAttendanceWeek(
   } catch (err) {
     return {
       data: null,
-      error: { message: err instanceof Error ? err.message : 'Unknown error', code: 'INTERNAL_ERROR' },
+      error: {
+        message: err instanceof Error ? err.message : "Unknown error",
+        code: "INTERNAL_ERROR",
+      },
     };
   }
 }

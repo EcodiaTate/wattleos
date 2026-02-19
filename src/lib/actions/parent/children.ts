@@ -1,7 +1,7 @@
 // src/lib/actions/parent/children.ts
 //
 // ============================================================
-// WattleOS V2 — Parent Portal: Children Actions
+// WattleOS V2 - Parent Portal: Children Actions
 // ============================================================
 // Fetches children and overview data for the logged-in parent.
 // Authorization is via guardian relationship, not permissions.
@@ -12,11 +12,11 @@
 // depth.
 // ============================================================
 
-'use server';
+"use server";
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getTenantContext } from '@/lib/auth/tenant-context';
-import type { ActionResponse } from '@/types/api';
+import { getTenantContext } from "@/lib/auth/tenant-context";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { ActionResponse } from "@/types/api";
 
 // ============================================================
 // Types
@@ -64,7 +64,7 @@ export interface ChildOverview {
 }
 
 // ============================================================
-// requireGuardian — verifies user is a guardian in this tenant
+// requireGuardian - verifies user is a guardian in this tenant
 // ============================================================
 
 export async function getMyGuardianRecords(): Promise<
@@ -85,14 +85,19 @@ export async function getMyGuardianRecords(): Promise<
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
-      .from('guardians')
-      .select('id, student_id, relationship, is_primary, media_consent, directory_consent, phone')
-      .eq('tenant_id', context.tenant.id)
-      .eq('user_id', context.user.id)
-      .is('deleted_at', null);
+      .from("guardians")
+      .select(
+        "id, student_id, relationship, is_primary, media_consent, directory_consent, phone",
+      )
+      .eq("tenant_id", context.tenant.id)
+      .eq("user_id", context.user.id)
+      .is("deleted_at", null);
 
     if (error) {
-      return { data: null, error: { message: error.message, code: 'QUERY_ERROR' } };
+      return {
+        data: null,
+        error: { message: error.message, code: "QUERY_ERROR" },
+      };
     }
 
     return {
@@ -110,13 +115,16 @@ export async function getMyGuardianRecords(): Promise<
   } catch (err) {
     return {
       data: null,
-      error: { message: err instanceof Error ? err.message : 'Unknown error', code: 'INTERNAL_ERROR' },
+      error: {
+        message: err instanceof Error ? err.message : "Unknown error",
+        code: "INTERNAL_ERROR",
+      },
     };
   }
 }
 
 // ============================================================
-// getMyChildren — lists all children for the logged-in parent
+// getMyChildren - lists all children for the logged-in parent
 // ============================================================
 
 export async function getMyChildren(): Promise<ActionResponse<ParentChild[]>> {
@@ -126,7 +134,7 @@ export async function getMyChildren(): Promise<ActionResponse<ParentChild[]>> {
 
     // Fetch guardian records with student + current enrollment/class
     const { data, error } = await supabase
-      .from('guardians')
+      .from("guardians")
       .select(
         `
         id,
@@ -140,14 +148,17 @@ export async function getMyChildren(): Promise<ActionResponse<ParentChild[]>> {
           photo_url,
           dob
         )
-      `
+      `,
       )
-      .eq('tenant_id', context.tenant.id)
-      .eq('user_id', context.user.id)
-      .is('deleted_at', null);
+      .eq("tenant_id", context.tenant.id)
+      .eq("user_id", context.user.id)
+      .is("deleted_at", null);
 
     if (error) {
-      return { data: null, error: { message: error.message, code: 'QUERY_ERROR' } };
+      return {
+        data: null,
+        error: { message: error.message, code: "QUERY_ERROR" },
+      };
     }
 
     if (!data || data.length === 0) {
@@ -156,26 +167,29 @@ export async function getMyChildren(): Promise<ActionResponse<ParentChild[]>> {
 
     // Get current class for each student via active enrollments
     const studentIds = data.map(
-      (g) => (g.student as unknown as { id: string }).id
+      (g) => (g.student as unknown as { id: string }).id,
     );
 
     const { data: enrollments } = await supabase
-      .from('enrollments')
+      .from("enrollments")
       .select(
         `
         student_id,
         class:classes(id, name)
-      `
+      `,
       )
-      .eq('tenant_id', context.tenant.id)
-      .in('student_id', studentIds)
-      .eq('status', 'active')
-      .is('deleted_at', null);
+      .eq("tenant_id", context.tenant.id)
+      .in("student_id", studentIds)
+      .eq("status", "active")
+      .is("deleted_at", null);
 
     // Build class lookup
     const classLookup = new Map<string, { id: string; name: string }>();
     for (const enrollment of enrollments ?? []) {
-      const cls = enrollment.class as unknown as { id: string; name: string } | null;
+      const cls = enrollment.class as unknown as {
+        id: string;
+        name: string;
+      } | null;
       if (cls) {
         classLookup.set(enrollment.student_id, cls);
       }
@@ -211,17 +225,20 @@ export async function getMyChildren(): Promise<ActionResponse<ParentChild[]>> {
   } catch (err) {
     return {
       data: null,
-      error: { message: err instanceof Error ? err.message : 'Unknown error', code: 'INTERNAL_ERROR' },
+      error: {
+        message: err instanceof Error ? err.message : "Unknown error",
+        code: "INTERNAL_ERROR",
+      },
     };
   }
 }
 
 // ============================================================
-// getChildOverview — dashboard card data for a single child
+// getChildOverview - dashboard card data for a single child
 // ============================================================
 
 export async function getChildOverview(
-  studentId: string
+  studentId: string,
 ): Promise<ActionResponse<ChildOverview>> {
   try {
     const context = await getTenantContext();
@@ -229,42 +246,54 @@ export async function getChildOverview(
 
     // 1. Verify guardian relationship
     const { data: guardianRecord } = await supabase
-      .from('guardians')
-      .select('id, relationship, is_primary')
-      .eq('tenant_id', context.tenant.id)
-      .eq('user_id', context.user.id)
-      .eq('student_id', studentId)
-      .is('deleted_at', null)
+      .from("guardians")
+      .select("id, relationship, is_primary")
+      .eq("tenant_id", context.tenant.id)
+      .eq("user_id", context.user.id)
+      .eq("student_id", studentId)
+      .is("deleted_at", null)
       .single();
 
     if (!guardianRecord) {
-      return { data: null, error: { message: 'Not authorized to view this student', code: 'FORBIDDEN' } };
+      return {
+        data: null,
+        error: {
+          message: "Not authorized to view this student",
+          code: "FORBIDDEN",
+        },
+      };
     }
 
     // 2. Fetch child info (reuse getMyChildren shape)
     const { data: studentData } = await supabase
-      .from('students')
-      .select('id, first_name, last_name, preferred_name, photo_url, dob')
-      .eq('id', studentId)
-      .is('deleted_at', null)
+      .from("students")
+      .select("id, first_name, last_name, preferred_name, photo_url, dob")
+      .eq("id", studentId)
+      .is("deleted_at", null)
       .single();
 
     if (!studentData) {
-      return { data: null, error: { message: 'Student not found', code: 'NOT_FOUND' } };
+      return {
+        data: null,
+        error: { message: "Student not found", code: "NOT_FOUND" },
+      };
     }
 
     // Get current class
     const { data: enrollment } = await supabase
-      .from('enrollments')
-      .select('class:classes(id, name)')
-      .eq('tenant_id', context.tenant.id)
-      .eq('student_id', studentId)
-      .eq('status', 'active')
-      .is('deleted_at', null)
+      .from("enrollments")
+      .select("class:classes(id, name)")
+      .eq("tenant_id", context.tenant.id)
+      .eq("student_id", studentId)
+      .eq("status", "active")
+      .is("deleted_at", null)
       .limit(1)
       .single();
 
-    const cls = enrollment?.class as unknown as { id: string; name: string } | null;
+    const cls = enrollment?.class as unknown as {
+      id: string;
+      name: string;
+    } | null;
 
     const child: ParentChild = {
       id: studentData.id,
@@ -285,20 +314,21 @@ export async function getChildOverview(
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const { data: attendanceRecords } = await supabase
-      .from('attendance_records')
-      .select('status, date')
-      .eq('tenant_id', context.tenant.id)
-      .eq('student_id', studentId)
-      .gte('date', thirtyDaysAgo.toISOString().split('T')[0])
-      .is('deleted_at', null)
-      .order('date', { ascending: false });
+      .from("attendance_records")
+      .select("status, date")
+      .eq("tenant_id", context.tenant.id)
+      .eq("student_id", studentId)
+      .gte("date", thirtyDaysAgo.toISOString().split("T")[0])
+      .is("deleted_at", null)
+      .order("date", { ascending: false });
 
     const records = attendanceRecords ?? [];
     const totalDays = records.length;
-    const present = records.filter((r) => r.status === 'present').length;
-    const absent = records.filter((r) => r.status === 'absent').length;
-    const late = records.filter((r) => r.status === 'late').length;
-    const attendanceRate = totalDays > 0 ? Math.round((present / totalDays) * 100) : 0;
+    const present = records.filter((r) => r.status === "present").length;
+    const absent = records.filter((r) => r.status === "absent").length;
+    const late = records.filter((r) => r.status === "late").length;
+    const attendanceRate =
+      totalDays > 0 ? Math.round((present / totalDays) * 100) : 0;
 
     const attendance = {
       totalDays,
@@ -311,53 +341,62 @@ export async function getChildOverview(
 
     // 4. Recent published observations (last 5)
     const { data: obsStudentLinks } = await supabase
-      .from('observation_students')
-      .select('observation_id')
-      .eq('tenant_id', context.tenant.id)
-      .eq('student_id', studentId);
+      .from("observation_students")
+      .select("observation_id")
+      .eq("tenant_id", context.tenant.id)
+      .eq("student_id", studentId);
 
     const obsIds = (obsStudentLinks ?? []).map((l) => l.observation_id);
 
-    let recentObservations: ChildOverview['recentObservations'] = [];
+    let recentObservations: ChildOverview["recentObservations"] = [];
     if (obsIds.length > 0) {
       const { data: observations } = await supabase
-        .from('observations')
+        .from("observations")
         .select(
           `
           id,
           content,
           created_at,
           author:users!observations_author_id_fkey(first_name, last_name)
-        `
+        `,
         )
-        .eq('tenant_id', context.tenant.id)
-        .eq('status', 'published')
-        .in('id', obsIds)
-        .is('deleted_at', null)
-        .order('created_at', { ascending: false })
+        .eq("tenant_id", context.tenant.id)
+        .eq("status", "published")
+        .in("id", obsIds)
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false })
         .limit(5);
 
       // Get media counts
       const foundObsIds = (observations ?? []).map((o) => o.id);
-      const { data: mediaCounts } = foundObsIds.length > 0
-        ? await supabase
-            .from('observation_media')
-            .select('observation_id')
-            .in('observation_id', foundObsIds)
-            .is('deleted_at', null)
-        : { data: [] };
+      const { data: mediaCounts } =
+        foundObsIds.length > 0
+          ? await supabase
+              .from("observation_media")
+              .select("observation_id")
+              .in("observation_id", foundObsIds)
+              .is("deleted_at", null)
+          : { data: [] };
 
       const mediaCountMap = new Map<string, number>();
       for (const m of mediaCounts ?? []) {
-        mediaCountMap.set(m.observation_id, (mediaCountMap.get(m.observation_id) ?? 0) + 1);
+        mediaCountMap.set(
+          m.observation_id,
+          (mediaCountMap.get(m.observation_id) ?? 0) + 1,
+        );
       }
 
       recentObservations = (observations ?? []).map((o) => {
-        const author = o.author as unknown as { first_name: string | null; last_name: string | null } | null;
+        const author = o.author as unknown as {
+          first_name: string | null;
+          last_name: string | null;
+        } | null;
         return {
           id: o.id,
           content: o.content,
-          authorName: [author?.first_name, author?.last_name].filter(Boolean).join(' ') || 'Guide',
+          authorName:
+            [author?.first_name, author?.last_name].filter(Boolean).join(" ") ||
+            "Guide",
           createdAt: o.created_at,
           mediaCount: mediaCountMap.get(o.id) ?? 0,
         };
@@ -366,29 +405,34 @@ export async function getChildOverview(
 
     // 5. Mastery snapshot (all instances combined)
     const { data: masteryRecords } = await supabase
-      .from('student_mastery')
-      .select('status')
-      .eq('tenant_id', context.tenant.id)
-      .eq('student_id', studentId)
-      .is('deleted_at', null);
+      .from("student_mastery")
+      .select("status")
+      .eq("tenant_id", context.tenant.id)
+      .eq("student_id", studentId)
+      .is("deleted_at", null);
 
     const masteryData = masteryRecords ?? [];
     const total = masteryData.length;
-    const mastered = masteryData.filter((m) => m.status === 'mastered').length;
-    const practicing = masteryData.filter((m) => m.status === 'practicing').length;
-    const presented = masteryData.filter((m) => m.status === 'presented').length;
-    const percentMastered = total > 0 ? Math.round((mastered / total) * 100) : 0;
+    const mastered = masteryData.filter((m) => m.status === "mastered").length;
+    const practicing = masteryData.filter(
+      (m) => m.status === "practicing",
+    ).length;
+    const presented = masteryData.filter(
+      (m) => m.status === "presented",
+    ).length;
+    const percentMastered =
+      total > 0 ? Math.round((mastered / total) * 100) : 0;
 
     const mastery = { total, mastered, practicing, presented, percentMastered };
 
     // 6. Published report count
     const { count: publishedReportCount } = await supabase
-      .from('student_reports')
-      .select('id', { count: 'exact', head: true })
-      .eq('tenant_id', context.tenant.id)
-      .eq('student_id', studentId)
-      .eq('status', 'published')
-      .is('deleted_at', null);
+      .from("student_reports")
+      .select("id", { count: "exact", head: true })
+      .eq("tenant_id", context.tenant.id)
+      .eq("student_id", studentId)
+      .eq("status", "published")
+      .is("deleted_at", null);
 
     return {
       data: {
@@ -403,13 +447,16 @@ export async function getChildOverview(
   } catch (err) {
     return {
       data: null,
-      error: { message: err instanceof Error ? err.message : 'Unknown error', code: 'INTERNAL_ERROR' },
+      error: {
+        message: err instanceof Error ? err.message : "Unknown error",
+        code: "INTERNAL_ERROR",
+      },
     };
   }
 }
 
 // ============================================================
-// isGuardianOf — lightweight check for route guards
+// isGuardianOf - lightweight check for route guards
 // ============================================================
 
 export async function isGuardianOf(studentId: string): Promise<boolean> {
@@ -418,12 +465,12 @@ export async function isGuardianOf(studentId: string): Promise<boolean> {
     const supabase = await createSupabaseServerClient();
 
     const { data } = await supabase
-      .from('guardians')
-      .select('id')
-      .eq('tenant_id', context.tenant.id)
-      .eq('user_id', context.user.id)
-      .eq('student_id', studentId)
-      .is('deleted_at', null)
+      .from("guardians")
+      .select("id")
+      .eq("tenant_id", context.tenant.id)
+      .eq("user_id", context.user.id)
+      .eq("student_id", studentId)
+      .is("deleted_at", null)
       .limit(1)
       .single();
 
@@ -434,7 +481,7 @@ export async function isGuardianOf(studentId: string): Promise<boolean> {
 }
 
 // ============================================================
-// isParentUser — checks if user has guardian records (is a parent)
+// isParentUser - checks if user has guardian records (is a parent)
 // ============================================================
 
 export async function isParentUser(): Promise<boolean> {
@@ -443,11 +490,11 @@ export async function isParentUser(): Promise<boolean> {
     const supabase = await createSupabaseServerClient();
 
     const { count } = await supabase
-      .from('guardians')
-      .select('id', { count: 'exact', head: true })
-      .eq('tenant_id', context.tenant.id)
-      .eq('user_id', context.user.id)
-      .is('deleted_at', null);
+      .from("guardians")
+      .select("id", { count: "exact", head: true })
+      .eq("tenant_id", context.tenant.id)
+      .eq("user_id", context.user.id)
+      .is("deleted_at", null);
 
     return (count ?? 0) > 0;
   } catch {

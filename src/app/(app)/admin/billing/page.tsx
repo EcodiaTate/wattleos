@@ -8,12 +8,12 @@
 // the billing management UI.
 // ============================================================
 
+import { BillingDashboardClient } from "@/components/domain/billing/billing-dashboard-client";
+import { listFeeSchedules, listInvoices } from "@/lib/actions/billing";
 import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
-import { listInvoices, listFeeSchedules } from "@/lib/actions/billing";
-import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { BillingDashboardClient } from "@/components/domain/billing/billing-dashboard-client";
+import { redirect } from "next/navigation";
 
 export default async function BillingPage() {
   const context = await getTenantContext();
@@ -39,7 +39,7 @@ export default async function BillingPage() {
         id, relationship, user_id,
         user:users(id, first_name, last_name, email)
       )
-    `
+    `,
     )
     .eq("enrollment_status", "active")
     .is("deleted_at", null)
@@ -93,8 +93,8 @@ export default async function BillingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Billing</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold text-foreground">Billing</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Manage tuition fees, create invoices, and track payments.
         </p>
       </div>

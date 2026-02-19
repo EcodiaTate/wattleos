@@ -12,13 +12,12 @@
 // modals are painful.
 // ============================================================
 
-import { getTenantContext } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { getClass } from '@/lib/actions/classes';
-import { redirect } from 'next/navigation';
-import { notFound } from 'next/navigation';
-import { EnrollStudentForm } from '@/components/domain/sis/EnrollStudentForm';
-import Link from 'next/link';
+import { EnrollStudentForm } from "@/components/domain/sis/EnrollStudentForm";
+import { getClass } from "@/lib/actions/classes";
+import { getTenantContext } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 
 interface EnrollPageProps {
   params: Promise<{ id: string }>;
@@ -42,27 +41,27 @@ export default async function EnrollStudentPage({ params }: EnrollPageProps) {
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/classes" className="hover:text-gray-700">
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/classes" className="hover:text-foreground">
           Classes
         </Link>
         <span>/</span>
-        <Link href={`/classes/${id}`} className="hover:text-gray-700">
+        <Link href={`/classes/${id}`} className="hover:text-foreground">
           {classData.name}
         </Link>
         <span>/</span>
-        <span className="text-gray-900">Enroll Student</span>
+        <span className="text-foreground">Enroll Student</span>
       </nav>
 
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
+        <h1 className="text-2xl font-semibold text-foreground">
           Enroll Student in {classData.name}
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Search for an existing student and set their enrollment start date.
           {classData.cycle_level && (
-            <span className="ml-1 text-gray-400">
+            <span className="ml-1 text-muted-foreground">
               (Ages {classData.cycle_level})
             </span>
           )}

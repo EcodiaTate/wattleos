@@ -12,14 +12,14 @@
 // client component for approve/reject actions.
 // ============================================================
 
+import { PendingApprovalsClient } from "@/components/domain/timesheets/pending-approvals-client";
+import { listPayPeriods } from "@/lib/actions/pay-periods";
+import { listPendingTimesheets } from "@/lib/actions/timesheets";
 import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
-import { redirect } from "next/navigation";
-import { listPendingTimesheets } from "@/lib/actions/timesheets";
-import { listPayPeriods } from "@/lib/actions/pay-periods";
-import { PendingApprovalsClient } from "@/components/domain/timesheets/pending-approvals-client";
-import Link from "next/link";
 import type { PayPeriod } from "@/types/domain";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 type PendingResult = Awaited<ReturnType<typeof listPendingTimesheets>>;
 type PendingTimesheet = NonNullable<PendingResult["data"]>[number];
@@ -61,7 +61,7 @@ export default async function AdminTimesheetsPage() {
 
   const canManageIntegrations = hasPermission(
     context,
-    Permissions.MANAGE_INTEGRATIONS
+    Permissions.MANAGE_INTEGRATIONS,
   );
 
   return (
@@ -69,17 +69,17 @@ export default async function AdminTimesheetsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <nav className="flex items-center gap-2 text-sm text-gray-500">
-            <Link href="/admin" className="hover:text-gray-700">
+          <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Link href="/admin" className="hover:text-foreground">
               Settings
             </Link>
             <span>/</span>
-            <span className="text-gray-900">Timesheet Approvals</span>
+            <span className="text-foreground">Timesheet Approvals</span>
           </nav>
-          <h1 className="mt-1 text-2xl font-bold text-gray-900">
+          <h1 className="mt-1 text-2xl font-bold text-foreground">
             Timesheet Approvals
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Review and approve staff timesheets
           </p>
         </div>
@@ -87,7 +87,7 @@ export default async function AdminTimesheetsPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/admin/timesheets/periods"
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background"
           >
             <svg
               className="h-4 w-4"
@@ -108,7 +108,7 @@ export default async function AdminTimesheetsPage() {
           {canManageIntegrations && (
             <Link
               href="/admin/settings/payroll"
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background"
             >
               <svg
                 className="h-4 w-4"
@@ -135,26 +135,28 @@ export default async function AdminTimesheetsPage() {
       </div>
 
       {/* Summary stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm text-gray-500">Pending Approval</p>
-          <p className="mt-1 text-2xl font-bold text-amber-600">
+      <div className="grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-3">
+        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+          <p className="text-sm text-muted-foreground">Pending Approval</p>
+          <p className="mt-1 text-2xl font-bold text-primary">
             {pendingTimesheets.length}
           </p>
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm text-gray-500">Total Hours (Pending)</p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">
+        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+          <p className="text-sm text-muted-foreground">Total Hours (Pending)</p>
+          <p className="mt-1 text-2xl font-bold text-foreground">
             {pendingTimesheets
               .reduce((sum, ts) => sum + (ts.total_hours ?? 0), 0)
               .toFixed(1)}
           </p>
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm text-gray-500">Pay Periods With Submissions</p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">
+        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+          <p className="text-sm text-muted-foreground">
+            Pay Periods With Submissions
+          </p>
+          <p className="mt-1 text-2xl font-bold text-foreground">
             {Object.keys(groupedByPeriod).length}
           </p>
         </div>
@@ -162,9 +164,9 @@ export default async function AdminTimesheetsPage() {
 
       {/* Pending timesheets */}
       {pendingTimesheets.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
+        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
           <svg
-            className="mx-auto h-12 w-12 text-gray-300"
+            className="mx-auto h-[var(--density-button-height)] w-12 text-gray-300"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1}
@@ -176,8 +178,10 @@ export default async function AdminTimesheetsPage() {
               d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
             />
           </svg>
-          <p className="mt-4 text-sm font-medium text-gray-900">All caught up</p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-4 text-sm font-medium text-foreground">
+            All caught up
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
             No timesheets waiting for approval right now.
           </p>
         </div>

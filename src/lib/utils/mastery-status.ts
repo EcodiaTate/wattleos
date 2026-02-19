@@ -23,9 +23,9 @@ export const MASTERY_STATUS_CONFIG: Record<
   not_started: {
     label: 'Not Started',
     shortLabel: 'NS',
-    color: 'text-gray-500',
-    bgColor: 'bg-gray-100',
-    borderColor: 'border-gray-200',
+    color: 'text-muted-foreground',
+    bgColor: 'bg-muted',
+    borderColor: 'border-border',
     dotColor: 'bg-gray-300',
     heatmapColor: '#e5e7eb', // gray-200
     description: 'Student has not been introduced to this material',
@@ -46,7 +46,7 @@ export const MASTERY_STATUS_CONFIG: Record<
     color: 'text-amber-700',
     bgColor: 'bg-amber-100',
     borderColor: 'border-amber-200',
-    dotColor: 'bg-amber-500',
+    dotColor: 'bg-primary',
     heatmapColor: '#fcd34d', // amber-300
     description: 'Student is working with the material independently',
   },
@@ -56,7 +56,7 @@ export const MASTERY_STATUS_CONFIG: Record<
     color: 'text-green-700',
     bgColor: 'bg-green-100',
     borderColor: 'border-green-200',
-    dotColor: 'bg-green-500',
+    dotColor: 'bg-[var(--mastery-mastered)]',
     heatmapColor: '#86efac', // green-300
     description: 'Student demonstrates consistent, independent competence',
   },

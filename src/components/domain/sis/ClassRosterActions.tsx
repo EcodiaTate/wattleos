@@ -65,7 +65,7 @@ export function ClassRosterActions({
         <button
           onClick={handleWithdraw}
           disabled={isPending}
-          className="rounded bg-red-600 px-3 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          className="rounded bg-[var(--attendance-absent)] px-3 py-1 text-xs font-medium text-primary-foreground hover:bg-red-700 disabled:opacity-50"
         >
           {isPending ? "..." : "Confirm"}
         </button>
@@ -74,7 +74,7 @@ export function ClassRosterActions({
             setShowConfirm(false);
             setError(null);
           }}
-          className="rounded border border-gray-300 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
+          className="rounded border border-gray-300 px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-background"
         >
           Cancel
         </button>

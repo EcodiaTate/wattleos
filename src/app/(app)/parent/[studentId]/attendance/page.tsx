@@ -7,26 +7,29 @@
 // summary stats and date range filtering.
 // ============================================================
 
-import { getTenantContext } from '@/lib/auth/tenant-context';
 import {
-  isGuardianOf,
-  getMyChildren,
   getChildAttendance,
-} from '@/lib/actions/parent';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
+  getMyChildren,
+  isGuardianOf,
+} from "@/lib/actions/parent";
+import { getTenantContext } from "@/lib/auth/tenant-context";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 interface PageProps {
   params: Promise<{ studentId: string }>;
   searchParams: Promise<{ start?: string; end?: string }>;
 }
 
-const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  present: { bg: 'bg-green-100', text: 'text-green-700', label: 'Present' },
-  absent: { bg: 'bg-red-100', text: 'text-red-700', label: 'Absent' },
-  late: { bg: 'bg-amber-100', text: 'text-amber-700', label: 'Late' },
-  excused: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Excused' },
-  half_day: { bg: 'bg-gray-100', text: 'text-gray-700', label: 'Half Day' },
+const STATUS_STYLES: Record<
+  string,
+  { bg: string; text: string; label: string }
+> = {
+  present: { bg: "bg-green-100", text: "text-green-700", label: "Present" },
+  absent: { bg: "bg-red-100", text: "text-red-700", label: "Absent" },
+  late: { bg: "bg-amber-100", text: "text-amber-700", label: "Late" },
+  excused: { bg: "bg-blue-100", text: "text-blue-700", label: "Excused" },
+  half_day: { bg: "bg-muted", text: "text-foreground", label: "Half Day" },
 };
 
 export default async function ChildAttendancePage({
@@ -38,11 +41,11 @@ export default async function ChildAttendancePage({
   await getTenantContext();
 
   const isGuardian = await isGuardianOf(studentId);
-  if (!isGuardian) redirect('/parent');
+  if (!isGuardian) redirect("/parent");
 
   const childrenResult = await getMyChildren();
   const child = (childrenResult.data ?? []).find((c) => c.id === studentId);
-  if (!child) redirect('/parent');
+  if (!child) redirect("/parent");
   const displayName = child.preferredName ?? child.firstName;
 
   const result = await getChildAttendance(studentId, {
@@ -65,38 +68,38 @@ export default async function ChildAttendancePage({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Link href="/parent" className="hover:text-gray-700">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Link href="/parent" className="hover:text-foreground">
             My Children
           </Link>
-          <span className="text-gray-400">/</span>
-          <Link href={`/parent/${studentId}`} className="hover:text-gray-700">
+          <span className="text-muted-foreground">/</span>
+          <Link href={`/parent/${studentId}`} className="hover:text-foreground">
             {displayName} {child.lastName}
           </Link>
-          <span className="text-gray-400">/</span>
-          <span className="text-gray-900">Attendance</span>
+          <span className="text-muted-foreground">/</span>
+          <span className="text-foreground">Attendance</span>
         </div>
-        <h1 className="mt-2 text-2xl font-bold text-gray-900">
+        <h1 className="mt-2 text-2xl font-bold text-foreground">
           {displayName}&apos;s Attendance
         </h1>
 
         {/* Sub-nav */}
-        <div className="mt-4 flex gap-4 border-b border-gray-200">
+        <div className="mt-4 flex gap-[var(--density-card-padding)] border-bborder-border">
           <Link
             href={`/parent/${studentId}`}
-            className="border-b-2 border-transparent px-1 pb-3 text-sm font-medium text-gray-500 hover:text-gray-700"
+            className="border-b-2 border-transparent px-1 pb-3 text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             Portfolio
           </Link>
           <Link
             href={`/parent/${studentId}/attendance`}
-            className="border-b-2 border-amber-500 px-1 pb-3 text-sm font-medium text-amber-700"
+            className="border-b-2 border-primary px-1 pb-3 text-sm font-medium text-amber-700"
           >
             Attendance
           </Link>
           <Link
             href={`/parent/${studentId}/reports`}
-            className="border-b-2 border-transparent px-1 pb-3 text-sm font-medium text-gray-500 hover:text-gray-700"
+            className="border-b-2 border-transparent px-1 pb-3 text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             Reports
           </Link>
@@ -110,44 +113,50 @@ export default async function ChildAttendancePage({
         <SummaryCard label="Absent" value={summary.absent} color="red" />
         <SummaryCard label="Late" value={summary.late} color="amber" />
         <SummaryCard label="Excused" value={summary.excused} color="blue" />
-        <SummaryCard label="Attendance Rate" value={`${summary.attendanceRate}%`} color="green" large />
+        <SummaryCard
+          label="Attendance Rate"
+          value={`${summary.attendanceRate}%`}
+          color="green"
+          large
+        />
       </div>
 
       {/* Records table */}
       {records.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+          <p className="text-sm text-muted-foreground">
             No attendance records found for this period.
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div className="overflow-hidden rounded-lg borderborder-border bg-background">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-background">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Date
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Check In
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Check Out
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Notes
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {records.map((record) => {
-                const style = STATUS_STYLES[record.status] ?? STATUS_STYLES.present;
+                const style =
+                  STATUS_STYLES[record.status] ?? STATUS_STYLES.present;
                 return (
-                  <tr key={record.id} className="hover:bg-gray-50">
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-900">
+                  <tr key={record.id} className="hover:bg-background">
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-foreground">
                       {formatDate(record.date)}
                     </td>
                     <td className="px-4 py-3">
@@ -157,14 +166,14 @@ export default async function ChildAttendancePage({
                         {style.label}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
-                      {record.checkInAt ? formatTime(record.checkInAt) : '—'}
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
+                      {record.checkInAt ? formatTime(record.checkInAt) : "—"}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
-                      {record.checkOutAt ? formatTime(record.checkOutAt) : '—'}
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
+                      {record.checkOutAt ? formatTime(record.checkOutAt) : "—"}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
-                      {record.notes ?? '—'}
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      {record.notes ?? "—"}
                     </td>
                   </tr>
                 );
@@ -189,22 +198,24 @@ function SummaryCard({
 }: {
   label: string;
   value: number | string;
-  color?: 'green' | 'red' | 'amber' | 'blue';
+  color?: "green" | "red" | "amber" | "blue";
   large?: boolean;
 }) {
   const colorMap: Record<string, string> = {
-    green: 'text-green-700',
-    red: 'text-red-700',
-    amber: 'text-amber-700',
-    blue: 'text-blue-700',
+    green: "text-green-700",
+    red: "text-red-700",
+    amber: "text-amber-700",
+    blue: "text-blue-700",
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 text-center">
-      <p className={`${large ? 'text-2xl' : 'text-xl'} font-bold ${color ? colorMap[color] : 'text-gray-900'}`}>
+    <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] text-center">
+      <p
+        className={`${large ? "text-2xl" : "text-xl"} font-bold ${color ? colorMap[color] : "text-foreground"}`}
+      >
         {value}
       </p>
-      <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-gray-500">
+      <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
         {label}
       </p>
     </div>
@@ -212,18 +223,18 @@ function SummaryCard({
 }
 
 function formatDate(dateStr: string): string {
-  const date = new Date(dateStr + 'T00:00:00');
-  return date.toLocaleDateString('en-AU', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
+  const date = new Date(dateStr + "T00:00:00");
+  return date.toLocaleDateString("en-AU", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
   });
 }
 
 function formatTime(dateStr: string): string {
   const date = new Date(dateStr);
-  return date.toLocaleTimeString('en-AU', {
-    hour: '2-digit',
-    minute: '2-digit',
+  return date.toLocaleTimeString("en-AU", {
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }

@@ -8,17 +8,17 @@
 // toggle and configuration status.
 // ============================================================
 
-import { getTenantContext, hasPermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { listIntegrationConfigs } from '@/lib/actions/integrations';
-import { redirect } from 'next/navigation';
-import { IntegrationDashboardClient } from '@/components/domain/admin/integration-dashboard-client';
+import { IntegrationDashboardClient } from "@/components/domain/admin/integration-dashboard-client";
+import { listIntegrationConfigs } from "@/lib/actions/integrations";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import { redirect } from "next/navigation";
 
 export default async function IntegrationsPage() {
   const context = await getTenantContext();
 
   if (!hasPermission(context, Permissions.MANAGE_INTEGRATIONS)) {
-    redirect('/dashboard');
+    redirect("/dashboard");
   }
 
   const result = await listIntegrationConfigs();
@@ -27,9 +27,10 @@ export default async function IntegrationsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Integrations</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Connect WattleOS to external services for billing, storage, and payroll.
+        <h1 className="text-2xl font-semibold text-foreground">Integrations</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Connect WattleOS to external services for billing, storage, and
+          payroll.
         </p>
       </div>
 

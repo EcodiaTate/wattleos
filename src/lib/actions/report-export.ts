@@ -1,7 +1,7 @@
 // src/lib/actions/report-export.ts
 //
 // ============================================================
-// WattleOS V2 — Report Export Server Actions
+// WattleOS V2 - Report Export Server Actions
 // ============================================================
 // Handles PDF export for student reports. The pipeline:
 //   1. Fetch the student report (must be approved or published)
@@ -17,21 +17,21 @@
 
 "use server";
 
-import {
-  createSupabaseServerClient,
-  createSupabaseAdminClient,
-} from "@/lib/supabase/server";
 import { requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
-import { success, failure } from "@/types/api";
-import type { ActionResponse } from "@/types/api";
-import type { StudentReport } from "@/types/domain";
-import {
-  renderReportPdf,
-  generateReportStoragePath,
-  generateReportFilename,
-} from "@/lib/integrations/pdf/client";
 import type { ReportContent } from "@/lib/integrations/pdf/client";
+import {
+  generateReportFilename,
+  generateReportStoragePath,
+  renderReportPdf,
+} from "@/lib/integrations/pdf/client";
+import {
+  createSupabaseAdminClient,
+  createSupabaseServerClient,
+} from "@/lib/supabase/server";
+import type { ActionResponse } from "@/types/api";
+import { failure, success } from "@/types/api";
+import type { StudentReport } from "@/types/domain";
 
 // ============================================================
 // Types
@@ -74,7 +74,7 @@ function firstOrNull<T>(v: T | T[] | null | undefined): T | null {
 // ============================================================
 
 export async function exportReportToPdf(
-  reportId: string
+  reportId: string,
 ): Promise<ActionResponse<PdfExportResult>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_REPORTS);
@@ -90,7 +90,7 @@ export async function exportReportToPdf(
         student:students(id, first_name, last_name, preferred_name, dob),
         template:report_templates(id, name),
         author:users!student_reports_author_id_fkey(id, first_name, last_name)
-      `
+      `,
       )
       .eq("id", reportId)
       .is("deleted_at", null)
@@ -101,18 +101,27 @@ export async function exportReportToPdf(
     }
 
     // Normalize joins (student/template/author can come back as object or array)
-    const student = firstOrNull(report.student as unknown as StudentJoin | StudentJoin[] | null);
-    const template = firstOrNull(report.template as unknown as TemplateJoin | TemplateJoin[] | null);
-    const author = firstOrNull(report.author as unknown as AuthorJoin | AuthorJoin[] | null);
+    const student = firstOrNull(
+      report.student as unknown as StudentJoin | StudentJoin[] | null,
+    );
+    const template = firstOrNull(
+      report.template as unknown as TemplateJoin | TemplateJoin[] | null,
+    );
+    const author = firstOrNull(
+      report.author as unknown as AuthorJoin | AuthorJoin[] | null,
+    );
 
     // Keep base report strongly typed
     const typedReport = report as StudentReport;
 
-    // 2. Validate status — only approved or published reports get PDFs
-    if (typedReport.status !== "approved" && typedReport.status !== "published") {
+    // 2. Validate status - only approved or published reports get PDFs
+    if (
+      typedReport.status !== "approved" &&
+      typedReport.status !== "published"
+    ) {
       return failure(
         `Cannot export a report in '${typedReport.status}' status. Report must be approved or published.`,
-        "VALIDATION_ERROR"
+        "VALIDATION_ERROR",
       );
     }
 
@@ -131,7 +140,8 @@ export async function exportReportToPdf(
       student_name: (rawContent.student_name as string) ?? studentName,
       student_dob:
         (rawContent.student_dob as string) ??
-        (student?.dob ?? undefined) ??
+        student?.dob ??
+        undefined ??
         undefined,
       class_name: (rawContent.class_name as string) ?? undefined,
       term: (rawContent.term as string) ?? typedReport.term ?? "Unknown Term",
@@ -171,7 +181,10 @@ export async function exportReportToPdf(
       });
 
     if (uploadError) {
-      return failure(`Failed to upload PDF: ${uploadError.message}`, "STORAGE_ERROR");
+      return failure(
+        `Failed to upload PDF: ${uploadError.message}`,
+        "STORAGE_ERROR",
+      );
     }
 
     // 6. Update the report record with the storage path
@@ -182,17 +195,21 @@ export async function exportReportToPdf(
 
     if (updateError) {
       console.error(
-        `[report-export] PDF uploaded but failed to update record: ${updateError.message}`
+        `[report-export] PDF uploaded but failed to update record: ${updateError.message}`,
       );
     }
 
     // 7. Generate a signed download URL (valid for 1 hour)
-    const { data: signedUrlData, error: signedUrlError } = await adminClient.storage
-      .from("reports")
-      .createSignedUrl(storagePath, 3600);
+    const { data: signedUrlData, error: signedUrlError } =
+      await adminClient.storage
+        .from("reports")
+        .createSignedUrl(storagePath, 3600);
 
     if (signedUrlError || !signedUrlData?.signedUrl) {
-      return failure("PDF generated but failed to create download URL", "STORAGE_ERROR");
+      return failure(
+        "PDF generated but failed to create download URL",
+        "STORAGE_ERROR",
+      );
     }
 
     const filename = generateReportFilename(reportContent);
@@ -204,7 +221,8 @@ export async function exportReportToPdf(
       size_bytes: pdfBuffer.byteLength,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to export report to PDF";
+    const message =
+      err instanceof Error ? err.message : "Failed to export report to PDF";
     return failure(message, "UNEXPECTED_ERROR");
   }
 }
@@ -214,7 +232,7 @@ export async function exportReportToPdf(
 // ============================================================
 
 export async function getReportPdfUrl(
-  reportId: string
+  reportId: string,
 ): Promise<ActionResponse<{ download_url: string; filename: string }>> {
   try {
     await requirePermission(Permissions.MANAGE_REPORTS);
@@ -227,7 +245,7 @@ export async function getReportPdfUrl(
         `
         id, pdf_storage_path, term,
         student:students(first_name, last_name, preferred_name)
-      `
+      `,
       )
       .eq("id", reportId)
       .is("deleted_at", null)
@@ -239,24 +257,35 @@ export async function getReportPdfUrl(
 
     const student = firstOrNull(
       report.student as unknown as
-        | { first_name: string; last_name: string; preferred_name: string | null }
-        | { first_name: string; last_name: string; preferred_name: string | null }[]
-        | null
+        | {
+            first_name: string;
+            last_name: string;
+            preferred_name: string | null;
+          }
+        | {
+            first_name: string;
+            last_name: string;
+            preferred_name: string | null;
+          }[]
+        | null,
     );
 
-    const pdf_storage_path =
-      (report as any).pdf_storage_path as string | null | undefined;
+    const pdf_storage_path = (report as any).pdf_storage_path as
+      | string
+      | null
+      | undefined;
 
     if (!pdf_storage_path) {
       return failure(
         'This report has not been exported to PDF yet. Use "Export PDF" first.',
-        "NOT_FOUND"
+        "NOT_FOUND",
       );
     }
 
-    const { data: signedUrlData, error: signedUrlError } = await adminClient.storage
-      .from("reports")
-      .createSignedUrl(pdf_storage_path, 3600);
+    const { data: signedUrlData, error: signedUrlError } =
+      await adminClient.storage
+        .from("reports")
+        .createSignedUrl(pdf_storage_path, 3600);
 
     if (signedUrlError || !signedUrlData?.signedUrl) {
       return failure("Failed to generate download URL", "STORAGE_ERROR");
@@ -266,17 +295,17 @@ export async function getReportPdfUrl(
       ? `${student.preferred_name ?? student.first_name} ${student.last_name}`
       : "Student";
     const term = (report as any).term ?? "Report";
-    const filename = `${studentName.replace(/\s+/g, "_")}_${String(term).replace(
-      /\s+/g,
-      "_"
-    )}_Report.pdf`;
+    const filename = `${studentName.replace(/\s+/g, "_")}_${String(
+      term,
+    ).replace(/\s+/g, "_")}_Report.pdf`;
 
     return success({
       download_url: signedUrlData.signedUrl,
       filename,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to get PDF download URL";
+    const message =
+      err instanceof Error ? err.message : "Failed to get PDF download URL";
     return failure(message, "UNEXPECTED_ERROR");
   }
 }
@@ -286,7 +315,7 @@ export async function getReportPdfUrl(
 // ============================================================
 
 export async function getParentReportPdfUrl(
-  reportId: string
+  reportId: string,
 ): Promise<ActionResponse<{ download_url: string; filename: string }>> {
   try {
     const supabase = await createSupabaseServerClient();
@@ -298,7 +327,7 @@ export async function getParentReportPdfUrl(
         `
         id, pdf_storage_path, term, status,
         student:students(first_name, last_name, preferred_name)
-      `
+      `,
       )
       .eq("id", reportId)
       .eq("status", "published")
@@ -311,21 +340,32 @@ export async function getParentReportPdfUrl(
 
     const student = firstOrNull(
       report.student as unknown as
-        | { first_name: string; last_name: string; preferred_name: string | null }
-        | { first_name: string; last_name: string; preferred_name: string | null }[]
-        | null
+        | {
+            first_name: string;
+            last_name: string;
+            preferred_name: string | null;
+          }
+        | {
+            first_name: string;
+            last_name: string;
+            preferred_name: string | null;
+          }[]
+        | null,
     );
 
-    const pdf_storage_path =
-      (report as any).pdf_storage_path as string | null | undefined;
+    const pdf_storage_path = (report as any).pdf_storage_path as
+      | string
+      | null
+      | undefined;
 
     if (!pdf_storage_path) {
       return failure("PDF is not yet available for this report", "NOT_FOUND");
     }
 
-    const { data: signedUrlData, error: signedUrlError } = await adminClient.storage
-      .from("reports")
-      .createSignedUrl(pdf_storage_path, 3600);
+    const { data: signedUrlData, error: signedUrlError } =
+      await adminClient.storage
+        .from("reports")
+        .createSignedUrl(pdf_storage_path, 3600);
 
     if (signedUrlError || !signedUrlData?.signedUrl) {
       return failure("Failed to generate download URL", "STORAGE_ERROR");
@@ -335,17 +375,17 @@ export async function getParentReportPdfUrl(
       ? `${student.preferred_name ?? student.first_name} ${student.last_name}`
       : "Student";
     const term = (report as any).term ?? "Report";
-    const filename = `${studentName.replace(/\s+/g, "_")}_${String(term).replace(
-      /\s+/g,
-      "_"
-    )}_Report.pdf`;
+    const filename = `${studentName.replace(/\s+/g, "_")}_${String(
+      term,
+    ).replace(/\s+/g, "_")}_Report.pdf`;
 
     return success({
       download_url: signedUrlData.signedUrl,
       filename,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to get PDF download URL";
+    const message =
+      err instanceof Error ? err.message : "Failed to get PDF download URL";
     return failure(message, "UNEXPECTED_ERROR");
   }
 }

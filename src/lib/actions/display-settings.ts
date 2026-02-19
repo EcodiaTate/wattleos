@@ -1,7 +1,7 @@
 // src/lib/actions/display-settings.ts
 //
 // ============================================================
-// WattleOS V2 — Display Settings Server Actions
+// WattleOS V2 - Display Settings Server Actions
 // ============================================================
 // Manages both admin-level (tenant) and user-level display
 // preferences, plus the cookie that the root layout reads.
@@ -279,7 +279,7 @@ async function syncDisplayCookie(
     });
   } catch {
     // Cookie setting can fail in some contexts (e.g., during static generation).
-    // Non-critical — the layout will just use defaults.
+    // Non-critical - the layout will just use defaults.
   }
 }
 

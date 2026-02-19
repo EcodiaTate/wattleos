@@ -1,60 +1,47 @@
 // src/lib/actions/parent/index.ts
 //
 // ============================================================
-// WattleOS V2 — Parent Portal: Barrel Export
+// WattleOS V2 - Parent Portal: Barrel Export
 // ============================================================
 
 // Children & identity
 export {
-  getMyChildren,
   getChildOverview,
+  getMyChildren,
   getMyGuardianRecords,
   isGuardianOf,
   isParentUser,
-} from './children';
-export type { ParentChild, ChildOverview } from './children';
+} from "./children";
+export type { ChildOverview, ParentChild } from "./children";
 
 // Portfolio (observations + mastery)
 export {
-  getChildObservations,
   getChildMastery,
   getChildMasteryDetails,
-} from './portfolio';
+  getChildObservations,
+} from "./portfolio";
 export type {
-  ChildObservation,
   ChildMasteryRecord,
   ChildMasterySummary,
-} from './portfolio';
+  ChildObservation,
+} from "./portfolio";
 
 // Attendance
-export {
-  getChildAttendance,
-  getChildAttendanceWeek,
-} from './attendance';
+export { getChildAttendance, getChildAttendanceWeek } from "./attendance";
 export type {
   ChildAttendanceRecord,
-  ChildAttendanceSummary,
   ChildAttendanceResponse,
-} from './attendance';
+  ChildAttendanceSummary,
+} from "./attendance";
 
 // Reports
-export {
-  getChildReports,
-  getChildReport,
-} from './reports';
-export type {
-  ParentReportSummary,
-  ParentReportDetail,
-} from './reports';
+export { getChildReport, getChildReports } from "./reports";
+export type { ParentReportDetail, ParentReportSummary } from "./reports";
 
 // Settings (consent + contact)
-export {
-  getMySettings,
-  updateConsent,
-  updateContactInfo,
-} from './settings';
+export { getMySettings, updateConsent, updateContactInfo } from "./settings";
 export type {
   ParentGuardianSettings,
   UpdateConsentInput,
   UpdateContactInfoInput,
-} from './settings';
+} from "./settings";

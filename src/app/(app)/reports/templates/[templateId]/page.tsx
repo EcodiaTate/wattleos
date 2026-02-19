@@ -11,13 +11,13 @@
 // state (reordering, adding/removing sections, config panels).
 // ============================================================
 
-import { getTenantContext, hasPermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import { getReportTemplate } from '@/lib/actions/reports';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { TemplateBuilder } from '@/components/domain/reports/TemplateBuilder';
-import type { TemplateContent } from '@/lib/reports/types';
+import { TemplateBuilder } from "@/components/domain/reports/TemplateBuilder";
+import { getReportTemplate } from "@/lib/actions/reports";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import type { TemplateContent } from "@/lib/reports/types";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 interface PageProps {
   params: Promise<{ templateId: string }>;
@@ -28,13 +28,13 @@ export default async function TemplateBuilderPage({ params }: PageProps) {
   const context = await getTenantContext();
 
   if (!hasPermission(context, Permissions.MANAGE_REPORTS)) {
-    redirect('/dashboard');
+    redirect("/dashboard");
   }
 
   const result = await getReportTemplate(templateId);
 
   if (result.error || !result.data) {
-    redirect('/reports/templates');
+    redirect("/reports/templates");
   }
 
   const template = result.data;
@@ -45,22 +45,22 @@ export default async function TemplateBuilderPage({ params }: PageProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Link href="/reports" className="hover:text-gray-700">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Link href="/reports" className="hover:text-foreground">
               Reports
             </Link>
-            <span className="text-gray-400">/</span>
-            <Link href="/reports/templates" className="hover:text-gray-700">
+            <span className="text-muted-foreground">/</span>
+            <Link href="/reports/templates" className="hover:text-foreground">
               Templates
             </Link>
-            <span className="text-gray-400">/</span>
-            <span className="text-gray-900">{template.name}</span>
+            <span className="text-muted-foreground">/</span>
+            <span className="text-foreground">{template.name}</span>
           </div>
-          <h1 className="mt-2 text-2xl font-bold text-gray-900">
+          <h1 className="mt-2 text-2xl font-bold text-foreground">
             {template.name}
           </h1>
           {template.cycle_level && (
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Cycle: {template.cycle_level}
             </p>
           )}

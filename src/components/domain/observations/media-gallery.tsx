@@ -67,14 +67,14 @@ export function MediaGallery({ media, variant }: MediaGalleryProps) {
           {otherMedia.map((m) => (
             <div
               key={m.id}
-              className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100"
+              className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-muted"
             >
               <MediaIcon type={m.media_type} />
             </div>
           ))}
           {/* Overflow indicator */}
           {imageMedia.length > 4 && (
-            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-xs font-medium text-gray-500">
+            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-medium text-muted-foreground">
               +{imageMedia.length - 4}
             </div>
           )}
@@ -114,11 +114,11 @@ export function MediaGallery({ media, variant }: MediaGalleryProps) {
           {otherMedia.map((m) => (
             <div
               key={m.id}
-              className="flex h-32 w-32 items-center justify-center rounded-lg bg-gray-100 sm:h-40 sm:w-40"
+              className="flex h-32 w-32 items-center justify-center rounded-lg bg-muted sm:h-40 sm:w-40"
             >
               <div className="text-center">
                 <MediaIcon type={m.media_type} />
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {m.file_name ?? m.media_type}
                 </p>
               </div>
@@ -147,7 +147,7 @@ function MediaIcon({ type }: { type: string }) {
   if (type === "image") {
     return (
       <svg
-        className="h-6 w-6 text-gray-400"
+        className="h-6 w-6 text-muted-foreground"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
@@ -164,7 +164,7 @@ function MediaIcon({ type }: { type: string }) {
   if (type === "video") {
     return (
       <svg
-        className="h-6 w-6 text-gray-400"
+        className="h-6 w-6 text-muted-foreground"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
@@ -181,7 +181,7 @@ function MediaIcon({ type }: { type: string }) {
   if (type === "audio") {
     return (
       <svg
-        className="h-6 w-6 text-gray-400"
+        className="h-6 w-6 text-muted-foreground"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
@@ -198,7 +198,7 @@ function MediaIcon({ type }: { type: string }) {
   // document fallback
   return (
     <svg
-      className="h-6 w-6 text-gray-400"
+      className="h-6 w-6 text-muted-foreground"
       fill="none"
       viewBox="0 0 24 24"
       strokeWidth={1.5}

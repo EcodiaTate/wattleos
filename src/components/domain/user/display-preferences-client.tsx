@@ -1,7 +1,7 @@
 // src/components/domain/user/display-preferences-client.tsx
 //
 // ============================================================
-// WattleOS V2 — User Display Preferences Form
+// WattleOS V2 - User Display Preferences Form
 // ============================================================
 // Allows any authenticated user to override theme, density,
 // and font scale for their personal experience.
@@ -108,13 +108,11 @@ export function DisplayPreferencesClient({
     <div className="space-y-[var(--density-section-gap)] max-w-[var(--content-narrow-width)]">
       {/* ---- Theme ---- */}
       <section className="rounded-lg border border-border bg-card p-[var(--density-card-padding)]">
-        <h2 className="text-[var(--text-lg)] font-semibold text-foreground">
-          Theme
-        </h2>
-        <p className="mt-1 text-[var(--text-sm)] text-muted-foreground">
+        <h2 className="text-lg font-semibold text-foreground">Theme</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
           Choose light, dark, or follow your device settings.
           {prefs.theme === null && (
-            <span className="ml-1 text-[var(--text-xs)] italic">
+            <span className="ml-1 text-xs italic">
               (Currently using school default: {tenantDefaultTheme})
             </span>
           )}
@@ -143,14 +141,14 @@ export function DisplayPreferencesClient({
 
       {/* ---- Density ---- */}
       <section className="rounded-lg border border-border bg-card p-[var(--density-card-padding)]">
-        <h2 className="text-[var(--text-lg)] font-semibold text-foreground">
+        <h2 className="text-lg font-semibold text-foreground">
           Layout Density
         </h2>
-        <p className="mt-1 text-[var(--text-sm)] text-muted-foreground">
+        <p className="mt-1 text-sm text-muted-foreground">
           How much space between elements. Compact fits more on screen; spacious
           is easier on the eyes and better for touch.
           {prefs.density === null && (
-            <span className="ml-1 text-[var(--text-xs)] italic">
+            <span className="ml-1 text-xs italic">
               (Currently using school default: {tenantDefaultDensity})
             </span>
           )}
@@ -179,10 +177,8 @@ export function DisplayPreferencesClient({
 
       {/* ---- Font Scale ---- */}
       <section className="rounded-lg border border-border bg-card p-[var(--density-card-padding)]">
-        <h2 className="text-[var(--text-lg)] font-semibold text-foreground">
-          Text Size
-        </h2>
-        <p className="mt-1 text-[var(--text-sm)] text-muted-foreground">
+        <h2 className="text-lg font-semibold text-foreground">Text Size</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
           Scale all text up or down across the platform.
         </p>
 
@@ -224,7 +220,7 @@ export function DisplayPreferencesClient({
 
         {/* Preview text */}
         <div className="mt-4 rounded-md border border-border/50 bg-muted/30 p-3">
-          <p className="text-[var(--text-sm)] text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Preview: This is how text will appear across WattleOS with your
             current settings.
           </p>
@@ -232,13 +228,13 @@ export function DisplayPreferencesClient({
       </section>
 
       {/* ---- Save ---- */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-[var(--density-card-padding)]">
         <button
           type="button"
           onClick={handleSave}
           disabled={isPending}
           className={`
-            rounded-lg bg-primary px-6 py-2.5 text-[var(--text-sm)] font-semibold
+            rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold
             text-primary-foreground shadow-sm transition-all
             hover:opacity-90 disabled:opacity-50
           `}
@@ -247,12 +243,12 @@ export function DisplayPreferencesClient({
         </button>
 
         {saveStatus === "saved" && (
-          <span className="text-[var(--text-sm)] text-success animate-fade-in">
+          <span className="text-sm text-success animate-fade-in">
             Saved! Reloading…
           </span>
         )}
         {saveStatus === "error" && (
-          <span className="text-[var(--text-sm)] text-destructive animate-fade-in">
+          <span className="text-sm text-destructive animate-fade-in">
             Failed to save. Please try again.
           </span>
         )}
@@ -281,7 +277,7 @@ function ThemeButton({
       type="button"
       onClick={onClick}
       className={`
-        flex items-center gap-2 rounded-lg border px-4 py-2 text-[var(--text-sm)] font-medium transition-all
+        flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-all
         ${
           isSelected
             ? "border-primary bg-primary/10 text-foreground"
@@ -330,10 +326,10 @@ function DensityOption({
         )}
       </div>
       <div>
-        <span className="block text-[var(--text-sm)] font-medium text-foreground">
+        <span className="block text-sm font-medium text-foreground">
           {label}
         </span>
-        <span className="block text-[var(--text-xs)] text-muted-foreground">
+        <span className="block text-xs text-muted-foreground">
           {description}
         </span>
       </div>

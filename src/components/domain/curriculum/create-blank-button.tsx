@@ -35,7 +35,7 @@ export function CreateBlankButton() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50"
+        className="rounded-md border border-gray-300 bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-background"
       >
         Create Blank
       </button>
@@ -60,7 +60,7 @@ export function CreateBlankButton() {
         <button
           onClick={handleCreate}
           disabled={isLoading || !name.trim()}
-          className="rounded-md bg-amber-600 px-3 py-1 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+          className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
         >
           {isLoading ? "Creating..." : "Create"}
         </button>
@@ -69,7 +69,7 @@ export function CreateBlankButton() {
             setIsOpen(false);
             setName("");
           }}
-          className="rounded-md border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50"
+          className="rounded-md border border-gray-300 px-3 py-1 text-xs text-muted-foreground hover:bg-background"
         >
           Cancel
         </button>

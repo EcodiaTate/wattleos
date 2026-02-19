@@ -1,7 +1,7 @@
 // src/app/(app)/settings/page.tsx
 //
 // ============================================================
-// WattleOS V2 — User Settings Landing Page
+// WattleOS V2 - User Settings Landing Page
 // ============================================================
 // Any authenticated user can access this. Shows cards linking
 // to personal setting sub-sections.
@@ -50,10 +50,8 @@ export default async function UserSettingsPage() {
   return (
     <div className="space-y-[var(--density-section-gap)]">
       <div>
-        <h1 className="text-[var(--text-2xl)] font-semibold text-foreground">
-          My Settings
-        </h1>
-        <p className="mt-1 text-[var(--text-sm)] text-muted-foreground">
+        <h1 className="text-2xl font-semibold text-foreground">My Settings</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Personalise your WattleOS experience.
         </p>
       </div>
@@ -67,10 +65,10 @@ export default async function UserSettingsPage() {
           >
             {card.icon}
             <div>
-              <h3 className="text-[var(--text-sm)] font-semibold text-foreground group-hover:text-primary">
+              <h3 className="text-sm font-semibold text-foreground group-hover:text-primary">
                 {card.label}
               </h3>
-              <p className="mt-0.5 text-[var(--text-xs)] text-muted-foreground">
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 {card.description}
               </p>
             </div>

@@ -12,18 +12,18 @@
 // - Uses flat .students / .outcomes / .media (Batch 1 type fix)
 // ============================================================
 
-'use client';
+"use client";
 
-import { useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import type { ObservationFeedItem } from '@/types/domain';
 import {
-  publishObservation,
   archiveObservation,
   deleteObservation,
-} from '@/lib/actions/observations';
-import { MediaGallery } from './media-gallery';
+  publishObservation,
+} from "@/lib/actions/observations";
+import type { ObservationFeedItem } from "@/types/domain";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { MediaGallery } from "./media-gallery";
 
 interface ObservationCardProps {
   observation: ObservationFeedItem;
@@ -55,7 +55,7 @@ export function ObservationCard({
   }
 
   async function handleDelete() {
-    if (!confirm('Delete this draft observation?')) return;
+    if (!confirm("Delete this draft observation?")) return;
     await deleteObservation(observation.id);
     refresh();
   }
@@ -63,24 +63,22 @@ export function ObservationCard({
   const authorName =
     [observation.author.first_name, observation.author.last_name]
       .filter(Boolean)
-      .join(' ') || 'Unknown';
+      .join(" ") || "Unknown";
 
   const timeAgo = formatTimeAgo(observation.created_at);
 
   return (
     <div
-      className={`rounded-lg border bg-white transition-shadow hover:shadow-sm ${
-        observation.status === 'draft'
-          ? 'border-amber-200'
-          : 'border-gray-200'
+      className={`rounded-lg border bg-background transition-shadow hover:shadow-sm ${
+        observation.status === "draft" ? "border-amber-200" : "border-border"
       }`}
     >
-      <div className="p-5">
+      <div className="p-[var(--density-card-padding)]">
         {/* Header row */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-[var(--density-card-padding)]">
           <div className="flex items-center gap-3">
             {/* Author avatar */}
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-medium text-gray-600">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-medium text-muted-foreground">
               {observation.author.avatar_url ? (
                 <img
                   src={observation.author.avatar_url}
@@ -92,8 +90,10 @@ export function ObservationCard({
               )}
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-900">{authorName}</p>
-              <p className="text-xs text-gray-500">{timeAgo}</p>
+              <p className="text-sm font-medium text-foreground">
+                {authorName}
+              </p>
+              <p className="text-xs text-muted-foreground">{timeAgo}</p>
             </div>
           </div>
 
@@ -104,7 +104,7 @@ export function ObservationCard({
         {/* Content */}
         {observation.content && (
           <div className="mt-3">
-            <p className="whitespace-pre-wrap text-sm text-gray-700 line-clamp-4">
+            <p className="whitespace-pre-wrap text-sm text-foreground line-clamp-[var(--density-card-padding)]">
               {observation.content}
             </p>
           </div>
@@ -168,32 +168,32 @@ export function ObservationCard({
         <div className="mt-4 flex items-center gap-2 border-t border-gray-100 pt-3">
           <Link
             href={`/pedagogy/observations/${observation.id}`}
-            className="text-xs font-medium text-gray-600 hover:text-gray-900"
+            className="text-xs font-medium text-muted-foreground hover:text-foreground"
           >
             View Details
           </Link>
 
-          {observation.status === 'draft' && canPublish && (
+          {observation.status === "draft" && canPublish && (
             <button
               onClick={handlePublish}
               disabled={isPending}
-              className="rounded-md bg-green-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50"
+              className="rounded-md bg-[var(--mastery-mastered)] px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-green-700 disabled:opacity-50"
             >
               Publish
             </button>
           )}
 
-          {observation.status === 'published' && canPublish && (
+          {observation.status === "published" && canPublish && (
             <button
               onClick={handleArchive}
               disabled={isPending}
-              className="rounded-md border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+              className="rounded-md border border-gray-300 px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-background disabled:opacity-50"
             >
               Archive
             </button>
           )}
 
-          {observation.status === 'draft' && isAuthor && (
+          {observation.status === "draft" && isAuthor && (
             <button
               onClick={handleDelete}
               disabled={isPending}
@@ -214,9 +214,9 @@ export function ObservationCard({
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    draft: 'bg-amber-100 text-amber-700',
-    published: 'bg-green-100 text-green-700',
-    archived: 'bg-gray-100 text-gray-500',
+    draft: "bg-amber-100 text-amber-700",
+    published: "bg-green-100 text-green-700",
+    archived: "bg-muted text-muted-foreground",
   };
 
   return (
@@ -238,9 +238,9 @@ function formatTimeAgo(dateStr: string): string {
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return 'Just now';
+  if (minutes < 1) return "Just now";
   if (minutes < 60) return `${minutes}m ago`;
   if (hours < 24) return `${hours}h ago`;
   if (days < 7) return `${days}d ago`;
-  return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+  return date.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
 }

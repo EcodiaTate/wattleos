@@ -115,9 +115,9 @@ export function AttendanceHistoryClient({
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-wrap items-end gap-4 rounded-lg border border-gray-200 bg-white p-4">
+      <div className="flex flex-wrap items-end gap-[var(--density-card-padding)] rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
         <div className="min-w-[200px] flex-1">
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             Class
           </label>
           <select
@@ -136,7 +136,7 @@ export function AttendanceHistoryClient({
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             From
           </label>
           <input
@@ -148,7 +148,9 @@ export function AttendanceHistoryClient({
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700">To</label>
+          <label className="block text-xs font-medium text-foreground">
+            To
+          </label>
           <input
             type="date"
             value={endDate}
@@ -160,14 +162,14 @@ export function AttendanceHistoryClient({
 
       {/* No class selected */}
       {!selectedClassId && (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center text-sm text-gray-500">
+        <div className="rounded-lg borderborder-border bg-background p-12 text-center text-sm text-muted-foreground">
           Select a class to view attendance history.
         </div>
       )}
 
       {/* Loading */}
       {loading && (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
+        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-amber-600" />
         </div>
       )}
@@ -207,18 +209,18 @@ export function AttendanceHistoryClient({
 
           {/* Daily table */}
           {summaries.length === 0 ? (
-            <div className="rounded-lg border border-gray-200 bg-white p-12 text-center text-sm text-gray-500">
+            <div className="rounded-lg borderborder-border bg-background p-12 text-center text-sm text-muted-foreground">
               No attendance records found for this date range.
             </div>
           ) : (
-            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+            <div className="overflow-hidden rounded-lg borderborder-border bg-background">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-background">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Date
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Total
                     </th>
                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-green-600">
@@ -227,7 +229,7 @@ export function AttendanceHistoryClient({
                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-red-600">
                       Absent
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-amber-600">
+                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-primary">
                       Late
                     </th>
                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-blue-600">
@@ -236,7 +238,7 @@ export function AttendanceHistoryClient({
                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-purple-600">
                       Half Day
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Rate
                     </th>
                   </tr>
@@ -253,11 +255,11 @@ export function AttendanceHistoryClient({
                         : "0";
 
                     return (
-                      <tr key={day.date} className="hover:bg-gray-50">
-                        <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
+                      <tr key={day.date} className="hover:bg-background">
+                        <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-foreground">
                           {formatDateShort(day.date)}
                         </td>
-                        <td className="px-4 py-3 text-center text-sm text-gray-600">
+                        <td className="px-4 py-3 text-center text-sm text-muted-foreground">
                           {day.total}
                         </td>
                         <td className="px-4 py-3 text-center text-sm">
@@ -275,7 +277,7 @@ export function AttendanceHistoryClient({
                         <td className="px-4 py-3 text-center text-sm">
                           <StatusCell count={day.half_day} status="half_day" />
                         </td>
-                        <td className="px-4 py-3 text-center text-sm font-medium text-gray-900">
+                        <td className="px-4 py-3 text-center text-sm font-medium text-foreground">
                           {rate}%
                         </td>
                       </tr>
@@ -339,12 +341,16 @@ const CARD_TEXT_COLORS: Record<SummaryCardProps["color"], string> = {
 
 function SummaryCard({ label, value, sublabel, color }: SummaryCardProps) {
   return (
-    <div className={`rounded-lg border p-4 ${CARD_COLORS[color]}`}>
-      <p className="text-xs font-medium text-gray-600">{label}</p>
+    <div
+      className={`rounded-lg border p-[var(--density-card-padding)] ${CARD_COLORS[color]}`}
+    >
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
       <p className={`mt-1 text-2xl font-bold ${CARD_TEXT_COLORS[color]}`}>
         {value}
       </p>
-      {sublabel && <p className="mt-0.5 text-xs text-gray-500">{sublabel}</p>}
+      {sublabel && (
+        <p className="mt-0.5 text-xs text-muted-foreground">{sublabel}</p>
+      )}
     </div>
   );
 }

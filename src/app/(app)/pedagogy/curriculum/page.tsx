@@ -1,9 +1,12 @@
-import { listCurriculumInstances, listCurriculumTemplates } from '@/lib/actions/curriculum';
-import { getTenantContext, hasPermission } from '@/lib/auth/tenant-context';
-import { Permissions } from '@/lib/constants/permissions';
-import Link from 'next/link';
-import { ForkTemplateButton } from '@/components/domain/curriculum/fork-template-button';
-import { CreateBlankButton } from '@/components/domain/curriculum/create-blank-button';
+import { CreateBlankButton } from "@/components/domain/curriculum/create-blank-button";
+import { ForkTemplateButton } from "@/components/domain/curriculum/fork-template-button";
+import {
+  listCurriculumInstances,
+  listCurriculumTemplates,
+} from "@/lib/actions/curriculum";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
+import Link from "next/link";
 
 export default async function CurriculumPage() {
   const context = await getTenantContext();
@@ -21,8 +24,8 @@ export default async function CurriculumPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Curriculum</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">Curriculum</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Manage your school&apos;s curriculum frameworks
           </p>
         </div>
@@ -31,21 +34,21 @@ export default async function CurriculumPage() {
       {/* Existing instances */}
       {instances.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-foreground">
             Your Curricula
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-[var(--density-card-padding)] sm:grid-cols-2 lg:grid-cols-3">
             {instances.map((instance) => (
               <Link
                 key={instance.id}
                 href={`/pedagogy/curriculum/${instance.id}`}
-                className="block rounded-lg border border-gray-200 bg-white p-5 transition-shadow hover:shadow-md"
+                className="block rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] transition-shadow hover:shadow-md"
               >
-                <h3 className="text-sm font-semibold text-gray-900">
+                <h3 className="text-sm font-semibold text-foreground">
                   {instance.name}
                 </h3>
                 {instance.description && (
-                  <p className="mt-1 line-clamp-2 text-xs text-gray-500">
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                     {instance.description}
                   </p>
                 )}
@@ -53,11 +56,11 @@ export default async function CurriculumPage() {
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                       instance.is_active
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-gray-100 text-gray-500'
+                        ? "bg-green-100 text-green-700"
+                        : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    {instance.is_active ? 'Active' : 'Inactive'}
+                    {instance.is_active ? "Active" : "Inactive"}
                   </span>
                   {instance.source_template_id && (
                     <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">
@@ -74,23 +77,21 @@ export default async function CurriculumPage() {
       {/* Fork from template or create blank */}
       {canManage && (
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-gray-900">
-            {instances.length > 0
-              ? 'Add Another Curriculum'
-              : 'Get Started'}
+          <h2 className="text-lg font-semibold text-foreground">
+            {instances.length > 0 ? "Add Another Curriculum" : "Get Started"}
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             {instances.length > 0
-              ? 'Fork from a standard framework or start from scratch.'
-              : 'Choose a Montessori curriculum framework to get started instantly, or build your own from scratch.'}
+              ? "Fork from a standard framework or start from scratch."
+              : "Choose a Montessori curriculum framework to get started instantly, or build your own from scratch."}
           </p>
 
           {templates.length > 0 && (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-[var(--density-card-padding)] sm:grid-cols-2 lg:grid-cols-3">
               {templates.map((template) => (
                 <div
                   key={template.id}
-                  className="rounded-lg border border-dashed border-purple-300 bg-purple-50 p-5"
+                  className="rounded-lg border border-dashed border-purple-300 bg-purple-50 p-[var(--density-card-padding)]"
                 >
                   <h3 className="text-sm font-semibold text-purple-900">
                     {template.name}
@@ -113,11 +114,11 @@ export default async function CurriculumPage() {
               ))}
 
               {/* Create blank option */}
-              <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-5">
-                <h3 className="text-sm font-semibold text-gray-700">
+              <div className="rounded-lg border border-dashed border-gray-300 bg-background p-[var(--density-card-padding)]">
+                <h3 className="text-sm font-semibold text-foreground">
                   Start from Scratch
                 </h3>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Build a custom curriculum with your own areas, strands, and
                   outcomes.
                 </p>
@@ -132,8 +133,8 @@ export default async function CurriculumPage() {
 
       {/* Empty state for non-managers */}
       {!canManage && instances.length === 0 && (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+          <p className="text-sm text-muted-foreground">
             No curriculum has been set up yet. Ask your school administrator to
             configure one.
           </p>

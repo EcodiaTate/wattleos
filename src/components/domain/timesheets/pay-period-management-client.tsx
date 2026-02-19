@@ -204,7 +204,7 @@ export function PayPeriodManagementClient({
       {canCreate && !showCreate && (
         <button
           onClick={() => setShowCreate(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-amber-700"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700"
         >
           <svg
             className="h-4 w-4"
@@ -224,13 +224,13 @@ export function PayPeriodManagementClient({
       )}
 
       {showCreate && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-5">
-          <h3 className="text-sm font-semibold text-gray-900">
+        <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-[var(--density-card-padding)]">
+          <h3 className="text-sm font-semibold text-foreground">
             Create Pay Period
           </h3>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="mt-4 grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-gray-700">
+              <label className="block text-xs font-medium text-foreground">
                 Frequency
               </label>
               <select
@@ -248,7 +248,7 @@ export function PayPeriodManagementClient({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700">
+              <label className="block text-xs font-medium text-foreground">
                 Period Name
               </label>
               <input
@@ -260,7 +260,7 @@ export function PayPeriodManagementClient({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700">
+              <label className="block text-xs font-medium text-foreground">
                 Start Date
               </label>
               <input
@@ -271,7 +271,7 @@ export function PayPeriodManagementClient({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700">
+              <label className="block text-xs font-medium text-foreground">
                 End Date
               </label>
               <input
@@ -293,7 +293,7 @@ export function PayPeriodManagementClient({
                 setCreateStart("");
                 setCreateEnd("");
               }}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
             >
               Cancel
             </button>
@@ -302,7 +302,7 @@ export function PayPeriodManagementClient({
               disabled={
                 isPending || !createName.trim() || !createStart || !createEnd
               }
-              className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
             >
               Create Period
             </button>
@@ -312,9 +312,9 @@ export function PayPeriodManagementClient({
 
       {/* Periods list */}
       {periods.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
+        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
           <svg
-            className="mx-auto h-12 w-12 text-gray-300"
+            className="mx-auto h-[var(--density-button-height)] w-12 text-gray-300"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1}
@@ -326,10 +326,10 @@ export function PayPeriodManagementClient({
               d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
             />
           </svg>
-          <p className="mt-4 text-sm font-medium text-gray-900">
+          <p className="mt-4 text-sm font-medium text-foreground">
             No pay periods yet
           </p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Create your first pay period to start accepting timesheets.
           </p>
         </div>
@@ -341,19 +341,19 @@ export function PayPeriodManagementClient({
             return (
               <div
                 key={period.id}
-                className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-5 py-4 shadow-sm"
+                className="flex items-center justify-between rounded-lg borderborder-border bg-background px-5 py-4 shadow-sm"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-[var(--density-card-padding)]">
                   {/* Status dot */}
                   <div
                     className={`h-2.5 w-2.5 rounded-full ${statusConfig.dotColor}`}
                   />
 
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-foreground">
                       {period.name}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {formatDateRange(period.start_date, period.end_date)}
                       {" · "}
                       <span className="capitalize">{period.frequency}</span>
@@ -385,14 +385,14 @@ export function PayPeriodManagementClient({
                       <button
                         onClick={() => handleSyncAll(period.id)}
                         disabled={isPending}
-                        className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                        className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-blue-700 disabled:opacity-50"
                       >
                         Sync All
                       </button>
                       <button
                         onClick={() => handleMarkProcessed(period.id)}
                         disabled={isPending}
-                        className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
+                        className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-background disabled:opacity-50"
                       >
                         Mark Processed
                       </button>

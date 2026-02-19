@@ -366,13 +366,13 @@ export function TimesheetGridClient({
       )}
 
       {/* Period header card */}
-      <div className="rounded-lg border border-gray-200 bg-white px-6 py-4">
+      <div className="rounded-lg borderborder-border bg-background px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               {payPeriod.name}
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {new Date(payPeriod.start_date + "T00:00:00").toLocaleDateString(
                 "en-AU",
                 {
@@ -425,35 +425,35 @@ export function TimesheetGridClient({
       </div>
 
       {/* Time Entry Grid */}
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+      <div className="overflow-x-auto rounded-lg borderborder-border bg-background">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-background">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Day
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Date
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Start
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 End
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Break
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Total
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Type
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Notes
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 <span className="sr-only">Status</span>
               </th>
             </tr>
@@ -503,12 +503,12 @@ export function TimesheetGridClient({
 
       {/* Actions bar */}
       {isEditable && (
-        <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-6 py-4">
+        <div className="flex items-center justify-between rounded-lg borderborder-border bg-background px-6 py-4">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={fillDefaults}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-background"
             >
               <svg
                 className="h-4 w-4"
@@ -526,7 +526,7 @@ export function TimesheetGridClient({
               Fill Defaults
             </button>
             {!allWeekdaysFilled && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Save all weekday entries before submitting
               </p>
             )}
@@ -536,7 +536,7 @@ export function TimesheetGridClient({
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? (
               <>
@@ -617,7 +617,7 @@ function StatusBanner({
 
   // Map status to border/background colors for the banner
   const bannerStyles: Record<TimesheetStatus, string> = {
-    draft: "border-gray-200 bg-gray-50",
+    draft: "border-border bg-background",
     submitted: "border-blue-200 bg-blue-50",
     approved: "border-green-200 bg-green-50",
     rejected: "border-red-200 bg-red-50",
@@ -625,7 +625,7 @@ function StatusBanner({
   };
 
   const textStyles: Record<TimesheetStatus, string> = {
-    draft: "text-gray-700",
+    draft: "text-foreground",
     submitted: "text-blue-700",
     approved: "text-green-700",
     rejected: "text-red-700",
@@ -681,12 +681,12 @@ function DayRowComponent({
 
   return (
     <tr
-      className={`${row.isWeekend ? "bg-gray-50/50" : ""} ${row.error ? "bg-red-50/30" : ""}`}
+      className={`${row.isWeekend ? "bg-background/50" : ""} ${row.error ? "bg-red-50/30" : ""}`}
     >
       {/* Day label */}
       <td className="whitespace-nowrap px-4 py-2.5">
         <span
-          className={`text-sm font-medium ${row.isWeekend ? "text-gray-400" : "text-gray-900"}`}
+          className={`text-sm font-medium ${row.isWeekend ? "text-muted-foreground" : "text-foreground"}`}
         >
           {row.dayLabel}
         </span>
@@ -694,7 +694,7 @@ function DayRowComponent({
 
       {/* Date */}
       <td className="whitespace-nowrap px-4 py-2.5">
-        <span className="text-sm text-gray-600">{row.dateLabel}</span>
+        <span className="text-sm text-muted-foreground">{row.dateLabel}</span>
       </td>
 
       {/* Start time */}
@@ -705,7 +705,7 @@ function DayRowComponent({
           onChange={(e) => onUpdate({ startTime: e.target.value })}
           onBlur={onBlurSave}
           disabled={!isEditable}
-          className="w-24 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-gray-100 disabled:text-gray-500"
+          className="w-24 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
         />
       </td>
 
@@ -717,7 +717,7 @@ function DayRowComponent({
           onChange={(e) => onUpdate({ endTime: e.target.value })}
           onBlur={onBlurSave}
           disabled={!isEditable}
-          className="w-24 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-gray-100 disabled:text-gray-500"
+          className="w-24 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
         />
       </td>
 
@@ -728,7 +728,7 @@ function DayRowComponent({
           onChange={(e) => onUpdate({ breakMinutes: Number(e.target.value) })}
           onBlur={onBlurSave}
           disabled={!isEditable}
-          className="w-20 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-gray-100 disabled:text-gray-500"
+          className="w-20 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
         >
           <option value={0}>0 min</option>
           <option value={15}>15 min</option>
@@ -740,7 +740,7 @@ function DayRowComponent({
 
       {/* Total hours */}
       <td className="whitespace-nowrap px-4 py-2.5">
-        <span className="text-sm font-medium text-gray-900">
+        <span className="text-sm font-medium text-foreground">
           {formatHours(row.totalHours)}h
         </span>
       </td>
@@ -755,7 +755,7 @@ function DayRowComponent({
             setTimeout(onBlurSave, 0);
           }}
           disabled={!isEditable}
-          className={`w-32 rounded-md border px-2 py-1.5 text-xs font-medium focus:border-ring focus:ring-1 focus:ring-ring disabled:opacity-60 ${typeConfig?.bgColor ?? "bg-gray-50"} ${typeConfig?.color ?? "text-gray-700"} border-gray-300`}
+          className={`w-32 rounded-md border px-2 py-1.5 text-xs font-medium focus:border-ring focus:ring-1 focus:ring-ring disabled:opacity-60 ${typeConfig?.bgColor ?? "bg-background"} ${typeConfig?.color ?? "text-foreground"} border-gray-300`}
         >
           {TIME_ENTRY_TYPES.map((type) => (
             <option key={type} value={type}>
@@ -774,7 +774,7 @@ function DayRowComponent({
           onBlur={onBlurSave}
           disabled={!isEditable}
           placeholder={row.isWeekend ? "" : "Optional"}
-          className="w-full min-w-[100px] rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-gray-100 disabled:text-gray-500"
+          className="w-full min-w-[100px] rounded-md border border-gray-300 px-2 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
         />
       </td>
 
@@ -783,7 +783,7 @@ function DayRowComponent({
         <div className="flex items-center gap-1.5">
           {row.isSaving && (
             <svg
-              className="h-4 w-4 animate-spin text-amber-500"
+              className="h-4 w-4 animate-spin text-primary"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -838,7 +838,7 @@ function DayRowComponent({
             <button
               type="button"
               onClick={onClear}
-              className="rounded p-0.5 text-gray-400 transition-colors hover:text-red-500"
+              className="rounded p-0.5 text-muted-foreground transition-colors hover:text-red-500"
               title="Clear entry"
             >
               <svg
@@ -873,7 +873,7 @@ function SummaryPill({
 }) {
   const styles: Record<typeof variant, string> = {
     primary: "bg-amber-50 text-amber-700 border-amber-200",
-    default: "bg-gray-50 text-gray-700 border-gray-200",
+    default: "bg-background text-foregroundborder-border",
     warning: "bg-orange-50 text-orange-700 border-orange-200",
     info: "bg-blue-50 text-blue-700 border-blue-200",
   };

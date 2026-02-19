@@ -115,40 +115,42 @@ export function BillingDashboardClient({
   return (
     <div className="space-y-6">
       {/* Summary cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs font-medium text-gray-500">Outstanding</p>
+      <div className="grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-3">
+        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+          <p className="text-xs font-medium text-muted-foreground">
+            Outstanding
+          </p>
           <p className="mt-1 text-xl font-bold text-amber-700">
             {formatCurrency(totalOutstanding, currency)}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs font-medium text-gray-500">Collected</p>
+        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+          <p className="text-xs font-medium text-muted-foreground">Collected</p>
           <p className="mt-1 text-xl font-bold text-green-700">
             {formatCurrency(totalPaid, currency)}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs font-medium text-gray-500">Overdue</p>
+        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+          <p className="text-xs font-medium text-muted-foreground">Overdue</p>
           <p className="mt-1 text-xl font-bold text-red-700">{overdueCount}</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center justify-between border-b border-gray-200">
-        <div className="flex gap-6">
+      <div className="flex items-center justify-between border-bborder-border">
+        <div className="flex gap-[var(--density-card-padding)]">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`border-b-2 pb-3 text-sm font-medium transition-colors ${
                 activeTab === tab.key
-                  ? "border-amber-600 text-amber-700"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  ? "border-primary text-amber-700"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               {tab.label}
-              <span className="ml-1.5 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+              <span className="ml-1.5 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                 {tab.count}
               </span>
             </button>
@@ -160,7 +162,7 @@ export function BillingDashboardClient({
               ? setShowCreateInvoice(true)
               : setShowCreateFee(true)
           }
-          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 transition-colors"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700 transition-colors"
         >
           {activeTab === "invoices" ? "New Invoice" : "New Fee Schedule"}
         </button>
@@ -183,35 +185,35 @@ export function BillingDashboardClient({
           )}
 
           {invoices.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 py-12 text-center">
-              <p className="text-sm text-gray-500">
+            <div className="rounded-lg border border-dashed border-gray-300 bg-background py-12 text-center">
+              <p className="text-sm text-muted-foreground">
                 No invoices yet. Create one to get started.
               </p>
             </div>
           ) : (
-            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+            <div className="overflow-hidden rounded-lg borderborder-border bg-background">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-background">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
                       Invoice
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
                       Student
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
                       Guardian
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
                       Amount
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
                       Due
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground">
                       Actions
                     </th>
                   </tr>
@@ -248,8 +250,8 @@ export function BillingDashboardClient({
           )}
 
           {feeSchedules.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 py-12 text-center">
-              <p className="text-sm text-gray-500">
+            <div className="rounded-lg border border-dashed border-gray-300 bg-background py-12 text-center">
+              <p className="text-sm text-muted-foreground">
                 No fee schedules defined. Create one to set tuition pricing.
               </p>
             </div>
@@ -314,22 +316,22 @@ function InvoiceRow({
   }
 
   return (
-    <tr className="hover:bg-gray-50">
+    <tr className="hover:bg-background">
       <td className="px-4 py-3">
-        <p className="text-sm font-medium text-gray-900">
+        <p className="text-sm font-medium text-foreground">
           {invoice.invoice_number}
         </p>
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-muted-foreground">
           {invoice.line_items.length} item
           {invoice.line_items.length !== 1 ? "s" : ""}
         </p>
       </td>
-      <td className="px-4 py-3 text-sm text-gray-700">{studentName}</td>
-      <td className="px-4 py-3 text-sm text-gray-700">{guardianName}</td>
-      <td className="px-4 py-3 text-sm font-medium text-gray-900">
+      <td className="px-4 py-3 text-sm text-foreground">{studentName}</td>
+      <td className="px-4 py-3 text-sm text-foreground">{guardianName}</td>
+      <td className="px-4 py-3 text-sm font-medium text-foreground">
         {formatCurrency(invoice.total_cents, currency)}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-700">
+      <td className="px-4 py-3 text-sm text-foreground">
         {new Date(invoice.due_date).toLocaleDateString("en-AU")}
       </td>
       <td className="px-4 py-3">
@@ -364,7 +366,7 @@ function InvoiceRow({
               href={invoice.stripe_hosted_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100"
+              className="rounded px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-muted"
             >
               View
             </a>
@@ -515,8 +517,8 @@ function CreateInvoiceForm({
   }
 
   return (
-    <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-5">
-      <h3 className="text-sm font-semibold text-gray-900">Create Invoice</h3>
+    <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-[var(--density-card-padding)]">
+      <h3 className="text-sm font-semibold text-foreground">Create Invoice</h3>
 
       {error && (
         <div className="mt-3 rounded-md bg-red-50 p-3">
@@ -524,10 +526,10 @@ function CreateInvoiceForm({
         </div>
       )}
 
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-2">
         {/* Student */}
         <div>
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             Student *
           </label>
           <select
@@ -549,7 +551,7 @@ function CreateInvoiceForm({
 
         {/* Guardian */}
         <div>
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             Bill to (Guardian) *
           </label>
           <select
@@ -570,7 +572,7 @@ function CreateInvoiceForm({
 
         {/* Due date */}
         <div>
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             Due Date *
           </label>
           <input
@@ -584,7 +586,7 @@ function CreateInvoiceForm({
         {/* Period */}
         <div className="flex gap-2">
           <div className="flex-1">
-            <label className="block text-xs font-medium text-gray-700">
+            <label className="block text-xs font-medium text-foreground">
               Period Start
             </label>
             <input
@@ -595,7 +597,7 @@ function CreateInvoiceForm({
             />
           </div>
           <div className="flex-1">
-            <label className="block text-xs font-medium text-gray-700">
+            <label className="block text-xs font-medium text-foreground">
               Period End
             </label>
             <input
@@ -611,7 +613,7 @@ function CreateInvoiceForm({
       {/* Line items */}
       <div className="mt-5">
         <div className="flex items-center justify-between">
-          <h4 className="text-xs font-semibold text-gray-700">Line Items</h4>
+          <h4 className="text-xs font-semibold text-foreground">Line Items</h4>
           <button
             onClick={addLineItem}
             className="text-xs font-medium text-amber-700 hover:text-amber-800"
@@ -624,7 +626,7 @@ function CreateInvoiceForm({
             <div key={idx} className="flex items-end gap-2">
               <div className="flex-1">
                 {idx === 0 && (
-                  <label className="block text-[10px] font-medium text-gray-500">
+                  <label className="block text-[10px] font-medium text-muted-foreground">
                     Fee Schedule (optional)
                   </label>
                 )}
@@ -645,7 +647,7 @@ function CreateInvoiceForm({
               </div>
               <div className="flex-[2]">
                 {idx === 0 && (
-                  <label className="block text-[10px] font-medium text-gray-500">
+                  <label className="block text-[10px] font-medium text-muted-foreground">
                     Description
                   </label>
                 )}
@@ -661,7 +663,7 @@ function CreateInvoiceForm({
               </div>
               <div className="w-16">
                 {idx === 0 && (
-                  <label className="block text-[10px] font-medium text-gray-500">
+                  <label className="block text-[10px] font-medium text-muted-foreground">
                     Qty
                   </label>
                 )}
@@ -681,7 +683,7 @@ function CreateInvoiceForm({
               </div>
               <div className="w-28">
                 {idx === 0 && (
-                  <label className="block text-[10px] font-medium text-gray-500">
+                  <label className="block text-[10px] font-medium text-muted-foreground">
                     Amount ($)
                   </label>
                 )}
@@ -702,18 +704,18 @@ function CreateInvoiceForm({
               </div>
               <div className="w-24 text-right">
                 {idx === 0 && (
-                  <label className="block text-[10px] font-medium text-gray-500">
+                  <label className="block text-[10px] font-medium text-muted-foreground">
                     Subtotal
                   </label>
                 )}
-                <span className="inline-block py-1.5 text-xs font-medium text-gray-700">
+                <span className="inline-block py-1.5 text-xs font-medium text-foreground">
                   {formatCurrency(li.quantity * li.unit_amount_cents, currency)}
                 </span>
               </div>
               {lineItems.length > 1 && (
                 <button
                   onClick={() => removeLineItem(idx)}
-                  className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-red-600"
+                  className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-red-600"
                 >
                   <svg
                     className="h-4 w-4"
@@ -733,8 +735,8 @@ function CreateInvoiceForm({
             </div>
           ))}
         </div>
-        <div className="mt-3 flex justify-end border-t border-gray-200 pt-3">
-          <p className="text-sm font-semibold text-gray-900">
+        <div className="mt-3 flex justify-end border-tborder-border pt-3">
+          <p className="text-sm font-semibold text-foreground">
             Total: {formatCurrency(total, currency)}
           </p>
         </div>
@@ -742,7 +744,7 @@ function CreateInvoiceForm({
 
       {/* Notes */}
       <div className="mt-4">
-        <label className="block text-xs font-medium text-gray-700">
+        <label className="block text-xs font-medium text-foreground">
           Notes (optional)
         </label>
         <textarea
@@ -759,13 +761,13 @@ function CreateInvoiceForm({
         <button
           onClick={handleSubmit}
           disabled={isSaving}
-          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50 transition-colors"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50 transition-colors"
         >
           {isSaving ? "Creating..." : "Create Invoice"}
         </button>
         <button
           onClick={onCancel}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background transition-colors"
         >
           Cancel
         </button>
@@ -837,8 +839,8 @@ function CreateFeeForm({
   }
 
   return (
-    <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-5">
-      <h3 className="text-sm font-semibold text-gray-900">
+    <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-[var(--density-card-padding)]">
+      <h3 className="text-sm font-semibold text-foreground">
         Create Fee Schedule
       </h3>
 
@@ -848,9 +850,9 @@ function CreateFeeForm({
         </div>
       )}
 
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-2">
         <div>
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             Name *
           </label>
           <input
@@ -862,7 +864,7 @@ function CreateFeeForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             Class (optional)
           </label>
           <select
@@ -879,7 +881,7 @@ function CreateFeeForm({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             Amount ($) *
           </label>
           <input
@@ -893,7 +895,7 @@ function CreateFeeForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-700">
+          <label className="block text-xs font-medium text-foreground">
             Frequency *
           </label>
           <select
@@ -911,7 +913,7 @@ function CreateFeeForm({
       </div>
 
       <div className="mt-4">
-        <label className="block text-xs font-medium text-gray-700">
+        <label className="block text-xs font-medium text-foreground">
           Description (appears on invoices)
         </label>
         <input
@@ -927,13 +929,13 @@ function CreateFeeForm({
         <button
           onClick={handleSubmit}
           disabled={isSaving}
-          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50 transition-colors"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50 transition-colors"
         >
           {isSaving ? "Creating..." : "Create Fee Schedule"}
         </button>
         <button
           onClick={onCancel}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background transition-colors"
         >
           Cancel
         </button>
@@ -970,33 +972,37 @@ function FeeScheduleCard({
 
   return (
     <div
-      className={`rounded-lg border bg-white p-4 shadow-sm ${fee.is_active ? "border-gray-200" : "border-gray-100 opacity-60"}`}
+      className={`rounded-lg border bg-background p-[var(--density-card-padding)] shadow-sm ${fee.is_active ? "border-border" : "border-gray-100 opacity-60"}`}
     >
       <div className="flex items-start justify-between">
         <div>
-          <h4 className="text-sm font-semibold text-gray-900">{fee.name}</h4>
+          <h4 className="text-sm font-semibold text-foreground">{fee.name}</h4>
           {fee.description && (
-            <p className="mt-0.5 text-xs text-gray-500">{fee.description}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {fee.description}
+            </p>
           )}
         </div>
         <span
-          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${fee.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
+          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${fee.is_active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}
         >
           {fee.is_active ? "Active" : "Inactive"}
         </span>
       </div>
       <div className="mt-3 flex items-baseline gap-1">
-        <span className="text-lg font-bold text-gray-900">
+        <span className="text-lg font-bold text-foreground">
           {formatCurrency(fee.amount_cents, currency)}
         </span>
-        <span className="text-xs text-gray-500">{freqConfig.shortLabel}</span>
+        <span className="text-xs text-muted-foreground">
+          {freqConfig.shortLabel}
+        </span>
       </div>
-      <p className="mt-1 text-xs text-gray-500">{freqConfig.label}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{freqConfig.label}</p>
       <div className="mt-3 border-t border-gray-100 pt-3">
         <button
           onClick={handleToggleActive}
           disabled={toggling}
-          className="text-xs font-medium text-gray-600 hover:text-gray-900 disabled:opacity-50"
+          className="text-xs font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
         >
           {fee.is_active ? "Deactivate" : "Reactivate"}
         </button>

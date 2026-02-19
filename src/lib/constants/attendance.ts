@@ -1,7 +1,7 @@
 // src/lib/constants/attendance.ts
 //
 // ============================================================
-// WattleOS V2 — Attendance Constants
+// WattleOS V2 - Attendance Constants
 // ============================================================
 // Status options, labels, and color coding for attendance UI.
 // Must stay in sync with the CHECK constraint on
@@ -9,14 +9,15 @@
 // ============================================================
 
 export const ATTENDANCE_STATUSES = [
-  { value: 'present', label: 'Present' },
-  { value: 'absent', label: 'Absent' },
-  { value: 'late', label: 'Late' },
-  { value: 'excused', label: 'Excused' },
-  { value: 'half_day', label: 'Half Day' },
+  { value: "present", label: "Present" },
+  { value: "absent", label: "Absent" },
+  { value: "late", label: "Late" },
+  { value: "excused", label: "Excused" },
+  { value: "half_day", label: "Half Day" },
 ] as const;
 
-export type AttendanceStatusValue = (typeof ATTENDANCE_STATUSES)[number]['value'];
+export type AttendanceStatusValue =
+  (typeof ATTENDANCE_STATUSES)[number]["value"];
 
 /**
  * Color config for attendance status badges and roll call buttons.
@@ -34,43 +35,43 @@ export const ATTENDANCE_STATUS_CONFIG: Record<
   }
 > = {
   present: {
-    label: 'Present',
-    badgeBg: 'bg-green-100',
-    badgeText: 'text-green-700',
-    buttonBg: 'bg-green-600',
-    buttonHover: 'hover:bg-green-700',
-    icon: '✓',
+    label: "Present",
+    badgeBg: "bg-green-100",
+    badgeText: "text-green-700",
+    buttonBg: "bg-[var(--mastery-mastered)]",
+    buttonHover: "hover:bg-green-700",
+    icon: "✓",
   },
   absent: {
-    label: 'Absent',
-    badgeBg: 'bg-red-100',
-    badgeText: 'text-red-700',
-    buttonBg: 'bg-red-600',
-    buttonHover: 'hover:bg-red-700',
-    icon: '✗',
+    label: "Absent",
+    badgeBg: "bg-red-100",
+    badgeText: "text-red-700",
+    buttonBg: "bg-[var(--attendance-absent)]",
+    buttonHover: "hover:bg-red-700",
+    icon: "✗",
   },
   late: {
-    label: 'Late',
-    badgeBg: 'bg-amber-100',
-    badgeText: 'text-amber-700',
-    buttonBg: 'bg-amber-600',
-    buttonHover: 'hover:bg-amber-700',
-    icon: '⏰',
+    label: "Late",
+    badgeBg: "bg-amber-100",
+    badgeText: "text-amber-700",
+    buttonBg: "bg-primary",
+    buttonHover: "hover:bg-amber-700",
+    icon: "⏰",
   },
   excused: {
-    label: 'Excused',
-    badgeBg: 'bg-blue-100',
-    badgeText: 'text-blue-700',
-    buttonBg: 'bg-blue-600',
-    buttonHover: 'hover:bg-blue-700',
-    icon: '📝',
+    label: "Excused",
+    badgeBg: "bg-blue-100",
+    badgeText: "text-blue-700",
+    buttonBg: "bg-blue-600",
+    buttonHover: "hover:bg-blue-700",
+    icon: "📝",
   },
   half_day: {
-    label: 'Half Day',
-    badgeBg: 'bg-purple-100',
-    badgeText: 'text-purple-700',
-    buttonBg: 'bg-purple-600',
-    buttonHover: 'hover:bg-purple-700',
-    icon: '½',
+    label: "Half Day",
+    badgeBg: "bg-purple-100",
+    badgeText: "text-purple-700",
+    buttonBg: "bg-purple-600",
+    buttonHover: "hover:bg-purple-700",
+    icon: "½",
   },
 };

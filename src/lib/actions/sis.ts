@@ -1,5 +1,5 @@
 // ============================================================
-// WattleOS V2 — SIS Actions Barrel Export
+// WattleOS V2 - SIS Actions Barrel Export
 // ============================================================
 // Re-exports all Student Information System actions for
 // convenient importing. Usage:
@@ -7,90 +7,81 @@
 // ============================================================
 
 export {
-  listStudents,
-  getStudent,
   createStudent,
-  updateStudent,
   deleteStudent,
-} from './students';
+  getStudent,
+  listStudents,
+  updateStudent,
+} from "./students";
 
 export type {
   CreateStudentInput,
-  UpdateStudentInput,
   ListStudentsParams,
-} from './students';
+  UpdateStudentInput,
+} from "./students";
 
 export {
-  listClasses,
+  createClass,
+  deleteClass,
   getClass,
   getClassRoster,
-  createClass,
+  listClasses,
   updateClass,
-  deleteClass,
-} from './classes';
+} from "./classes";
 
-export type {
-  CreateClassInput,
-  UpdateClassInput,
-} from './classes';
+export type { CreateClassInput, UpdateClassInput } from "./classes";
 
 export {
   enrollStudent,
+  getStudentEnrollmentHistory,
   transferStudent,
   withdrawStudent,
-  getStudentEnrollmentHistory,
-} from './enrollments';
+} from "./enrollments";
 
-export type {
-  EnrollStudentInput,
-  TransferStudentInput,
-} from './enrollments';
+export type { EnrollStudentInput, TransferStudentInput } from "./enrollments";
 
 export {
-  listGuardians,
   createGuardian,
-  updateGuardian,
+  listGuardians,
   removeGuardian,
-} from './guardians';
+  updateGuardian,
+} from "./guardians";
 
-export type {
-  CreateGuardianInput,
-  UpdateGuardianInput,
-} from './guardians';
+export type { CreateGuardianInput, UpdateGuardianInput } from "./guardians";
 
 export {
-  listMedicalConditions,
-  listCriticalMedicalConditions,
   createMedicalCondition,
-  updateMedicalCondition,
   deleteMedicalCondition,
-} from './medical';
+  listCriticalMedicalConditions,
+  listMedicalConditions,
+  updateMedicalCondition,
+} from "./medical";
 
 export type {
   CreateMedicalConditionInput,
   UpdateMedicalConditionInput,
-} from './medical';
+} from "./medical";
 
 export {
-  listEmergencyContacts,
   createEmergencyContact,
-  updateEmergencyContact,
   deleteEmergencyContact,
-} from './emergency-contacts';
+  listEmergencyContacts,
+  updateEmergencyContact,
+} from "./emergency-contacts";
 
 export type {
   CreateEmergencyContactInput,
   UpdateEmergencyContactInput,
-} from './emergency-contacts';
+} from "./emergency-contacts";
 
 export {
-  listCustodyRestrictions,
   createCustodyRestriction,
-  updateCustodyRestriction,
   deleteCustodyRestriction,
-} from './custody';
+  listCustodyRestrictions,
+  updateCustodyRestriction,
+} from "./custody";
 
 export type {
   CreateCustodyRestrictionInput,
   UpdateCustodyRestrictionInput,
-} from './custody';
+} from "./custody";
