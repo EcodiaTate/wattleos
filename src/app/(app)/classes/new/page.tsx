@@ -1,24 +1,14 @@
 // src/app/(app)/classes/new/page.tsx
-//
-// ============================================================
-// WattleOS V2 - Create Class Page
-// ============================================================
-// Server Component. Renders ClassForm in create mode.
-//
-// Why permission gate: Only users who can manage enrollment
-// should be able to create new classrooms.
-// ============================================================
-
 import { ClassForm } from "@/components/domain/sis/ClassForm";
 import { getTenantContext } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ChevronRight } from "lucide-react";
 
 export default async function CreateClassPage() {
   const context = await getTenantContext();
 
-  // Gate: manage_enrollment or manage_students to create classes
   if (
     !context.permissions.includes(Permissions.MANAGE_ENROLLMENT) &&
     !context.permissions.includes(Permissions.MANAGE_STUDENTS)
@@ -27,29 +17,31 @@ export default async function CreateClassPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-[var(--density-section-gap)] animate-fade-in">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Link href="/classes" className="hover:text-foreground">
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground animate-fade-in-down">
+        <Link href="/classes" className="hover:text-primary transition-colors">
           Classes
         </Link>
-        <span>/</span>
-        <span className="text-foreground">New Class</span>
+        <ChevronRight className="h-3 w-3 opacity-50" />
+        <span className="text-foreground font-medium">New Class</span>
       </nav>
 
       {/* Page header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-foreground">
+      <div className="animate-fade-in-down stagger-1">
+        <h1 className="text-2xl font-bold text-foreground">
           Create New Class
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-sm text-muted-foreground max-w-2xl">
           Set up a new Montessori classroom or environment. You can enroll
           students and link a curriculum after creating the class.
         </p>
       </div>
 
-      {/* Form */}
-      <ClassForm />
+      {/* Form Container */}
+      <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm animate-scale-in">
+        <ClassForm />
+      </div>
     </div>
   );
 }

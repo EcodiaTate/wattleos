@@ -53,9 +53,7 @@ export function ProgramForm({ program, onSubmit }: ProgramFormProps) {
   // Form state
   const [name, setName] = useState(program?.name ?? "");
   const [code, setCode] = useState(program?.code ?? "");
-  const [programType, setProgramType] = useState(
-    program?.program_type ?? "after_school_care",
-  );
+ 
   const [description, setDescription] = useState(program?.description ?? "");
   const [minAgeMonths, setMinAgeMonths] = useState<string>(
     program?.min_age_months != null ? String(program.min_age_months) : "",
@@ -83,7 +81,11 @@ export function ProgramForm({ program, onSubmit }: ProgramFormProps) {
       ? String(program.casual_fee_cents / 100)
       : "",
   );
-  const [billingType, setBillingType] = useState(
+  const [programType, setProgramType] = useState<CreateProgramInput["program_type"]>(
+    program?.program_type ?? "after_school_care",
+  );
+  
+  const [billingType, setBillingType] = useState<CreateProgramInput["billing_type"]>(
     program?.billing_type ?? "per_session",
   );
   const [cancellationNoticeHours, setCancellationNoticeHours] =
@@ -235,12 +237,14 @@ export function ProgramForm({ program, onSubmit }: ProgramFormProps) {
               Program Type <span className="text-red-500">*</span>
             </label>
             <select
-              id="program_type"
-              value={programType}
-              onChange={(e) => setProgramType(e.target.value)}
-              className={inputCls}
-              disabled={submitting}
-            >
+  id="program_type"
+  value={programType}
+  onChange={(e) =>
+    setProgramType(e.target.value as CreateProgramInput["program_type"])
+  }
+  className={inputCls}
+  disabled={submitting}
+>
               {PROGRAM_TYPES.map((pt) => (
                 <option key={pt.value} value={pt.value}>
                   {pt.label}
@@ -411,12 +415,14 @@ export function ProgramForm({ program, onSubmit }: ProgramFormProps) {
               Billing Type
             </label>
             <select
-              id="billing_type"
-              value={billingType}
-              onChange={(e) => setBillingType(e.target.value)}
-              className={inputCls}
-              disabled={submitting}
-            >
+  id="billing_type"
+  value={billingType}
+  onChange={(e) =>
+    setBillingType(e.target.value as CreateProgramInput["billing_type"])
+  }
+  className={inputCls}
+  disabled={submitting}
+>
               {BILLING_TYPES.map((bt) => (
                 <option key={bt.value} value={bt.value}>
                   {bt.label}

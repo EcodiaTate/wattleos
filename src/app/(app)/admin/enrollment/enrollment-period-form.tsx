@@ -53,14 +53,22 @@ interface EnrollmentPeriodFormProps {
 function toDatetimeLocal(iso: string): string {
   if (!iso) return "";
   const d = new Date(iso);
-  // Format as YYYY-MM-DDTHH:mm for datetime-local input
   const pad = (n: number) => n.toString().padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
+    d.getDate(),
+  )}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function EnrollmentPeriodForm({
-  initialData,
-}: EnrollmentPeriodFormProps) {
+// CustomField requires an `id` in your domain type.
+// Use crypto.randomUUID when available, otherwise a safe fallback.
+function newCustomFieldId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `cf_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+}
+
+export function EnrollmentPeriodForm({ initialData }: EnrollmentPeriodFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -117,15 +125,22 @@ export function EnrollmentPeriodForm({
   }
 
   function addCustomField() {
+    const id = newCustomFieldId();
+
     setCustomFields((prev) => [
       ...prev,
-      { key: "", label: "", type: "text", required: false },
+      {
+        id,
+        label: "",
+        type: "text",
+        required: false,
+      } as CustomField,
     ]);
   }
 
   function updateCustomField(index: number, field: Partial<CustomField>) {
     setCustomFields((prev) =>
-      prev.map((cf, i) => (i === index ? { ...cf, ...field } : cf)),
+      prev.map((cf, i) => (i === index ? ({ ...cf, ...field } as CustomField) : cf)),
     );
   }
 
@@ -149,6 +164,12 @@ export function EnrollmentPeriodForm({
       return;
     }
 
+    // Only keep “valid” custom fields: must have id + label
+    // (id is your stable field identifier in the domain model)
+    const cleanedCustomFields = customFields.filter(
+      (cf) => String(cf.id).trim() && String(cf.label).trim(),
+    );
+
     startTransition(async () => {
       if (isEdit && initialData) {
         const result = await updateEnrollmentPeriod(initialData.id, {
@@ -159,10 +180,11 @@ export function EnrollmentPeriodForm({
           closes_at: closesAtIso,
           available_programs: availablePrograms,
           required_documents: requiredDocuments,
-          custom_fields: customFields.filter((cf) => cf.key && cf.label),
+          custom_fields: cleanedCustomFields,
           welcome_message: welcomeMessage.trim() || null,
           confirmation_message: confirmationMessage.trim() || null,
         });
+
         if (result.error) {
           setError(result.error.message);
         } else {
@@ -178,10 +200,11 @@ export function EnrollmentPeriodForm({
           closes_at: closesAtIso,
           available_programs: availablePrograms,
           required_documents: requiredDocuments,
-          custom_fields: customFields.filter((cf) => cf.key && cf.label),
+          custom_fields: cleanedCustomFields,
           welcome_message: welcomeMessage.trim() || null,
           confirmation_message: confirmationMessage.trim() || null,
         });
+
         if (result.error) {
           setError(result.error.message);
         } else {
@@ -370,74 +393,90 @@ export function EnrollmentPeriodForm({
         )}
 
         <div className="space-y-3">
-          {customFields.map((cf, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-12 items-start gap-2 rounded-lg border border-gray-100 bg-gray-50 p-3"
-            >
-              <div className="col-span-3">
-                <input
-                  type="text"
-                  value={cf.key}
-                  onChange={(e) =>
-                    updateCustomField(index, { key: e.target.value })
-                  }
-                  placeholder="field_key"
-                  className="block w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-amber-500 focus:outline-none"
-                />
-              </div>
-              <div className="col-span-4">
-                <input
-                  type="text"
-                  value={cf.label}
-                  onChange={(e) =>
-                    updateCustomField(index, { label: e.target.value })
-                  }
-                  placeholder="Question label"
-                  className="block w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-amber-500 focus:outline-none"
-                />
-              </div>
-              <div className="col-span-2">
-                <select
-                  value={cf.type}
-                  onChange={(e) =>
-                    updateCustomField(index, { type: e.target.value })
-                  }
-                  className="block w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-amber-500 focus:outline-none"
-                >
-                  <option value="text">Text</option>
-                  <option value="textarea">Textarea</option>
-                  <option value="select">Select</option>
-                  <option value="checkbox">Checkbox</option>
-                </select>
-              </div>
-              <div className="col-span-2 flex items-center gap-1">
-                <label className="flex items-center gap-1 text-xs">
+          {customFields.map((cf, index) => {
+            const idStr = String(cf.id ?? "");
+
+            return (
+              <div
+                key={idStr || index}
+                className="grid grid-cols-12 items-start gap-2 rounded-lg border border-gray-100 bg-gray-50 p-3"
+              >
+                {/* Field ID (domain uses id, not key) */}
+                <div className="col-span-3">
                   <input
-                    type="checkbox"
-                    checked={cf.required}
+                    type="text"
+                    value={idStr}
+                    onChange={(e) =>
+                      updateCustomField(index, { id: e.target.value })
+                    }
+                    placeholder="field_id"
+                    className="block w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-amber-500 focus:outline-none"
+                  />
+                </div>
+
+                {/* Label */}
+                <div className="col-span-4">
+                  <input
+                    type="text"
+                    value={cf.label ?? ""}
+                    onChange={(e) =>
+                      updateCustomField(index, { label: e.target.value })
+                    }
+                    placeholder="Question label"
+                    className="block w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-amber-500 focus:outline-none"
+                  />
+                </div>
+
+                {/* Type */}
+                <div className="col-span-2">
+                  <select
+                    value={cf.type}
                     onChange={(e) =>
                       updateCustomField(index, {
-                        required: e.target.checked,
+                        type: e.target.value as CustomField["type"],
                       })
                     }
-                    className="h-3.5 w-3.5 rounded border-gray-300 text-amber-600"
-                  />
-                  Required
-                </label>
+                    className="block w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-amber-500 focus:outline-none"
+                  >
+                    <option value="text">Text</option>
+                    <option value="textarea">Textarea</option>
+                    <option value="select">Select</option>
+                    <option value="checkbox">Checkbox</option>
+                    <option value="date">Date</option>
+                  </select>
+                </div>
+
+                {/* Required */}
+                <div className="col-span-2 flex items-center gap-1">
+                  <label className="flex items-center gap-1 text-xs">
+                    <input
+                      type="checkbox"
+                      checked={!!cf.required}
+                      onChange={(e) =>
+                        updateCustomField(index, {
+                          required: e.target.checked,
+                        })
+                      }
+                      className="h-3.5 w-3.5 rounded border-gray-300 text-amber-600"
+                    />
+                    Required
+                  </label>
+                </div>
+
+                {/* Remove */}
+                <div className="col-span-1 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => removeCustomField(index)}
+                    className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                    title="Remove"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
-              <div className="col-span-1 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => removeCustomField(index)}
-                  className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
-                  title="Remove"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -448,9 +487,7 @@ export function EnrollmentPeriodForm({
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Welcome Message{" "}
-              <span className="text-xs text-gray-400">
-                (shown at top of form)
-              </span>
+              <span className="text-xs text-gray-400">(shown at top of form)</span>
             </label>
             <textarea
               value={welcomeMessage}

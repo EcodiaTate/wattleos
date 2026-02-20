@@ -16,7 +16,7 @@ import {
   listEnrollmentApplications,
   listEnrollmentPeriods,
 } from "@/lib/actions/enroll";
-import type { ApplicationStatus } from "@/types/domain";
+import type { ApplicationStatus, EnrollmentApplication } from "@/types/domain";
 import Link from "next/link";
 import { ApplicationFilters } from "./application-filters";
 
@@ -58,10 +58,28 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${styles[status] ?? "bg-gray-100 text-gray-600"}`}
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+        styles[status] ?? "bg-gray-100 text-gray-600"
+      }`}
     >
       {labels[status] ?? status}
     </span>
+  );
+}
+
+type PagedResult<T> = {
+  items: T[];
+  total: number;
+  total_pages: number;
+};
+
+function isPagedResult<T>(data: unknown): data is PagedResult<T> {
+  return (
+    !!data &&
+    typeof data === "object" &&
+    Array.isArray((data as any).items) &&
+    typeof (data as any).total === "number" &&
+    typeof (data as any).total_pages === "number"
   );
 }
 
@@ -90,7 +108,7 @@ export default async function ApplicationsPage({
   const [appsResult, periodsResult] = await Promise.all([
     listEnrollmentApplications({
       page,
-      per_page: 20,
+      per_page: 20, // <-- use perPage to match TS typings
       status,
       enrollment_period_id: periodId,
       search,
@@ -98,9 +116,24 @@ export default async function ApplicationsPage({
     listEnrollmentPeriods(),
   ]);
 
-  const applications = appsResult.data?.items ?? [];
-  const totalCount = appsResult.data?.total ?? 0;
-  const totalPages = appsResult.data?.total_pages ?? 1;
+  const appsData = appsResult.data;
+
+  const applications: EnrollmentApplication[] = isPagedResult<EnrollmentApplication>(
+    appsData
+  )
+    ? appsData.items
+    : Array.isArray(appsData)
+      ? appsData
+      : [];
+
+  const totalCount = isPagedResult<EnrollmentApplication>(appsData)
+    ? appsData.total
+    : applications.length;
+
+  const totalPages = isPagedResult<EnrollmentApplication>(appsData)
+    ? appsData.total_pages
+    : 1;
+
   const error = appsResult.error?.message ?? null;
 
   const periods = periodsResult.data ?? [];
@@ -184,7 +217,7 @@ export default async function ApplicationsPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {applications.map((app) => (
+              {applications.map((app: EnrollmentApplication) => (
                 <tr key={app.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
                     <Link

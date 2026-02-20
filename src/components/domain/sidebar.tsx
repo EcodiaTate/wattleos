@@ -1,21 +1,46 @@
 // src/components/domain/sidebar.tsx
 //
 // ============================================================
-// WattleOS V2 - Sidebar Navigation
+// WattleOS V2 — Sidebar Navigation (Collapsible)
 // ============================================================
 // Client component for navigation chrome. Receives pre-computed
-// navItems from the server layout - no permission logic here.
+// navItems from the server layout — no permission logic here.
 //
 // Icon map covers all 14 modules + parent portal + admin.
 // Mobile-responsive with hamburger + overlay.
+//
+// COLLAPSIBLE: Desktop sidebar can be collapsed to icon-only
+// mode via an edge tab on the right side. Collapsed state is
+// persisted in localStorage so it survives page navigations.
+// WHY: Guides on iPads and users doing focused work benefit
+// from reclaiming the sidebar's ~256px for content.
+//
+// UPDATED: Accepts sidebarStyle prop ("light" | "dark" | "brand")
+// and applies CSS variable overrides directly on <aside> as
+// inline styles. This is more reliable than [data-sidebar-style]
+// selectors on <html> because inline styles have maximum
+// specificity and bypass Tailwind v4 @theme resolution issues.
 // ============================================================
 
 "use client";
 
 import { signOutAction, switchTenantAction } from "@/lib/actions/auth";
+import type { SidebarStyle } from "@/types/display";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useCallback,useRef, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+
+// ============================================================
+// Constants
+// ============================================================
+
+const STORAGE_KEY = "wattle-sidebar-collapsed";
+const COLLAPSED_WIDTH = "64px";
+
+// ============================================================
+// Types
+// ============================================================
 
 interface NavItem {
   label: string;
@@ -32,10 +57,134 @@ interface SidebarProps {
   userAvatar: string | null;
   roleName: string;
   navItems: NavItem[];
+  /** Sidebar visual style from tenant display settings. */
+  sidebarStyle?: SidebarStyle;
+  /** Brand hue for "brand" sidebar style. Default 38 (wattle). */
+  brandHue?: number;
+  /** Brand saturation for "brand" sidebar style. Default 92. */
+  brandSat?: number;
 }
 
 // ============================================================
-// Icon Map - one entry per sidebar icon key
+// Sidebar Style Resolver
+// ============================================================
+// Returns CSS custom property overrides as inline styles.
+// WHY inline: Guaranteed specificity. CSS attribute selectors
+// on <html> are unreliable with Tailwind v4's @theme inline
+// because the variable resolution chain can be broken when
+// @theme inlines var() references at build time.
+// ============================================================
+
+function getSidebarStyleOverrides(
+  style: SidebarStyle,
+  brandHue: number,
+  brandSat: number,
+): React.CSSProperties | undefined {
+  if (style === "light") return undefined; // Use theme defaults
+
+  if (style === "dark") {
+    return {
+      "--sidebar-background": "hsl(25 12% 10%)",
+      "--sidebar-foreground": "hsl(35 12% 75%)",
+      "--sidebar-primary": `hsl(${brandHue} ${brandSat}% 55%)`,
+      "--sidebar-primary-foreground": `hsl(${brandHue} 10% 8%)`,
+      "--sidebar-accent": "hsl(25 10% 15%)",
+      "--sidebar-accent-foreground": "hsl(35 12% 85%)",
+      "--sidebar-border": "hsl(25 8% 20%)",
+      "--sidebar-ring": `hsl(${brandHue} ${brandSat}% 55%)`,
+    } as React.CSSProperties;
+  }
+
+  // "brand" — sidebar uses the school's brand colour
+  const bgL = 22;
+  const fgS = 15;
+  const fgL = 78;
+  const accentL = 28;
+  const borderL = 18;
+
+  return {
+    "--sidebar-background": `hsl(${brandHue} ${Math.max(brandSat - 30, 15)}% ${bgL}%)`,
+    "--sidebar-foreground": `hsl(${brandHue} ${fgS}% ${fgL}%)`,
+    "--sidebar-primary": `hsl(${brandHue} ${brandSat}% 55%)`,
+    "--sidebar-primary-foreground": "hsl(0 0% 100%)",
+    "--sidebar-accent": `hsl(${brandHue} ${Math.max(brandSat - 25, 15)}% ${accentL}%)`,
+    "--sidebar-accent-foreground": `hsl(${brandHue} ${fgS}% 90%)`,
+    "--sidebar-border": `hsl(${brandHue} ${Math.max(brandSat - 30, 15)}% ${borderL}%)`,
+    "--sidebar-ring": `hsl(${brandHue} ${brandSat}% 55%)`,
+  } as React.CSSProperties;
+}
+
+// ============================================================
+// Tooltip — lightweight hover tooltip for collapsed icons
+// ============================================================
+// WHY custom instead of Radix: Zero additional JS bundle for a
+// CSS-only tooltip. Radix Tooltip adds ~8kB and portal logic
+// that isn't needed for simple label hints.
+// ============================================================
+function NavTooltip({
+  label,
+  children,
+  show,
+}: {
+  label: string;
+  children: React.ReactNode;
+  show: boolean;
+}) {
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+
+  useEffect(() => setMounted(true), []);
+
+  const updatePos = () => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    setPos({
+      top: r.top + r.height / 2,
+      left: r.right + 8, // = ml-2
+    });
+  };
+
+  if (!show) return <>{children}</>;
+
+  return (
+    <div
+      ref={wrapRef}
+      className="group/tooltip relative"
+      onMouseEnter={() => {
+        updatePos();
+        setOpen(true);
+      }}
+      onMouseLeave={() => setOpen(false)}
+      onFocus={() => {
+        updatePos();
+        setOpen(true);
+      }}
+      onBlur={() => setOpen(false)}
+    >
+      {children}
+
+      {mounted && open && pos
+        ? createPortal(
+            <div
+              className="pointer-events-none fixed z-[1000] -translate-y-1/2 rounded-md bg-foreground px-2.5 py-1.5 text-xs font-medium text-background opacity-100 shadow-md"
+              style={{ top: pos.top, left: pos.left }}
+            >
+              {label}
+              {/* Arrow */}
+              <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-foreground" />
+            </div>,
+            document.body
+          )
+        : null}
+    </div>
+  );
+}
+
+// ============================================================
+// Icon Map — one entry per sidebar icon key
 // ============================================================
 // Uses Heroicons (outline, 24x24) rendered inline as SVG.
 // WHY inline SVGs instead of an icon library: zero JS bundle
@@ -235,7 +384,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
     </svg>
   ),
 
-  // Module 12: Communications - Announcements
+  // Module 12: Communications — Announcements
   megaphone: (
     <svg
       className="h-5 w-5"
@@ -286,7 +435,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
     </svg>
   ),
 
-  // Module 12: Events (calendar-check / sparkles - using sparkles for events)
+  // Module 12: Events (sparkles)
   sparkles: (
     <svg
       className="h-5 w-5"
@@ -360,6 +509,46 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   ),
 };
 
+// ============================================================
+// Collapse Toggle Icons
+// ============================================================
+
+const ChevronLeftIcon = (
+  <svg
+    className="h-4 w-4"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={2}
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M15.75 19.5 8.25 12l7.5-7.5"
+    />
+  </svg>
+);
+
+const ChevronRightIcon = (
+  <svg
+    className="h-4 w-4"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={2}
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="m8.25 4.5 7.5 7.5-7.5 7.5"
+    />
+  </svg>
+);
+
+// ============================================================
+// Sidebar Component
+// ============================================================
+
 export function Sidebar({
   tenantName,
   tenantLogo,
@@ -368,9 +557,53 @@ export function Sidebar({
   userAvatar,
   roleName,
   navItems,
+  sidebarStyle = "light",
+  brandHue = 38,
+  brandSat = 92,
 }: SidebarProps) {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // ── Collapsed state with localStorage persistence ──
+  // WHY localStorage: Sidebar preference should survive page
+  // navigations and full reloads. We default to expanded and
+  // hydrate from storage in useEffect to avoid SSR mismatch.
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored === "true") setIsCollapsed(true);
+    } catch {
+      // localStorage unavailable (e.g. private browsing) — use default
+    }
+    setHydrated(true);
+  }, []);
+
+  const toggleCollapsed = useCallback(() => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(STORAGE_KEY, String(next));
+      } catch {
+        // Silently fail if localStorage unavailable
+      }
+      return next;
+    });
+  }, []);
+
+  // Compute inline style overrides for dark/brand sidebar
+  const styleOverrides = getSidebarStyleOverrides(sidebarStyle, brandHue, brandSat);
+
+  // Merge width override into style object for collapsed state.
+  // On mobile we always use full width regardless of collapse.
+  const asideStyle: React.CSSProperties = {
+    ...styleOverrides,
+    // Only apply collapsed width on desktop (lg+). The CSS class
+    // handles mobile via the existing full-width pattern.
+    ...(isCollapsed && hydrated ? { width: COLLAPSED_WIDTH } : {}),
+  };
 
   return (
     <>
@@ -403,12 +636,32 @@ export function Sidebar({
         />
       )}
 
-      {/* Sidebar panel */}
+      {/* Sidebar panel — style + width overrides applied here */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[var(--sidebar-width)] flex-col border-r border-sidebar-border bg-sidebar transition-transform duration-[var(--duration-base)] lg:static lg:translate-x-0 ${
-          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        style={asideStyle}
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-sidebar-border bg-sidebar transition-all duration-[var(--duration-base)] lg:static lg:translate-x-0 ${
+          // On mobile, always use full sidebar width
+          isMobileOpen ? "w-[var(--sidebar-width)] translate-x-0" : "-translate-x-full lg:translate-x-0"
+        } ${
+          // On desktop, width is controlled by asideStyle inline
+          // but we need the default when not collapsed
+          !isCollapsed || !hydrated ? "lg:w-[var(--sidebar-width)]" : ""
         }`}
       >
+        {/* ── Collapse toggle tab (desktop only) ── */}
+        {/* WHY positioned on the right edge: Provides a clear
+            affordance without taking space inside the sidebar.
+            Visually "attached" to the sidebar border. */}
+        <button
+          onClick={toggleCollapsed}
+          className="absolute -right-3 top-7 z-[60] hidden h-6 w-6 items-center justify-center rounded-full border border-sidebar-border bg-sidebar shadow-sm transition-colors hover:bg-sidebar-accent lg:flex"
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <span className="text-sidebar-foreground">
+            {isCollapsed ? ChevronRightIcon : ChevronLeftIcon}
+          </span>
+        </button>
+
         {/* Tenant header */}
         <div className="flex items-center gap-3 border-b border-sidebar-border px-4 py-5">
           <div className="flex h-[var(--density-button-height)] w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/15 text-sm font-bold text-primary">
@@ -422,45 +675,68 @@ export function Sidebar({
               tenantName.charAt(0).toUpperCase()
             )}
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-sidebar-foreground">
-              {tenantName}
-            </p>
-            <p className="text-xs text-muted-foreground">{roleName}</p>
-          </div>
+          {/* Hide text when collapsed on desktop */}
+          {(!isCollapsed || !hydrated) && (
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-sidebar-foreground">
+                {tenantName}
+              </p>
+              <p className="text-xs text-muted-foreground">{roleName}</p>
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {navItems.map((item) => {
+<nav
+className={[
+  "sidebar-scroll flex-1 space-y-1 px-3 py-4",
+  "overflow-y-auto overflow-x-hidden", // ✅ kill horizontal scroll always
+  "overscroll-contain",
+  "[scrollbar-gutter:stable]", // ✅ prevents layout shift when scrollbar appears
+].join(" ")}
+>
+            {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
 
+            const collapsed = isCollapsed && hydrated;
+
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsMobileOpen(false)}
-                className={`flex items-center gap-3 rounded-[var(--sidebar-item-radius)] px-3 py-2.5 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                }`}
-              >
-                <span
-                  className={
-                    isActive ? "text-primary" : "text-muted-foreground"
-                  }
+              <NavTooltip key={item.href} label={item.label} show={collapsed}>
+                <Link
+                  href={item.href}
+                  onClick={() => setIsMobileOpen(false)}
+                  className={`flex relative items-center gap-3 rounded-[var(--sidebar-item-radius)] px-3 py-2.5 text-sm font-medium transition-colors ${
+                    collapsed ? "justify-center" : ""
+                  } ${
+                    isActive
+                      ? "bg-primary/10 text-primary"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  }`}
                 >
-                  {ICON_MAP[item.icon] ?? ICON_MAP.file}
-                </span>
-                <span className="flex-1">{item.label}</span>
-                {item.badge && item.badge > 0 && (
-                  <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
-                    {item.badge > 99 ? "99+" : item.badge}
+                  <span
+                    className={`flex-shrink-0 ${
+                      isActive ? "text-primary" : "text-muted-foreground"
+                    }`}
+                  >
+                    {ICON_MAP[item.icon] ?? ICON_MAP.file}
                   </span>
-                )}
-              </Link>
+                  {!collapsed && (
+                    <>
+                      <span className="flex-1">{item.label}</span>
+                      {item.badge && item.badge > 0 && (
+                        <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                          {item.badge > 99 ? "99+" : item.badge}
+                        </span>
+                      )}
+                    </>
+                  )}
+                  {/* Show badge dot in collapsed mode */}
+                  {collapsed && item.badge && item.badge > 0 && (
+                    <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
+                  )}
+                </Link>
+              </NavTooltip>
             );
           })}
         </nav>
@@ -479,33 +755,38 @@ export function Sidebar({
                 userName.charAt(0).toUpperCase()
               )}
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-sidebar-foreground">
-                {userName}
-              </p>
-              <p className="truncate text-xs text-muted-foreground">
-                {userEmail}
-              </p>
+            {(!isCollapsed || !hydrated) && (
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-sidebar-foreground">
+                  {userName}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {userEmail}
+                </p>
+              </div>
+            )}
+          </div>
+          {/* Hide action buttons when collapsed */}
+          {(!isCollapsed || !hydrated) && (
+            <div className="mt-3 flex gap-2">
+              <form action={switchTenantAction} className="flex-1">
+                <button
+                  type="submit"
+                  className="w-full rounded-md border border-sidebar-border px-3 py-1.5 text-xs font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
+                >
+                  Switch School
+                </button>
+              </form>
+              <form action={signOutAction} className="flex-1">
+                <button
+                  type="submit"
+                  className="w-full rounded-md border border-sidebar-border px-3 py-1.5 text-xs font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
+                >
+                  Sign Out
+                </button>
+              </form>
             </div>
-          </div>
-          <div className="mt-3 flex gap-2">
-            <form action={switchTenantAction} className="flex-1">
-              <button
-                type="submit"
-                className="w-full rounded-md border border-border px-3 py-1.5 text-xs font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
-              >
-                Switch School
-              </button>
-            </form>
-            <form action={signOutAction} className="flex-1">
-              <button
-                type="submit"
-                className="w-full rounded-md border border-border px-3 py-1.5 text-xs font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
-              >
-                Sign Out
-              </button>
-            </form>
-          </div>
+          )}
         </div>
       </aside>
     </>

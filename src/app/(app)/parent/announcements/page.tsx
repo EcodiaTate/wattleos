@@ -13,9 +13,10 @@ import { getAnnouncementsForParent } from "@/lib/actions/comms/announcements";
 import { getTenantContext } from "@/lib/auth/tenant-context";
 
 export default async function ParentAnnouncementsPage() {
-  const context = await getTenantContext();
+  // Ensure tenant context is loaded for scoping/auth
+  await getTenantContext();
 
-  const result = await getAnnouncementsForParent({ limit: 30 });
+  const result = await getAnnouncementsForParent({ page: 1, per_page: 30 });
   const announcements = result.data ?? [];
 
   return (

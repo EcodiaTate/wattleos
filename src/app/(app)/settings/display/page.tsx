@@ -18,34 +18,23 @@ import {
   getTenantDisplaySettings,
   getUserDisplayPreferences,
 } from "@/lib/actions/display-settings";
-import { getTenantContext } from "@/lib/auth/tenant-context";
+import {
+  DEFAULT_DISPLAY_SETTINGS,
+  DEFAULT_USER_PREFERENCES,
+} from "@/types/display";
 
 export const metadata = {
   title: "Display Settings",
 };
 
 export default async function UserDisplaySettingsPage() {
-  const context = await getTenantContext();
-
   const [userResult, tenantResult] = await Promise.all([
     getUserDisplayPreferences(),
     getTenantDisplaySettings(),
   ]);
 
-  const userPrefs = userResult.data ?? {
-    theme: null,
-    density: null,
-    fontScale: null,
-    sidebarCollapsed: false,
-  };
-
-  const tenantDisplay = tenantResult.data ?? {
-    brandHue: null,
-    brandSaturation: null,
-    defaultDensity: "comfortable" as const,
-    defaultTheme: "light" as const,
-    faviconUrl: null,
-  };
+  const userPrefs = userResult.data ?? DEFAULT_USER_PREFERENCES;
+  const tenantDisplay = tenantResult.data ?? DEFAULT_DISPLAY_SETTINGS;
 
   return (
     <div className="space-y-[var(--density-section-gap)]">

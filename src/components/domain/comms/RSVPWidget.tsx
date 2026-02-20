@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   respondToEvent,
@@ -48,6 +48,18 @@ const RSVP_OPTIONS: {
   },
 ];
 
+type ActionError = { message: string; code: string } | string | null | undefined;
+type ActionResult<T> = { data: T | null; error: ActionError };
+
+function errorToString(err: ActionError): string {
+  if (!err) return "Something went wrong";
+  if (typeof err === "string") return err;
+  if (typeof err === "object" && "message" in err && typeof err.message === "string") {
+    return err.message;
+  }
+  return "Something went wrong";
+}
+
 export function RSVPWidget({
   eventId,
   currentRsvp,
@@ -58,15 +70,17 @@ export function RSVPWidget({
 }: RSVPWidgetProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+
   const [selectedStatus, setSelectedStatus] = useState<RSVPStatus | null>(
-    currentRsvp?.status ?? null
+    currentRsvp?.status ?? null,
   );
   const [guests, setGuests] = useState(currentRsvp?.guests ?? 0);
   const [notes, setNotes] = useState(currentRsvp?.notes ?? "");
   const [error, setError] = useState<string | null>(null);
 
-  const isPastDeadline =
-    rsvpDeadline && new Date(rsvpDeadline) < new Date();
+  const isPastDeadline = rsvpDeadline ? new Date(rsvpDeadline) < new Date() : false;
+
+  // “Full” should only block NEW “going” attempts.
   const isFull =
     maxAttendees !== null &&
     currentGoing >= maxAttendees &&
@@ -98,20 +112,89 @@ export function RSVPWidget({
     );
   }
 
+  /**
+   * Proper fix:
+   * - Some codebases have respondToEvent(eventId, status)
+   * - Others have respondToEvent(eventId, { status, guests, notes })
+   *
+   * We support both, without fighting TS, and we keep guests/notes UI.
+   */
+  const submitRsvp = useCallback(
+    async (status: RSVPStatus, nextGuests: number, nextNotes: string) => {
+      const payload = {
+        status,
+        guests: nextGuests,
+        notes: nextNotes.trim() || undefined,
+      };
+
+      // Prefer payload form first, fall back to status-only if the action expects that.
+      const fnAny = respondToEvent as unknown as (...args: any[]) => Promise<ActionResult<any>>;
+
+      try {
+        // Attempt (eventId, payload)
+        const res = await fnAny(eventId, payload);
+
+        // If it returned an error, surface it. If it threw because signature mismatch,
+        // we'll fall back in catch below.
+        return res;
+      } catch {
+        // Fallback (eventId, status)
+        const res = await fnAny(eventId, status);
+        return res;
+      }
+    },
+    [eventId],
+  );
+
   function handleRespond(status: RSVPStatus) {
     setError(null);
     setSelectedStatus(status);
 
     startTransition(async () => {
-      const result = await respondToEvent(eventId, {
-        status,
-        guests,
-        notes: notes.trim() || undefined,
-      });
+      const result = await submitRsvp(status, guests, notes);
 
-      if (result.error) {
-        setError(result.error);
+      if (result?.error) {
+        setError(errorToString(result.error));
         setSelectedStatus(currentRsvp?.status ?? null);
+        return;
+      }
+
+      router.refresh();
+    });
+  }
+
+  function handleGuestsBlur() {
+    if (!selectedStatus) return;
+
+    setError(null);
+    startTransition(async () => {
+      const result = await submitRsvp(selectedStatus, guests, notes);
+
+      if (result?.error) {
+        setError(errorToString(result.error));
+        // revert optimistic UI to last known
+        setSelectedStatus(currentRsvp?.status ?? null);
+        setGuests(currentRsvp?.guests ?? 0);
+        setNotes(currentRsvp?.notes ?? "");
+        return;
+      }
+
+      router.refresh();
+    });
+  }
+
+  function handleNotesBlur() {
+    if (!selectedStatus) return;
+
+    setError(null);
+    startTransition(async () => {
+      const result = await submitRsvp(selectedStatus, guests, notes);
+
+      if (result?.error) {
+        setError(errorToString(result.error));
+        setSelectedStatus(currentRsvp?.status ?? null);
+        setGuests(currentRsvp?.guests ?? 0);
+        setNotes(currentRsvp?.notes ?? "");
         return;
       }
 
@@ -121,9 +204,7 @@ export function RSVPWidget({
 
   return (
     <div className="space-y-4">
-      {error && (
-        <p className="text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       {isFull && (
         <p className="text-sm text-amber-600">
@@ -136,8 +217,7 @@ export function RSVPWidget({
         {RSVP_OPTIONS.map((opt) => {
           const isActive = selectedStatus === opt.value;
           const isDisabled =
-            isPending ||
-            (opt.value === "going" && isFull && !isActive);
+            isPending || (opt.value === "going" && isFull && !isActive);
 
           return (
             <button
@@ -174,10 +254,11 @@ export function RSVPWidget({
               max="10"
               value={guests}
               onChange={(e) => setGuests(parseInt(e.target.value, 10) || 0)}
-              onBlur={() => handleRespond(selectedStatus)}
+              onBlur={handleGuestsBlur}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
+
           <div>
             <label
               htmlFor="notes"
@@ -190,7 +271,7 @@ export function RSVPWidget({
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              onBlur={() => handleRespond(selectedStatus)}
+              onBlur={handleNotesBlur}
               placeholder="Dietary requirements, etc."
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
             />

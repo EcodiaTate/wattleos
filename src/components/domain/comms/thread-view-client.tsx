@@ -17,9 +17,7 @@ import { useEffect, useRef, useState } from "react";
 interface ThreadViewClientProps {
   threadId: string;
   initialMessages: MessageWithSender[];
-  recipients: Array<
-    Pick<User, "id" | "first_name" | "last_name" | "avatar_url">
-  >;
+  recipients: Array<Pick<User, "id" | "first_name" | "last_name" | "avatar_url">>;
   currentUserId: string;
 }
 
@@ -29,7 +27,7 @@ export function ThreadViewClient({
   recipients,
   currentUserId,
 }: ThreadViewClientProps) {
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] = useState<MessageWithSender[]>(initialMessages);
   const [replyContent, setReplyContent] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,14 +45,22 @@ export function ThreadViewClient({
     setIsSending(true);
 
     // Optimistic add
+    const nowIso = new Date().toISOString();
     const optimisticMessage: MessageWithSender = {
       id: `temp-${Date.now()}`,
       tenant_id: "",
       thread_id: threadId,
       sender_id: currentUserId,
       content: replyContent.trim(),
-      sent_at: new Date().toISOString(),
-      created_at: new Date().toISOString(),
+
+      created_at: nowIso,
+      updated_at: nowIso,
+      edited_at: null,
+      deleted_at: null,
+
+      attachment_url: null,
+      attachment_name: null,
+
       sender: {
         id: currentUserId,
         first_name: "You",
@@ -82,20 +88,29 @@ export function ThreadViewClient({
       return;
     }
 
+    const data = result.data; // <- this is Message (no sender)
+    if (!data) return;
+
     // Replace optimistic message with real one
-    if (result.data) {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === optimisticMessage.id
-            ? {
-                ...optimisticMessage,
-                id: result.data!.id,
-                sent_at: result.data!.sent_at,
-              }
-            : m,
-        ),
-      );
-    }
+    // IMPORTANT: keep `sender` from optimistic message because `Message` doesn't include it.
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === optimisticMessage.id
+          ? {
+              ...optimisticMessage,
+              id: data.id,
+
+              created_at: data.created_at ?? optimisticMessage.created_at,
+              updated_at: data.updated_at ?? optimisticMessage.updated_at,
+              edited_at: data.edited_at ?? optimisticMessage.edited_at,
+              deleted_at: data.deleted_at ?? optimisticMessage.deleted_at,
+
+              attachment_url: data.attachment_url ?? optimisticMessage.attachment_url,
+              attachment_name: data.attachment_name ?? optimisticMessage.attachment_name,
+            }
+          : m,
+      ),
+    );
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -107,7 +122,7 @@ export function ThreadViewClient({
 
   return (
     <div
-      className="flex flex-col rounded-lg borderborder-border bg-background shadow-sm"
+      className="flex flex-col rounded-lg border border-border bg-background shadow-sm"
       style={{ height: "calc(100vh - 300px)", minHeight: "400px" }}
     >
       {/* Messages area */}
@@ -120,7 +135,7 @@ export function ThreadViewClient({
           </div>
         ) : (
           <div className="space-y-4">
-            {messages.map((msg, idx) => {
+            {messages.map((msg: MessageWithSender, idx: number) => {
               const isOwn = msg.sender_id === currentUserId;
               const showSender =
                 idx === 0 || messages[idx - 1].sender_id !== msg.sender_id;
@@ -176,7 +191,7 @@ export function ThreadViewClient({
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                     </div>
                     <p className="mt-1 text-[10px] text-muted-foreground">
-                      {formatTime(msg.sent_at)}
+                      {formatTime(msg.created_at)}
                     </p>
                   </div>
                 </div>
@@ -210,7 +225,7 @@ export function ThreadViewClient({
       </div>
 
       {/* Reply input */}
-      <div className="border-tborder-border px-4 py-3">
+      <div className="border-t border-border px-4 py-3">
         {error && (
           <div className="mb-2 rounded-md bg-red-50 px-3 py-2">
             <p className="text-xs text-red-700">{error}</p>
@@ -234,7 +249,7 @@ export function ThreadViewClient({
           <button
             onClick={handleSend}
             disabled={isSending || !replyContent.trim()}
-            className="flex-shrink-0 rounded-xl bg-primary p-2.5 text-primary-foreground shadow-sm hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+            className="flex-shrink-0 rounded-xl bg-primary p-2.5 text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <svg
               className="h-5 w-5"

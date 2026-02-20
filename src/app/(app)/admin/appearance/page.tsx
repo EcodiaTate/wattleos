@@ -1,26 +1,23 @@
 // src/app/(app)/admin/appearance/page.tsx
 //
 // ============================================================
-// WattleOS V2 - Admin: School Appearance Settings
+// WattleOS V2 — Admin Appearance Settings Page
 // ============================================================
-// Permission-gated to MANAGE_TENANT_SETTINGS.
-// Allows admins to configure brand color, default density,
-// and default theme for their entire school.
+// Server component that fetches the current tenant display
+// settings and passes them to the interactive client form.
 //
-// WHY a separate page from /admin/settings:
-//   Appearance is conceptually distinct from operational settings
-//   (timezone, billing, etc.) and benefits from a live preview.
+// WHY server component wrapper: We fetch the current settings
+// on the server (fast, no loading state) and pass them as
+// props to the client component which handles all interactivity.
 // ============================================================
 
-import { AppearanceSettingsClient } from "@/components/domain/admin/appearance-settings-client";
-import { getTenantDisplaySettings } from "@/lib/actions/display-settings";
 import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
+import { getTenantDisplaySettings } from "@/lib/actions/display-settings";
+import { AppearanceSettingsClient } from "@/components/domain/admin/appearance-settings-client";
+import { DEFAULT_DISPLAY_SETTINGS } from "@/types/display";
 import { redirect } from "next/navigation";
-
-export const metadata = {
-  title: "School Appearance",
-};
+import Link from "next/link";
 
 export default async function AppearancePage() {
   const context = await getTenantContext();
@@ -30,23 +27,26 @@ export default async function AppearancePage() {
   }
 
   const result = await getTenantDisplaySettings();
-  const settings = result.data ?? {
-    brandHue: null,
-    brandSaturation: null,
-    defaultDensity: "comfortable" as const,
-    defaultTheme: "light" as const,
-    faviconUrl: null,
-  };
+  const settings = result.data ?? DEFAULT_DISPLAY_SETTINGS;
 
   return (
-    <div className="space-y-[var(--density-section-gap)]">
+    <div className="space-y-6">
+      {/* Header with breadcrumb */}
       <div>
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-2">
+          <Link href="/admin" className="hover:text-foreground transition-colors">
+            Settings
+          </Link>
+          <span className="text-[var(--breadcrumb-separator)]">/</span>
+          <span className="text-foreground font-medium">Appearance</span>
+        </div>
         <h1 className="text-2xl font-semibold text-foreground">
-          School Appearance
+          Appearance &amp; Branding
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Customise how WattleOS looks for everyone at {context.tenant.name}.
-          Individual users can override theme and density in their own settings.
+          Customise your school&apos;s colours, layout density, and theme.
+          Changes apply to all users — individuals can override theme and
+          density in their personal settings.
         </p>
       </div>
 

@@ -1,89 +1,81 @@
 // src/lib/actions/display-settings.ts
 //
 // ============================================================
-// WattleOS V2 - Display Settings Server Actions
+// WattleOS V2 — Display Settings Server Actions
 // ============================================================
-// Manages both admin-level (tenant) and user-level display
-// preferences, plus the cookie that the root layout reads.
+// Two layers of display configuration:
 //
-// WHY cookie sync: The root layout.tsx renders for both
-// authenticated and unauthenticated pages. It can't call
-// getTenantContext(). A cookie lets it apply the correct
-// data attributes without a DB call on every page load.
+//   1. TENANT (admin)  — brand colour, accent, sidebar style,
+//      default theme & density. Stored in tenants.settings JSONB.
+//      Requires MANAGE_TENANT_SETTINGS permission.
 //
-// WHY two levels: Admin sets the school defaults (brand color,
-// default density). Users override for personal preference
-// (dark mode, compact layout). The resolve function merges
-// them with user > tenant > platform default precedence.
+//   2. USER (personal) — theme, density, font scale overrides.
+//      Stored in a cookie (wattle-user-prefs). No permission
+//      needed — every authenticated user can set their own.
+//
+// WHY cookies for user prefs instead of a DB table: User display
+// preferences are inherently per-device (you might want dark on
+// your phone, light on desktop). A DB table would require a
+// migration and wouldn't capture this nuance. Cookies are fast,
+// per-device, and avoid a DB round-trip in the root layout.
+//
+// COOKIE ARCHITECTURE:
+//   wattle-display    — effective values the root layout reads
+//   wattle-user-prefs — tracks user overrides (null = school default)
+//
+// All actions return ActionResponse<T> — never throw.
 // ============================================================
 
 "use server";
 
 import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { ActionResponse, failure, success } from "@/types/api";
 import {
-  DISPLAY_COOKIE_MAX_AGE,
-  DISPLAY_COOKIE_NAME,
-  type ResolvedDisplayConfig,
+  createSupabaseAdminClient,
+  createSupabaseServerClient,
+} from "@/lib/supabase/server";
+import { type ActionResponse, ErrorCodes, failure, success } from "@/types/api";
+import {
   type TenantDisplaySettings,
   type UserDisplayPreferences,
-  parseTenantDisplaySettings,
-  parseUserDisplayPreferences,
-  resolveDisplayConfig,
+  DEFAULT_DISPLAY_SETTINGS,
+  DISPLAY_COOKIE_NAME,
+  USER_PREFS_COOKIE_NAME,
+  buildDisplayCookie,
+  parseDisplayCookie,
+  parseUserPrefsCookie,
   serializeDisplayCookie,
+  serializeUserPrefsCookie,
 } from "@/types/display";
 import { cookies } from "next/headers";
 
 // ============================================================
-// READ: Get resolved display config (tenant + user merged)
-// ============================================================
-// Called by the (app) layout to get the full resolved config.
-// Also syncs the cookie so root layout stays current.
+// Keys used in the tenants.settings JSONB
 // ============================================================
 
-export async function getResolvedDisplayConfig(): Promise<
-  ActionResponse<ResolvedDisplayConfig>
-> {
-  try {
-    const context = await getTenantContext();
-    const supabase = await createSupabaseServerClient();
-
-    // 1. Parse tenant display settings from tenants.settings.display
-    const tenantDisplay = parseTenantDisplaySettings(
-      (context.tenant.settings as Record<string, unknown>)?.display,
-    );
-
-    // 2. Fetch user display preferences from tenant_users.display_preferences
-    const { data: membership } = await supabase
-      .from("tenant_users")
-      .select("display_preferences")
-      .eq("tenant_id", context.tenant.id)
-      .eq("user_id", context.user.id)
-      .is("deleted_at", null)
-      .single();
-
-    const userDisplay = parseUserDisplayPreferences(
-      membership?.display_preferences,
-    );
-
-    // 3. Resolve
-    const resolved = resolveDisplayConfig(tenantDisplay, userDisplay);
-
-    // 4. Sync cookie so root layout stays current
-    await syncDisplayCookie(resolved);
-
-    return success(resolved);
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Failed to load display settings";
-    return failure(message, "DISPLAY_LOAD_ERROR");
-  }
-}
+const SETTINGS_KEYS = {
+  BRAND_HUE: "brand_hue",
+  BRAND_SATURATION: "brand_saturation",
+  ACCENT_HUE: "accent_hue",
+  ACCENT_SATURATION: "accent_saturation",
+  SIDEBAR_STYLE: "sidebar_style",
+  DEFAULT_DENSITY: "default_density",
+  DEFAULT_THEME: "default_theme",
+} as const;
 
 // ============================================================
-// READ: Get tenant display settings (admin view)
+// Cookie write helper (shared by all actions below)
+// ============================================================
+
+const COOKIE_OPTIONS = {
+  path: "/",
+  httpOnly: false, // Client script needs to read for system theme detection
+  sameSite: "lax" as const,
+  maxAge: 60 * 60 * 24 * 365, // 1 year
+};
+
+// ============================================================
+// TENANT: GET DISPLAY SETTINGS
 // ============================================================
 
 export async function getTenantDisplaySettings(): Promise<
@@ -91,232 +83,253 @@ export async function getTenantDisplaySettings(): Promise<
 > {
   try {
     const context = await getTenantContext();
+    const supabase = await createSupabaseServerClient();
 
-    const tenantDisplay = parseTenantDisplaySettings(
-      (context.tenant.settings as Record<string, unknown>)?.display,
-    );
+    const { data, error } = await supabase
+      .from("tenants")
+      .select("settings")
+      .eq("id", context.tenant.id)
+      .single();
 
-    return success(tenantDisplay);
+    if (error) {
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
+    }
+
+    const s = (data?.settings ?? {}) as Record<string, unknown>;
+
+    const settings: TenantDisplaySettings = {
+      brandHue:
+        typeof s[SETTINGS_KEYS.BRAND_HUE] === "number"
+          ? (s[SETTINGS_KEYS.BRAND_HUE] as number)
+          : DEFAULT_DISPLAY_SETTINGS.brandHue,
+      brandSaturation:
+        typeof s[SETTINGS_KEYS.BRAND_SATURATION] === "number"
+          ? (s[SETTINGS_KEYS.BRAND_SATURATION] as number)
+          : DEFAULT_DISPLAY_SETTINGS.brandSaturation,
+      accentHue:
+        typeof s[SETTINGS_KEYS.ACCENT_HUE] === "number"
+          ? (s[SETTINGS_KEYS.ACCENT_HUE] as number)
+          : DEFAULT_DISPLAY_SETTINGS.accentHue,
+      accentSaturation:
+        typeof s[SETTINGS_KEYS.ACCENT_SATURATION] === "number"
+          ? (s[SETTINGS_KEYS.ACCENT_SATURATION] as number)
+          : DEFAULT_DISPLAY_SETTINGS.accentSaturation,
+      sidebarStyle:
+        typeof s[SETTINGS_KEYS.SIDEBAR_STYLE] === "string" &&
+        ["light", "dark", "brand"].includes(
+          s[SETTINGS_KEYS.SIDEBAR_STYLE] as string,
+        )
+          ? (s[SETTINGS_KEYS.SIDEBAR_STYLE] as TenantDisplaySettings["sidebarStyle"])
+          : DEFAULT_DISPLAY_SETTINGS.sidebarStyle,
+      defaultDensity:
+        typeof s[SETTINGS_KEYS.DEFAULT_DENSITY] === "string" &&
+        ["compact", "comfortable", "spacious"].includes(
+          s[SETTINGS_KEYS.DEFAULT_DENSITY] as string,
+        )
+          ? (s[SETTINGS_KEYS.DEFAULT_DENSITY] as TenantDisplaySettings["defaultDensity"])
+          : DEFAULT_DISPLAY_SETTINGS.defaultDensity,
+      defaultTheme:
+        typeof s[SETTINGS_KEYS.DEFAULT_THEME] === "string" &&
+        ["light", "dark", "system"].includes(
+          s[SETTINGS_KEYS.DEFAULT_THEME] as string,
+        )
+          ? (s[SETTINGS_KEYS.DEFAULT_THEME] as TenantDisplaySettings["defaultTheme"])
+          : DEFAULT_DISPLAY_SETTINGS.defaultTheme,
+    };
+
+    return success(settings);
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to get display settings";
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
+  }
+}
+
+// ============================================================
+// TENANT: UPDATE DISPLAY SETTINGS (Admin only)
+// ============================================================
+// 1. Permission-gates via requirePermission (the security boundary)
+// 2. Uses admin client to bypass RLS (tenants has no UPDATE policy)
+// 3. Merges display settings into existing tenants.settings JSONB
+// 4. Writes the display cookie, respecting any user overrides
+
+export async function updateTenantDisplaySettings(
+  input: TenantDisplaySettings,
+): Promise<ActionResponse<TenantDisplaySettings>> {
+  try {
+    // ── 0. Permission gate (this IS the security boundary) ──
+    await requirePermission(Permissions.MANAGE_TENANT_SETTINGS);
+    const context = await getTenantContext();
+
+    // ── 1. Use admin client — tenants table has no UPDATE RLS
+    // policy, so the user client silently fails (0 rows, no
+    // error). Admin client bypasses RLS; requirePermission()
+    // above is the access control. ───────────────────────────
+    const supabase = createSupabaseAdminClient();
+
+    // ── 2. Read existing settings to merge ──────────────────
+    const { data: existing, error: readError } = await supabase
+      .from("tenants")
+      .select("settings")
+      .eq("id", context.tenant.id)
+      .single();
+
+    if (readError) {
+      return failure(readError.message, ErrorCodes.DATABASE_ERROR);
+    }
+
+    const currentSettings = (existing?.settings ?? {}) as Record<
+      string,
+      unknown
+    >;
+
+    // ── 3. Merge display keys (preserve non-display keys) ───
+    const mergedSettings = {
+      ...currentSettings,
+      [SETTINGS_KEYS.BRAND_HUE]: input.brandHue,
+      [SETTINGS_KEYS.BRAND_SATURATION]: input.brandSaturation,
+      [SETTINGS_KEYS.ACCENT_HUE]: input.accentHue,
+      [SETTINGS_KEYS.ACCENT_SATURATION]: input.accentSaturation,
+      [SETTINGS_KEYS.SIDEBAR_STYLE]: input.sidebarStyle,
+      [SETTINGS_KEYS.DEFAULT_DENSITY]: input.defaultDensity,
+      [SETTINGS_KEYS.DEFAULT_THEME]: input.defaultTheme,
+    };
+
+    const { error: updateError } = await supabase
+      .from("tenants")
+      .update({ settings: mergedSettings })
+      .eq("id", context.tenant.id);
+
+    if (updateError) {
+      return failure(updateError.message, ErrorCodes.DATABASE_ERROR);
+    }
+
+    // ── 4. Update the display cookie immediately ────────────
+    // Read user prefs to respect their explicit overrides.
+    // If a user explicitly chose dark mode, we don't overwrite
+    // it just because the admin changed the school default.
+    // But if the user has no override (null), they get the
+    // admin's new default.
+    try {
+      const cookieStore = await cookies();
+
+      const userPrefs = parseUserPrefsCookie(
+        cookieStore.get(USER_PREFS_COOKIE_NAME)?.value,
+      );
+
+      const existingCookie = parseDisplayCookie(
+        cookieStore.get(DISPLAY_COOKIE_NAME)?.value,
+      );
+
+      const freshCookie = buildDisplayCookie(input, {
+        theme: userPrefs.theme ?? input.defaultTheme,
+        density: userPrefs.density ?? input.defaultDensity,
+        fontScale: userPrefs.fontScale ?? existingCookie.fontScale,
+      });
+
+      cookieStore.set(
+        DISPLAY_COOKIE_NAME,
+        serializeDisplayCookie(freshCookie),
+        COOKIE_OPTIONS,
+      );
+    } catch {
+      // Cookie write failure is non-fatal — the (app) layout
+      // will refresh the cookie from DB on next load anyway.
+    }
+
+    return success(input);
   } catch (err) {
     const message =
       err instanceof Error
         ? err.message
-        : "Failed to load tenant display settings";
-    return failure(message, "DISPLAY_LOAD_ERROR");
+        : "Failed to update display settings";
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
 // ============================================================
-// WRITE: Update tenant display settings (admin only)
+// USER: GET DISPLAY PREFERENCES
 // ============================================================
-// Permission: manage_tenant_settings
-// Merges into tenants.settings.display without clobbering
-// other settings (feature flags, etc.).
-// ============================================================
-
-export async function updateTenantDisplaySettings(
-  input: Partial<TenantDisplaySettings>,
-): Promise<ActionResponse<TenantDisplaySettings>> {
-  try {
-    const context = await requirePermission(Permissions.MANAGE_TENANT_SETTINGS);
-    const supabase = await createSupabaseServerClient();
-
-    // Read current settings to merge (preserve non-display keys)
-    const currentSettings = (context.tenant.settings ?? {}) as Record<
-      string,
-      unknown
-    >;
-    const currentDisplay = parseTenantDisplaySettings(currentSettings.display);
-
-    // Merge input with current display settings
-    const updatedDisplay: TenantDisplaySettings = {
-      brandHue:
-        input.brandHue !== undefined ? input.brandHue : currentDisplay.brandHue,
-      brandSaturation:
-        input.brandSaturation !== undefined
-          ? input.brandSaturation
-          : currentDisplay.brandSaturation,
-      defaultDensity: input.defaultDensity ?? currentDisplay.defaultDensity,
-      defaultTheme: input.defaultTheme ?? currentDisplay.defaultTheme,
-      faviconUrl:
-        input.faviconUrl !== undefined
-          ? input.faviconUrl
-          : currentDisplay.faviconUrl,
-    };
-
-    // Write back to tenants.settings, preserving other keys
-    const updatedSettings = {
-      ...currentSettings,
-      display: updatedDisplay,
-    };
-
-    const { error } = await supabase
-      .from("tenants")
-      .update({ settings: updatedSettings })
-      .eq("id", context.tenant.id);
-
-    if (error) {
-      return failure(error.message, "DB_ERROR");
-    }
-
-    // Re-resolve and sync cookie (admin may also be a user)
-    await refreshDisplayCookie(context.tenant.id, context.user.id);
-
-    return success(updatedDisplay);
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Failed to update display settings";
-    return failure(message, "DISPLAY_UPDATE_ERROR");
-  }
-}
-
-// ============================================================
-// READ: Get user display preferences
-// ============================================================
+// Reads from the user prefs cookie. No DB call needed.
+// Returns null fields for any preference the user hasn't
+// explicitly overridden (meaning "use school default").
 
 export async function getUserDisplayPreferences(): Promise<
   ActionResponse<UserDisplayPreferences>
 > {
   try {
-    const context = await getTenantContext();
-    const supabase = await createSupabaseServerClient();
+    // Ensure user is authenticated (getTenantContext throws if not)
+    await getTenantContext();
 
-    const { data: membership } = await supabase
-      .from("tenant_users")
-      .select("display_preferences")
-      .eq("tenant_id", context.tenant.id)
-      .eq("user_id", context.user.id)
-      .is("deleted_at", null)
-      .single();
-
-    const prefs = parseUserDisplayPreferences(membership?.display_preferences);
+    const cookieStore = await cookies();
+    const prefs = parseUserPrefsCookie(
+      cookieStore.get(USER_PREFS_COOKIE_NAME)?.value,
+    );
 
     return success(prefs);
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : "Failed to load user preferences";
-    return failure(message, "DISPLAY_LOAD_ERROR");
+      err instanceof Error
+        ? err.message
+        : "Failed to get display preferences";
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
 // ============================================================
-// WRITE: Update user display preferences
+// USER: UPDATE DISPLAY PREFERENCES
 // ============================================================
-// Any authenticated user can update their own preferences.
-// No special permission needed.
-// ============================================================
+// Writes BOTH cookies:
+//   1. wattle-user-prefs — stores the overrides (with nulls)
+//   2. wattle-display    — stores effective values for root layout
+//
+// WHY both: The root layout reads wattle-display for <html>
+// data attributes. The user settings page reads wattle-user-prefs
+// to know which fields are explicit overrides vs school defaults.
 
 export async function updateUserDisplayPreferences(
-  input: Partial<UserDisplayPreferences>,
+  input: UserDisplayPreferences,
 ): Promise<ActionResponse<UserDisplayPreferences>> {
   try {
-    const context = await getTenantContext();
-    const supabase = await createSupabaseServerClient();
+    // Ensure user is authenticated
+    await getTenantContext();
 
-    // Read current preferences to merge
-    const { data: membership } = await supabase
-      .from("tenant_users")
-      .select("display_preferences")
-      .eq("tenant_id", context.tenant.id)
-      .eq("user_id", context.user.id)
-      .is("deleted_at", null)
-      .single();
+    const cookieStore = await cookies();
 
-    const current = parseUserDisplayPreferences(
-      membership?.display_preferences,
+    // ── 1. Write user prefs cookie (override tracking) ──────
+    cookieStore.set(
+      USER_PREFS_COOKIE_NAME,
+      serializeUserPrefsCookie(input),
+      COOKIE_OPTIONS,
     );
 
-    const updated: UserDisplayPreferences = {
-      theme: input.theme !== undefined ? input.theme : current.theme,
-      density: input.density !== undefined ? input.density : current.density,
-      fontScale:
-        input.fontScale !== undefined ? input.fontScale : current.fontScale,
-      sidebarCollapsed:
-        input.sidebarCollapsed !== undefined
-          ? input.sidebarCollapsed
-          : current.sidebarCollapsed,
+    // ── 2. Update main display cookie with effective values ─
+    // Read the current display cookie to preserve tenant-level
+    // settings (brand, accent, sidebar) while updating the
+    // user-level fields (theme, density, fontScale).
+    const currentDisplay = parseDisplayCookie(
+      cookieStore.get(DISPLAY_COOKIE_NAME)?.value,
+    );
+
+    const updatedDisplay: typeof currentDisplay = {
+      ...currentDisplay,
+      theme: input.theme ?? currentDisplay.theme,
+      density: input.density ?? currentDisplay.density,
+      fontScale: input.fontScale ?? currentDisplay.fontScale,
     };
 
-    const { error } = await supabase
-      .from("tenant_users")
-      .update({ display_preferences: updated })
-      .eq("tenant_id", context.tenant.id)
-      .eq("user_id", context.user.id)
-      .is("deleted_at", null);
+    cookieStore.set(
+      DISPLAY_COOKIE_NAME,
+      serializeDisplayCookie(updatedDisplay),
+      COOKIE_OPTIONS,
+    );
 
-    if (error) {
-      return failure(error.message, "DB_ERROR");
-    }
-
-    // Refresh the cookie with the new resolved config
-    await refreshDisplayCookie(context.tenant.id, context.user.id);
-
-    return success(updated);
+    return success(input);
   } catch (err) {
     const message =
       err instanceof Error
         ? err.message
         : "Failed to update display preferences";
-    return failure(message, "DISPLAY_UPDATE_ERROR");
-  }
-}
-
-// ============================================================
-// Internal: Cookie sync helpers
-// ============================================================
-
-async function syncDisplayCookie(
-  resolved: ResolvedDisplayConfig,
-): Promise<void> {
-  try {
-    const cookieStore = await cookies();
-    cookieStore.set(DISPLAY_COOKIE_NAME, serializeDisplayCookie(resolved), {
-      httpOnly: false, // Readable by client JS for system theme detection
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: DISPLAY_COOKIE_MAX_AGE,
-      path: "/",
-    });
-  } catch {
-    // Cookie setting can fail in some contexts (e.g., during static generation).
-    // Non-critical - the layout will just use defaults.
-  }
-}
-
-async function refreshDisplayCookie(
-  tenantId: string,
-  userId: string,
-): Promise<void> {
-  try {
-    const supabase = await createSupabaseServerClient();
-
-    // Fetch fresh tenant settings
-    const { data: tenant } = await supabase
-      .from("tenants")
-      .select("settings")
-      .eq("id", tenantId)
-      .single();
-
-    const tenantDisplay = parseTenantDisplaySettings(
-      (tenant?.settings as Record<string, unknown>)?.display,
-    );
-
-    // Fetch fresh user preferences
-    const { data: membership } = await supabase
-      .from("tenant_users")
-      .select("display_preferences")
-      .eq("tenant_id", tenantId)
-      .eq("user_id", userId)
-      .is("deleted_at", null)
-      .single();
-
-    const userDisplay = parseUserDisplayPreferences(
-      membership?.display_preferences,
-    );
-
-    const resolved = resolveDisplayConfig(tenantDisplay, userDisplay);
-    await syncDisplayCookie(resolved);
-  } catch {
-    // Non-critical
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }

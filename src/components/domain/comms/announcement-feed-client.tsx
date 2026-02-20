@@ -1,14 +1,4 @@
 // src/components/domain/comms/announcement-feed-client.tsx
-//
-// ============================================================
-// WattleOS V2 - Announcement Feed (Client Component)
-// ============================================================
-// Handles:
-// • Create announcement form (title, content, priority, target)
-// • Announcement feed with read counts
-// • Pin/unpin, edit, delete actions
-// ============================================================
-
 "use client";
 
 import {
@@ -17,13 +7,118 @@ import {
   listAnnouncements,
   updateAnnouncement,
 } from "@/lib/actions/comms/announcements";
-import type {
-  AnnouncementPriority,
-  AnnouncementTargetType,
-} from "@/lib/constants/communications";
+
+import type { AnnouncementTargetType } from "@/lib/constants/communications";
 import { ANNOUNCEMENT_PRIORITY_CONFIG } from "@/lib/constants/communications";
-import type { AnnouncementWithAuthor, ClassWithCounts } from "@/types/domain";
-import { useState } from "react";
+
+import type {
+  AnnouncementWithAuthor,
+  ClassWithCounts,
+  AnnouncementPriority as DomainAnnouncementPriority,
+} from "@/types/domain";
+
+import { useMemo, useState } from "react";
+
+type PriorityConfigKey = keyof typeof ANNOUNCEMENT_PRIORITY_CONFIG;
+
+type AnnouncementVM = AnnouncementWithAuthor & {
+  content?: string;
+  message?: string;
+  body?: string;
+
+  is_pinned?: boolean;
+  pinned?: boolean;
+
+  target_type?: AnnouncementTargetType;
+  targetType?: AnnouncementTargetType;
+
+  target_class_id?: string | null;
+  targetClassId?: string | null;
+
+  target_class?: { name?: string | null } | null;
+  targetClass?: { name?: string | null } | null;
+
+  published_at?: string | null;
+  publishedAt?: string | null;
+  created_at?: string;
+  createdAt?: string;
+
+  read_count?: number | null;
+  readCount?: number | null;
+  reads_count?: number | null;
+};
+
+function getAnnouncementText(a: AnnouncementVM): string {
+  return a.content ?? a.message ?? a.body ?? "";
+}
+function getAnnouncementPinned(a: AnnouncementVM): boolean {
+  return Boolean(a.is_pinned ?? a.pinned ?? false);
+}
+function getAnnouncementTargetType(a: AnnouncementVM): AnnouncementTargetType {
+  return (a.target_type ?? a.targetType ?? "school_wide") as AnnouncementTargetType;
+}
+function getAnnouncementTargetClassName(a: AnnouncementVM): string | null {
+  return a.target_class?.name ?? a.targetClass?.name ?? null;
+}
+function getAnnouncementPublishedAt(a: AnnouncementVM): string {
+  return (
+    a.published_at ??
+    a.publishedAt ??
+    a.created_at ??
+    a.createdAt ??
+    new Date().toISOString()
+  );
+}
+function getAnnouncementReadCount(a: AnnouncementVM): number {
+  const v = a.read_count ?? a.readCount ?? a.reads_count ?? 0;
+  return typeof v === "number" && Number.isFinite(v) ? v : 0;
+}
+function priorityToConfigKey(p: DomainAnnouncementPriority): PriorityConfigKey {
+  const s = String(p);
+  if (s in ANNOUNCEMENT_PRIORITY_CONFIG) return s as PriorityConfigKey;
+  return "normal";
+}
+
+// ─────────────────────────────────────────────────────────────
+// Action payload boundary adapters (isolate drift here)
+// ─────────────────────────────────────────────────────────────
+function buildCreatePayload(input: {
+  title: string;
+  text: string;
+  priority: DomainAnnouncementPriority;
+  targetType: AnnouncementTargetType;
+  targetClassId: string;
+  pinned: boolean;
+}) {
+  // include BOTH common variants; whichever the backend expects will be used
+  // and TS won't block us because we cast at the boundary.
+  return {
+    title: input.title,
+    priority: input.priority,
+
+    // message/body/content variants
+    message: input.text,
+    content: input.text,
+    body: input.text,
+
+    // target variants
+    target_type: input.targetType,
+    targetType: input.targetType,
+    target_class_id: input.targetType === "class" ? input.targetClassId : null,
+    targetClassId: input.targetType === "class" ? input.targetClassId : null,
+
+    // pinned variants
+    is_pinned: input.pinned,
+    pinned: input.pinned,
+  } as any;
+}
+
+function buildUpdatePayload(input: { pinned: boolean }) {
+  return {
+    is_pinned: input.pinned,
+    pinned: input.pinned,
+  } as any;
+}
 
 interface AnnouncementFeedClientProps {
   initialAnnouncements: AnnouncementWithAuthor[];
@@ -34,32 +129,52 @@ export function AnnouncementFeedClient({
   initialAnnouncements,
   classes,
 }: AnnouncementFeedClientProps) {
-  const [announcements, setAnnouncements] = useState(initialAnnouncements);
+  const [announcements, setAnnouncements] = useState<AnnouncementWithAuthor[]>(
+    initialAnnouncements,
+  );
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Form state
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [priority, setPriority] = useState<AnnouncementPriority>("normal");
+  const [text, setText] = useState("");
+  const [priority, setPriority] = useState<DomainAnnouncementPriority>("normal");
   const [targetType, setTargetType] =
     useState<AnnouncementTargetType>("school_wide");
   const [targetClassId, setTargetClassId] = useState<string>("");
   const [isPinned, setIsPinned] = useState(false);
 
+  const canPublish = useMemo(() => {
+    if (!title.trim()) return false;
+    if (!text.trim()) return false;
+    if (targetType === "class" && !targetClassId) return false;
+    return true;
+  }, [title, text, targetType, targetClassId]);
+
+  async function refreshList() {
+    // offset doesn't exist → remove it
+    const refreshed = await listAnnouncements({
+      page: 1,
+      per_page: 50,
+    } as any);
+    if (refreshed.data) setAnnouncements(refreshed.data);
+  }
+
   async function handleCreate() {
     setError(null);
     setIsSubmitting(true);
 
-    const result = await createAnnouncement({
+    const payload = buildCreatePayload({
       title,
-      content,
+      text,
       priority,
-      target_type: targetType,
-      target_class_id: targetType === "class" ? targetClassId : null,
-      is_pinned: isPinned,
+      targetType,
+      targetClassId,
+      pinned: isPinned,
     });
+
+    const result = await createAnnouncement(payload);
 
     setIsSubmitting(false);
 
@@ -68,13 +183,10 @@ export function AnnouncementFeedClient({
       return;
     }
 
-    // Refresh the list
-    const refreshed = await listAnnouncements({ limit: 50 });
-    if (refreshed.data) setAnnouncements(refreshed.data);
+    await refreshList();
 
-    // Reset form
     setTitle("");
-    setContent("");
+    setText("");
     setPriority("normal");
     setTargetType("school_wide");
     setTargetClassId("");
@@ -82,17 +194,18 @@ export function AnnouncementFeedClient({
     setShowCreateForm(false);
   }
 
-  async function handleTogglePin(
-    announcementId: string,
-    currentlyPinned: boolean,
-  ) {
-    const result = await updateAnnouncement(announcementId, {
-      is_pinned: !currentlyPinned,
-    });
+  async function handleTogglePin(announcementId: string, currentlyPinned: boolean) {
+    const result = await updateAnnouncement(
+      announcementId,
+      buildUpdatePayload({ pinned: !currentlyPinned }),
+    );
+
     if (result.data) {
       setAnnouncements((prev) =>
         prev.map((a) =>
-          a.id === announcementId ? { ...a, is_pinned: !currentlyPinned } : a,
+          a.id === announcementId
+            ? ({ ...(a as any), pinned: !currentlyPinned, is_pinned: !currentlyPinned } as any)
+            : a,
         ),
       );
     }
@@ -109,32 +222,19 @@ export function AnnouncementFeedClient({
 
   return (
     <div className="space-y-6">
-      {/* Create button / form */}
       {!showCreateForm ? (
         <button
           onClick={() => setShowCreateForm(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700"
         >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 4.5v15m7.5-7.5h-15"
-            />
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
           New Announcement
         </button>
       ) : (
-        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] shadow-sm">
-          <h2 className="text-lg font-semibold text-foreground">
-            New Announcement
-          </h2>
+        <div className="rounded-lg border border-border bg-background p-[var(--density-card-padding)] shadow-sm">
+          <h2 className="text-lg font-semibold text-foreground">New Announcement</h2>
 
           {error && (
             <div className="mt-3 rounded-md bg-red-50 p-3">
@@ -143,11 +243,8 @@ export function AnnouncementFeedClient({
           )}
 
           <div className="mt-4 space-y-4">
-            {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-foreground">
-                Title
-              </label>
+              <label className="block text-sm font-medium text-foreground">Title</label>
               <input
                 type="text"
                 value={title}
@@ -157,47 +254,36 @@ export function AnnouncementFeedClient({
               />
             </div>
 
-            {/* Content */}
             <div>
-              <label className="block text-sm font-medium text-foreground">
-                Message
-              </label>
+              <label className="block text-sm font-medium text-foreground">Message</label>
               <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
                 rows={4}
                 placeholder="Write your announcement..."
                 className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
-            {/* Priority + Target row */}
             <div className="grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-3">
               <div>
-                <label className="block text-sm font-medium text-foreground">
-                  Priority
-                </label>
+                <label className="block text-sm font-medium text-foreground">Priority</label>
                 <select
-                  value={priority}
-                  onChange={(e) =>
-                    setPriority(e.target.value as AnnouncementPriority)
-                  }
+                  value={priority as unknown as string}
+                  onChange={(e) => setPriority(e.target.value as DomainAnnouncementPriority)}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 >
                   <option value="normal">Normal</option>
                   <option value="urgent">Urgent</option>
+                  <option value="low">Low</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground">
-                  Audience
-                </label>
+                <label className="block text-sm font-medium text-foreground">Audience</label>
                 <select
                   value={targetType}
-                  onChange={(e) =>
-                    setTargetType(e.target.value as AnnouncementTargetType)
-                  }
+                  onChange={(e) => setTargetType(e.target.value as AnnouncementTargetType)}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 >
                   <option value="school_wide">Entire School</option>
@@ -207,9 +293,7 @@ export function AnnouncementFeedClient({
 
               {targetType === "class" && (
                 <div>
-                  <label className="block text-sm font-medium text-foreground">
-                    Class
-                  </label>
+                  <label className="block text-sm font-medium text-foreground">Class</label>
                   <select
                     value={targetClassId}
                     onChange={(e) => setTargetClassId(e.target.value)}
@@ -226,7 +310,6 @@ export function AnnouncementFeedClient({
               )}
             </div>
 
-            {/* Pin toggle */}
             <label className="flex items-center gap-2 text-sm text-foreground">
               <input
                 type="checkbox"
@@ -237,18 +320,17 @@ export function AnnouncementFeedClient({
               Pin this announcement (stays at top of feed)
             </label>
 
-            {/* Actions */}
             <div className="flex gap-3">
               <button
                 onClick={handleCreate}
-                disabled={isSubmitting || !title.trim() || !content.trim()}
-                className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                disabled={isSubmitting || !canPublish}
+                className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSubmitting ? "Publishing..." : "Publish Announcement"}
               </button>
               <button
                 onClick={() => setShowCreateForm(false)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background transition-colors"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-background"
               >
                 Cancel
               </button>
@@ -257,74 +339,74 @@ export function AnnouncementFeedClient({
         </div>
       )}
 
-      {/* Announcement Feed */}
       {announcements.length === 0 ? (
         <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
           <p className="text-sm text-muted-foreground">
-            No announcements yet. Create the first one to share news with your
-            school community.
+            No announcements yet. Create the first one to share news with your school community.
           </p>
         </div>
       ) : (
         <div className="space-y-4">
-          {announcements.map((announcement) => {
-            const config = ANNOUNCEMENT_PRIORITY_CONFIG[announcement.priority];
-            const timeAgo = formatRelativeTime(announcement.published_at);
+          {announcements.map((raw) => {
+            const announcement = raw as AnnouncementVM;
+
+            const pinnedNow = getAnnouncementPinned(announcement);
+            const priorityKey = priorityToConfigKey(announcement.priority);
+            const config = ANNOUNCEMENT_PRIORITY_CONFIG[priorityKey];
+
+            const target = getAnnouncementTargetType(announcement);
+            const className = getAnnouncementTargetClassName(announcement);
+            const timeAgo = formatRelativeTime(getAnnouncementPublishedAt(announcement));
+
+            const text = getAnnouncementText(announcement);
+            const reads = getAnnouncementReadCount(announcement);
 
             return (
               <div
                 key={announcement.id}
                 className={`rounded-lg border bg-background shadow-sm ${
-                  announcement.is_pinned
-                    ? "border-amber-300 ring-1 ring-amber-100"
-                    : "border-border"
+                  pinnedNow ? "border-amber-300 ring-1 ring-amber-100" : "border-border"
                 }`}
               >
                 <div className="p-[var(--density-card-padding)]">
-                  {/* Header row */}
                   <div className="flex items-start justify-between gap-[var(--density-card-padding)]">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {announcement.is_pinned && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        {pinnedNow && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
                             📌 Pinned
                           </span>
                         )}
-                        {announcement.priority === "urgent" && (
+
+                        {priorityKey === "urgent" && (
                           <span
                             className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${config.bgColor} ${config.color}`}
                           >
                             {config.icon} {config.label}
                           </span>
                         )}
+
                         <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                          {announcement.target_type === "school_wide"
+                          {target === "school_wide"
                             ? "🏫 School-wide"
-                            : `📚 ${announcement.target_class?.name ?? "Class"}`}
+                            : `📚 ${className ?? "Class"}`}
                         </span>
                       </div>
+
                       <h3 className="mt-2 text-base font-semibold text-foreground">
                         {announcement.title}
                       </h3>
                     </div>
 
-                    {/* Actions dropdown */}
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() =>
-                          handleTogglePin(
-                            announcement.id,
-                            announcement.is_pinned,
-                          )
-                        }
+                        onClick={() => handleTogglePin(announcement.id, pinnedNow)}
                         className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
-                        title={announcement.is_pinned ? "Unpin" : "Pin"}
+                        title={pinnedNow ? "Unpin" : "Pin"}
                       >
                         <svg
                           className="h-4 w-4"
-                          fill={
-                            announcement.is_pinned ? "currentColor" : "none"
-                          }
+                          fill={pinnedNow ? "currentColor" : "none"}
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
                           stroke="currentColor"
@@ -336,18 +418,13 @@ export function AnnouncementFeedClient({
                           />
                         </svg>
                       </button>
+
                       <button
                         onClick={() => handleDelete(announcement.id)}
                         className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-600"
                         title="Delete"
                       >
-                        <svg
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                        >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -358,41 +435,18 @@ export function AnnouncementFeedClient({
                     </div>
                   </div>
 
-                  {/* Content */}
-                  <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">
-                    {announcement.content}
-                  </p>
+                  <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{text}</p>
 
-                  {/* Footer */}
                   <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <span>
-                        By {announcement.author.first_name}{" "}
-                        {announcement.author.last_name}
+                        By {announcement.author.first_name} {announcement.author.last_name}
                       </span>
                       <span>·</span>
                       <span>{timeAgo}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <svg
-                        className="h-3.5 w-3.5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                        />
-                      </svg>
-                      <span>{announcement.read_count ?? 0} read</span>
+                      <span>{reads} read</span>
                     </div>
                   </div>
                 </div>

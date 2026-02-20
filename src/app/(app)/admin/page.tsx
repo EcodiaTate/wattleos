@@ -1,15 +1,15 @@
 // src/app/(app)/admin/page.tsx
 //
 // ============================================================
-// WattleOS V2 - Admin Settings Landing Page
+// WattleOS V2 — Admin Settings Landing Page
 // ============================================================
-// Permission-gated. Shows cards linking to admin sub-sections:
-// integrations, user management, tenant settings, timesheet
-// approvals, and payroll configuration.
+// Permission-gated hub linking to all admin sub-sections.
+// Each card is only visible if the user has at least one
+// relevant permission, so different roles see different
+// admin surfaces.
 //
-// MODIFIED IN PHASE 9c: Added Timesheet Approvals card
-// (gated on APPROVE_TIMESHEETS) and Payroll Settings card
-// (gated on MANAGE_INTEGRATIONS).
+// Cards are grouped visually: Core Config → Student Lifecycle
+// → Staff Operations → Financial.
 // ============================================================
 
 import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
@@ -20,29 +20,43 @@ import { redirect } from "next/navigation";
 export default async function AdminPage() {
   const context = await getTenantContext();
 
-  const canManageUsers = hasPermission(context, Permissions.MANAGE_USERS);
+  // ── Permission checks ───────────────────────────────────
   const canManageTenant = hasPermission(
     context,
     Permissions.MANAGE_TENANT_SETTINGS,
   );
+  const canManageUsers = hasPermission(context, Permissions.MANAGE_USERS);
   const canManageIntegrations = hasPermission(
     context,
     Permissions.MANAGE_INTEGRATIONS,
   );
+  const canManageAdmissions =
+    hasPermission(context, Permissions.MANAGE_WAITLIST) ||
+    hasPermission(context, Permissions.VIEW_WAITLIST);
+  const canManageEnrollment =
+    hasPermission(context, Permissions.MANAGE_ENROLLMENT_PERIODS) ||
+    hasPermission(context, Permissions.VIEW_ENROLLMENT_DASHBOARD) ||
+    hasPermission(context, Permissions.REVIEW_APPLICATIONS);
   const canApproveTimesheets = hasPermission(
     context,
     Permissions.APPROVE_TIMESHEETS,
   );
 
+  // If the user has zero admin-relevant permissions, bounce
   if (
-    !canManageUsers &&
     !canManageTenant &&
+    !canManageUsers &&
     !canManageIntegrations &&
+    !canManageAdmissions &&
+    !canManageEnrollment &&
     !canApproveTimesheets
   ) {
     redirect("/dashboard");
   }
 
+  // ── Card definitions ────────────────────────────────────
+  // WHY array-of-objects: Declarative, easy to reorder, and
+  // the visibility flag keeps permission logic out of JSX.
   const cards: Array<{
     label: string;
     description: string;
@@ -50,20 +64,7 @@ export default async function AdminPage() {
     icon: string;
     visible: boolean;
   }> = [
-    {
-      label: "Integrations",
-      description: "Connect Google Drive, Stripe, Xero, and other services.",
-      href: "/admin/integrations",
-      icon: "🔌",
-      visible: canManageIntegrations,
-    },
-    {
-      label: "User Management",
-      description: "Manage staff accounts, roles, and permissions.",
-      href: "/admin/users",
-      icon: "👥",
-      visible: canManageUsers,
-    },
+    // ── Core School Config ──────────────────────────────────
     {
       label: "School Settings",
       description: "School name, logo, timezone, and billing plan.",
@@ -73,14 +74,49 @@ export default async function AdminPage() {
     },
     {
       label: "School Branding",
-      description: "Colours, fonts, spacing.",
+      description: "Colours, fonts, and spacing.",
       href: "/admin/appearance",
-      icon: "🏫",
+      icon: "🎨",
       visible: canManageTenant,
     },
-    // Phase 9c: Timesheet Approvals
-    // WHY here: Approvers (Head of School) need quick access to
-    // pending timesheets from the admin hub.
+    {
+      label: "User Management",
+      description: "Manage staff accounts, roles, and permissions.",
+      href: "/admin/users",
+      icon: "👥",
+      visible: canManageUsers,
+    },
+    {
+      label: "Integrations",
+      description: "Connect Google Drive, Stripe, Xero, and other services.",
+      href: "/admin/integrations",
+      icon: "🔌",
+      visible: canManageIntegrations,
+    },
+
+    // ── Student Lifecycle ───────────────────────────────────
+    // WHY Admissions before Enrollment: Admissions is the
+    // pre-enrollment pipeline (inquiry → waitlist → tour →
+    // offer). Enrollment handles the formal application and
+    // onboarding that follows. Logical left-to-right flow.
+    {
+      label: "Admissions",
+      description:
+        "Waitlist pipeline, tour management, and inquiry tracking.",
+      href: "/admin/admissions",
+      icon: "📋",
+      visible: canManageAdmissions,
+    },
+    {
+      label: "Enrollment",
+      description:
+        "Enrollment periods, applications, and parent invitations.",
+      href: "/admin/enrollment",
+      icon: "📝",
+      visible: canManageEnrollment,
+    },
+
+    // ── Staff Operations ────────────────────────────────────
     {
       label: "Timesheet Approvals",
       description:
@@ -89,9 +125,6 @@ export default async function AdminPage() {
       icon: "⏱️",
       visible: canApproveTimesheets,
     },
-    // Phase 9c: Payroll Settings
-    // WHY separate card: Payroll config (frequency, defaults, provider)
-    // is a distinct concern from timesheet approval workflow.
     {
       label: "Payroll Settings",
       description:
@@ -99,6 +132,15 @@ export default async function AdminPage() {
       href: "/admin/settings/payroll",
       icon: "💰",
       visible: canManageIntegrations,
+    },
+
+    // ── Financial ───────────────────────────────────────────
+    {
+      label: "Billing",
+      description: "Subscription plan, invoices, and payment history.",
+      href: "/admin/billing",
+      icon: "💳",
+      visible: canManageTenant,
     },
   ];
 
@@ -118,7 +160,7 @@ export default async function AdminPage() {
           <Link
             key={card.href}
             href={card.href}
-            className="group rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] shadow-sm transition-all hover:border-amber-300 hover:shadow-md"
+            className="group rounded-lg border border-border bg-background p-[var(--density-card-padding)] shadow-sm transition-all hover:border-amber-300 hover:shadow-md"
           >
             <span className="text-2xl">{card.icon}</span>
             <h3 className="mt-3 text-sm font-semibold text-foreground group-hover:text-amber-700">

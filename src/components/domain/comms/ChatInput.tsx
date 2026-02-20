@@ -69,7 +69,8 @@ export function ChatInput({ channelId, onOptimisticMessage }: ChatInputProps) {
     }
 
     startTransition(async () => {
-      await sendMessage(channelId, {
+      await sendMessage({
+        channel_id: channelId,
         content: trimmed,
         message_type: "text",
       });

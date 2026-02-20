@@ -1,9 +1,16 @@
 // src/app/layout.tsx
 //
 // ============================================================
-// WattleOS V2 - Root Layout
+// WattleOS V2 — Root Layout
 // ============================================================
-
+// Reads the display cookie (set by the (app) layout on auth)
+// and applies theme class, density, font scale, brand color,
+// accent color, and sidebar style as data attributes / CSS
+// custom properties on <html>.
+//
+// WHY here and not in (app) layout: These must be on <html>
+// before first paint to prevent FOUC. The root layout is the
+// only place guaranteed to wrap every route.
 // ============================================================
 
 import { DISPLAY_COOKIE_NAME, parseDisplayCookie } from "@/types/display";
@@ -41,23 +48,28 @@ export default async function RootLayout({
   const display = parseDisplayCookie(displayCookie);
 
   // Resolve theme class.
-  // "system" means no class - CSS prefers-color-scheme handles it.
-  // For "system" to work with .dark class, we'd need client JS.
-  // For now, "system" defaults to light on the server; a tiny
-  // inline script below handles the flash-free client detection.
+  // "system" means no class — the inline script below handles it.
   const themeClass = display.theme === "dark" ? "dark" : "";
 
-  // Build brand style if custom hue is set
-  const brandStyle: React.CSSProperties = {};
+  // Build inline styles for brand + accent overrides.
+  // WHY inline style: CSS [style*="--brand-hue"] selectors in
+  // globals.css detect these and recalculate the entire palette.
+  const inlineStyle: Record<string, string> = {};
+
   if (display.brandHue !== null) {
-    (brandStyle as Record<string, string>)["--brand-hue"] = String(
-      display.brandHue,
-    );
+    inlineStyle["--brand-hue"] = String(display.brandHue);
   }
   if (display.brandSaturation !== null) {
-    (brandStyle as Record<string, string>)["--brand-sat"] =
-      `${display.brandSaturation}%`;
+    inlineStyle["--brand-sat"] = `${display.brandSaturation}%`;
   }
+  if (display.accentHue !== null) {
+    inlineStyle["--accent-hue"] = String(display.accentHue);
+  }
+  if (display.accentSaturation !== null) {
+    inlineStyle["--accent-sat"] = `${display.accentSaturation}%`;
+  }
+
+  const hasStyle = Object.keys(inlineStyle).length > 0;
 
   return (
     <html
@@ -65,7 +77,8 @@ export default async function RootLayout({
       className={themeClass}
       data-density={display.density}
       data-font-scale={display.fontScale}
-      style={Object.keys(brandStyle).length > 0 ? brandStyle : undefined}
+      data-sidebar-style={display.sidebarStyle}
+      style={hasStyle ? (inlineStyle as React.CSSProperties) : undefined}
       suppressHydrationWarning
     >
       <head>

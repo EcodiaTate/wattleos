@@ -1,16 +1,4 @@
 // src/app/(app)/classes/[id]/page.tsx
-//
-// ============================================================
-// WattleOS V2 - Class Detail Page
-// ============================================================
-// Server Component. Shows class information and the active
-// student roster with enrollment management actions.
-//
-// Why this page matters: Without it, admins can see a list of
-// classes but can't drill into one to see who's enrolled or
-// manage the roster. This is the hub for enrollment operations.
-// ============================================================
-
 import { ClassRosterActions } from "@/components/domain/sis/ClassRosterActions";
 import { getClass, getClassRoster } from "@/lib/actions/classes";
 import { getTenantContext } from "@/lib/auth/tenant-context";
@@ -18,14 +6,13 @@ import { Permissions } from "@/lib/constants/permissions";
 import { calculateAge, formatDate, formatStudentName } from "@/lib/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ChevronRight, BookOpen, DoorOpen, Users, UserPlus, Edit3 } from "lucide-react";
 
 interface ClassDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function ClassDetailPage({
-  params,
-}: ClassDetailPageProps) {
+export default async function ClassDetailPage({ params }: ClassDetailPageProps) {
   const { id } = await params;
   const context = await getTenantContext();
 
@@ -34,111 +21,67 @@ export default async function ClassDetailPage({
     getClassRoster(id),
   ]);
 
-  if (classResult.error || !classResult.data) {
-    notFound();
-  }
+  if (classResult.error || !classResult.data) notFound();
 
   const classData = classResult.data;
   const roster = rosterResult.data ?? [];
-  const canManageEnrollment = context.permissions.includes(
-    Permissions.MANAGE_ENROLLMENT,
-  );
-  const canManageStudents = context.permissions.includes(
-    Permissions.MANAGE_STUDENTS,
-  );
+  const canManageEnrollment = context.permissions.includes(Permissions.MANAGE_ENROLLMENT);
+  const canManageStudents = context.permissions.includes(Permissions.MANAGE_STUDENTS);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-[var(--density-section-gap)] animate-fade-in">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Link href="/classes" className="hover:text-foreground">
-          Classes
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">{classData.name}</span>
+        <Link href="/classes" className="hover:text-primary transition-colors">Classes</Link>
+        <ChevronRight className="h-3 w-3 opacity-50" />
+        <span className="text-foreground font-medium">{classData.name}</span>
       </nav>
 
       {/* ── Class Header ─────────────────────────────────── */}
-      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
-        <div className="flex items-start justify-between">
-          <div>
+      <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold text-foreground">
+              <h1 className="text-2xl font-bold text-foreground">
                 {classData.name}
               </h1>
               <span
-                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                  classData.is_active
-                    ? "bg-green-50 text-green-700"
-                    : "bg-muted text-muted-foreground"
-                }`}
+                className="status-badge"
+                style={{
+                  '--badge-bg': classData.is_active ? 'var(--attendance-present)' : 'var(--muted)',
+                  '--badge-fg': classData.is_active ? 'var(--attendance-present-fg)' : 'var(--muted-foreground)',
+                } as React.CSSProperties}
               >
                 {classData.is_active ? "Active" : "Inactive"}
               </span>
             </div>
 
-            <div className="mt-2 flex flex-wrap gap-[var(--density-card-padding)] text-sm text-muted-foreground">
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
               {classData.cycle_level && (
-                <span className="flex items-center gap-1">
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                    />
-                  </svg>
+                <span className="flex items-center gap-1.5">
+                  <BookOpen className="h-4 w-4 text-primary" />
                   Ages {classData.cycle_level}
                 </span>
               )}
               {classData.room && (
-                <span className="flex items-center gap-1">
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
+                <span className="flex items-center gap-1.5">
+                  <DoorOpen className="h-4 w-4 text-primary" />
                   {classData.room}
                 </span>
               )}
-              <span className="flex items-center gap-1">
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                {roster.length} student{roster.length !== 1 ? "s" : ""} enrolled
+              <span className="flex items-center gap-1.5">
+                <Users className="h-4 w-4 text-primary" />
+                <span className="tabular-nums font-medium text-foreground">{roster.length}</span> student{roster.length !== 1 ? "s" : ""}
               </span>
             </div>
           </div>
 
-          {/* Edit button */}
           {(canManageEnrollment || canManageStudents) && (
             <Link
               href={`/classes/${id}/edit`}
-              className="rounded-lg border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition-all hover:bg-muted"
             >
+              <Edit3 className="h-4 w-4" />
               Edit Class
             </Link>
           )}
@@ -146,87 +89,63 @@ export default async function ClassDetailPage({
       </div>
 
       {/* ── Student Roster ───────────────────────────────── */}
-      <div className="rounded-lg borderborder-border bg-background">
-        <div className="flex items-center justify-between border-bborder-border px-6 py-4">
-          <h2 className="text-lg font-semibold text-foreground">
-            Student Roster
-          </h2>
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="flex items-center justify-between border-b border-border bg-muted/30 px-6 py-4">
+          <h2 className="text-lg font-bold text-foreground">Student Roster</h2>
           {canManageEnrollment && (
             <Link
               href={`/classes/${id}/enroll`}
-              className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-sm transition-all hover:opacity-90"
             >
-              + Enroll Student
+              <UserPlus className="h-4 w-4" />
+              Enroll Student
             </Link>
           )}
         </div>
 
         {roster.length === 0 ? (
-          <div className="p-12 text-center">
-            <svg
-              className="mx-auto h-[var(--density-button-height)] w-12 text-gray-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-            <p className="mt-3 text-sm text-muted-foreground">
+          <div className="py-20 text-center animate-scale-in">
+            <Users className="mx-auto h-12 w-12 text-[var(--empty-state-icon)] opacity-20" />
+            <p className="mt-4 text-sm text-[var(--empty-state-fg)]">
               No students enrolled in this class yet.
             </p>
-            {canManageEnrollment && (
-              <Link
-                href={`/classes/${id}/enroll`}
-                className="mt-4 inline-flex items-center text-sm font-medium text-primary hover:text-amber-700"
-              >
-                Enroll your first student →
-              </Link>
-            )}
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
-            {roster.map((enrollment) => {
+          <div className="divide-y divide-border">
+            {roster.map((enrollment, idx) => {
               const student = enrollment.student;
-              const displayName = formatStudentName(
-                student.first_name,
-                student.last_name,
-                student.preferred_name,
-              );
+              const displayName = formatStudentName(student.first_name, student.last_name, student.preferred_name);
               const age = calculateAge(student.dob);
+              // Deterministic avatar index based on name hash (logic assumed in utils or manual)
+              const avatarIdx = (student.first_name.length + student.last_name.length) % 8;
 
               return (
                 <div
                   key={enrollment.id}
-                  className="flex items-center justify-between px-6 py-4 hover:bg-background"
+                  className="group flex items-center justify-between px-6 py-4 transition-colors hover:bg-muted/30"
                 >
-                  <div className="flex items-center gap-[var(--density-card-padding)]">
-                    {/* Avatar placeholder */}
-                    <div className="flex h-[var(--density-button-height)] w-10 items-center justify-center rounded-full bg-amber-100 text-sm font-medium text-amber-700">
-                      {student.first_name[0]}
-                      {student.last_name[0]}
+                  <div className="flex items-center gap-4">
+                    <div 
+                      className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm"
+                      style={{ backgroundColor: `var(--avatar-${avatarIdx})` }}
+                    >
+                      {student.first_name[0]}{student.last_name[0]}
                     </div>
                     <div>
                       <Link
                         href={`/students/${student.id}`}
-                        className="text-sm font-medium text-foreground hover:text-amber-700"
+                        className="text-sm font-bold text-foreground hover:text-primary transition-colors"
                       >
                         {displayName}
                       </Link>
-                      <div className="flex gap-3 text-xs text-muted-foreground">
+                      <div className="flex gap-3 text-xs text-muted-foreground tabular-nums">
                         {age !== null && <span>Age {age}</span>}
-                        <span>
-                          Enrolled {formatDate(enrollment.start_date)}
-                        </span>
+                        <span className="opacity-60">•</span>
+                        <span>Enrolled {formatDate(enrollment.start_date)}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Roster actions (withdraw/transfer) */}
                   {canManageEnrollment && (
                     <ClassRosterActions
                       studentId={student.id}

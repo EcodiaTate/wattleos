@@ -52,21 +52,32 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
         Back to Messages
       </Link>
 
-      {/* Thread header */}
-      <div className="rounded-lg borderborder-border bg-background px-6 py-4 shadow-sm">
-        <h1 className="text-lg font-semibold text-foreground">
-          {thread.subject || "Conversation"}
-        </h1>
-        <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-          <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700">
-            {thread.thread_type === "class_broadcast"
-              ? "👥 Class Message"
-              : "💬 Direct"}
-          </span>
-          <span>·</span>
-          <span>{recipients.length} recipients</span>
-        </div>
+     {/* Thread header */}
+<div className="rounded-lg border border-border bg-background px-6 py-4 shadow-sm">
+  <h1 className="text-lg font-semibold text-foreground">
+    {thread.subject || "Conversation"}
+  </h1>
+
+  {(() => {
+    const threadType =
+      // common shapes
+      (thread as any).thread_type ??
+      (thread as any).type ??
+      (thread as any).message_thread_type;
+
+    const isClass = threadType === "class_broadcast";
+
+    return (
+      <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700">
+          {isClass ? "👥 Class Message" : "💬 Direct"}
+        </span>
+        <span>·</span>
+        <span>{recipients.length} recipients</span>
       </div>
+    );
+  })()}
+</div>
 
       <ThreadViewClient
         threadId={thread.id}

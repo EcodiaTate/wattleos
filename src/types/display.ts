@@ -1,299 +1,356 @@
 // src/types/display.ts
 //
 // ============================================================
-// WattleOS V2 - Display & Theme Configuration Types
+// WattleOS V2 — Display & Appearance Types
 // ============================================================
-// Shared types for the configurable design system.
+// Shared types for tenant appearance settings AND per-user
+// display preferences.
 //
-// THREE LAYERS OF CONFIGURATION:
-//   1. Platform defaults (hardcoded in globals.css + here)
-//   2. Tenant settings (admin configures via tenants.settings.display)
-//   3. User preferences (individual override via tenant_users.display_preferences)
+// Used by:
+//   - Root layout (reads cookie → applies data attributes)
+//   - Admin appearance page (reads/writes via server action)
+//   - User display settings page (reads/writes user overrides)
+//   - Server actions (persist to tenants.settings JSONB / cookie)
 //
-// Resolution order: user pref > tenant setting > platform default
+// TWO COOKIES:
+//   1. wattle-display   — effective values the root layout reads
+//      (theme, density, fontScale, brand, accent, sidebar)
+//   2. wattle-user-prefs — tracks whether the user explicitly
+//      chose theme/density/fontScale or is using school default.
+//      WHY separate: The main cookie always holds the effective
+//      value ("dark"), but we need to know if that's because the
+//      user chose dark or because the school default is dark.
+//      The UI shows "(using school default)" when null.
 // ============================================================
 
 // ============================================================
-// Enums / Unions
+// Core Types
 // ============================================================
 
 export type DensityMode = "compact" | "comfortable" | "spacious";
-export type FontScale = "sm" | "base" | "lg" | "xl";
 export type ThemeMode = "light" | "dark" | "system";
-
-export const DENSITY_OPTIONS: {
-  value: DensityMode;
-  label: string;
-  description: string;
-}[] = [
-  {
-    value: "compact",
-    label: "Compact",
-    description: "Denser layout - fits more on screen",
-  },
-  {
-    value: "comfortable",
-    label: "Comfortable",
-    description: "Balanced spacing - the default",
-  },
-  {
-    value: "spacious",
-    label: "Spacious",
-    description: "More breathing room - larger touch targets",
-  },
-];
-
-export const FONT_SCALE_OPTIONS: { value: FontScale; label: string }[] = [
-  { value: "sm", label: "Small" },
-  { value: "base", label: "Default" },
-  { value: "lg", label: "Large" },
-  { value: "xl", label: "Extra Large" },
-];
-
-export const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-  { value: "system", label: "System" },
-];
-
-// ============================================================
-// Tenant Display Settings (Admin-configured, per-school)
-// ============================================================
-// Stored in: tenants.settings.display (JSONB)
-// Set by: Admin in School Settings > Appearance
-// Permission: manage_tenant_settings
-// ============================================================
+export type FontScale = "sm" | "base" | "lg" | "xl";
+export type SidebarStyle = "light" | "dark" | "brand";
 
 export interface TenantDisplaySettings {
-  /** Brand hue override (0-360). null = use default wattle amber (38) */
+  /** Primary brand color hue (0–360). null = default wattle amber (38). */
   brandHue: number | null;
-  /** Brand saturation override (0-100). null = use default (92) */
+  /** Primary brand color saturation (0–100). null = default (92). */
   brandSaturation: number | null;
-  /** Default density for all users in this tenant */
+  /** Accent color hue (0–360). null = default eucalyptus (152). */
+  accentHue: number | null;
+  /** Accent color saturation (0–100). null = default (35). */
+  accentSaturation: number | null;
+  /** Sidebar visual style. */
+  sidebarStyle: SidebarStyle;
+  /** Default UI density for all users (user can override). */
   defaultDensity: DensityMode;
-  /** Default theme for all users in this tenant */
+  /** Default color theme for all users (user can override). */
   defaultTheme: ThemeMode;
-  /** School favicon URL */
-  faviconUrl: string | null;
 }
 
-export const DEFAULT_TENANT_DISPLAY: TenantDisplaySettings = {
+/**
+ * Per-user display overrides. null = "use school default".
+ * Stored in a separate cookie so the UI can distinguish
+ * "user explicitly chose light" from "using school default light".
+ */
+export interface UserDisplayPreferences {
+  theme: ThemeMode | null;
+  density: DensityMode | null;
+  fontScale: FontScale | null;
+}
+
+// ============================================================
+// Defaults
+// ============================================================
+
+export const DEFAULT_DISPLAY_SETTINGS: TenantDisplaySettings = {
   brandHue: null,
   brandSaturation: null,
+  accentHue: null,
+  accentSaturation: null,
+  sidebarStyle: "light",
   defaultDensity: "comfortable",
   defaultTheme: "light",
-  faviconUrl: null,
 };
 
-// ============================================================
-// User Display Preferences (Per-user override)
-// ============================================================
-// Stored in: tenant_users.display_preferences (JSONB)
-// Set by: User in their profile settings
-// ============================================================
-
-export interface UserDisplayPreferences {
-  /** Theme override. null = use tenant default */
-  theme: ThemeMode | null;
-  /** Density override. null = use tenant default */
-  density: DensityMode | null;
-  /** Font scale override. null = 'base' */
-  fontScale: FontScale | null;
-  /** Sidebar collapsed by default */
-  sidebarCollapsed: boolean;
-}
-
-export const DEFAULT_USER_DISPLAY: UserDisplayPreferences = {
+export const DEFAULT_USER_PREFERENCES: UserDisplayPreferences = {
   theme: null,
   density: null,
   fontScale: null,
-  sidebarCollapsed: false,
 };
 
 // ============================================================
-// Resolved Display Config
+// Main Display Cookie (effective values for root layout)
 // ============================================================
-// Computed from: merge(platform defaults, tenant settings, user prefs)
-// This is what layout.tsx actually uses and what gets written
-// into the wattle-display cookie.
-// ============================================================
+// WHY a cookie: The root layout is a server component that
+// needs display config BEFORE auth runs (it sets data attributes
+// on <html> to prevent FOUC). A cookie is readable in RSC
+// without a database call. The (app) layout sets/refreshes
+// this cookie when the user authenticates.
 
-export interface ResolvedDisplayConfig {
+export const DISPLAY_COOKIE_NAME = "wattle-display";
+
+/** Shape stored in the main display cookie (flat, minimal). */
+export interface DisplayCookieData {
   theme: ThemeMode;
   density: DensityMode;
   fontScale: FontScale;
   brandHue: number | null;
   brandSaturation: number | null;
-  sidebarCollapsed: boolean;
+  accentHue: number | null;
+  accentSaturation: number | null;
+  sidebarStyle: SidebarStyle;
 }
 
-export const DEFAULT_RESOLVED_DISPLAY: ResolvedDisplayConfig = {
+/** Default cookie values (used when cookie is missing or invalid). */
+export const DEFAULT_DISPLAY_COOKIE: DisplayCookieData = {
   theme: "light",
   density: "comfortable",
   fontScale: "base",
   brandHue: null,
   brandSaturation: null,
-  sidebarCollapsed: false,
+  accentHue: null,
+  accentSaturation: null,
+  sidebarStyle: "light",
 };
 
 /**
- * Resolves the display configuration by merging tenant + user layers.
- * Called in the (app) layout server component after fetching both.
- */
-export function resolveDisplayConfig(
-  tenant: TenantDisplaySettings | null,
-  user: UserDisplayPreferences | null,
-): ResolvedDisplayConfig {
-  const t = tenant ?? DEFAULT_TENANT_DISPLAY;
-  const u = user ?? DEFAULT_USER_DISPLAY;
-
-  return {
-    theme: u.theme ?? t.defaultTheme,
-    density: u.density ?? t.defaultDensity,
-    fontScale: u.fontScale ?? "base",
-    brandHue: t.brandHue,
-    brandSaturation: t.brandSaturation,
-    sidebarCollapsed: u.sidebarCollapsed,
-  };
-}
-
-/**
- * Parses the raw JSONB from tenants.settings.display into typed form.
- * Returns defaults for any missing or invalid fields.
- */
-export function parseTenantDisplaySettings(
-  raw: unknown,
-): TenantDisplaySettings {
-  if (!raw || typeof raw !== "object") return DEFAULT_TENANT_DISPLAY;
-
-  const obj = raw as Record<string, unknown>;
-
-  return {
-    brandHue:
-      typeof obj.brandHue === "number" &&
-      obj.brandHue >= 0 &&
-      obj.brandHue <= 360
-        ? obj.brandHue
-        : null,
-    brandSaturation:
-      typeof obj.brandSaturation === "number" &&
-      obj.brandSaturation >= 0 &&
-      obj.brandSaturation <= 100
-        ? obj.brandSaturation
-        : null,
-    defaultDensity: isDensity(obj.defaultDensity)
-      ? obj.defaultDensity
-      : "comfortable",
-    defaultTheme: isTheme(obj.defaultTheme) ? obj.defaultTheme : "light",
-    faviconUrl: typeof obj.faviconUrl === "string" ? obj.faviconUrl : null,
-  };
-}
-
-/**
- * Parses the raw JSONB from tenant_users.display_preferences into typed form.
- */
-export function parseUserDisplayPreferences(
-  raw: unknown,
-): UserDisplayPreferences {
-  if (!raw || typeof raw !== "object") return DEFAULT_USER_DISPLAY;
-
-  const obj = raw as Record<string, unknown>;
-
-  return {
-    theme: isTheme(obj.theme) ? obj.theme : null,
-    density: isDensity(obj.density) ? obj.density : null,
-    fontScale: isFontScale(obj.fontScale) ? obj.fontScale : null,
-    sidebarCollapsed:
-      typeof obj.sidebarCollapsed === "boolean" ? obj.sidebarCollapsed : false,
-  };
-}
-
-// ============================================================
-// Type Guards
-// ============================================================
-
-function isDensity(v: unknown): v is DensityMode {
-  return v === "compact" || v === "comfortable" || v === "spacious";
-}
-
-function isTheme(v: unknown): v is ThemeMode {
-  return v === "light" || v === "dark" || v === "system";
-}
-
-function isFontScale(v: unknown): v is FontScale {
-  return v === "sm" || v === "base" || v === "lg" || v === "xl";
-}
-
-// ============================================================
-// Cookie Shape
-// ============================================================
-// The resolved config is serialized to a cookie so the root
-// layout (which can't call getTenantContext) can apply it.
-// ============================================================
-
-export const DISPLAY_COOKIE_NAME = "wattle-display";
-export const DISPLAY_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
-
-/**
- * Serialize resolved config to a cookie-safe JSON string.
- */
-export function serializeDisplayCookie(config: ResolvedDisplayConfig): string {
-  return JSON.stringify(config);
-}
-
-/**
- * Parse a display cookie back to ResolvedDisplayConfig.
- * Returns defaults if parsing fails.
+ * Parse the main display cookie string into typed data.
+ * Returns defaults for any missing/invalid fields.
+ * Never throws — always returns a valid DisplayCookieData.
  */
 export function parseDisplayCookie(
-  cookieValue: string | undefined,
-): ResolvedDisplayConfig {
-  if (!cookieValue) return DEFAULT_RESOLVED_DISPLAY;
+  raw: string | undefined | null,
+): DisplayCookieData {
+  if (!raw) return { ...DEFAULT_DISPLAY_COOKIE };
 
   try {
-    const parsed = JSON.parse(cookieValue);
+    const parsed = JSON.parse(raw) as Partial<DisplayCookieData>;
+
     return {
-      theme: isTheme(parsed.theme) ? parsed.theme : "light",
-      density: isDensity(parsed.density) ? parsed.density : "comfortable",
-      fontScale: isFontScale(parsed.fontScale) ? parsed.fontScale : "base",
-      brandHue: typeof parsed.brandHue === "number" ? parsed.brandHue : null,
+      theme:
+        typeof parsed.theme === "string" &&
+        ["light", "dark", "system"].includes(parsed.theme)
+          ? (parsed.theme as ThemeMode)
+          : DEFAULT_DISPLAY_COOKIE.theme,
+      density:
+        typeof parsed.density === "string" &&
+        ["compact", "comfortable", "spacious"].includes(parsed.density)
+          ? (parsed.density as DensityMode)
+          : DEFAULT_DISPLAY_COOKIE.density,
+      fontScale:
+        typeof parsed.fontScale === "string" &&
+        ["sm", "base", "lg", "xl"].includes(parsed.fontScale)
+          ? (parsed.fontScale as FontScale)
+          : DEFAULT_DISPLAY_COOKIE.fontScale,
+      brandHue:
+        typeof parsed.brandHue === "number" ? parsed.brandHue : null,
       brandSaturation:
         typeof parsed.brandSaturation === "number"
           ? parsed.brandSaturation
           : null,
-      sidebarCollapsed:
-        typeof parsed.sidebarCollapsed === "boolean"
-          ? parsed.sidebarCollapsed
-          : false,
+      accentHue:
+        typeof parsed.accentHue === "number" ? parsed.accentHue : null,
+      accentSaturation:
+        typeof parsed.accentSaturation === "number"
+          ? parsed.accentSaturation
+          : null,
+      sidebarStyle:
+        typeof parsed.sidebarStyle === "string" &&
+        ["light", "dark", "brand"].includes(parsed.sidebarStyle)
+          ? (parsed.sidebarStyle as SidebarStyle)
+          : DEFAULT_DISPLAY_COOKIE.sidebarStyle,
     };
   } catch {
-    return DEFAULT_RESOLVED_DISPLAY;
+    return { ...DEFAULT_DISPLAY_COOKIE };
   }
 }
 
-// ============================================================
-// Avatar Helpers
-// ============================================================
+/**
+ * Serialize display data to a cookie-safe JSON string.
+ * Used by the (app) layout when refreshing the cookie.
+ */
+export function serializeDisplayCookie(data: DisplayCookieData): string {
+  return JSON.stringify(data);
+}
 
 /**
- * Returns a CSS variable name for a deterministic avatar color.
- * Uses the 8-color palette from globals.css (--avatar-0 through --avatar-7).
+ * Build a DisplayCookieData from TenantDisplaySettings + user overrides.
+ * Called in the (app) layout to merge tenant defaults with
+ * per-user preferences before writing the cookie.
  */
-export function getAvatarColor(name: string): string {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
+export function buildDisplayCookie(
+  tenantSettings: TenantDisplaySettings,
+  userOverrides?: {
+    theme?: ThemeMode;
+    density?: DensityMode;
+    fontScale?: FontScale;
+  },
+): DisplayCookieData {
+  return {
+    theme: userOverrides?.theme ?? tenantSettings.defaultTheme,
+    density: userOverrides?.density ?? tenantSettings.defaultDensity,
+    fontScale: userOverrides?.fontScale ?? "base",
+    brandHue: tenantSettings.brandHue,
+    brandSaturation: tenantSettings.brandSaturation,
+    accentHue: tenantSettings.accentHue,
+    accentSaturation: tenantSettings.accentSaturation,
+    sidebarStyle: tenantSettings.sidebarStyle,
+  };
+}
+
+// ============================================================
+// User Preferences Cookie (override tracking)
+// ============================================================
+// WHY separate: The main cookie always stores the *effective*
+// value ("dark"). But we need to know if that's because the
+// user explicitly chose dark, or because the school default is
+// dark. null = "use school default" in the UI.
+
+export const USER_PREFS_COOKIE_NAME = "wattle-user-prefs";
+
+/**
+ * Parse the user preferences cookie.
+ * Returns all-null (use school defaults) if missing or invalid.
+ */
+export function parseUserPrefsCookie(
+  raw: string | undefined | null,
+): UserDisplayPreferences {
+  if (!raw) return { ...DEFAULT_USER_PREFERENCES };
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<UserDisplayPreferences>;
+
+    return {
+      theme:
+        parsed.theme === null
+          ? null
+          : typeof parsed.theme === "string" &&
+              ["light", "dark", "system"].includes(parsed.theme)
+            ? (parsed.theme as ThemeMode)
+            : null,
+      density:
+        parsed.density === null
+          ? null
+          : typeof parsed.density === "string" &&
+              ["compact", "comfortable", "spacious"].includes(parsed.density)
+            ? (parsed.density as DensityMode)
+            : null,
+      fontScale:
+        parsed.fontScale === null
+          ? null
+          : typeof parsed.fontScale === "string" &&
+              ["sm", "base", "lg", "xl"].includes(parsed.fontScale)
+            ? (parsed.fontScale as FontScale)
+            : null,
+    };
+  } catch {
+    return { ...DEFAULT_USER_PREFERENCES };
   }
-  const index = Math.abs(hash) % 8;
-  return `var(--avatar-${index})`;
 }
 
 /**
- * Returns initials from a name (1-2 characters).
+ * Serialize user preferences to a cookie-safe JSON string.
  */
-export function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 0 || parts[0] === "") return "?";
-  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+export function serializeUserPrefsCookie(
+  data: UserDisplayPreferences,
+): string {
+  return JSON.stringify(data);
 }
+
+// ============================================================
+// Option Metadata (for UI selectors)
+// ============================================================
+
+export const DENSITY_OPTIONS: ReadonlyArray<{
+  value: DensityMode;
+  label: string;
+  description: string;
+}> = [
+  {
+    value: "compact",
+    label: "Compact",
+    description: "Dense layout for power users and small screens",
+  },
+  {
+    value: "comfortable",
+    label: "Comfortable",
+    description: "Balanced for everyday use",
+  },
+  {
+    value: "spacious",
+    label: "Spacious",
+    description: "Touch-optimised, accessibility-first",
+  },
+];
+
+export const THEME_OPTIONS: ReadonlyArray<{
+  value: ThemeMode;
+  label: string;
+}> = [
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+  { value: "system", label: "System" },
+];
+
+export const FONT_SCALE_OPTIONS: ReadonlyArray<{
+  value: FontScale;
+  label: string;
+  description: string;
+}> = [
+  { value: "sm", label: "Small", description: "Fits more content on screen" },
+  { value: "base", label: "Default", description: "Standard text size" },
+  { value: "lg", label: "Large", description: "Easier to read" },
+  { value: "xl", label: "Extra Large", description: "Maximum readability" },
+];
+
+export const SIDEBAR_STYLE_OPTIONS: ReadonlyArray<{
+  value: SidebarStyle;
+  label: string;
+  description: string;
+}> = [
+  { value: "light", label: "Light", description: "Clean and minimal" },
+  { value: "dark", label: "Dark", description: "High contrast sidebar" },
+  {
+    value: "brand",
+    label: "Brand",
+    description: "Sidebar uses your brand colour",
+  },
+];
+
+// ============================================================
+// Color Presets
+// ============================================================
+
+export interface ColorPreset {
+  label: string;
+  hue: number;
+  saturation: number;
+}
+
+/** Curated brand colour presets. School-appropriate, WCAG-tested. */
+export const BRAND_COLOR_PRESETS: ReadonlyArray<ColorPreset> = [
+  { label: "Wattle Gold", hue: 38, saturation: 92 },
+  { label: "Forest", hue: 152, saturation: 50 },
+  { label: "Ocean", hue: 210, saturation: 65 },
+  { label: "Navy", hue: 220, saturation: 60 },
+  { label: "Berry", hue: 270, saturation: 50 },
+  { label: "Rose", hue: 340, saturation: 60 },
+  { label: "Teal", hue: 180, saturation: 50 },
+  { label: "Terracotta", hue: 15, saturation: 70 },
+  { label: "Sage", hue: 140, saturation: 25 },
+  { label: "Slate", hue: 215, saturation: 20 },
+];
+
+/** Curated accent colour presets. Complement the brand colour. */
+export const ACCENT_COLOR_PRESETS: ReadonlyArray<ColorPreset> = [
+  { label: "Eucalyptus", hue: 152, saturation: 35 },
+  { label: "Sky", hue: 200, saturation: 45 },
+  { label: "Lavender", hue: 260, saturation: 35 },
+  { label: "Coral", hue: 10, saturation: 50 },
+  { label: "Mint", hue: 165, saturation: 40 },
+  { label: "Marigold", hue: 45, saturation: 60 },
+  { label: "Plum", hue: 290, saturation: 35 },
+  { label: "Dusty Rose", hue: 350, saturation: 30 },
+];

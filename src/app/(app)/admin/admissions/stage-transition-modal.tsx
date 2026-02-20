@@ -45,23 +45,20 @@ const STAGE_LABELS: Record<string, string> = {
 // Stages that need special handling (not simple transitions)
 const SPECIAL_STAGES: WaitlistStage[] = ["offered"];
 
-interface StageConfig {
+export interface StageConfig {
   label: string;
   color: string;
   textColor: string;
-  borderColor: string;
+  // Note: borderColor is removed as we now use standard var(--border) 
+  // or derived styles in the V2 design system
 }
 
 interface StageTransitionModalProps {
   entry: WaitlistEntry;
   allowedTargets: WaitlistStage[];
-  stageConfig: Record<string, StageConfig>;
+  stageConfig: Record<string, StageConfig>; // This now matches Kanban's Record
   onClose: () => void;
-  onTransitionComplete: (
-    entryId: string,
-    fromStage: WaitlistStage,
-    toStage: WaitlistStage,
-  ) => void;
+  onTransitionComplete: (entryId: string, from: WaitlistStage, to: WaitlistStage) => void;
 }
 
 export function StageTransitionModal({

@@ -21,19 +21,17 @@ export default async function CurriculumPage() {
   const templates = templatesResult.data ?? [];
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Curriculum</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Manage your school&apos;s curriculum frameworks
-          </p>
-        </div>
+    <div className="space-y-[var(--density-section-gap)] animate-fade-in">
+      <div className="animate-fade-in-down">
+        <h1 className="text-2xl font-bold text-foreground">Curriculum</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Manage your school&apos;s curriculum frameworks
+        </p>
       </div>
 
       {/* Existing instances */}
       {instances.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-[var(--density-md)]">
           <h2 className="text-lg font-semibold text-foreground">
             Your Curricula
           </h2>
@@ -42,7 +40,7 @@ export default async function CurriculumPage() {
               <Link
                 key={instance.id}
                 href={`/pedagogy/curriculum/${instance.id}`}
-                className="block rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] transition-shadow hover:shadow-md"
+                className="card-interactive block rounded-lg border border-border bg-card p-[var(--density-card-padding)]"
               >
                 <h3 className="text-sm font-semibold text-foreground">
                   {instance.name}
@@ -54,16 +52,23 @@ export default async function CurriculumPage() {
                 )}
                 <div className="mt-3 flex items-center gap-2">
                   <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                      instance.is_active
-                        ? "bg-green-100 text-green-700"
-                        : "bg-muted text-muted-foreground"
-                    }`}
+                    className="status-badge"
+                    style={{
+                      '--badge-bg': instance.is_active ? 'var(--success)' : 'var(--muted)',
+                      '--badge-fg': instance.is_active ? 'var(--success-foreground)' : 'var(--muted-foreground)',
+                    } as React.CSSProperties}
                   >
                     {instance.is_active ? "Active" : "Inactive"}
                   </span>
+                  
                   {instance.source_template_id && (
-                    <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">
+                    <span 
+                      className="status-badge status-badge-plain"
+                      style={{
+                        '--badge-bg': 'var(--curriculum-activity-bg)',
+                        '--badge-fg': 'var(--curriculum-activity-fg)',
+                      } as React.CSSProperties}
+                    >
                       From Template
                     </span>
                   )}
@@ -76,31 +81,37 @@ export default async function CurriculumPage() {
 
       {/* Fork from template or create blank */}
       {canManage && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-foreground">
-            {instances.length > 0 ? "Add Another Curriculum" : "Get Started"}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {instances.length > 0
-              ? "Fork from a standard framework or start from scratch."
-              : "Choose a Montessori curriculum framework to get started instantly, or build your own from scratch."}
-          </p>
+        <div className="space-y-[var(--density-md)]">
+          <div className="border-t border-border pt-[var(--density-xl)]">
+            <h2 className="text-lg font-semibold text-foreground">
+              {instances.length > 0 ? "Add Another Curriculum" : "Get Started"}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {instances.length > 0
+                ? "Fork from a standard framework or start from scratch."
+                : "Choose a Montessori curriculum framework to get started instantly, or build your own from scratch."}
+            </p>
+          </div>
 
           {templates.length > 0 && (
             <div className="grid gap-[var(--density-card-padding)] sm:grid-cols-2 lg:grid-cols-3">
               {templates.map((template) => (
                 <div
                   key={template.id}
-                  className="rounded-lg border border-dashed border-purple-300 bg-purple-50 p-[var(--density-card-padding)]"
+                  style={{
+                    backgroundColor: 'var(--curriculum-activity-bg)',
+                    borderColor: 'var(--curriculum-activity)',
+                  } as React.CSSProperties}
+                  className="rounded-lg border border-dashed p-[var(--density-card-padding)] animate-scale-in"
                 >
-                  <h3 className="text-sm font-semibold text-purple-900">
+                  <h3 className="text-sm font-semibold" style={{ color: 'var(--curriculum-activity-fg)' }}>
                     {template.name}
                   </h3>
-                  <p className="mt-1 text-xs text-purple-700">
+                  <p className="mt-1 text-xs opacity-80" style={{ color: 'var(--curriculum-activity-fg)' }}>
                     {template.framework} &middot; Ages {template.age_range}
                   </p>
                   {template.description && (
-                    <p className="mt-2 line-clamp-2 text-xs text-purple-600">
+                    <p className="mt-2 line-clamp-2 text-xs opacity-70" style={{ color: 'var(--curriculum-activity-fg)' }}>
                       {template.description}
                     </p>
                   )}
@@ -114,7 +125,7 @@ export default async function CurriculumPage() {
               ))}
 
               {/* Create blank option */}
-              <div className="rounded-lg border border-dashed border-gray-300 bg-background p-[var(--density-card-padding)]">
+              <div className="rounded-lg border border-dashed border-border bg-card p-[var(--density-card-padding)] animate-scale-in stagger-1">
                 <h3 className="text-sm font-semibold text-foreground">
                   Start from Scratch
                 </h3>
@@ -133,8 +144,12 @@ export default async function CurriculumPage() {
 
       {/* Empty state for non-managers */}
       {!canManage && instances.length === 0 && (
-        <div className="rounded-lg borderborder-border bg-background p-8 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="rounded-xl border border-border bg-card p-12 text-center animate-fade-in">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+             {/* Use your --empty-state-icon token if an icon were here */}
+             <span className="text-xl text-[var(--empty-state-icon)]">?</span>
+          </div>
+          <p className="text-sm text-[var(--empty-state-fg)] max-w-sm mx-auto">
             No curriculum has been set up yet. Ask your school administrator to
             configure one.
           </p>

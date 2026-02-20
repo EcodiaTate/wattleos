@@ -1,15 +1,27 @@
 import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 
+// ============================================================
+// Dashboard Page — Server Component
+// ============================================================
+// WHY server component: All data fetching happens on the server.
+// No client interactivity needed — quick actions are plain <a> links.
+// Permission checks run server-side via getTenantContext().
+// ============================================================
+
 export default async function DashboardPage() {
   const context = await getTenantContext();
+  const greeting = getTimeGreeting();
+
+  // Collect which quick actions this user can see
+  const actions = buildQuickActions(context);
 
   return (
-    <div className="space-y-8">
-      {/* Welcome header */}
-      <div>
+    <div className="space-y-[var(--density-section-gap)] animate-fade-in">
+      {/* ── Welcome Header ── */}
+      <div className="animate-fade-in-down">
         <h1 className="text-2xl font-bold text-foreground">
-          Welcome back
+          {greeting}
           {context.user.first_name ? `, ${context.user.first_name}` : ""}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -17,190 +29,239 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Quick action cards */}
-      <div className="grid gap-[var(--density-card-padding)] sm:grid-cols-2 lg:grid-cols-3">
-        {hasPermission(context, Permissions.CREATE_OBSERVATION) && (
-          <QuickActionCard
-            title="New Observation"
-            description="Capture a learning moment"
-            href="/pedagogy/observations/new"
-            icon="eye"
-            color="amber"
-          />
-        )}
+      {/* ── Quick Actions ── */}
+      {actions.length > 0 && (
+        <section aria-label="Quick actions">
+          <div className="grid gap-[var(--density-card-padding)] sm:grid-cols-2 lg:grid-cols-3">
+            {actions.map((action) => (
+              <QuickActionCard key={action.href} {...action} />
+            ))}
+          </div>
+        </section>
+      )}
 
-        {hasPermission(context, Permissions.MANAGE_ATTENDANCE) && (
-          <QuickActionCard
-            title="Today's Attendance"
-            description="Mark the daily roll"
-            href="/attendance"
-            icon="clipboard"
-            color="green"
-          />
-        )}
+      {/* ── Today at a Glance ── */}
+      <section aria-label="Today at a glance">
+        <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm">
+          <div className="mb-4">
+            <h2 className="text-base font-semibold text-foreground">
+              Today at a Glance
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {new Intl.DateTimeFormat("en-AU", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+                timeZone: context.tenant.timezone ?? "Australia/Brisbane",
+              }).format(new Date())}
+            </p>
+          </div>
 
-        {hasPermission(context, Permissions.VIEW_STUDENTS) && (
-          <QuickActionCard
-            title="Student Profiles"
-            description="View and manage students"
-            href="/students"
-            icon="users"
-            color="blue"
-          />
-        )}
+          <div className="grid gap-[var(--density-md)] sm:grid-cols-2 lg:grid-cols-4">
+            {hasPermission(context, Permissions.MANAGE_ATTENDANCE) && (
+              <GlanceCard
+                label="Attendance"
+                href="/attendance"
+                colorVar="--attendance-present"
+                description="Mark today's roll"
+              />
+            )}
 
-        {hasPermission(context, Permissions.MANAGE_CURRICULUM) && (
-          <QuickActionCard
-            title="Curriculum"
-            description="Manage learning outcomes"
-            href="/pedagogy/curriculum"
-            icon="book"
-            color="purple"
-          />
-        )}
+            {hasPermission(context, Permissions.CREATE_OBSERVATION) && (
+              <GlanceCard
+                label="Observations"
+                href="/pedagogy/observations"
+                colorVar="--curriculum-area"
+                description="View recent observations"
+              />
+            )}
 
-        {hasPermission(context, Permissions.MANAGE_MASTERY) && (
-          <QuickActionCard
-            title="Mastery Tracking"
-            description="Update student progress"
-            href="/pedagogy/mastery"
-            icon="chart"
-            color="teal"
-          />
-        )}
+            {hasPermission(context, Permissions.VIEW_STUDENTS) && (
+              <GlanceCard
+                label="Students"
+                href="/students"
+                colorVar="--curriculum-outcome"
+                description="Student directory"
+              />
+            )}
 
-        {hasPermission(context, Permissions.MANAGE_REPORTS) && (
-          <QuickActionCard
-            title="Reports"
-            description="Create term reports"
-            href="/reports"
-            icon="file"
-            color="orange"
-          />
-        )}
-      </div>
-
-      {/* Module status - shows what's been built */}
-      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
-        <h2 className="text-lg font-semibold text-foreground">System Status</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          WattleOS V2 build progress
-        </p>
-        <div className="mt-4 space-y-3">
-          <ModuleStatus
-            name="Core Platform & Identity"
-            status="active"
-            module={1}
-          />
-          <ModuleStatus name="Curriculum Engine" status="pending" module={2} />
-          <ModuleStatus name="Observation Engine" status="pending" module={3} />
-          <ModuleStatus
-            name="Mastery & Portfolios"
-            status="pending"
-            module={4}
-          />
-          <ModuleStatus
-            name="Student Information System"
-            status="pending"
-            module={5}
-          />
-          <ModuleStatus
-            name="Attendance & Safety"
-            status="pending"
-            module={6}
-          />
-          <ModuleStatus
-            name="Reporting & Communications"
-            status="pending"
-            module={7}
-          />
-          <ModuleStatus name="Integration Pipes" status="pending" module={8} />
+            {hasPermission(context, Permissions.MANAGE_MASTERY) && (
+              <GlanceCard
+                label="Mastery"
+                href="/pedagogy/mastery"
+                colorVar="--mastery-mastered"
+                description="Track student progress"
+              />
+            )}
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* ── Recent Activity Placeholder ── */}
+      {/* WHY placeholder: Once we wire up actual counts from server actions
+          (observation count today, attendance %, students present), this
+          section will show real-time stats. For now it provides navigation
+          context so guides aren't staring at a blank screen. */}
+      <section
+        aria-label="Getting started"
+        className="rounded-xl border border-dashed border-border bg-muted/30 p-[var(--density-card-padding)]"
+      >
+        <h2 className="text-sm font-semibold text-foreground">
+          Your Montessori Toolkit
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground leading-relaxed max-w-prose">
+          WattleOS brings your observations, curriculum, mastery tracking, and
+          student records together in one place. Use the quick actions above to
+          jump into your daily workflow, or explore the sidebar to discover all
+          available tools.
+        </p>
+      </section>
     </div>
   );
 }
 
 // ============================================================
-// Sub-components (co-located, Server Components)
+// Helpers
 // ============================================================
 
-const COLOR_MAP: Record<string, string> = {
-  amber: "bg-amber-50 text-amber-700 border-amber-200",
-  green: "bg-green-50 text-green-700 border-green-200",
-  blue: "bg-blue-50 text-blue-700 border-blue-200",
-  purple: "bg-purple-50 text-purple-700 border-purple-200",
-  teal: "bg-teal-50 text-teal-700 border-teal-200",
-  orange: "bg-orange-50 text-orange-700 border-orange-200",
-};
+/** Time-aware greeting based on server clock. */
+function getTimeGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+/** Quick action configuration per permission. */
+interface QuickAction {
+  title: string;
+  description: string;
+  href: string;
+  colorVar: string;
+}
+
+function buildQuickActions(context: Awaited<ReturnType<typeof getTenantContext>>): QuickAction[] {
+  const actions: QuickAction[] = [];
+
+  if (hasPermission(context, Permissions.CREATE_OBSERVATION)) {
+    actions.push({
+      title: "New Observation",
+      description: "Capture a learning moment",
+      href: "/pedagogy/observations/new",
+      colorVar: "--curriculum-area",
+    });
+  }
+
+  if (hasPermission(context, Permissions.MANAGE_ATTENDANCE)) {
+    actions.push({
+      title: "Today's Roll",
+      description: "Mark attendance for today",
+      href: "/attendance",
+      colorVar: "--attendance-present",
+    });
+  }
+
+  if (hasPermission(context, Permissions.VIEW_STUDENTS)) {
+    actions.push({
+      title: "Students",
+      description: "View and manage student profiles",
+      href: "/students",
+      colorVar: "--curriculum-outcome",
+    });
+  }
+
+  if (hasPermission(context, Permissions.MANAGE_CURRICULUM)) {
+    actions.push({
+      title: "Curriculum",
+      description: "Browse learning outcomes",
+      href: "/pedagogy/curriculum",
+      colorVar: "--curriculum-activity",
+    });
+  }
+
+  if (hasPermission(context, Permissions.MANAGE_MASTERY)) {
+    actions.push({
+      title: "Mastery Tracking",
+      description: "Update student progress",
+      href: "/pedagogy/mastery",
+      colorVar: "--mastery-mastered",
+    });
+  }
+
+  if (hasPermission(context, Permissions.MANAGE_REPORTS)) {
+    actions.push({
+      title: "Reports",
+      description: "Create and manage term reports",
+      href: "/reports",
+      colorVar: "--report-review",
+    });
+  }
+
+  return actions;
+}
+
+// ============================================================
+// Sub-components
+// ============================================================
 
 function QuickActionCard({
   title,
   description,
   href,
-  icon,
-  color,
-}: {
-  title: string;
-  description: string;
-  href: string;
-  icon: string;
-  color: string;
-}) {
+  colorVar,
+}: QuickAction) {
   return (
     <a
       href={href}
-      className={`block rounded-lg border p-[var(--density-card-padding)] transition-shadow hover:shadow-md ${COLOR_MAP[color] ?? COLOR_MAP.amber}`}
+      style={
+        {
+          "--card-accent": `var(${colorVar})`,
+        } as React.CSSProperties
+      }
+      className="card-interactive group block rounded-xl border border-border bg-card p-[var(--density-card-padding)] transition-shadow hover:shadow-md"
     >
-      <h3 className="text-sm font-semibold">{title}</h3>
-      <p className="mt-1 text-xs opacity-75">{description}</p>
+      <div
+        className="mb-3 h-1.5 w-8 rounded-full transition-all group-hover:w-12"
+        style={{ backgroundColor: "var(--card-accent)" }}
+      />
+      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <p className="mt-1 text-xs text-muted-foreground">{description}</p>
     </a>
   );
 }
 
-function ModuleStatus({
-  name,
-  status,
-  module,
+function GlanceCard({
+  label,
+  href,
+  colorVar,
+  description,
 }: {
-  name: string;
-  status: "active" | "pending" | "complete";
-  module: number;
+  label: string;
+  href: string;
+  colorVar: string;
+  description: string;
 }) {
   return (
-    <div className="flex items-center gap-3">
+    <a
+      href={href}
+      style={
+        {
+          "--glance-accent": `var(${colorVar})`,
+        } as React.CSSProperties
+      }
+      className="group flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50"
+    >
       <div
-        className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-          status === "active"
-            ? "bg-amber-100 text-amber-700"
-            : status === "complete"
-              ? "bg-green-100 text-green-700"
-              : "bg-muted text-muted-foreground"
-        }`}
-      >
-        {module}
+        className="mt-0.5 h-2.5 w-2.5 flex-shrink-0 rounded-full"
+        style={{ backgroundColor: "var(--glance-accent)" }}
+      />
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-foreground group-hover:underline">
+          {label}
+        </p>
+        <p className="text-xs text-muted-foreground">{description}</p>
       </div>
-      <span
-        className={`text-sm ${
-          status === "active"
-            ? "font-medium text-foreground"
-            : status === "complete"
-              ? "text-green-700"
-              : "text-muted-foreground"
-        }`}
-      >
-        {name}
-      </span>
-      {status === "active" && (
-        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
-          In Progress
-        </span>
-      )}
-      {status === "complete" && (
-        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
-          Complete
-        </span>
-      )}
-    </div>
+    </a>
   );
 }
