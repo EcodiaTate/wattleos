@@ -1,17 +1,4 @@
 // src/components/domain/programs/toggle-program-active-button.tsx
-//
-// ============================================================
-// WattleOS V2 - Toggle Program Active/Inactive
-// ============================================================
-// Client component that toggles a program between active
-// and inactive. Inactive programs don't appear in parent
-// browse views and can't accept new bookings.
-//
-// WHY toggle not checkbox: This is a deliberate admin
-// action that affects parent visibility. A toggle button
-// with confirmation feels more intentional than a checkbox.
-// ============================================================
-
 "use client";
 
 import { updateProgram } from "@/lib/actions/programs/programs";
@@ -45,10 +32,10 @@ export function ToggleProgramActiveButton({
     <button
       onClick={handleToggle}
       disabled={loading}
-      className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
+      className={`rounded-lg border px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-bold transition-[var(--transition-base)] disabled:opacity-50 ${
         isActive
-          ? "border-gray-300 text-gray-600 hover:bg-gray-50"
-          : "border-green-300 text-green-700 hover:bg-green-50"
+          ? "border-border text-muted-foreground hover:bg-muted"
+          : "border-success/30 text-success bg-success/5 hover:bg-success/10"
       }`}
     >
       {loading ? "Updating..." : isActive ? "Deactivate" : "Activate"}

@@ -1,3 +1,5 @@
+'use server';
+
 // src/lib/actions/parent/settings.ts
 //
 // ============================================================
@@ -9,15 +11,16 @@
 // WHY self-service: Consent toggles (media, directory) change
 // frequently - parents should be able to update at any time.
 // Contact info updates reduce admin workload.
+//
+// AUDIT: Uses centralized logAudit() for consistent metadata
+// enrichment (IP, user agent, sensitivity, user identity).
 // ============================================================
 
 "use server";
 
 import { getTenantContext } from "@/lib/auth/tenant-context";
-import {
-  createSupabaseAdminClient,
-  createSupabaseServerClient,
-} from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { logAudit, AuditActions } from "@/lib/utils/audit";
 import type { ActionResponse } from "@/types/api";
 
 // ============================================================
@@ -57,9 +60,9 @@ export async function getMySettings(): Promise<
 > {
   try {
     const context = await getTenantContext();
-    const supabase = await createSupabaseServerClient();
+    const admin = createSupabaseAdminClient();
 
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from("guardians")
       .select(
         `
@@ -177,14 +180,17 @@ export async function updateConsent(
       };
     }
 
-    // Audit log
-    await admin.from("audit_logs").insert({
-      tenant_id: context.tenant.id,
-      user_id: context.user.id,
-      action: "guardian.consent_updated",
-      entity_type: "guardian",
-      entity_id: input.guardianId,
-      metadata: { changes: updates },
+    // WHY audit: Consent changes affect what media/data can be shared
+    // about a child. Parents and schools need a trail of who toggled what.
+    await logAudit({
+      context,
+      action: AuditActions.GUARDIAN_UPDATED,
+      entityType: "guardian",
+      entityId: input.guardianId,
+      metadata: {
+        change_type: "consent",
+        changes: updates,
+      },
     });
 
     return { data: { success: true }, error: null };
@@ -249,14 +255,17 @@ export async function updateContactInfo(
       };
     }
 
-    // Audit log
-    await admin.from("audit_logs").insert({
-      tenant_id: context.tenant.id,
-      user_id: context.user.id,
-      action: "guardian.contact_updated",
-      entity_type: "guardian",
-      entity_id: input.guardianId,
-      metadata: { fields: Object.keys(updates) },
+    // WHY audit: Contact info changes affect emergency contact chains.
+    // Schools need to know if a parent changed their phone number.
+    await logAudit({
+      context,
+      action: AuditActions.GUARDIAN_UPDATED,
+      entityType: "guardian",
+      entityId: input.guardianId,
+      metadata: {
+        change_type: "contact_info",
+        fields: Object.keys(updates),
+      },
     });
 
     return { data: { success: true }, error: null };

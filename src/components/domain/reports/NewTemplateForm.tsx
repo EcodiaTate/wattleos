@@ -1,12 +1,4 @@
 // src/components/domain/reports/NewTemplateForm.tsx
-//
-// ============================================================
-// WattleOS V2 - New Template Form (Client Component)
-// ============================================================
-// Collects template name and cycle level, creates the template
-// with default sections, and redirects to the builder.
-// ============================================================
-
 "use client";
 
 import { createReportTemplate } from "@/lib/actions/reports";
@@ -36,7 +28,6 @@ export function NewTemplateForm() {
       setError(result.error.message);
       setIsLoading(false);
     } else if (result.data) {
-      // Redirect to the builder
       router.push(`/reports/templates/${result.data.id}`);
     }
   }
@@ -44,15 +35,14 @@ export function NewTemplateForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-5 rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]"
+      className="space-y-6 rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm max-w-2xl mx-auto"
     >
-      {/* Template name */}
       <div>
         <label
           htmlFor="name"
-          className="block text-sm font-medium text-foreground"
+          className="block text-sm font-bold text-foreground mb-1.5"
         >
-          Template Name <span className="text-red-500">*</span>
+          Template Name <span className="text-destructive">*</span>
         </label>
         <input
           id="name"
@@ -61,26 +51,25 @@ export function NewTemplateForm() {
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g., End of Term 3-6 Report"
           autoFocus
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+          className="block w-full rounded-lg border border-input bg-background px-4 h-[var(--density-input-height)] text-sm shadow-sm transition-all outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         />
       </div>
 
-      {/* Cycle level */}
       <div>
         <label
           htmlFor="cycleLevel"
-          className="block text-sm font-medium text-foreground"
+          className="block text-sm font-bold text-foreground mb-1"
         >
           Cycle Level
         </label>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs font-medium text-muted-foreground mb-2">
           Optionally scope this template to a specific age group
         </p>
         <select
           id="cycleLevel"
           value={cycleLevel}
           onChange={(e) => setCycleLevel(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+          className="block w-full rounded-lg border border-input bg-background px-4 h-[var(--density-input-height)] text-sm shadow-sm transition-all outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         >
           <option value="">All cycle levels</option>
           <option value="0-3">Infant / Toddler (0–3)</option>
@@ -92,34 +81,31 @@ export function NewTemplateForm() {
         </select>
       </div>
 
-      {/* Info about defaults */}
-      <div className="rounded-md bg-amber-50 p-3">
-        <p className="text-xs text-amber-800">
+      <div className="rounded-lg bg-primary-50 border border-primary-100 p-4">
+        <p className="text-xs font-medium text-primary-800 leading-relaxed">
           Your template will be created with default sections (Student Info,
           Attendance Summary, Learning Progress, Teacher Comments, Goals). You
           can add, remove, and reorder sections in the builder.
         </p>
       </div>
 
-      {/* Error */}
       {error && (
-        <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <div className="animate-slide-down rounded-lg bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive font-bold">
           {error}
         </div>
       )}
 
-      {/* Actions */}
-      <div className="flex items-center justify-end gap-3">
+      <div className="flex items-center justify-end gap-3 pt-2">
         <a
           href="/reports/templates"
-          className="rounded-md border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
+          className="rounded-lg border border-border bg-background px-5 h-[var(--density-button-height)] text-sm font-bold text-foreground transition-all hover:bg-muted flex items-center justify-center"
         >
           Cancel
         </a>
         <button
           type="submit"
           disabled={isLoading || !name.trim()}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-amber-700 disabled:opacity-50"
+          className="rounded-lg bg-primary px-6 h-[var(--density-button-height)] text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary-600 disabled:opacity-50 active:scale-95"
         >
           {isLoading ? "Creating..." : "Create & Customize"}
         </button>

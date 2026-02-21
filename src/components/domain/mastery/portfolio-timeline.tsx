@@ -262,7 +262,7 @@ function MasteryChangeCard({ item }: { item: PortfolioTimelineItem }) {
         <span className="text-sm text-foreground">
           {item.mastery_node_title}
         </span>
-        <span className="text-xs text-muted-foreground">—</span>
+        <span className="text-xs text-muted-foreground"> - </span>
         {prevConfig && (
           <>
             <span

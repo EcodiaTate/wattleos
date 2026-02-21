@@ -1,15 +1,3 @@
-// src/app/(app)/admin/enrollment/enrollment-period-form.tsx
-//
-// ============================================================
-// WattleOS V2 - Enrollment Period Form (Module 10)
-// ============================================================
-// 'use client' - interactive form for creating/editing
-// enrollment periods. Shared between create and edit pages.
-//
-// WHY client: Controlled inputs, dynamic field management
-// (adding/removing programs, documents, custom fields).
-// ============================================================
-
 "use client";
 
 import {
@@ -20,8 +8,6 @@ import type { CustomField, EnrollmentPeriod } from "@/types/domain";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-
-// ── Program options (will be dynamic once programs exist) ────
 
 const PROGRAM_OPTIONS = [
   { value: "infant_toddler_0_3", label: "Infant/Toddler (0–3)" },
@@ -42,13 +28,9 @@ const DOCUMENT_TYPE_OPTIONS = [
   { value: "other", label: "Other" },
 ];
 
-// ── Props ────────────────────────────────────────────────────
-
 interface EnrollmentPeriodFormProps {
   initialData?: EnrollmentPeriod;
 }
-
-// ── Helpers ──────────────────────────────────────────────────
 
 function toDatetimeLocal(iso: string): string {
   if (!iso) return "";
@@ -59,8 +41,6 @@ function toDatetimeLocal(iso: string): string {
   )}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-// CustomField requires an `id` in your domain type.
-// Use crypto.randomUUID when available, otherwise a safe fallback.
 function newCustomFieldId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
@@ -75,7 +55,6 @@ export function EnrollmentPeriodForm({ initialData }: EnrollmentPeriodFormProps)
 
   const isEdit = !!initialData;
 
-  // Form state
   const [name, setName] = useState(initialData?.name ?? "");
   const [periodType, setPeriodType] = useState<
     "new_enrollment" | "re_enrollment" | "mid_year"
@@ -106,8 +85,6 @@ export function EnrollmentPeriodForm({ initialData }: EnrollmentPeriodFormProps)
   const [confirmationMessage, setConfirmationMessage] = useState(
     initialData?.confirmation_message ?? "",
   );
-
-  // Custom fields management
   const [customFields, setCustomFields] = useState<CustomField[]>(
     (initialData?.custom_fields as CustomField[]) ?? [],
   );
@@ -126,15 +103,9 @@ export function EnrollmentPeriodForm({ initialData }: EnrollmentPeriodFormProps)
 
   function addCustomField() {
     const id = newCustomFieldId();
-
     setCustomFields((prev) => [
       ...prev,
-      {
-        id,
-        label: "",
-        type: "text",
-        required: false,
-      } as CustomField,
+      { id, label: "", type: "text", required: false } as CustomField,
     ]);
   }
 
@@ -155,112 +126,76 @@ export function EnrollmentPeriodForm({ initialData }: EnrollmentPeriodFormProps)
     const opensAtIso = opensAt ? new Date(opensAt).toISOString() : "";
     const closesAtIso = closesAt ? new Date(closesAt).toISOString() : null;
 
-    if (!name.trim()) {
-      setError("Period name is required.");
-      return;
-    }
-    if (!opensAt) {
-      setError("Opening date is required.");
-      return;
-    }
+    if (!name.trim()) { setError("Period name is required."); return; }
+    if (!opensAt) { setError("Opening date is required."); return; }
 
-    // Only keep “valid” custom fields: must have id + label
-    // (id is your stable field identifier in the domain model)
     const cleanedCustomFields = customFields.filter(
       (cf) => String(cf.id).trim() && String(cf.label).trim(),
     );
 
     startTransition(async () => {
-      if (isEdit && initialData) {
-        const result = await updateEnrollmentPeriod(initialData.id, {
-          name: name.trim(),
-          period_type: periodType,
-          year,
-          opens_at: opensAtIso,
-          closes_at: closesAtIso,
-          available_programs: availablePrograms,
-          required_documents: requiredDocuments,
-          custom_fields: cleanedCustomFields,
-          welcome_message: welcomeMessage.trim() || null,
-          confirmation_message: confirmationMessage.trim() || null,
-        });
+      const payload = {
+        name: name.trim(),
+        period_type: periodType,
+        year,
+        opens_at: opensAtIso,
+        closes_at: closesAtIso,
+        available_programs: availablePrograms,
+        required_documents: requiredDocuments,
+        custom_fields: cleanedCustomFields,
+        welcome_message: welcomeMessage.trim() || null,
+        confirmation_message: confirmationMessage.trim() || null,
+      };
 
-        if (result.error) {
-          setError(result.error.message);
-        } else {
-          router.push("/admin/enrollment");
-          router.refresh();
-        }
+      const result = isEdit && initialData 
+        ? await updateEnrollmentPeriod(initialData.id, payload)
+        : await createEnrollmentPeriod(payload);
+
+      if (result.error) {
+        setError(result.error.message);
       } else {
-        const result = await createEnrollmentPeriod({
-          name: name.trim(),
-          period_type: periodType,
-          year,
-          opens_at: opensAtIso,
-          closes_at: closesAtIso,
-          available_programs: availablePrograms,
-          required_documents: requiredDocuments,
-          custom_fields: cleanedCustomFields,
-          welcome_message: welcomeMessage.trim() || null,
-          confirmation_message: confirmationMessage.trim() || null,
-        });
-
-        if (result.error) {
-          setError(result.error.message);
-        } else {
-          router.push("/admin/enrollment");
-          router.refresh();
-        }
+        router.push("/admin/enrollment");
+        router.refresh();
       }
     });
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      {/* Error message */}
+    <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in-up">
       {error && (
-        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/20">
           {error}
         </div>
       )}
 
-      {/* ── Basic Details ─────────────────────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+      {/* Basic Details */}
+      <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">
           Basic Details
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {/* Name */}
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Period Name <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-muted-foreground">
+              Period Name <span className="text-destructive">*</span>
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Term 1 2027 Intake"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               required
             />
           </div>
 
-          {/* Period Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Period Type <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-muted-foreground">
+              Period Type <span className="text-destructive">*</span>
             </label>
             <select
               value={periodType}
-              onChange={(e) =>
-                setPeriodType(
-                  e.target.value as
-                    | "new_enrollment"
-                    | "re_enrollment"
-                    | "mid_year",
-                )
-              }
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              onChange={(e) => setPeriodType(e.target.value as any)}
+              className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="new_enrollment">New Enrollment</option>
               <option value="re_enrollment">Re-Enrollment</option>
@@ -268,10 +203,9 @@ export function EnrollmentPeriodForm({ initialData }: EnrollmentPeriodFormProps)
             </select>
           </div>
 
-          {/* Year */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Academic Year <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-muted-foreground">
+              Academic Year <span className="text-destructive">*</span>
             </label>
             <input
               type="number"
@@ -279,254 +213,220 @@ export function EnrollmentPeriodForm({ initialData }: EnrollmentPeriodFormProps)
               onChange={(e) => setYear(Number(e.target.value))}
               min={2020}
               max={2100}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               required
             />
           </div>
 
-          {/* Opens At */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Opens At <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-muted-foreground">
+              Opens At <span className="text-destructive">*</span>
             </label>
             <input
               type="datetime-local"
               value={opensAt}
               onChange={(e) => setOpensAt(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               required
             />
           </div>
 
-          {/* Closes At */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Closes At{" "}
-              <span className="text-xs text-gray-400">
-                (optional - leave blank for indefinite)
-              </span>
+            <label className="block text-sm font-medium text-muted-foreground">
+              Closes At <span className="text-xs text-muted-foreground/60">(optional)</span>
             </label>
             <input
               type="datetime-local"
               value={closesAt}
               onChange={(e) => setClosesAt(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
         </div>
       </div>
 
-      {/* ── Available Programs ────────────────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="mb-2 text-lg font-semibold text-gray-900">
+      {/* Available Programs */}
+      <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+        <h2 className="mb-2 text-lg font-semibold text-foreground">
           Available Programs
         </h2>
-        <p className="mb-4 text-sm text-gray-500">
+        <p className="mb-4 text-sm text-muted-foreground">
           Which programs can parents apply to in this period?
         </p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {PROGRAM_OPTIONS.map((opt) => (
             <label
               key={opt.value}
-              className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm hover:bg-gray-50"
+              className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted/50 transition-colors cursor-pointer"
             >
               <input
                 type="checkbox"
                 checked={availablePrograms.includes(opt.value)}
                 onChange={() => toggleProgram(opt.value)}
-                className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                className="h-4 w-4 rounded border-input text-primary focus:ring-primary accent-primary"
               />
-              {opt.label}
+              <span className="text-foreground">{opt.label}</span>
             </label>
           ))}
         </div>
       </div>
 
-      {/* ── Required Documents ────────────────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="mb-2 text-lg font-semibold text-gray-900">
+      {/* Required Documents */}
+      <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+        <h2 className="mb-2 text-lg font-semibold text-foreground">
           Required Documents
         </h2>
-        <p className="mb-4 text-sm text-gray-500">
+        <p className="mb-4 text-sm text-muted-foreground">
           What documents must parents upload with their application?
         </p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {DOCUMENT_TYPE_OPTIONS.map((opt) => (
             <label
               key={opt.value}
-              className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm hover:bg-gray-50"
+              className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted/50 transition-colors cursor-pointer"
             >
               <input
                 type="checkbox"
                 checked={requiredDocuments.includes(opt.value)}
                 onChange={() => toggleDocument(opt.value)}
-                className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                className="h-4 w-4 rounded border-input text-primary focus:ring-primary accent-primary"
               />
-              {opt.label}
+              <span className="text-foreground">{opt.label}</span>
             </label>
           ))}
         </div>
       </div>
 
-      {/* ── Custom Fields ─────────────────────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      {/* Custom Fields */}
+      <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               Custom Questions
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Add school-specific questions to the enrollment form.
             </p>
           </div>
           <button
             type="button"
             onClick={addCustomField}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted transition-colors"
           >
             + Add Question
           </button>
         </div>
 
         {customFields.length === 0 && (
-          <p className="text-sm text-gray-400">No custom questions added.</p>
+          <p className="text-sm text-muted-foreground/50 italic">No custom questions added.</p>
         )}
 
         <div className="space-y-3">
-          {customFields.map((cf, index) => {
-            const idStr = String(cf.id ?? "");
-
-            return (
-              <div
-                key={idStr || index}
-                className="grid grid-cols-12 items-start gap-2 rounded-lg border border-gray-100 bg-gray-50 p-3"
-              >
-                {/* Field ID (domain uses id, not key) */}
-                <div className="col-span-3">
-                  <input
-                    type="text"
-                    value={idStr}
-                    onChange={(e) =>
-                      updateCustomField(index, { id: e.target.value })
-                    }
-                    placeholder="field_id"
-                    className="block w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-amber-500 focus:outline-none"
-                  />
-                </div>
-
-                {/* Label */}
-                <div className="col-span-4">
-                  <input
-                    type="text"
-                    value={cf.label ?? ""}
-                    onChange={(e) =>
-                      updateCustomField(index, { label: e.target.value })
-                    }
-                    placeholder="Question label"
-                    className="block w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-amber-500 focus:outline-none"
-                  />
-                </div>
-
-                {/* Type */}
-                <div className="col-span-2">
-                  <select
-                    value={cf.type}
-                    onChange={(e) =>
-                      updateCustomField(index, {
-                        type: e.target.value as CustomField["type"],
-                      })
-                    }
-                    className="block w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-amber-500 focus:outline-none"
-                  >
-                    <option value="text">Text</option>
-                    <option value="textarea">Textarea</option>
-                    <option value="select">Select</option>
-                    <option value="checkbox">Checkbox</option>
-                    <option value="date">Date</option>
-                  </select>
-                </div>
-
-                {/* Required */}
-                <div className="col-span-2 flex items-center gap-1">
-                  <label className="flex items-center gap-1 text-xs">
-                    <input
-                      type="checkbox"
-                      checked={!!cf.required}
-                      onChange={(e) =>
-                        updateCustomField(index, {
-                          required: e.target.checked,
-                        })
-                      }
-                      className="h-3.5 w-3.5 rounded border-gray-300 text-amber-600"
-                    />
-                    Required
-                  </label>
-                </div>
-
-                {/* Remove */}
-                <div className="col-span-1 flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => removeCustomField(index)}
-                    className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
-                    title="Remove"
-                  >
-                    ✕
-                  </button>
-                </div>
+          {customFields.map((cf, index) => (
+            <div
+              key={String(cf.id) || index}
+              className="grid grid-cols-12 items-start gap-2 rounded-lg border border-border bg-muted/20 p-3 animate-slide-down"
+            >
+              <div className="col-span-3">
+                <input
+                  type="text"
+                  value={String(cf.id)}
+                  onChange={(e) => updateCustomField(index, { id: e.target.value })}
+                  placeholder="field_id"
+                  className="block w-full rounded border border-input bg-background px-2 py-1.5 text-xs focus:border-primary focus:outline-none"
+                />
               </div>
-            );
-          })}
+              <div className="col-span-4">
+                <input
+                  type="text"
+                  value={cf.label ?? ""}
+                  onChange={(e) => updateCustomField(index, { label: e.target.value })}
+                  placeholder="Question label"
+                  className="block w-full rounded border border-input bg-background px-2 py-1.5 text-xs focus:border-primary focus:outline-none"
+                />
+              </div>
+              <div className="col-span-2">
+                <select
+                  value={cf.type}
+                  onChange={(e) => updateCustomField(index, { type: e.target.value as any })}
+                  className="block w-full rounded border border-input bg-background px-2 py-1.5 text-xs focus:border-primary focus:outline-none"
+                >
+                  <option value="text">Text</option>
+                  <option value="textarea">Textarea</option>
+                  <option value="select">Select</option>
+                  <option value="checkbox">Checkbox</option>
+                  <option value="date">Date</option>
+                </select>
+              </div>
+              <div className="col-span-2 flex items-center gap-1 py-1.5">
+                <label className="flex items-center gap-1 text-xs text-muted-foreground cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!!cf.required}
+                    onChange={(e) => updateCustomField(index, { required: e.target.checked })}
+                    className="h-3.5 w-3.5 rounded border-input text-primary accent-primary"
+                  />
+                  Required
+                </label>
+              </div>
+              <div className="col-span-1 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => removeCustomField(index)}
+                  className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                  title="Remove"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* ── Messages ──────────────────────────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Messages</h2>
+      {/* Messages */}
+      <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">Messages</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Welcome Message{" "}
-              <span className="text-xs text-gray-400">(shown at top of form)</span>
+            <label className="block text-sm font-medium text-muted-foreground">
+              Welcome Message <span className="text-xs text-muted-foreground/40">(shown at top of form)</span>
             </label>
             <textarea
               value={welcomeMessage}
               onChange={(e) => setWelcomeMessage(e.target.value)}
               rows={3}
               placeholder="Welcome to our enrollment process..."
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Confirmation Message{" "}
-              <span className="text-xs text-gray-400">
-                (shown after submission)
-              </span>
+            <label className="block text-sm font-medium text-muted-foreground">
+              Confirmation Message <span className="text-xs text-muted-foreground/40">(shown after submission)</span>
             </label>
             <textarea
               value={confirmationMessage}
               onChange={(e) => setConfirmationMessage(e.target.value)}
               rows={3}
-              placeholder="Thank you for your application. We will review it shortly..."
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              placeholder="Thank you for your application..."
+              className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
         </div>
       </div>
 
-      {/* ── Submit ─────────────────────────────────────────── */}
-      <div className="flex items-center justify-end gap-3">
+      {/* Form Footer */}
+      <div className="flex items-center justify-end gap-3 pt-4">
         <Link
           href="/admin/enrollment"
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
         >
           Cancel
         </Link>
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-lg bg-amber-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+          className="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50 shadow-primary"
         >
           {isPending ? "Saving…" : isEdit ? "Update Period" : "Create Period"}
         </button>

@@ -1,19 +1,4 @@
 // src/components/domain/reports/report-pdf-actions.tsx
-//
-// ============================================================
-// WattleOS V2 - Report PDF Action Buttons
-// ============================================================
-// Client component that provides Export PDF / Download PDF
-// buttons for the report detail page.
-//
-// Two states:
-//   1. No PDF exists yet → "Export PDF" button → calls exportReportToPdf
-//   2. PDF exists → "Download PDF" link + "Re-export" option
-//
-// WHY client component: Needs loading state, error handling, and
-// triggering a browser download after the server action completes.
-// ============================================================
-
 "use client";
 
 import {
@@ -26,7 +11,6 @@ interface ReportPdfActionsProps {
   reportId: string;
   reportStatus: string;
   hasPdf: boolean;
-  /** If true, uses parent-scoped download (no export, download only) */
   isParentView?: boolean;
 }
 
@@ -43,8 +27,6 @@ export function ReportPdfActions({
 
   const canExport = reportStatus === "approved" || reportStatus === "published";
 
-  // ── Export (generate + upload) ────────────────────────────
-
   const handleExport = useCallback(async () => {
     setIsExporting(true);
     setError(null);
@@ -58,7 +40,6 @@ export function ReportPdfActions({
     }
 
     if (result.data) {
-      // Trigger browser download
       triggerDownload(result.data.download_url, result.data.filename);
       setLastExportedAt(new Date().toLocaleTimeString());
     }
@@ -66,14 +47,11 @@ export function ReportPdfActions({
     setIsExporting(false);
   }, [reportId]);
 
-  // ── Download (existing PDF) ───────────────────────────────
-
   const handleDownload = useCallback(async () => {
     setIsDownloading(true);
     setError(null);
 
     if (isParentView) {
-      // Parents use the direct API route
       window.open(`/api/reports/${reportId}/pdf?parent=true`, "_blank");
       setIsDownloading(false);
       return;
@@ -94,8 +72,6 @@ export function ReportPdfActions({
     setIsDownloading(false);
   }, [reportId, isParentView]);
 
-  // ── Parent view: download only ────────────────────────────
-
   if (isParentView) {
     if (!hasPdf) return null;
 
@@ -103,26 +79,23 @@ export function ReportPdfActions({
       <button
         onClick={handleDownload}
         disabled={isDownloading}
-        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex items-center justify-center gap-3 rounded-lg bg-primary px-6 h-[var(--density-button-height)] text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary-600 disabled:opacity-50 active:scale-95"
       >
         <DownloadIcon />
-        {isDownloading ? "Preparing..." : "Download PDF"}
+        {isDownloading ? "Preparing..." : "Download Report PDF"}
       </button>
     );
   }
 
-  // ── Staff view: export + download ─────────────────────────
-
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        {/* Primary action: Export or Download */}
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {hasPdf ? (
           <>
             <button
               onClick={handleDownload}
               disabled={isDownloading}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 h-[var(--density-button-height)] text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary-600 disabled:opacity-50 active:scale-95"
             >
               <DownloadIcon />
               {isDownloading ? "Preparing..." : "Download PDF"}
@@ -131,7 +104,7 @@ export function ReportPdfActions({
               <button
                 onClick={handleExport}
                 disabled={isExporting}
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-background px-3 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 h-[var(--density-button-height)] text-sm font-bold text-foreground transition-all hover:bg-muted disabled:opacity-50 active:scale-95"
                 title="Regenerate the PDF with the latest report content"
               >
                 <RefreshIcon />
@@ -143,32 +116,33 @@ export function ReportPdfActions({
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 h-[var(--density-button-height)] text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary-600 disabled:opacity-50 active:scale-95"
           >
             <ExportIcon />
-            {isExporting ? "Generating PDF..." : "Export PDF"}
+            {isExporting ? "Generating PDF..." : "Export to PDF"}
           </button>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            Report must be approved or published before exporting to PDF.
-          </p>
+          <div className="flex items-center gap-2 rounded-lg bg-muted/50 border border-border px-4 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+             </svg>
+             Approve report to enable PDF export
+          </div>
         )}
       </div>
 
-      {/* Status messages */}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="animate-fade-in text-[10px] font-bold text-destructive uppercase tracking-widest">{error}</p>
+      )}
       {lastExportedAt && !error && (
-        <p className="text-sm text-green-600">
-          PDF exported successfully at {lastExportedAt}
+        <p className="animate-fade-in text-[10px] font-bold text-success uppercase tracking-widest flex items-center gap-1.5">
+          <span className="flex h-1 w-1 rounded-full bg-success"></span>
+          PDF generated at {lastExportedAt}
         </p>
       )}
     </div>
   );
 }
-
-// ============================================================
-// Helpers
-// ============================================================
 
 function triggerDownload(url: string, filename: string) {
   const link = document.createElement("a");
@@ -180,60 +154,26 @@ function triggerDownload(url: string, filename: string) {
   document.body.removeChild(link);
 }
 
-// ============================================================
-// Icons (inline SVG - no external dependency)
-// ============================================================
-
 function DownloadIcon() {
   return (
-    <svg
-      className="h-4 w-4"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={2}
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-      />
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
     </svg>
   );
 }
 
 function ExportIcon() {
   return (
-    <svg
-      className="h-4 w-4"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={2}
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
-      />
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
     </svg>
   );
 }
 
 function RefreshIcon() {
   return (
-    <svg
-      className="h-4 w-4"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={2}
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"
-      />
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
     </svg>
   );
 }

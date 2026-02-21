@@ -82,7 +82,7 @@ export function AnnouncementCard({
 
   return (
     <Link
-      href={`/${tenantSlug}/comms/announcements/${announcement.id}`}
+      href={`/comms/announcements/${announcement.id}`}
       className={`block rounded-lg border transition-shadow hover:shadow-md ${
         announcement.priority === "urgent"
           ? "border-red-200 bg-red-50/30"

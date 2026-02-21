@@ -11,7 +11,7 @@
 // attendance. Keeping it in one component avoids prop-drilling
 // and makes the create/expand/collapse interactions smooth.
 //
-// Layout: Two sections —
+// Layout: Two sections  -
 //   1. Create Slot form (collapsible)
 //   2. Slot cards grid (each expandable to show bookings)
 // ============================================================

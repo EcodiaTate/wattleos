@@ -1,14 +1,4 @@
 // src/components/domain/sis/ClassForm.tsx
-//
-// ============================================================
-// WattleOS V2 - Class Create/Edit Form
-// ============================================================
-// 'use client' - interactive form for Montessori classrooms.
-//
-// Why shared: Same fields for create and edit. Accepts optional
-// initialData for edit mode, calls createClass or updateClass.
-// ============================================================
-
 "use client";
 
 import type { CreateClassInput, UpdateClassInput } from "@/lib/actions/classes";
@@ -18,17 +8,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-// ── Props ───────────────────────────────────────────────────
-
 interface ClassFormProps {
-  /** When provided, form operates in edit mode */
   initialData?: Class;
 }
-
-// ── Montessori cycle levels ─────────────────────────────────
-// Why hardcoded: Montessori has standardized age groupings.
-// Schools rarely deviate from these. Custom values are still
-// allowed via the text input fallback.
 
 const CYCLE_LEVEL_OPTIONS = [
   { value: "", label: "Select cycle level..." },
@@ -41,92 +23,62 @@ const CYCLE_LEVEL_OPTIONS = [
   { value: "15-18", label: "Upper Adolescent (15–18)" },
 ] as const;
 
-// ── Component ───────────────────────────────────────────────
+const INPUT_CLASS = "mt-1 block w-full rounded-lg border border-input bg-card px-4 h-[var(--density-input-height)] text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm transition-all";
 
 export function ClassForm({ initialData }: ClassFormProps) {
   const router = useRouter();
   const isEditing = !!initialData;
 
-  // ── Form state ──────────────────────────────────────────
   const [name, setName] = useState(initialData?.name ?? "");
   const [room, setRoom] = useState(initialData?.room ?? "");
   const [cycleLevel, setCycleLevel] = useState(initialData?.cycle_level ?? "");
   const [isActive, setIsActive] = useState(initialData?.is_active ?? true);
-
-  // ── Submission state ────────────────────────────────────
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // ── Handlers ────────────────────────────────────────────
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsSaving(true);
     setError(null);
 
-    if (isEditing && initialData) {
-      // ── Update existing class ──
-      const input: UpdateClassInput = {
-        name: name.trim(),
-        room: room.trim() || null,
-        cycle_level: cycleLevel || null,
-        is_active: isActive,
-      };
+    const input = {
+      name: name.trim(),
+      room: room.trim() || null,
+      cycle_level: cycleLevel || null,
+      ...(isEditing && { is_active: isActive }),
+    };
 
-      const result = await updateClass(initialData.id, input);
+    const result = isEditing 
+      ? await updateClass(initialData!.id, input as UpdateClassInput)
+      : await createClass(input as CreateClassInput);
 
-      if (result.error) {
-        setError(result.error.message);
-        setIsSaving(false);
-        return;
-      }
-
-      router.push(`/classes/${initialData.id}`);
-      router.refresh();
-    } else {
-      // ── Create new class ──
-      const input: CreateClassInput = {
-        name: name.trim(),
-        room: room.trim() || null,
-        cycle_level: cycleLevel || null,
-      };
-
-      const result = await createClass(input);
-
-      if (result.error) {
-        setError(result.error.message);
-        setIsSaving(false);
-        return;
-      }
-
-      router.push(`/classes/${result.data!.id}`);
-      router.refresh();
+    if (result.error) {
+      setError(result.error.message);
+      setIsSaving(false);
+      return;
     }
+
+    router.push(`/classes/${isEditing ? initialData!.id : result.data!.id}`);
+    router.refresh();
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      {/* Error banner */}
+    <form onSubmit={handleSubmit} className="space-y-[var(--density-section-gap)]">
       {error && (
-        <div className="rounded-md bg-red-50 p-[var(--density-card-padding)]">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-[var(--density-card-padding)] animate-fade-in-down">
+          <p className="text-sm font-bold text-destructive">{error}</p>
         </div>
       )}
 
-      {/* ── Section: Class Details ───────────────────────── */}
-      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
-        <h2 className="mb-4 text-lg font-semibold text-foreground">
+      <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm">
+        <h2 className="mb-[var(--density-md)] text-lg font-bold text-foreground">
           Class Details
         </h2>
 
-        <div className="grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-2">
-          {/* Class name */}
+        <div className="grid grid-cols-1 gap-[var(--density-md)] sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label
-              htmlFor="className"
-              className="block text-sm font-medium text-foreground"
-            >
-              Class Name <span className="text-red-500">*</span>
+            <label htmlFor="className" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
+              Class Name <span className="text-destructive">*</span>
             </label>
             <input
               id="className"
@@ -135,20 +87,15 @@ export function ClassForm({ initialData }: ClassFormProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Wattle Room, Banksia Environment"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className={INPUT_CLASS}
             />
-            <p className="mt-1 text-xs text-muted-foreground">
-              The name guides and parents will see (e.g. &quot;Wattle Room&quot;
-              or &quot;3–6 Primary A&quot;).
+            <p className="mt-1.5 text-xs font-medium text-form-helper-fg">
+              The name guides and parents will see.
             </p>
           </div>
 
-          {/* Room / location */}
           <div>
-            <label
-              htmlFor="room"
-              className="block text-sm font-medium text-foreground"
-            >
+            <label htmlFor="room" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
               Room / Location
             </label>
             <input
@@ -157,23 +104,19 @@ export function ClassForm({ initialData }: ClassFormProps) {
               value={room}
               onChange={(e) => setRoom(e.target.value)}
               placeholder="e.g. Building A, Room 3"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className={INPUT_CLASS}
             />
           </div>
 
-          {/* Cycle level */}
           <div>
-            <label
-              htmlFor="cycleLevel"
-              className="block text-sm font-medium text-foreground"
-            >
+            <label htmlFor="cycleLevel" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
               Cycle Level
             </label>
             <select
               id="cycleLevel"
               value={cycleLevel}
               onChange={(e) => setCycleLevel(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className={INPUT_CLASS}
             >
               {CYCLE_LEVEL_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -181,63 +124,48 @@ export function ClassForm({ initialData }: ClassFormProps) {
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-xs text-muted-foreground">
-              The Montessori age grouping for this classroom.
-            </p>
           </div>
 
-          {/* Active toggle (only in edit mode) */}
           {isEditing && (
-            <div className="sm:col-span-2">
-              <div className="flex items-center gap-3">
+            <div className="sm:col-span-2 pt-2 border-t border-border">
+              <div className="flex items-center gap-4">
                 <button
                   type="button"
                   role="switch"
                   aria-checked={isActive}
                   onClick={() => setIsActive(!isActive)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
-                    isActive ? "bg-primary" : "bg-gray-200"
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-300 ease-spring outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                    isActive ? "bg-primary" : "bg-muted"
                   }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-background shadow ring-0 transition duration-200 ease-in-out ${
+                    className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md ring-0 transition duration-300 ease-spring ${
                       isActive ? "translate-x-5" : "translate-x-0"
                     }`}
                   />
                 </button>
-                <label className="text-sm font-medium text-foreground">
-                  {isActive ? "Active" : "Inactive"}
+                <label className="text-sm font-bold text-foreground">
+                  {isActive ? "Active Class" : "Inactive / Archived"}
                 </label>
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Inactive classes are hidden from enrollment options but retain
-                their historical records.
-              </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* ── Actions ──────────────────────────────────────── */}
       <div className="flex items-center justify-end gap-3">
         <Link
           href={isEditing ? `/classes/${initialData!.id}` : "/classes"}
-          className="rounded-lg border border-gray-300 bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm hover:bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          className="rounded-lg border border-border bg-background px-6 h-[var(--density-button-height)] text-sm font-bold text-foreground shadow-sm hover:bg-muted transition-all active:scale-95 flex items-center"
         >
           Cancel
         </Link>
         <button
           type="submit"
           disabled={isSaving || !name.trim()}
-          className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg bg-primary px-8 h-[var(--density-button-height)] text-sm font-bold text-primary-foreground shadow-md hover:bg-primary-600 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSaving
-            ? isEditing
-              ? "Saving..."
-              : "Creating..."
-            : isEditing
-              ? "Save Changes"
-              : "Create Class"}
+          {isSaving ? "Saving..." : isEditing ? "Save Changes" : "Create Class"}
         </button>
       </div>
     </form>

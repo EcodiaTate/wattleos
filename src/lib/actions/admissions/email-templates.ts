@@ -1,3 +1,5 @@
+'use server';
+
 // src/lib/actions/admissions/email-templates.ts
 //
 // ============================================================
@@ -10,7 +12,7 @@
 // Templates can be set to auto-trigger when an entry moves
 // to a specific stage (e.g., send "Tour Invitation" when
 // entry moves to 'tour_scheduled'). The actual email sending
-// is handled by an Edge Function or integration pipe —
+// is handled by an Edge Function or integration pipe  -
 // these actions manage the templates and render content.
 //
 // WHY templates not freeform: Schools send the same emails

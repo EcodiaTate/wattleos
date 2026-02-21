@@ -19,11 +19,19 @@
 // callback, we avoid a second redirect hop and the invite token
 // travels as a query param through the entire OAuth round-trip.
 //
-// BUG FIX (original): Cookies were set on NextResponse.next()
-// but a different NextResponse.redirect() was returned. The
-// redirect didn't carry session cookies → middleware saw no
-// session → redirect loop to /login. Fix: accumulate cookies
-// during exchangeCodeForSession, replay onto final redirect.
+// BUG FIX (v1): Cookies were set on NextResponse.next() but a
+// different NextResponse.redirect() was returned. The redirect
+// didn't carry session cookies → middleware saw no session →
+// redirect loop to /login. Fix: accumulate cookies during
+// exchangeCodeForSession, replay onto final redirect.
+//
+// BUG FIX (v2): After setUserTenant() updates app_metadata in
+// the database, the JWT in the accumulated cookies was STALE
+// (minted before the update). Added refreshSession() after
+// every setUserTenant() call so the redirect response carries
+// a JWT with the fresh tenant_id. Without this, getTenantContext
+// on the dashboard reads a JWT with no tenant_id and bounces
+// back to /tenant-picker → infinite 307 loop.
 // ============================================================
 
 import { acceptParentInvitation } from "@/lib/actions/enroll/accept-parent-invitation";
@@ -92,7 +100,10 @@ export async function GET(request: NextRequest) {
       // Stamp the tenant into the user's JWT so RLS works immediately
       await setUserTenant(userId, result.data.tenant_id);
 
-      // Clear the invite cookies (they were set by invite-accept-client as backup)
+      // FIX: Re-mint the JWT so it includes the new tenant_id.
+      // Without this, the cookies carry a stale JWT with no tenant_id.
+      await supabase.auth.refreshSession();
+
       const response = NextResponse.redirect(`${origin}/dashboard`);
 
       for (const { name, value, options } of cookieStore) {
@@ -111,6 +122,7 @@ export async function GET(request: NextRequest) {
 
       return response;
     }
+
     function errorToString(err: unknown): string {
       if (typeof err === "string") return err;
       if (err && typeof err === "object") {
@@ -144,6 +156,13 @@ export async function GET(request: NextRequest) {
   } else if (tenants.length === 1) {
     // Single tenant - stamp it into the JWT and go straight to the app
     await setUserTenant(userId, tenants[0].tenant.id);
+
+    // FIX: Re-mint the JWT so the redirect response carries cookies
+    // with the updated tenant_id in app_metadata. Without this, the
+    // dashboard's getTenantContext() reads a stale JWT with no
+    // tenant_id and redirects back to /tenant-picker → infinite loop.
+    await supabase.auth.refreshSession();
+
     redirectUrl = `${origin}${redirectTo}`;
   } else {
     // Multiple tenants - let them pick

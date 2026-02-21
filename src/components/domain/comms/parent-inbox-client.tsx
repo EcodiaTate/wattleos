@@ -5,11 +5,13 @@
 // ============================================================
 // Read-only thread list - parents can view and reply but
 // cannot initiate new threads (that's a guide action).
+//
+// WHY separate from staff inbox: Parents see a simpler view
+// without compose functionality. Thread creation is staff-only.
 // ============================================================
 
 "use client";
 
-import type { MessageThreadType } from "@/lib/constants/communications";
 import { THREAD_TYPE_CONFIG } from "@/lib/constants/communications";
 import type { MessageThreadWithPreview } from "@/types/domain";
 import Link from "next/link";
@@ -35,10 +37,9 @@ export function ParentInboxClient({
   }
 
   return (
-    <div className="divide-y divide-gray-200 rounded-lg borderborder-border bg-background shadow-sm">
+    <div className="divide-y divide-gray-200 rounded-lg border border-border bg-background shadow-sm">
       {initialThreads.map((thread) => {
-        const typeConfig =
-          THREAD_TYPE_CONFIG[thread.thread_type as MessageThreadType];
+        const typeConfig = THREAD_TYPE_CONFIG[thread.thread_type];
         const hasUnread = thread.unread_count > 0;
         const lastMsg = thread.last_message;
         const lastSender = thread.last_message_sender;
@@ -59,7 +60,7 @@ export function ParentInboxClient({
           <Link
             key={thread.id}
             href={`/parent/messages/${thread.id}`}
-            className={`block px-5 py-4 transition-colors hover:bg-background ${
+            className={`block px-5 py-4 transition-colors hover:bg-muted/50 ${
               hasUnread ? "bg-amber-50/50" : ""
             }`}
           >
@@ -90,13 +91,17 @@ export function ParentInboxClient({
                   )}
                   {preview}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  From {thread.creator.first_name} {thread.creator.last_name}
-                </p>
+                {thread.creator && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    From {thread.creator.first_name} {thread.creator.last_name}
+                  </p>
+                )}
               </div>
               <div className="flex flex-col items-end gap-1">
                 <span className="whitespace-nowrap text-xs text-muted-foreground">
-                  {lastMsg ? formatRelativeTime(lastMsg.sent_at) : ""}
+                  {lastMsg
+                    ? formatRelativeTime(lastMsg.sent_at)
+                    : ""}
                 </span>
                 {hasUnread && (
                   <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">

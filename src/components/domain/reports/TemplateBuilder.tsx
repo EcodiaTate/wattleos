@@ -1,20 +1,4 @@
 // src/components/domain/reports/TemplateBuilder.tsx
-//
-// ============================================================
-// WattleOS V2 - Report Template Builder (Client Component)
-// ============================================================
-// Interactive section composer for report templates. Schools
-// add, remove, reorder, and configure sections to design their
-// report format.
-//
-// WHY client: All interactions (drag-to-reorder, expand/collapse
-// config panels, add/remove sections) are client-side state.
-// Only the Save action hits the server.
-//
-// Uses up/down buttons for reordering - reliable and accessible
-// without requiring a drag-and-drop library dependency.
-// ============================================================
-
 "use client";
 
 import { updateReportTemplate } from "@/lib/actions/reports";
@@ -54,8 +38,6 @@ export function TemplateBuilder({
   const [hasChanges, setHasChanges] = useState(false);
   const router = useRouter();
 
-  // ── Section Management ──────────────────────────────────
-
   const markDirty = useCallback(() => {
     setHasChanges(true);
     setSaveStatus("idle");
@@ -65,7 +47,6 @@ export function TemplateBuilder({
     const info = SECTION_TYPE_CATALOG.find((s) => s.type === type);
     if (!info) return;
 
-    // Check if non-multiple section already exists
     if (!info.allowMultiple) {
       const exists = sections.some((s) => s.type === type);
       if (exists) return;
@@ -88,7 +69,6 @@ export function TemplateBuilder({
   function removeSection(sectionId: string) {
     setSections((prev) => {
       const filtered = prev.filter((s) => s.id !== sectionId);
-      // Re-index orders
       return filtered.map((s, i) => ({ ...s, order: i }));
     });
     if (expandedSection === sectionId) {
@@ -111,7 +91,6 @@ export function TemplateBuilder({
         newSections[index],
       ];
 
-      // Re-index orders
       return newSections.map((s, i) => ({ ...s, order: i }));
     });
     markDirty();
@@ -133,8 +112,6 @@ export function TemplateBuilder({
     );
     markDirty();
   }
-
-  // ── Save ────────────────────────────────────────────────
 
   async function handleSave() {
     setIsSaving(true);
@@ -159,28 +136,26 @@ export function TemplateBuilder({
     setIsSaving(false);
   }
 
-  // ── Derived State ───────────────────────────────────────
-
   const availableSections = SECTION_TYPE_CATALOG.filter((info) => {
     if (info.allowMultiple) return true;
     return !sections.some((s) => s.type === info.type);
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-[var(--density-section-gap)]">
       {/* Toolbar */}
-      <div className="flex items-center justify-between rounded-lg borderborder-border bg-background px-4 py-3">
+      <div className="flex items-center justify-between rounded-lg border border-border bg-card px-5 py-3 shadow-sm">
         <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground font-medium">
             {sections.length} section{sections.length !== 1 ? "s" : ""}
           </span>
           {hasChanges && (
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+            <span className="status-badge bg-warning/10 text-warning-foreground status-badge-plain">
               Unsaved changes
             </span>
           )}
           {saveStatus === "saved" && !hasChanges && (
-            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+            <span className="status-badge bg-success/10 text-success-foreground status-badge-plain">
               Saved
             </span>
           )}
@@ -188,14 +163,14 @@ export function TemplateBuilder({
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowCatalog(!showCatalog)}
-            className="rounded-md border border-gray-300 bg-background px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-background"
+            className="rounded-md border border-border bg-background px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-medium text-foreground transition-all hover:bg-muted active:scale-95"
           >
             + Add Section
           </button>
           <button
             onClick={handleSave}
             disabled={isSaving || !hasChanges}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-amber-700 disabled:opacity-50"
+            className="rounded-md bg-primary px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary-600 disabled:opacity-50 active:scale-95"
           >
             {isSaving ? "Saving..." : "Save Template"}
           </button>
@@ -204,57 +179,57 @@ export function TemplateBuilder({
 
       {/* Error */}
       {saveError && (
-        <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <div className="animate-slide-down rounded-lg bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive font-medium">
           {saveError}
         </div>
       )}
 
-      {/* Section catalog (add panel) */}
+      {/* Section catalog */}
       {showCatalog && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-[var(--density-card-padding)]">
-          <div className="mb-3 flex items-center justify-between">
+        <div className="animate-fade-in-down rounded-lg border border-primary-100 bg-primary-50/30 p-[var(--density-card-padding)]">
+          <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-foreground">
               Add a Section
             </h3>
             <button
               onClick={() => setShowCatalog(false)}
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               Close
             </button>
           </div>
           {availableSections.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground italic">
               All single-use section types are already in the template.
             </p>
           ) : (
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {availableSections.map((info) => (
                 <button
                   key={info.type}
                   onClick={() => addSection(info.type)}
-                  className="rounded-md border border-amber-200 bg-background p-3 text-left transition-all hover:border-primary hover:shadow-sm"
+                  className="card-interactive rounded-lg border border-border bg-card p-4 text-left"
                 >
                   <div className="flex items-center gap-2">
                     <SectionIcon
                       type={info.type}
                       className="h-4 w-4 text-primary"
                     />
-                    <span className="text-sm font-medium text-foreground">
+                    <span className="text-sm font-bold text-foreground">
                       {info.label}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
                     {info.description}
                   </p>
-                  <div className="mt-2 flex gap-1">
+                  <div className="mt-3 flex gap-1.5">
                     {info.isAutoPopulated && (
-                      <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600">
+                      <span className="status-badge bg-info/10 text-info-foreground status-badge-plain px-1.5 py-0">
                         Auto
                       </span>
                     )}
                     {info.isEditable && (
-                      <span className="rounded bg-green-50 px-1.5 py-0.5 text-[10px] font-medium text-green-600">
+                      <span className="status-badge bg-success/10 text-success-foreground status-badge-plain px-1.5 py-0">
                         Editable
                       </span>
                     )}
@@ -268,8 +243,8 @@ export function TemplateBuilder({
 
       {/* Section list */}
       {sections.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="rounded-lg border-2 border-dashed border-border p-12 text-center bg-muted/20">
+          <p className="text-sm text-muted-foreground font-medium">
             No sections yet. Click &ldquo;Add Section&rdquo; to start building
             your template.
           </p>
@@ -303,10 +278,6 @@ export function TemplateBuilder({
   );
 }
 
-// ============================================================
-// SectionCard - individual section in the builder
-// ============================================================
-
 interface SectionCardProps {
   section: TemplateSection;
   index: number;
@@ -336,137 +307,95 @@ function SectionCard({
 
   return (
     <div
-      className={`rounded-lg border bg-background transition-shadow ${
-        isExpanded ? "border-amber-300 shadow-sm" : "border-border"
+      className={`rounded-lg border bg-card transition-all ${
+        isExpanded ? "border-primary-400 shadow-md ring-1 ring-primary-400/20" : "border-border shadow-sm hover:border-primary-200"
       }`}
     >
-      {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3">
-        {/* Reorder buttons */}
         <div className="flex flex-col gap-0.5">
           <button
             onClick={onMoveUp}
             disabled={index === 0}
-            className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-muted-foreground disabled:opacity-30"
+            className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted disabled:opacity-30 touch-target h-6 w-6 flex items-center justify-center"
             aria-label="Move section up"
           >
-            <svg
-              className="h-3.5 w-3.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m4.5 15.75 7.5-7.5 7.5 7.5"
-              />
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
             </svg>
           </button>
           <button
             onClick={onMoveDown}
             disabled={index === totalSections - 1}
-            className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-muted-foreground disabled:opacity-30"
+            className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted disabled:opacity-30 touch-target h-6 w-6 flex items-center justify-center"
             aria-label="Move section down"
           >
-            <svg
-              className="h-3.5 w-3.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m19.5 8.25-7.5 7.5-7.5-7.5"
-              />
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
             </svg>
           </button>
         </div>
 
-        {/* Section number */}
-        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
           {index + 1}
         </span>
 
-        {/* Icon + title */}
         <SectionIcon
           type={section.type}
-          className="h-4 w-4 flex-shrink-0 text-muted-foreground"
+          className="h-4 w-4 flex-shrink-0 text-primary-400"
         />
         <button
           onClick={onToggleExpand}
-          className="flex min-w-0 flex-1 items-center gap-2 text-left"
+          className="flex min-w-0 flex-1 items-center gap-2 text-left group"
         >
-          <span className="truncate text-sm font-medium text-foreground">
+          <span className="truncate text-sm font-bold text-foreground">
             {section.title}
           </span>
-          <span className="flex-shrink-0 text-xs text-muted-foreground">
+          <span className="flex-shrink-0 text-[10px] font-medium text-muted-foreground opacity-70">
             {info?.label !== section.title ? `(${info?.label})` : ""}
           </span>
         </button>
 
-        {/* Badges */}
-        <div className="flex flex-shrink-0 items-center gap-2">
+        <div className="hidden sm:flex flex-shrink-0 items-center gap-2">
           {info?.isAutoPopulated && (
-            <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600">
+            <span className="status-badge bg-info/10 text-info-foreground status-badge-plain px-1.5 py-0">
               Auto
             </span>
           )}
           {info?.isEditable && (
-            <span className="rounded bg-green-50 px-1.5 py-0.5 text-[10px] font-medium text-green-600">
+            <span className="status-badge bg-success/10 text-success-foreground status-badge-plain px-1.5 py-0">
               Editable
             </span>
           )}
         </div>
 
-        {/* Expand toggle */}
         <button
           onClick={onToggleExpand}
-          className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-muted-foreground"
+          className="rounded-full p-1.5 text-muted-foreground transition-all hover:bg-muted hover:text-foreground touch-target"
         >
           <svg
-            className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+            className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m19.5 8.25-7.5 7.5-7.5-7.5"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
           </svg>
         </button>
 
-        {/* Remove */}
         <button
           onClick={onRemove}
-          className="rounded p-1 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600"
+          className="rounded-full p-1.5 text-muted-foreground transition-all hover:bg-destructive/10 hover:text-destructive touch-target"
           aria-label="Remove section"
         >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 18 18 6M6 6l12 12"
-            />
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      {/* Config panel (expanded) */}
       {isExpanded && (
-        <div className="border-t border-gray-100 px-4 py-4">
+        <div className="animate-fade-in border-t border-border bg-muted/10 px-5 py-5">
           <SectionConfigPanel
             section={section}
             onUpdateTitle={onUpdateTitle}
@@ -477,10 +406,6 @@ function SectionCard({
     </div>
   );
 }
-
-// ============================================================
-// SectionConfigPanel - type-specific config fields
-// ============================================================
 
 interface SectionConfigPanelProps {
   section: TemplateSection;
@@ -496,26 +421,24 @@ function SectionConfigPanel({
   const config = section.config;
 
   return (
-    <div className="space-y-4">
-      {/* Section title (always editable) */}
+    <div className="space-y-5 max-w-2xl">
       <div>
-        <label className="block text-xs font-medium text-muted-foreground">
+        <label className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
           Section Heading
         </label>
         <input
           type="text"
           value={section.title}
           onChange={(e) => onUpdateTitle(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+          className="mt-1.5 block w-full rounded-md border border-input bg-background px-3 h-[var(--density-input-height)] text-sm shadow-sm transition-all focus:border-primary focus:ring-1 focus:ring-primary outline-none"
         />
       </div>
 
-      {/* Type-specific config */}
       {(section.type === "mastery_grid" ||
         section.type === "mastery_summary") && (
-        <>
+        <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-medium text-muted-foreground">
+            <label className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
               Curriculum Area Filter
             </label>
             <input
@@ -528,16 +451,16 @@ function SectionConfigPanel({
                 })
               }
               placeholder="all (or enter an area name)"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1.5 block w-full rounded-md border border-input bg-background px-3 h-[var(--density-input-height)] text-sm shadow-sm transition-all focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             />
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-1.5 text-[10px] font-medium text-muted-foreground leading-relaxed">
               Enter &ldquo;all&rdquo; for all areas, or a specific area name
               like &ldquo;Practical Life&rdquo;
             </p>
           </div>
           {section.type === "mastery_summary" && (
             <div>
-              <label className="block text-xs font-medium text-muted-foreground">
+              <label className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
                 Display Mode
               </label>
               <select
@@ -551,7 +474,7 @@ function SectionConfigPanel({
                       | "both",
                   })
                 }
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="mt-1.5 block w-full rounded-md border border-input bg-background px-3 h-[var(--density-input-height)] text-sm shadow-sm transition-all focus:border-primary focus:ring-1 focus:ring-primary outline-none"
               >
                 <option value="both">Counts & Percentages</option>
                 <option value="percentage">Percentages Only</option>
@@ -559,12 +482,12 @@ function SectionConfigPanel({
               </select>
             </div>
           )}
-        </>
+        </div>
       )}
 
       {section.type === "observation_highlights" && (
         <div>
-          <label className="block text-xs font-medium text-muted-foreground">
+          <label className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
             Max Observations
           </label>
           <input
@@ -578,16 +501,16 @@ function SectionConfigPanel({
                 maxObservations: parseInt(e.target.value, 10) || 5,
               })
             }
-            className="mt-1 block w-24 rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1.5 block w-24 rounded-md border border-input bg-background px-3 h-[var(--density-input-height)] text-sm shadow-sm transition-all focus:border-primary focus:ring-1 focus:ring-primary outline-none"
           />
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1.5 text-[10px] font-medium text-muted-foreground">
             Number of recent published observations to include
           </p>
         </div>
       )}
 
       {section.type === "attendance_summary" && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 bg-card border border-border p-3 rounded-lg">
           <input
             type="checkbox"
             id={`showDetails-${section.id}`}
@@ -595,11 +518,11 @@ function SectionConfigPanel({
             onChange={(e) =>
               onUpdateConfig({ ...config, showDetails: e.target.checked })
             }
-            className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
+            className="h-4 w-4 rounded border-input text-primary focus:ring-primary transition-all"
           />
           <label
             htmlFor={`showDetails-${section.id}`}
-            className="text-xs text-muted-foreground"
+            className="text-xs font-bold text-foreground cursor-pointer"
           >
             Show daily breakdown (in addition to totals)
           </label>
@@ -611,7 +534,7 @@ function SectionConfigPanel({
         section.type === "goals") && (
         <>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground">
+            <label className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
               Placeholder Text
             </label>
             <textarea
@@ -621,11 +544,11 @@ function SectionConfigPanel({
               }
               rows={2}
               placeholder="Hint text shown to the teacher when writing this section..."
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1.5 block w-full rounded-md border border-input bg-background p-3 text-sm shadow-sm transition-all focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground">
+            <label className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
               Suggested Minimum Words
             </label>
             <input
@@ -638,9 +561,9 @@ function SectionConfigPanel({
                   suggestedMinWords: parseInt(e.target.value, 10) || 0,
                 })
               }
-              className="mt-1 block w-24 rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1.5 block w-24 rounded-md border border-input bg-background px-3 h-[var(--density-input-height)] text-sm shadow-sm transition-all focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             />
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-1.5 text-[10px] font-medium text-muted-foreground">
               Guidance only - not enforced. Set to 0 to disable.
             </p>
           </div>
@@ -648,18 +571,16 @@ function SectionConfigPanel({
       )}
 
       {section.type === "student_info" && (
-        <p className="text-xs text-muted-foreground">
-          This section automatically shows the student&apos;s name, class, date
-          of birth, and photo. No configuration needed.
-        </p>
+        <div className="rounded-lg bg-info/5 border border-info/10 p-4">
+          <p className="text-xs font-medium text-info-foreground leading-relaxed">
+            This section automatically shows the student&apos;s name, class, date
+            of birth, and photo. No configuration needed.
+          </p>
+        </div>
       )}
     </div>
   );
 }
-
-// ============================================================
-// SectionIcon - icon per section type
-// ============================================================
 
 function SectionIcon({
   type,
@@ -692,17 +613,13 @@ function SectionIcon({
       className={className}
       fill="none"
       viewBox="0 0 24 24"
-      strokeWidth={1.5}
+      strokeWidth={2}
       stroke="currentColor"
     >
       <path strokeLinecap="round" strokeLinejoin="round" d={iconPaths[type]} />
     </svg>
   );
 }
-
-// ============================================================
-// Default config per section type
-// ============================================================
 
 function getDefaultConfig(type: TemplateSectionType): TemplateSectionConfig {
   switch (type) {

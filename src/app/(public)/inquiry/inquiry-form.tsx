@@ -8,7 +8,7 @@
 // parent contact, child details, program preference.
 //
 // WHY not a multi-step wizard: Unlike the enrollment form
-// (Module 10, 10 steps), the inquiry is deliberately short —
+// (Module 10, 10 steps), the inquiry is deliberately short  -
 // 10 fields max. A single-page form has higher completion
 // rates for this level of commitment. The full enrollment
 // form comes later when the school makes an offer.

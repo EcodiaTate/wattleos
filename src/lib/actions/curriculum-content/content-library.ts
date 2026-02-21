@@ -1,3 +1,5 @@
+'use server';
+
 "use server";
 
 // ============================================================
@@ -27,13 +29,9 @@ import type { CurriculumNode, CurriculumTemplate } from "@/types/domain";
 // Types
 // ============================================================
 
-/** Extended template with the new Module 14 columns */
 export interface EnhancedCurriculumTemplate extends CurriculumTemplate {
-  framework: string | null;
-  age_range: string | null;
   country: string | null;
   state: string | null;
-  version: string | null;
   is_compliance_framework: boolean;
 }
 

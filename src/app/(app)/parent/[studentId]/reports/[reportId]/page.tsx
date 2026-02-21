@@ -124,7 +124,7 @@ export default async function ReportViewerPage({ params }: PageProps) {
               {content?.reportingPeriod && (
                 <p className="mt-1 text-xs text-muted-foreground">
                   Reporting period:{" "}
-                  {formatDate(content.reportingPeriod.startDate)} —{" "}
+                  {formatDate(content.reportingPeriod.startDate)} -{" "}
                   {formatDate(content.reportingPeriod.endDate)}
                 </p>
               )}

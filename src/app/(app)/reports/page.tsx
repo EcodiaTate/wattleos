@@ -189,10 +189,10 @@ export default async function ReportsPage({ searchParams }: PageProps) {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">
-                      {report.term ?? "—"}
+                      {report.term ?? " - "}
                     </td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">
-                      {report.templateName ?? "—"}
+                      {report.templateName ?? " - "}
                     </td>
                     <td className="px-4 py-3">
                       <ReportStatusBadge status={report.status} />
@@ -213,7 +213,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
                     <td className="px-4 py-3 text-sm text-muted-foreground">
                       {[report.author.first_name, report.author.last_name]
                         .filter(Boolean)
-                        .join(" ") || "—"}
+                        .join(" ") || " - "}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link

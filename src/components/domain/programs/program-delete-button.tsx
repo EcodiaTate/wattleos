@@ -1,16 +1,4 @@
 // src/components/domain/programs/program-delete-button.tsx
-//
-// ============================================================
-// WattleOS V2 - Program Delete Button
-// ============================================================
-// Client component that shows a delete button with a
-// confirmation dialog. Calls the deleteProgram server action.
-//
-// WHY separate component: The delete button has client-side
-// state (confirm dialog, loading). Keeping it isolated means
-// the parent page stays as a server component.
-// ============================================================
-
 "use client";
 
 import { deleteProgram } from "@/lib/actions/programs/programs";
@@ -50,7 +38,7 @@ export function ProgramDeleteButton({
     return (
       <button
         onClick={() => setConfirming(true)}
-        className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+        className="rounded-lg border border-destructive/20 px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-medium text-destructive hover:bg-destructive/5 transition-[var(--transition-base)]"
       >
         Delete
       </button>
@@ -58,13 +46,13 @@ export function ProgramDeleteButton({
   }
 
   return (
-    <div className="flex items-center gap-2">
-      {error && <span className="text-sm text-red-600">{error}</span>}
-      <span className="text-sm text-gray-600">Delete "{programName}"?</span>
+    <div className="flex items-center gap-[var(--density-sm)]">
+      {error && <span className="text-sm text-destructive">{error}</span>}
+      <span className="text-sm text-muted-foreground">Delete "{programName}"?</span>
       <button
         onClick={handleDelete}
         disabled={deleting}
-        className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+        className="rounded-lg bg-destructive px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-medium text-destructive-foreground hover:opacity-90 transition-[var(--transition-base)] disabled:opacity-50"
       >
         {deleting ? "Deleting..." : "Confirm"}
       </button>
@@ -74,7 +62,7 @@ export function ProgramDeleteButton({
           setError(null);
         }}
         disabled={deleting}
-        className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+        className="rounded-lg border border-border px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-medium text-muted-foreground hover:bg-muted transition-[var(--transition-base)]"
       >
         Cancel
       </button>

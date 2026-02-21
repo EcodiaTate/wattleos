@@ -1,7 +1,7 @@
 // src/types/display.ts
 //
 // ============================================================
-// WattleOS V2 — Display & Appearance Types
+// WattleOS V2 - Display & Appearance Types
 // ============================================================
 // Shared types for tenant appearance settings AND per-user
 // display preferences.
@@ -13,9 +13,9 @@
 //   - Server actions (persist to tenants.settings JSONB / cookie)
 //
 // TWO COOKIES:
-//   1. wattle-display   — effective values the root layout reads
+//   1. wattle-display   - effective values the root layout reads
 //      (theme, density, fontScale, brand, accent, sidebar)
-//   2. wattle-user-prefs — tracks whether the user explicitly
+//   2. wattle-user-prefs - tracks whether the user explicitly
 //      chose theme/density/fontScale or is using school default.
 //      WHY separate: The main cookie always holds the effective
 //      value ("dark"), but we need to know if that's because the
@@ -118,7 +118,7 @@ export const DEFAULT_DISPLAY_COOKIE: DisplayCookieData = {
 /**
  * Parse the main display cookie string into typed data.
  * Returns defaults for any missing/invalid fields.
- * Never throws — always returns a valid DisplayCookieData.
+ * Never throws - always returns a valid DisplayCookieData.
  */
 export function parseDisplayCookie(
   raw: string | undefined | null,

@@ -10,12 +10,20 @@
 // WHY separate from staff observations: Parents see a curated
 // view - no drafts, no archived items, no editing capabilities.
 // The portfolio is a read-only celebration of learning.
+//
+// SECURITY CHANGE: Media URLs are now resolved as short-lived
+// signed URLs from private storage. The observation-media bucket
+// is private (children's photos must not have permanent public
+// URLs). We resolve signed URLs server-side before returning
+// data to the client.
 // ============================================================
 
 "use server";
 
 import { getTenantContext } from "@/lib/auth/tenant-context";
+import { resolveSignedUrls } from "@/lib/storage/signed-urls";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { ObservationMedia } from "@/types/domain";
 import type { ActionResponse } from "@/types/api";
 import { isGuardianOf } from "./children";
 
@@ -174,26 +182,38 @@ export async function getChildObservations(
     }
 
     // Fetch media for these observations
+    // WHY storage_path not storage_url: The schema column is storage_path.
+    // We resolve it to a signed URL below.
     const { data: mediaRecords } =
       foundIds.length > 0
         ? await supabase
             .from("observation_media")
             .select(
-              "id, observation_id, media_type, storage_url, thumbnail_url, caption",
+              "id, tenant_id, observation_id, media_type, storage_provider, storage_path, google_drive_file_id, thumbnail_url, file_name, file_size_bytes",
             )
             .in("observation_id", foundIds)
             .is("deleted_at", null)
         : { data: [] };
 
+    // Resolve signed URLs for private storage media
+    // WHY: observation-media bucket is private. We generate short-lived
+    // signed URLs server-side so the client can display images without
+    // needing direct bucket access.
+    const typedMedia = (mediaRecords ?? []) as unknown as ObservationMedia[];
+    const resolvedMedia = await resolveSignedUrls(typedMedia);
+
+    // Build media map keyed by observation_id
     const mediaMap = new Map<string, ChildObservation["media"]>();
-    for (const m of mediaRecords ?? []) {
+    for (const m of resolvedMedia) {
       const existing = mediaMap.get(m.observation_id) ?? [];
       existing.push({
         id: m.id,
         mediaType: m.media_type,
-        storageUrl: m.storage_url,
+        // storageUrl: use the signed thumbnail_url as the display URL.
+        // The old code used a non-existent storage_url column here.
+        storageUrl: m.thumbnail_url ?? "",
         thumbnailUrl: m.thumbnail_url,
-        caption: m.caption,
+        caption: m.file_name,
       });
       mediaMap.set(m.observation_id, existing);
     }

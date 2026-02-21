@@ -1,17 +1,4 @@
 // src/components/domain/programs/program-type-badge.tsx
-//
-// ============================================================
-// WattleOS V2 - Program Type Badge
-// ============================================================
-// Reusable badge that displays the program type with a
-// colour-coded pill. Used in list pages, detail pages,
-// and session calendar events.
-//
-// WHY separate component: Program type badges appear in 5+
-// places (list, detail, calendar, kiosk, reports). One source
-// of truth for the colour mapping.
-// ============================================================
-
 import {
   PROGRAM_TYPE_CONFIG,
   type ProgramTypeValue,
@@ -31,13 +18,15 @@ export function ProgramTypeBadge({
   const config = PROGRAM_TYPE_CONFIG[type] ?? PROGRAM_TYPE_CONFIG.other;
 
   const sizeClasses =
-    size === "sm" ? "px-2 py-0.5 text-xs" : "px-2.5 py-1 text-sm";
+    size === "sm" 
+      ? "px-2 py-0.5 text-[10px] tracking-tight" 
+      : "px-2.5 py-1 text-xs tracking-normal";
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full font-medium ${config.badgeBg} ${config.badgeText} ${sizeClasses}`}
+      className={`inline-flex items-center gap-1 rounded-full font-black uppercase tracking-tighter ${config.badgeBg} ${config.badgeText} ${sizeClasses} shadow-sm border border-black/5`}
     >
-      {showIcon && <span>{config.icon}</span>}
+      {showIcon && <span className="text-[1.2em]">{config.icon}</span>}
       {config.shortLabel}
     </span>
   );

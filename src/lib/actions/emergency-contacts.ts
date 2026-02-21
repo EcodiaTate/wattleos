@@ -1,19 +1,17 @@
-"use server";
+'use server';
 
 // ============================================================
 // WattleOS V2 - Emergency Contact Server Actions
 // ============================================================
 // Separate from guardians: not all emergency contacts are
 // system users, and not all guardians are emergency contacts.
-//
-// Fix: createEmergencyContact now calls getTenantContext()
-// for tenant_id on INSERT.
 // ============================================================
 
 import { getTenantContext } from "@/lib/auth/tenant-context";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ActionResponse, failure, success } from "@/types/api";
 import { EmergencyContact } from "@/types/domain";
+import { logAudit, AuditActions } from "@/lib/utils/audit";
 
 // ============================================================
 // Input Types
@@ -109,6 +107,18 @@ export async function createEmergencyContact(
       return failure(error.message, "DB_ERROR");
     }
 
+    await logAudit({
+      context,
+      action: AuditActions.EMERGENCY_CONTACT_CREATED,
+      entityType: "emergency_contact",
+      entityId: (data as EmergencyContact).id,
+      metadata: {
+        student_id: input.student_id,
+        name: input.name,
+        relationship: input.relationship,
+      },
+    });
+
     return success(data as EmergencyContact);
   } catch (err) {
     const message =
@@ -126,6 +136,7 @@ export async function updateEmergencyContact(
   input: UpdateEmergencyContactInput,
 ): Promise<ActionResponse<EmergencyContact>> {
   try {
+    const context = await getTenantContext();
     const supabase = await createSupabaseServerClient();
 
     const updateData: Record<string, unknown> = {};
@@ -163,6 +174,14 @@ export async function updateEmergencyContact(
       return failure("Emergency contact not found", "NOT_FOUND");
     }
 
+    await logAudit({
+      context,
+      action: AuditActions.EMERGENCY_CONTACT_UPDATED,
+      entityType: "emergency_contact",
+      entityId: contactId,
+      metadata: { updated_fields: Object.keys(updateData) },
+    });
+
     return success(data as EmergencyContact);
   } catch (err) {
     const message =
@@ -179,7 +198,16 @@ export async function deleteEmergencyContact(
   contactId: string,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
+    const context = await getTenantContext();
     const supabase = await createSupabaseServerClient();
+
+    // Fetch before delete for audit trail
+    const { data: existing } = await supabase
+      .from("emergency_contacts")
+      .select("student_id, name, relationship")
+      .eq("id", contactId)
+      .is("deleted_at", null)
+      .single();
 
     const { error } = await supabase
       .from("emergency_contacts")
@@ -189,6 +217,20 @@ export async function deleteEmergencyContact(
 
     if (error) {
       return failure(error.message, "DB_ERROR");
+    }
+
+    if (existing) {
+      await logAudit({
+        context,
+        action: AuditActions.EMERGENCY_CONTACT_DELETED,
+        entityType: "emergency_contact",
+        entityId: contactId,
+        metadata: {
+          student_id: existing.student_id,
+          name: existing.name,
+          relationship: existing.relationship,
+        },
+      });
     }
 
     return success({ id: contactId });

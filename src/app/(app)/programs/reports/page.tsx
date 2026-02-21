@@ -3,14 +3,6 @@
 // ============================================================
 // WattleOS V2 - Program Utilization Reports
 // ============================================================
-// Server Component wrapper with a client island for the
-// date range picker. Shows utilization (capacity vs bookings)
-// and attendance (bookings vs check-ins) by program.
-//
-// WHY separate page: Admins need this for board reports,
-// CCS compliance, and capacity planning. It's a read-only
-// analytical view distinct from the day-to-day management.
-// ============================================================
 
 import { UtilizationReportClient } from "@/components/domain/programs/utilization-report-client";
 import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
@@ -25,12 +17,12 @@ export default async function ProgramReportsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="content-grid animate-fade-in space-y-[var(--density-section-gap)]">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
           Program Utilization Reports
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-[var(--muted-foreground)]">
           Capacity vs. attendance across all programs.
         </p>
       </div>

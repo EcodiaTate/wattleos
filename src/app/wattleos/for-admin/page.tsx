@@ -1,491 +1,510 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { MarketingFooter, MarketingNav, MarketingShell } from "../../page";
+import {
+  CTABanner,
+  FeatureRow,
+  IconBilling,
+  IconEnroll,
+  IconPermissions,
+  MarketingFooter,
+  MarketingNav,
+  MarketingShell,
+  PageHero,
+  SectionDescription,
+  SectionHeading,
+  SectionLabel,
+  useReveal,
+} from "../components";
 
-// ============================================================
-// Types
-// ============================================================
+function CascadeSection() {
+  const reveal = useReveal();
 
-interface DetailFeature {
-  icon: string;
-  title: string;
-  desc: string;
-  detail: string;
-}
-
-interface ComplianceItem {
-  framework: string;
-  desc: string;
-  tag: string;
-}
-
-// ============================================================
-// Data
-// ============================================================
-
-const HERO_COLOR = "#8B6F47";
-
-const FEATURES: DetailFeature[] = [
-  {
-    icon: "🏫",
-    title: "Multi-Campus Dashboard",
-    desc: "One login, every campus, full visibility.",
-    detail:
-      "Manage multiple campuses from a single admin panel. View attendance across sites, compare enrollment numbers, and push policy changes school-wide. Each campus maintains its own data isolation while you get the aggregate view you need for strategic decisions.",
-  },
-  {
-    icon: "💰",
-    title: "Billing & Invoicing",
-    desc: "Stripe-powered payments with CCS integration.",
-    detail:
-      "Automated fee schedules, recurring invoices, and online payment processing through Stripe. CCS (Child Care Subsidy) claims are tracked and reconciled. Parents pay on time because the process is frictionless. You spend less time chasing overdue accounts.",
-  },
-  {
-    icon: "📊",
-    title: "Compliance Reporting",
-    desc: "NQS, EYLF, QCAA — audit-ready at all times.",
-    detail:
-      "Attendance records, staff-to-child ratios, curriculum coverage, and learning outcomes are all tracked continuously. When an assessor visits, you don't need to compile anything — the data is already structured, timestamped, and exportable. Cross-mapping between Montessori curriculum and national frameworks happens automatically.",
-  },
-  {
-    icon: "🔐",
-    title: "Role-Based Permissions",
-    desc: "Everyone sees exactly what they need, nothing more.",
-    detail:
-      "Define custom roles with granular permissions down to individual actions. Guides access pedagogy tools, office staff handle admin functions, parents see only their children. New staff get the right access on day one. Departing staff are cleanly offboarded.",
-  },
-  {
-    icon: "👥",
-    title: "Enrollment Pipeline",
-    desc: "Waitlist to first day, managed end-to-end.",
-    detail:
-      "Track every family from initial inquiry through tour, offer, acceptance, and enrolment. Automated stage transitions, email templates, and document collection reduce your administrative overhead. See conversion rates and demand by program to inform capacity planning.",
-  },
-  {
-    icon: "📈",
-    title: "Analytics & Insights",
-    desc: "Data-driven decisions about your school's future.",
-    detail:
-      "Enrollment trends, attendance patterns, staff utilisation, revenue forecasting, and program demand — all visualised in dashboards designed for school leaders. Export any report to PDF or CSV for board meetings and grant applications.",
-  },
-];
-
-const COMPLIANCE: ComplianceItem[] = [
-  {
-    framework: "NQS",
-    desc: "National Quality Standard tracking across all 7 quality areas",
-    tag: "Quality",
-  },
-  {
-    framework: "EYLF",
-    desc: "Early Years Learning Framework outcome mapping",
-    tag: "Curriculum",
-  },
-  {
-    framework: "QCAA",
-    desc: "Queensland Curriculum and Assessment Authority alignment",
-    tag: "Assessment",
-  },
-  {
-    framework: "CCS",
-    desc: "Child Care Subsidy claims processing and reconciliation",
-    tag: "Billing",
-  },
-];
-
-// ============================================================
-// Components
-// ============================================================
-
-function HeroBanner() {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    setTimeout(() => setVisible(true), 100);
-  }, []);
+  const outcomes = [
+    { num: "1", text: "Student record created in SIS" },
+    { num: "2", text: "Class enrolment set with start date" },
+    { num: "3", text: "Guardian records linked to student" },
+    { num: "4", text: "Medical conditions normalised from application" },
+    { num: "5", text: "Emergency contacts created (priority ordered)" },
+    { num: "6", text: "Custody restrictions flagged (if any)" },
+    { num: "7", text: "Consent flags set on guardian records" },
+    { num: "8", text: "Parent invitation emails sent" },
+    { num: "9", text: "Google Drive portfolio folder provisioned" },
+    { num: "10", text: "Stripe billing schedule created" },
+    { num: "11", text: "Parent auto-added to class group chat" },
+    { num: "12", text: "Application marked as approved" },
+  ];
 
   return (
     <section
       style={{
-        minHeight: "70vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        padding: "140px 24px 80px",
-        position: "relative",
-        overflow: "hidden",
+        padding: "80px 24px",
+        background: "linear-gradient(180deg, #FEFCF6 0%, #FAF5EA 100%)",
       }}
     >
       <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: `
-            radial-gradient(ellipse 70% 50% at 30% 20%, rgba(139,111,71,0.10) 0%, transparent 60%),
-            radial-gradient(ellipse 50% 40% at 80% 70%, rgba(139,111,71,0.06) 0%, transparent 50%)
-          `,
-          zIndex: 0,
-        }}
-      />
-
-      <div
-        style={{
-          maxWidth: 800,
-          margin: "0 auto",
-          position: "relative",
-          zIndex: 1,
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(30px)",
-          transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
+        ref={reveal.ref}
+        className={`section-reveal ${reveal.visible ? "visible" : ""}`}
+        style={{ maxWidth: 800, margin: "0 auto" }}
       >
-        <Link
-          href="/wattleos"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 13,
-            color: "#8B7355",
-            textDecoration: "none",
-            marginBottom: 24,
-          }}
-        >
-          ← Back to WattleOS
-        </Link>
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <SectionLabel color="#E8A838">The Approval Cascade</SectionLabel>
+          <SectionHeading>
+            One click.{" "}
+            <span style={{ color: "#E8A838" }}>Twelve outcomes.</span> Zero
+            re-entry.
+          </SectionHeading>
+          <SectionDescription>
+            When you approve an enrolment application, this is what happens
+            automatically. This is the &quot;enter it once&quot; promise - the
+            parent entered it, you verified it, and now every downstream system
+            has what it needs.
+          </SectionDescription>
+        </div>
 
         <div
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            background: `${HERO_COLOR}18`,
-            borderRadius: 100,
-            padding: "6px 18px",
-            marginBottom: 24,
-            border: `1px solid ${HERO_COLOR}30`,
-            marginLeft: 16,
+            background: "#fff",
+            borderRadius: 20,
+            padding: "40px 36px",
+            border: "1px solid rgba(232, 168, 56, 0.1)",
+            position: "relative",
+            boxShadow: "0 8px 40px rgba(44, 24, 16, 0.04)",
           }}
         >
-          <span
+          <div
             style={{
-              fontSize: 13,
-              color: HERO_COLOR,
-              fontFamily: "'Outfit', sans-serif",
-              fontWeight: 600,
+              textAlign: "center",
+              marginBottom: 32,
+              padding: "16px 24px",
+              background: "rgba(232, 168, 56, 0.06)",
+              borderRadius: 12,
             }}
           >
-            For Administrators
-          </span>
-        </div>
+            <p
+              style={{
+                fontFamily: "'Fraunces', Georgia, serif",
+                fontSize: 18,
+                color: "#2C1810",
+                fontWeight: 500,
+                margin: 0,
+              }}
+            >
+              Admin clicks{" "}
+              <span
+                style={{
+                  background: "#2C1810",
+                  color: "#FEFCF6",
+                  padding: "4px 16px",
+                  borderRadius: 6,
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  marginLeft: 8,
+                }}
+              >
+                Approve
+              </span>
+            </p>
+          </div>
 
-        <h1
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(36px, 5vw, 60px)",
-            color: "#2C1810",
-            lineHeight: 1.1,
-            fontWeight: 400,
-            maxWidth: 700,
-            letterSpacing: "-0.03em",
-            marginBottom: 24,
-          }}
-        >
-          Your school&apos;s
-          <br />
-          <span style={{ color: HERO_COLOR }}>operating system</span>
-        </h1>
-
-        <p
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: "clamp(17px, 2vw, 20px)",
-            color: "#6B5744",
-            lineHeight: 1.6,
-            maxWidth: 560,
-            marginBottom: 36,
-          }}
-        >
-          Enrollment, billing, compliance, staff management, and reporting —
-          everything a school administrator needs, unified in one platform that
-          understands Montessori.
-        </p>
-
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          <Link
-            href="/wattleos#contact"
+          <div
             style={{
-              display: "inline-block",
-              background: "#2C1810",
-              color: "#FEFBF3",
-              borderRadius: 10,
-              padding: "16px 36px",
-              fontFamily: "'Outfit', sans-serif",
-              fontSize: 16,
-              fontWeight: 600,
-              textDecoration: "none",
-              letterSpacing: "0.02em",
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: 10,
             }}
           >
-            Book a Demo
-          </Link>
-          <Link
-            href="/wattleos#pricing"
-            style={{
-              display: "inline-block",
-              background: "transparent",
-              color: "#2C1810",
-              border: "2px solid rgba(44, 24, 16, 0.2)",
-              borderRadius: 10,
-              padding: "14px 36px",
-              fontFamily: "'Outfit', sans-serif",
-              fontSize: 16,
-              fontWeight: 500,
-              textDecoration: "none",
-              letterSpacing: "0.02em",
-            }}
-          >
-            See Pricing →
-          </Link>
+            {outcomes.map((item) => (
+              <div
+                key={item.num}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "10px 14px",
+                  background: "rgba(91, 140, 90, 0.03)",
+                  borderRadius: 10,
+                  border: "1px solid rgba(91, 140, 90, 0.06)",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "'Fraunces', Georgia, serif",
+                    fontSize: 14,
+                    color: "#5B8C5A",
+                    fontWeight: 600,
+                    width: 24,
+                    textAlign: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  {item.num}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "'Outfit', sans-serif",
+                    fontSize: 14,
+                    color: "#5C4A32",
+                  }}
+                >
+                  {item.text}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function FeatureDeepDive() {
-  const [expanded, setExpanded] = useState<number | null>(null);
+function PipelineSection() {
+  const reveal = useReveal();
+
+  const stages = [
+    {
+      label: "Inquiry",
+      color: "#8B7355",
+      desc: "Family registers interest via your school website",
+    },
+    {
+      label: "Waitlisted",
+      color: "#C17D3A",
+      desc: "Added to the list with priority ranking",
+    },
+    { label: "Tour", color: "#E8A838", desc: "Book and attend a school tour" },
+    {
+      label: "Offered",
+      color: "#5B8C5A",
+      desc: "Admin offers a place for the next intake",
+    },
+    {
+      label: "Accepted",
+      color: "#3D6B3D",
+      desc: "Family accepts → auto-converts to enrolment application",
+    },
+    {
+      label: "Enrolled",
+      color: "#2C1810",
+      desc: "Application approved → full cascade fires",
+    },
+  ];
 
   return (
-    <section style={{ padding: "80px 24px", maxWidth: 900, margin: "0 auto" }}>
-      <div style={{ textAlign: "center", marginBottom: 56 }}>
-        <p
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 13,
-            fontWeight: 600,
-            color: HERO_COLOR,
-            textTransform: "uppercase",
-            letterSpacing: "0.12em",
-            marginBottom: 12,
-          }}
-        >
-          Everything You Need to Run a School
-        </p>
-        <h2
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(28px, 3.5vw, 42px)",
-            color: "#2C1810",
-            fontWeight: 400,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          Built for the complexity of school leadership
-        </h2>
-      </div>
+    <section style={{ padding: "80px 24px 100px" }}>
+      <div
+        ref={reveal.ref}
+        className={`section-reveal ${reveal.visible ? "visible" : ""}`}
+        style={{ maxWidth: 800, margin: "0 auto" }}
+      >
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <SectionLabel color="#C17D3A">Admissions Pipeline</SectionLabel>
+          <SectionHeading>From first inquiry to first day</SectionHeading>
+          <SectionDescription>
+            A structured pipeline that replaces the spreadsheet. Every family
+            tracked, every stage logged, every follow-up prompted. When a family
+            reaches &quot;Offered&quot;, their data converts directly into an
+            enrolment application - no re-entry.
+          </SectionDescription>
+        </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {FEATURES.map((f: DetailFeature, i: number) => (
-          <div
-            key={i}
-            style={{
-              background: expanded === i ? "#fff" : "#FEFBF3",
-              border: `1px solid ${expanded === i ? HERO_COLOR : "rgba(232, 168, 56, 0.12)"}`,
-              borderRadius: 16,
-              overflow: "hidden",
-              transition: "all 0.3s ease",
-              cursor: "pointer",
-            }}
-            onClick={() => setExpanded(expanded === i ? null : i)}
-          >
+        <div
+          style={{
+            display: "flex",
+            gap: 2,
+            flexWrap: "wrap",
+            justifyContent: "center",
+          }}
+        >
+          {stages.map((stage, i) => (
             <div
+              key={i}
+              style={{ display: "flex", alignItems: "center", gap: 2 }}
+            >
+              <div
+                style={{
+                  background: `${stage.color}0A`,
+                  border: `1.5px solid ${stage.color}20`,
+                  borderRadius: 12,
+                  padding: "20px 22px",
+                  minWidth: 130,
+                  textAlign: "center",
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: "'Fraunces', Georgia, serif",
+                    fontSize: 16,
+                    color: stage.color,
+                    fontWeight: 600,
+                    marginBottom: 4,
+                  }}
+                >
+                  {stage.label}
+                </p>
+                <p
+                  style={{
+                    fontFamily: "'Outfit', sans-serif",
+                    fontSize: 12,
+                    color: "#6B5744",
+                    lineHeight: 1.5,
+                    margin: 0,
+                  }}
+                >
+                  {stage.desc}
+                </p>
+              </div>
+              {i < stages.length - 1 && (
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  style={{ flexShrink: 0 }}
+                >
+                  <path
+                    d="M7 4l6 6-6 6"
+                    stroke="#C17D3A"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    opacity="0.4"
+                  />
+                </svg>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PermissionsSection() {
+  const reveal = useReveal();
+
+  const roles = [
+    {
+      name: "Owner",
+      desc: "Full platform access. System configuration.",
+      color: "#2C1810",
+    },
+    {
+      name: "Administrator",
+      desc: "Everything except system settings.",
+      color: "#8B6F47",
+    },
+    {
+      name: "Head of School",
+      desc: "Pedagogy, SIS, attendance, comms, enrolment.",
+      color: "#C17D3A",
+    },
+    {
+      name: "Lead Guide",
+      desc: "Full observation & curriculum access. Class-level management.",
+      color: "#E8A838",
+    },
+    {
+      name: "Guide",
+      desc: "Create & publish observations. View students. Take attendance.",
+      color: "#E8A838",
+    },
+    {
+      name: "Assistant",
+      desc: "Create observations. View students. Take attendance.",
+      color: "#D4877F",
+    },
+    {
+      name: "Program Coordinator",
+      desc: "Manage OSHC programs, bookings, check-in/out.",
+      color: "#5B8C5A",
+    },
+    {
+      name: "Parent",
+      desc: "Portfolio, messaging, booking. Access via guardian links.",
+      color: "#5B8C5A",
+    },
+  ];
+
+  return (
+    <section
+      style={{
+        padding: "80px 24px",
+        background: "linear-gradient(180deg, #FAF5EA 0%, #FEFCF6 100%)",
+      }}
+    >
+      <div
+        ref={reveal.ref}
+        className={`section-reveal ${reveal.visible ? "visible" : ""}`}
+        style={{ maxWidth: 800, margin: "0 auto" }}
+      >
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <SectionLabel color="#8B6F47">Granular Permissions</SectionLabel>
+          <SectionHeading>
+            Everyone sees exactly what they should
+          </SectionHeading>
+          <SectionDescription>
+            Eight default roles, each with carefully scoped permissions. Create
+            custom roles for your school. Permissions control what people see,
+            not just what they can do - a guide never sees billing data, a
+            parent never sees another family&apos;s child.
+          </SectionDescription>
+        </div>
+
+        <div style={{ display: "grid", gap: 10 }}>
+          {roles.map((role, i) => (
+            <div
+              key={i}
               style={{
-                padding: "24px 28px",
                 display: "flex",
-                alignItems: "flex-start",
+                alignItems: "center",
                 gap: 16,
+                padding: "16px 20px",
+                background: "#fff",
+                borderRadius: 12,
+                border: "1px solid rgba(44, 24, 16, 0.05)",
               }}
             >
               <div
                 style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 12,
-                  background: `${HERO_COLOR}15`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 20,
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  background: role.color,
                   flexShrink: 0,
+                  opacity: 0.6,
                 }}
-              >
-                {f.icon}
-              </div>
+              />
               <div style={{ flex: 1 }}>
-                <h3
+                <span
                   style={{
-                    fontFamily: "'DM Serif Display', Georgia, serif",
-                    fontSize: 20,
+                    fontFamily: "'Fraunces', Georgia, serif",
+                    fontSize: 16,
                     color: "#2C1810",
-                    fontWeight: 400,
-                    marginBottom: 4,
+                    fontWeight: 500,
                   }}
                 >
-                  {f.title}
-                </h3>
-                <p
-                  style={{
-                    fontFamily: "'Outfit', sans-serif",
-                    fontSize: 15,
-                    color: "#6B5744",
-                    margin: 0,
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {f.desc}
-                </p>
+                  {role.name}
+                </span>
               </div>
-              <div
+              <span
                 style={{
-                  fontSize: 18,
-                  color: "#8B7355",
-                  transform: expanded === i ? "rotate(180deg)" : "rotate(0)",
-                  transition: "transform 0.3s ease",
-                  flexShrink: 0,
-                  marginTop: 4,
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: 13,
+                  color: "#6B5744",
+                  textAlign: "right",
                 }}
               >
-                ▼
-              </div>
+                {role.desc}
+              </span>
             </div>
-            {expanded === i && (
-              <div
-                style={{
-                  padding: "0 28px 24px 88px",
-                  animation: "fadeIn 0.3s ease",
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: "'Outfit', sans-serif",
-                    fontSize: 15,
-                    color: "#5C4A32",
-                    lineHeight: 1.7,
-                    margin: 0,
-                  }}
-                >
-                  {f.detail}
-                </p>
-              </div>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
+
+        <p
+          style={{
+            fontFamily: "'Outfit', sans-serif",
+            fontSize: 14,
+            color: "#8B7355",
+            textAlign: "center",
+            marginTop: 24,
+            fontStyle: "italic",
+          }}
+        >
+          Roles are fully customisable per school. Add a &quot;Volunteer&quot;
+          role, a &quot;Board Member&quot; role, or anything else - just assign
+          permissions and go. No migration needed.
+        </p>
       </div>
     </section>
   );
 }
 
 function ComplianceSection() {
+  const reveal = useReveal();
+
   return (
-    <section
-      style={{
-        padding: "80px 24px",
-        background: "linear-gradient(180deg, #FEFBF3 0%, #F8F1E4 100%)",
-      }}
-    >
-      <div style={{ maxWidth: 800, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <p
-            style={{
-              fontFamily: "'Outfit', sans-serif",
-              fontSize: 13,
-              fontWeight: 600,
-              color: "#5B8C5A",
-              textTransform: "uppercase",
-              letterSpacing: "0.12em",
-              marginBottom: 12,
-            }}
-          >
-            Australian Compliance
-          </p>
-          <h2
-            style={{
-              fontFamily: "'DM Serif Display', Georgia, serif",
-              fontSize: "clamp(28px, 3.5vw, 42px)",
-              color: "#2C1810",
-              fontWeight: 400,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Always audit-ready, never scrambling
-          </h2>
-        </div>
+    <section style={{ padding: "80px 24px 100px" }}>
+      <div
+        ref={reveal.ref}
+        className={`section-reveal ${reveal.visible ? "visible" : ""}`}
+        style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}
+      >
+        <SectionLabel color="#5B8C5A">Compliance & Reporting</SectionLabel>
+        <SectionHeading>Built for Australian regulations</SectionHeading>
+        <SectionDescription maxWidth={560}>
+          EYLF outcome mapping for 0–5. ACARA alignment for Foundation–Year 10.
+          QCAA syllabus templates for senior secondary. Every observation is
+          automatically cross-mapped to the relevant compliance framework - so
+          when an assessor asks &quot;show me evidence for EYLF Outcome 3,&quot;
+          you generate a report in seconds.
+        </SectionDescription>
 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-            gap: 20,
+            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+            gap: 14,
+            marginTop: 40,
+            textAlign: "left",
           }}
         >
-          {COMPLIANCE.map((c: ComplianceItem, i: number) => (
+          {[
+            {
+              title: "EYLF v2",
+              desc: "5 outcomes mapped to Montessori observations for ages 0–5",
+            },
+            {
+              title: "NQS",
+              desc: "7 quality areas aligned to daily practice evidence",
+            },
+            {
+              title: "ACARA v9.0",
+              desc: "Australian Curriculum cross-mapped for Foundation–Year 10",
+            },
+            {
+              title: "QCAA",
+              desc: "Queensland senior syllabi for Years 11–12 certification",
+            },
+            {
+              title: "Audit Trail",
+              desc: "Every access to medical, custody, and student records is logged",
+            },
+            {
+              title: "Data Residency",
+              desc: "All data stored in Australian data centres",
+            },
+          ].map((item, i) => (
             <div
               key={i}
               style={{
-                background: "#fff",
-                borderRadius: 14,
-                padding: 28,
-                border: "1px solid rgba(232, 168, 56, 0.1)",
+                background: "rgba(91, 140, 90, 0.04)",
+                borderRadius: 12,
+                padding: "20px 18px",
+                border: "1px solid rgba(91, 140, 90, 0.08)",
               }}
             >
-              <div
+              <h4
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: 12,
+                  fontFamily: "'Fraunces', Georgia, serif",
+                  fontSize: 16,
+                  color: "#2C1810",
+                  fontWeight: 500,
+                  marginBottom: 4,
                 }}
               >
-                <h4
-                  style={{
-                    fontFamily: "'DM Serif Display', Georgia, serif",
-                    fontSize: 24,
-                    color: "#2C1810",
-                    fontWeight: 400,
-                    margin: 0,
-                  }}
-                >
-                  {c.framework}
-                </h4>
-                <span
-                  style={{
-                    fontFamily: "'Outfit', sans-serif",
-                    fontSize: 11,
-                    fontWeight: 600,
-                    color: HERO_COLOR,
-                    background: `${HERO_COLOR}15`,
-                    padding: "4px 10px",
-                    borderRadius: 100,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                  }}
-                >
-                  {c.tag}
-                </span>
-              </div>
+                {item.title}
+              </h4>
               <p
                 style={{
                   fontFamily: "'Outfit', sans-serif",
-                  fontSize: 14,
+                  fontSize: 13,
                   color: "#6B5744",
-                  lineHeight: 1.6,
+                  lineHeight: 1.55,
                   margin: 0,
                 }}
               >
-                {c.desc}
+                {item.desc}
               </p>
             </div>
           ))}
@@ -495,183 +514,51 @@ function ComplianceSection() {
   );
 }
 
-function SecuritySection() {
-  const items: { title: string; desc: string }[] = [
-    {
-      title: "Row-Level Security",
-      desc: "Every database query is tenant-isolated at the Postgres level. Schools can never see each other's data.",
-    },
-    {
-      title: "Encrypted at Rest & Transit",
-      desc: "All data encrypted with AES-256 at rest and TLS 1.3 in transit. Hosted on Australian infrastructure.",
-    },
-    {
-      title: "Granular Audit Trails",
-      desc: "Every data mutation is logged with timestamp, user, and action. Full accountability for sensitive operations.",
-    },
-    {
-      title: "SOC 2 Infrastructure",
-      desc: "Built on Supabase and Vercel — both SOC 2 Type II compliant. Your data lives on enterprise-grade infrastructure.",
-    },
-  ];
-
-  return (
-    <section style={{ padding: "80px 24px", maxWidth: 900, margin: "0 auto" }}>
-      <div style={{ textAlign: "center", marginBottom: 48 }}>
-        <p
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 13,
-            fontWeight: 600,
-            color: HERO_COLOR,
-            textTransform: "uppercase",
-            letterSpacing: "0.12em",
-            marginBottom: 12,
-          }}
-        >
-          Data Security
-        </p>
-        <h2
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(28px, 3.5vw, 42px)",
-            color: "#2C1810",
-            fontWeight: 400,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          Security you can explain to parents
-        </h2>
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: 20,
-        }}
-      >
-        {items.map((item, i: number) => (
-          <div
-            key={i}
-            style={{
-              background: "#FEFBF3",
-              borderRadius: 14,
-              padding: 28,
-              border: "1px solid rgba(232, 168, 56, 0.12)",
-            }}
-          >
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                background: "#5B8C5A15",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 14,
-                fontSize: 16,
-              }}
-            >
-              🔒
-            </div>
-            <h4
-              style={{
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: 18,
-                color: "#2C1810",
-                fontWeight: 400,
-                marginBottom: 6,
-              }}
-            >
-              {item.title}
-            </h4>
-            <p
-              style={{
-                fontFamily: "'Outfit', sans-serif",
-                fontSize: 14,
-                color: "#6B5744",
-                lineHeight: 1.6,
-                margin: 0,
-              }}
-            >
-              {item.desc}
-            </p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function CTABanner() {
-  return (
-    <section
-      style={{
-        padding: "80px 24px",
-        background: "#2C1810",
-        textAlign: "center",
-      }}
-    >
-      <div style={{ maxWidth: 600, margin: "0 auto" }}>
-        <h2
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(28px, 3.5vw, 42px)",
-            color: "#FEFBF3",
-            fontWeight: 400,
-            letterSpacing: "-0.02em",
-            marginBottom: 16,
-          }}
-        >
-          Run your school like it&apos;s 2026
-        </h2>
-        <p
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 17,
-            color: "rgba(254, 251, 243, 0.7)",
-            lineHeight: 1.6,
-            marginBottom: 32,
-          }}
-        >
-          See WattleOS in action with a personalised demo for your school.
-        </p>
-        <Link
-          href="/wattleos#contact"
-          style={{
-            display: "inline-block",
-            background: "#E8A838",
-            color: "#2C1810",
-            borderRadius: 10,
-            padding: "16px 40px",
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 16,
-            fontWeight: 600,
-            textDecoration: "none",
-            letterSpacing: "0.02em",
-          }}
-        >
-          Book a Demo
-        </Link>
-      </div>
-    </section>
-  );
-}
-
-// ============================================================
-// Page Export
-// ============================================================
-
 export default function ForAdminPage() {
   return (
     <MarketingShell>
       <MarketingNav />
-      <HeroBanner />
-      <FeatureDeepDive />
+      <PageHero
+        label="For Administrators"
+        labelColor="#8B6F47"
+        title={
+          <>
+            Your school&apos;s
+            <br />
+            <span style={{ color: "#8B6F47" }}>operating system</span>
+          </>
+        }
+        description="Enrolment pipeline, billing, compliance reporting, permissions, and the 'enter it once' promise that eliminates every piece of duplicate data entry in your school."
+      />
+
+      <section style={{ padding: "0 24px 60px" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <FeatureRow
+            icon={<IconEnroll size={28} color="#E8A838" />}
+            title="Enrolment that works for everyone"
+            description="Parents fill out one guided online form - child details, medical info, emergency contacts, custody, documents, consents. You review it on a single screen. One click to approve, and everything downstream fires automatically. The parent's data entry becomes the school's operating data. No re-typing."
+            color="#E8A838"
+          />
+          <FeatureRow
+            icon={<IconBilling size={28} color="#8B6F47" />}
+            title="Billing without the accounting risk"
+            description="WattleOS generates billing intents from enrolment data and program bookings, then pushes them to Stripe. Parents pay via saved cards. Stripe handles PCI compliance. Xero handles the accounting. WattleOS shows you who's paid, who hasn't, and what's outstanding - without maintaining its own ledger."
+            color="#8B6F47"
+            reverse
+          />
+          <FeatureRow
+            icon={<IconPermissions size={28} color="#C17D3A" />}
+            title="Permissions that actually make sense"
+            description="A guide sees observations and curriculum. An assistant sees students and attendance. A parent sees their own children. An admin sees everything. Medical records require explicit permission. Custody restrictions are locked to safety-permissioned staff. Every access is logged. Create custom roles as needed - no database changes required."
+            color="#C17D3A"
+          />
+        </div>
+      </section>
+
+      <CascadeSection />
+      <PipelineSection />
+      <PermissionsSection />
       <ComplianceSection />
-      <SecuritySection />
       <CTABanner />
       <MarketingFooter />
     </MarketingShell>

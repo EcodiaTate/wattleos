@@ -6,15 +6,15 @@
 
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import {
   createAnnouncement,
   updateAnnouncement,
+  type Announcement,
   type AnnouncementPriority,
   type AnnouncementScope,
-  type Announcement,
 } from "@/lib/actions/comms/announcements";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
 interface AnnouncementComposerProps {
   tenantSlug: string;
@@ -35,32 +35,43 @@ export function AnnouncementComposer({
   const [title, setTitle] = useState(existing?.title ?? "");
   const [body, setBody] = useState(existing?.body ?? "");
   const [priority, setPriority] = useState<AnnouncementPriority>(
-    existing?.priority ?? "normal"
+    existing?.priority ?? "normal",
   );
   const [scope, setScope] = useState<AnnouncementScope>(
-    existing?.scope ?? "school"
+    existing?.scope ?? "school",
   );
   const [targetClassId, setTargetClassId] = useState<string>(
-    existing?.target_class_id ?? ""
+    existing?.target_class_id ?? "",
   );
   const [requiresAck, setRequiresAck] = useState(
-    existing?.requires_acknowledgement ?? false
+    existing?.requires_acknowledgement ?? false,
   );
   const [pinToTop, setPinToTop] = useState(existing?.pin_to_top ?? false);
   const [showScheduling, setShowScheduling] = useState(
-    !!existing?.scheduled_for
+    !!existing?.scheduled_for,
   );
   const [scheduledFor, setScheduledFor] = useState(
     existing?.scheduled_for
       ? new Date(existing.scheduled_for).toISOString().slice(0, 16)
-      : ""
+      : "",
   );
   const [expiresAt, setExpiresAt] = useState(
     existing?.expires_at
       ? new Date(existing.expires_at).toISOString().slice(0, 16)
-      : ""
+      : "",
   );
   const [error, setError] = useState<string | null>(null);
+
+  // Normalise ActionResponse error shapes into a string for UI
+  function errorMessage(err: unknown): string {
+    if (!err) return "Something went wrong";
+    if (typeof err === "string") return err;
+    if (typeof err === "object" && "message" in err) {
+      const msg = (err as { message?: unknown }).message;
+      if (typeof msg === "string" && msg.trim()) return msg;
+    }
+    return "Something went wrong";
+  }
 
   // ── Priority options ───────────────────────────────
   const priorities: {
@@ -106,13 +117,11 @@ export function AnnouncementComposer({
         });
 
         if (result.error) {
-          setError(result.error);
+          setError(errorMessage(result.error));
           return;
         }
 
-        router.push(
-          `/${tenantSlug}/comms/announcements/${existing.id}`
-        );
+        router.push(`/comms/announcements/${existing.id}`);
       } else {
         const result = await createAnnouncement({
           title: title.trim(),
@@ -129,11 +138,11 @@ export function AnnouncementComposer({
         });
 
         if (result.error) {
-          setError(result.error);
+          setError(errorMessage(result.error));
           return;
         }
 
-        router.push(`/${tenantSlug}/comms/announcements`);
+        router.push(`/comms/announcements`);
         router.refresh();
       }
     });
@@ -232,7 +241,7 @@ export function AnnouncementComposer({
                       ? "Specific Class"
                       : "Program"}
                 </button>
-              )
+              ),
             )}
           </div>
         </div>

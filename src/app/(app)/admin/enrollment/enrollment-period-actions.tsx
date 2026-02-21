@@ -1,17 +1,3 @@
-// src/app/(app)/admin/enrollment/enrollment-period-actions.tsx
-//
-// ============================================================
-// WattleOS V2 - Enrollment Period Status Actions (Module 10)
-// ============================================================
-// 'use client' - interactive buttons with confirmation for
-// lifecycle transitions: draft→open→closed→archived, plus
-// delete for empty draft periods.
-//
-// WHY client component: Status transitions need user
-// confirmation before firing server actions. The server
-// parent re-renders via revalidatePath after success.
-// ============================================================
-
 "use client";
 
 import {
@@ -71,7 +57,6 @@ export function EnrollmentPeriodActions({
   }
 
   function onActionClick(action: string) {
-    // Destructive actions need confirmation
     if (action === "close" || action === "archive" || action === "delete") {
       setConfirmAction(action);
     } else {
@@ -87,15 +72,15 @@ export function EnrollmentPeriodActions({
   return (
     <div className="flex items-center justify-end gap-2">
       {error && (
-        <span className="text-xs text-red-600" title={error}>
+        <span className="text-xs text-destructive" title={error}>
           ⚠
         </span>
       )}
 
       {/* Confirmation dialog */}
       {confirmAction && (
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-500">
+        <div className="flex items-center gap-1 animate-fade-in">
+          <span className="text-xs text-muted-foreground">
             {confirmAction === "delete"
               ? "Delete?"
               : `${confirmAction.charAt(0).toUpperCase() + confirmAction.slice(1)}?`}
@@ -103,82 +88,76 @@ export function EnrollmentPeriodActions({
           <button
             onClick={onConfirm}
             disabled={isPending}
-            className="rounded bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
+            className="rounded bg-destructive px-2 py-1 text-xs font-medium text-destructive-foreground hover:opacity-90 disabled:opacity-50"
           >
             {isPending ? "…" : "Yes"}
           </button>
           <button
             onClick={() => setConfirmAction(null)}
             disabled={isPending}
-            className="rounded bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-300"
+            className="rounded bg-muted px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-border"
           >
             No
           </button>
         </div>
       )}
 
-      {/* Action buttons (visible when not confirming) */}
+      {/* Action buttons */}
       {!confirmAction && (
         <>
-          {/* Edit - always available for draft/open */}
           {(currentStatus === "draft" || currentStatus === "open") && (
             <Link
               href={`/admin/enrollment/${periodId}/edit`}
-              className="rounded bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200"
+              className="rounded bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-border"
             >
               Edit
             </Link>
           )}
 
-          {/* Open - only from draft */}
           {currentStatus === "draft" && (
             <button
               onClick={() => onActionClick("open")}
               disabled={isPending}
-              className="rounded bg-green-600 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+              className="rounded bg-success px-2.5 py-1 text-xs font-medium text-success-foreground transition-colors hover:opacity-90 disabled:opacity-50"
             >
               {isPending ? "…" : "Open"}
             </button>
           )}
 
-          {/* Close - only from open */}
           {currentStatus === "open" && (
             <button
               onClick={() => onActionClick("close")}
               disabled={isPending}
-              className="rounded bg-amber-600 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+              className="rounded bg-warning px-2.5 py-1 text-xs font-medium text-warning-foreground transition-colors hover:opacity-90 disabled:opacity-50"
             >
               Close
             </button>
           )}
 
-          {/* Archive - only from closed */}
           {currentStatus === "closed" && (
             <button
               onClick={() => onActionClick("archive")}
               disabled={isPending}
-              className="rounded bg-gray-500 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-gray-600 disabled:opacity-50"
+              className="rounded bg-muted-foreground px-2.5 py-1 text-xs font-medium text-background transition-colors hover:opacity-90 disabled:opacity-50"
             >
               Archive
             </button>
           )}
 
-          {/* Delete - only draft with no applications */}
           {currentStatus === "draft" && applicationCount === 0 && (
             <button
               onClick={() => onActionClick("delete")}
               disabled={isPending}
-              className="rounded bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700 transition-colors hover:bg-red-200 disabled:opacity-50"
+              className="rounded bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
             >
               Delete
             </button>
           )}
 
-          {/* View applications link */}
           {applicationCount > 0 && (
             <Link
               href={`/admin/enrollment/applications?period=${periodId}`}
-              className="rounded bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100"
+              className="rounded bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 transition-colors hover:bg-primary-100"
             >
               View Apps
             </Link>

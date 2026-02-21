@@ -1,521 +1,253 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { MarketingFooter, MarketingNav, MarketingShell } from "../page";
+import {
+  CTABanner,
+  FeatureRow,
+  IconMastery,
+  IconObserve,
+  IconReport,
+  IconTree,
+  MarketingFooter,
+  MarketingNav,
+  MarketingShell,
+  PageHero,
+  SectionDescription,
+  SectionHeading,
+  SectionLabel,
+  useReveal,
+} from "../components";
 
-// ============================================================
-// Types
-// ============================================================
-
-interface DetailFeature {
-  icon: string;
-  title: string;
-  desc: string;
-  detail: string;
-}
-
-interface Testimonial {
-  quote: string;
-  name: string;
-  role: string;
-  school: string;
-}
-
-// ============================================================
-// Data
-// ============================================================
-
-const HERO_COLOR = "#E8A838";
-
-const FEATURES: DetailFeature[] = [
-  {
-    icon: "📸",
-    title: "30-Second Observations",
-    desc: "From sighting to saved record in under half a minute.",
-    detail:
-      "Tap the capture button on your iPad, snap a photo of the learning moment, tag the students involved, link the relevant curriculum node, and add a quick note. WattleOS auto-timestamps, auto-links to the child's portfolio, and flags mastery progression. No paperwork, no end-of-day data entry.",
-  },
-  {
-    icon: "🌿",
-    title: "Montessori Curriculum Tree",
-    desc: "AMI 3–6 built in. Your shelves, your materials, your language.",
-    detail:
-      "Navigate a visual curriculum tree that mirrors how your classroom is actually organised — Practical Life, Sensorial, Language, Mathematics, Culture. Each node maps to specific materials and presentations. When you tag an observation, you're building a real picture of each child's journey through the curriculum.",
-  },
-  {
-    icon: "📊",
-    title: "Mastery Dashboard",
-    desc: "See every child's progression at a glance.",
-    detail:
-      "A colour-coded grid shows you who has been introduced to what, who is practising, and who has mastered each area. Spot the child who hasn't been presented new Sensorial work in weeks. Notice the one who's ready to move from concrete to abstract in Mathematics. Let the data inform your planning without replacing your intuition.",
-  },
-  {
-    icon: "📝",
-    title: "Reports That Build Themselves",
-    desc: "Term reports pre-populated from your observation data.",
-    detail:
-      "When report time comes, WattleOS pulls your observations, mastery records, and attendance data into a structured template. You review, add your personal insights, and publish. What used to take an entire weekend now takes an afternoon. Parents receive rich, evidence-based reports instead of generic comments.",
-  },
-  {
-    icon: "🔗",
-    title: "EYLF & QCAA Cross-Mapping",
-    desc: "Australian compliance without extra work.",
-    detail:
-      "Every Montessori curriculum node is cross-mapped to EYLF outcomes and QCAA standards. When you record an observation against a Montessori material, the compliance mapping happens automatically. Auditors get the data they need; you never have to think about it.",
-  },
-  {
-    icon: "🤝",
-    title: "Collaborative Planning",
-    desc: "Share observations across your teaching team.",
-    detail:
-      "Co-guides and assistants can all contribute observations for the same children. The curriculum dashboard aggregates everyone's input, giving the lead guide a complete picture. No more comparing notebooks at the end of the week.",
-  },
-];
-
-const TESTIMONIALS: Testimonial[] = [
-  {
-    quote:
-      "I used to spend my Sunday afternoons entering observation notes into spreadsheets. Now I capture everything during the work cycle and my weekends are mine again.",
-    name: "Sarah M.",
-    role: "Lead Guide, 3–6 Classroom",
-    school: "Sunshine Coast Montessori",
-  },
-  {
-    quote:
-      "The curriculum tree finally speaks our language. I don't have to translate Montessori into generic learning outcomes — it just works the way we actually teach.",
-    name: "Tom K.",
-    role: "Guide, 6–9 Classroom",
-    school: "Brisbane Montessori School",
-  },
-];
-
-// ============================================================
-// Components
-// ============================================================
-
-function HeroBanner() {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    setTimeout(() => setVisible(true), 100);
-  }, []);
+function WorkflowSection() {
+  const reveal = useReveal();
+  const steps = [
+    {
+      num: "1",
+      title: "Tap 'New Observation'",
+      desc: "One tap on your iPad opens the capture screen. The camera is ready.",
+      time: "2 seconds",
+    },
+    {
+      num: "2",
+      title: "Snap a photo",
+      desc: "Photograph the child working with the material. Or skip the photo and type a note.",
+      time: "5 seconds",
+    },
+    {
+      num: "3",
+      title: "Tag students",
+      desc: "Quick-search or tap from recently tagged. Multi-select for group presentations.",
+      time: "5 seconds",
+    },
+    {
+      num: "4",
+      title: "Link curriculum",
+      desc: "Recently used outcomes appear first. Search the tree if needed. One tap to tag.",
+      time: "8 seconds",
+    },
+    {
+      num: "5",
+      title: "Save",
+      desc: "Draft or publish immediately. Published observations appear in parent portfolios.",
+      time: "2 seconds",
+    },
+  ];
 
   return (
-    <section
-      style={{
-        minHeight: "70vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        padding: "140px 24px 80px",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
+    <section style={{ padding: "80px 24px 100px" }}>
       <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: `
-            radial-gradient(ellipse 70% 50% at 30% 20%, rgba(232,168,56,0.15) 0%, transparent 60%),
-            radial-gradient(ellipse 50% 40% at 80% 70%, rgba(232,168,56,0.08) 0%, transparent 50%)
-          `,
-          zIndex: 0,
-        }}
-      />
-
-      <div
-        style={{
-          maxWidth: 800,
-          margin: "0 auto",
-          position: "relative",
-          zIndex: 1,
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(30px)",
-          transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
+        ref={reveal.ref}
+        className={`section-reveal ${reveal.visible ? "visible" : ""}`}
+        style={{ maxWidth: 800, margin: "0 auto" }}
       >
-        <Link
-          href="/wattleos"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 13,
-            color: "#8B7355",
-            textDecoration: "none",
-            marginBottom: 24,
-          }}
-        >
-          ← Back to WattleOS
-        </Link>
-
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            background: `${HERO_COLOR}18`,
-            borderRadius: 100,
-            padding: "6px 18px",
-            marginBottom: 24,
-            border: `1px solid ${HERO_COLOR}30`,
-            marginLeft: 16,
-          }}
-        >
-          <span
-            style={{
-              fontSize: 13,
-              color: HERO_COLOR,
-              fontFamily: "'Outfit', sans-serif",
-              fontWeight: 600,
-            }}
-          >
-            For Guides
-          </span>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <SectionLabel>The Daily Workflow</SectionLabel>
+          <SectionHeading>
+            From sighting to record in under 30 seconds
+          </SectionHeading>
+          <SectionDescription>
+            You&apos;re walking your classroom. A child is concentrating deeply
+            with the golden beads. Here&apos;s what happens next.
+          </SectionDescription>
         </div>
 
-        <h1
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(36px, 5vw, 60px)",
-            color: "#2C1810",
-            lineHeight: 1.1,
-            fontWeight: 400,
-            maxWidth: 700,
-            letterSpacing: "-0.03em",
-            marginBottom: 24,
-          }}
-        >
-          Capture learning moments,
-          <br />
-          <span style={{ color: HERO_COLOR }}>not paperwork</span>
-        </h1>
-
-        <p
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: "clamp(17px, 2vw, 20px)",
-            color: "#6B5744",
-            lineHeight: 1.6,
-            maxWidth: 560,
-            marginBottom: 36,
-          }}
-        >
-          WattleOS is built around the way Montessori guides actually work.
-          Observe, record, track mastery — all from your iPad, all in the flow
-          of your day. Spend your energy on children, not data entry.
-        </p>
-
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          <Link
-            href="/wattleos#contact"
-            style={{
-              background: "#2C1810",
-              color: "#FEFBF3",
-              borderRadius: 10,
-              padding: "16px 36px",
-              fontFamily: "'Outfit', sans-serif",
-              fontSize: 16,
-              fontWeight: 600,
-              textDecoration: "none",
-              letterSpacing: "0.02em",
-            }}
-          >
-            Book a Demo
-          </Link>
-          <Link
-            href="/wattleos#pricing"
-            style={{
-              background: "transparent",
-              color: "#2C1810",
-              border: "2px solid rgba(44, 24, 16, 0.2)",
-              borderRadius: 10,
-              padding: "14px 36px",
-              fontFamily: "'Outfit', sans-serif",
-              fontSize: 16,
-              fontWeight: 500,
-              textDecoration: "none",
-              letterSpacing: "0.02em",
-            }}
-          >
-            See Pricing →
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FeatureDeepDive() {
-  const [expanded, setExpanded] = useState<number | null>(null);
-
-  return (
-    <section style={{ padding: "80px 24px", maxWidth: 900, margin: "0 auto" }}>
-      <div style={{ textAlign: "center", marginBottom: 56 }}>
-        <p
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 13,
-            fontWeight: 600,
-            color: HERO_COLOR,
-            textTransform: "uppercase",
-            letterSpacing: "0.12em",
-            marginBottom: 12,
-          }}
-        >
-          How It Works for Guides
-        </p>
-        <h2
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(28px, 3.5vw, 42px)",
-            color: "#2C1810",
-            fontWeight: 400,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          Every feature, designed for the prepared environment
-        </h2>
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {FEATURES.map((f: DetailFeature, i: number) => (
+        <div style={{ position: "relative" }}>
+          {/* Vertical line */}
           <div
-            key={i}
             style={{
-              background: expanded === i ? "#fff" : "#FEFBF3",
-              border: `1px solid ${expanded === i ? HERO_COLOR : "rgba(232, 168, 56, 0.12)"}`,
-              borderRadius: 16,
-              overflow: "hidden",
-              transition: "all 0.3s ease",
-              cursor: "pointer",
+              position: "absolute",
+              left: 28,
+              top: 0,
+              bottom: 0,
+              width: 2,
+              background:
+                "linear-gradient(180deg, #E8A838 0%, rgba(232,168,56,0.1) 100%)",
             }}
-            onClick={() => setExpanded(expanded === i ? null : i)}
-          >
+          />
+
+          {steps.map((step, i) => (
             <div
+              key={i}
               style={{
-                padding: "24px 28px",
                 display: "flex",
-                alignItems: "flex-start",
-                gap: 16,
+                gap: 24,
+                marginBottom: 36,
+                position: "relative",
               }}
             >
               <div
                 style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 12,
-                  background: `${HERO_COLOR}15`,
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  background: "#fff",
+                  border: "2px solid #E8A838",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 20,
+                  fontFamily: "'Fraunces', Georgia, serif",
+                  fontSize: 22,
+                  color: "#E8A838",
+                  fontWeight: 600,
                   flexShrink: 0,
+                  zIndex: 1,
                 }}
               >
-                {f.icon}
+                {step.num}
               </div>
-              <div style={{ flex: 1 }}>
-                <h3
+              <div style={{ paddingTop: 8 }}>
+                <div
                   style={{
-                    fontFamily: "'DM Serif Display', Georgia, serif",
-                    fontSize: 20,
-                    color: "#2C1810",
-                    fontWeight: 400,
+                    display: "flex",
+                    alignItems: "baseline",
+                    gap: 12,
                     marginBottom: 4,
                   }}
                 >
-                  {f.title}
-                </h3>
+                  <h4
+                    style={{
+                      fontFamily: "'Fraunces', Georgia, serif",
+                      fontSize: 20,
+                      color: "#2C1810",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {step.title}
+                  </h4>
+                  <span
+                    style={{
+                      fontFamily: "'Outfit', sans-serif",
+                      fontSize: 12,
+                      color: "#E8A838",
+                      fontWeight: 600,
+                      background: "rgba(232,168,56,0.08)",
+                      padding: "2px 10px",
+                      borderRadius: 100,
+                    }}
+                  >
+                    ~{step.time}
+                  </span>
+                </div>
                 <p
                   style={{
                     fontFamily: "'Outfit', sans-serif",
                     fontSize: 15,
                     color: "#6B5744",
-                    margin: 0,
-                    lineHeight: 1.5,
+                    lineHeight: 1.6,
                   }}
                 >
-                  {f.desc}
+                  {step.desc}
                 </p>
-              </div>
-              <div
-                style={{
-                  fontSize: 18,
-                  color: "#8B7355",
-                  transform: expanded === i ? "rotate(180deg)" : "rotate(0)",
-                  transition: "transform 0.3s ease",
-                  flexShrink: 0,
-                  marginTop: 4,
-                }}
-              >
-                ▼
               </div>
             </div>
-
-            {expanded === i && (
-              <div
-                style={{
-                  padding: "0 28px 24px 88px",
-                  animation: "fadeIn 0.3s ease",
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: "'Outfit', sans-serif",
-                    fontSize: 15,
-                    color: "#5C4A32",
-                    lineHeight: 1.7,
-                    margin: 0,
-                  }}
-                >
-                  {f.detail}
-                </p>
-              </div>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
-function DayInTheLife() {
-  const steps: { time: string; action: string; detail: string }[] = [
-    {
-      time: "8:30 AM",
-      action: "Morning set-up",
-      detail:
-        "Glance at your dashboard to see yesterday's observations and any flagged follow-ups. Note which children haven't had a presentation recorded recently.",
-    },
-    {
-      time: "9:00 AM",
-      action: "Work cycle begins",
-      detail:
-        "As children settle into their work, you circulate. You notice Mila choosing the pink tower independently for the first time — tap, snap, tag, done. 15 seconds.",
-    },
-    {
-      time: "10:30 AM",
-      action: "Small group presentation",
-      detail:
-        "You present the stamp game to three children. Afterwards, record a group observation linking all three students and the Mathematics > Operations node.",
-    },
-    {
-      time: "12:00 PM",
-      action: "Lunch break",
-      detail:
-        "Your co-guide recorded four observations during the morning. You can see them all in the shared dashboard — no need to debrief over sandwich crumbs.",
-    },
-    {
-      time: "3:00 PM",
-      action: "End of day",
-      detail:
-        "Zero data entry backlog. Your observations are recorded, mastery is updated, and parent portfolios are current. You go home on time.",
-    },
-  ];
+function DayInLifeSection() {
+  const reveal = useReveal();
 
   return (
     <section
       style={{
         padding: "80px 24px",
-        background: "linear-gradient(180deg, #FEFBF3 0%, #F8F1E4 100%)",
+        background: "linear-gradient(180deg, #FEFCF6 0%, #FAF5EA 100%)",
       }}
     >
-      <div style={{ maxWidth: 700, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <p
-            style={{
-              fontFamily: "'Outfit', sans-serif",
-              fontSize: 13,
-              fontWeight: 600,
-              color: "#5B8C5A",
-              textTransform: "uppercase",
-              letterSpacing: "0.12em",
-              marginBottom: 12,
-            }}
-          >
-            A Day with WattleOS
-          </p>
-          <h2
-            style={{
-              fontFamily: "'DM Serif Display', Georgia, serif",
-              fontSize: "clamp(28px, 3.5vw, 42px)",
-              color: "#2C1810",
-              fontWeight: 400,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            What your day actually looks like
-          </h2>
-        </div>
+      <div
+        ref={reveal.ref}
+        className={`section-reveal ${reveal.visible ? "visible" : ""}`}
+        style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}
+      >
+        <SectionLabel color="#5B8C5A">A Day with WattleOS</SectionLabel>
+        <SectionHeading>
+          What changes when your tools work with you
+        </SectionHeading>
 
-        <div style={{ position: "relative", paddingLeft: 40 }}>
-          {/* Timeline line */}
-          <div
-            style={{
-              position: "absolute",
-              left: 15,
-              top: 8,
-              bottom: 8,
-              width: 2,
-              background: `linear-gradient(to bottom, ${HERO_COLOR}, #5B8C5A)`,
-              borderRadius: 1,
-            }}
-          />
-
-          {steps.map((step, i: number) => (
-            <div key={i} style={{ position: "relative", marginBottom: 32 }}>
-              {/* Timeline dot */}
-              <div
+        <div style={{ textAlign: "left", marginTop: 40 }}>
+          {[
+            {
+              time: "8:30 AM",
+              what: "Open the mastery heatmap while setting up your classroom. See who's ready for a new presentation today.",
+            },
+            {
+              time: "9:15 AM",
+              what: "Snap an observation of two children working with the bead chains together. Tag both students, link to numeration outcomes. 25 seconds.",
+            },
+            {
+              time: "10:00 AM",
+              what: "Quick observation note - typed, no photo. 'M. independently chose the hundred board and completed it without support.' Tag, link, done.",
+            },
+            {
+              time: "11:30 AM",
+              what: "Three more observations during the work cycle. Your recently-used outcomes and recently-tagged students are always at the top.",
+            },
+            {
+              time: "1:00 PM",
+              what: "Check the curriculum tree over lunch. You can see that four children in your class haven't been presented the stamp game. Plan for tomorrow.",
+            },
+            {
+              time: "3:00 PM",
+              what: "Review your draft observations. Publish the ones you're happy with - they appear in parent portfolios automatically.",
+            },
+            {
+              time: "End of term",
+              what: "Open the report builder. Every observation and mastery update is already there. Write your personal notes. Publish.",
+            },
+          ].map((item, i) => (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                gap: 20,
+                padding: "20px 0",
+                borderBottom: i < 6 ? "1px solid rgba(44,24,16,0.06)" : "none",
+              }}
+            >
+              <span
                 style={{
-                  position: "absolute",
-                  left: -33,
-                  top: 6,
-                  width: 12,
-                  height: 12,
-                  borderRadius: "50%",
-                  background: HERO_COLOR,
-                  border: "3px solid #FEFBF3",
-                  boxShadow: `0 0 0 2px ${HERO_COLOR}40`,
-                }}
-              />
-
-              <p
-                style={{
-                  fontFamily: "'Outfit', sans-serif",
-                  fontSize: 12,
+                  fontFamily: "'Fraunces', Georgia, serif",
+                  fontSize: 14,
+                  color: "#E8A838",
                   fontWeight: 600,
-                  color: HERO_COLOR,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  marginBottom: 4,
+                  minWidth: 100,
+                  flexShrink: 0,
                 }}
               >
-                {step.time}
-              </p>
-              <h4
-                style={{
-                  fontFamily: "'DM Serif Display', Georgia, serif",
-                  fontSize: 20,
-                  color: "#2C1810",
-                  fontWeight: 400,
-                  marginBottom: 6,
-                }}
-              >
-                {step.action}
-              </h4>
+                {item.time}
+              </span>
               <p
                 style={{
                   fontFamily: "'Outfit', sans-serif",
                   fontSize: 15,
-                  color: "#6B5744",
+                  color: "#5C4A32",
                   lineHeight: 1.6,
                   margin: 0,
                 }}
               >
-                {step.detail}
+                {item.what}
               </p>
             </div>
           ))}
@@ -525,153 +257,56 @@ function DayInTheLife() {
   );
 }
 
-function TestimonialSection() {
-  return (
-    <section style={{ padding: "80px 24px", maxWidth: 900, margin: "0 auto" }}>
-      <div style={{ textAlign: "center", marginBottom: 48 }}>
-        <h2
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(28px, 3.5vw, 42px)",
-            color: "#2C1810",
-            fontWeight: 400,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          What guides are saying
-        </h2>
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: 24,
-        }}
-      >
-        {TESTIMONIALS.map((t: Testimonial, i: number) => (
-          <div
-            key={i}
-            style={{
-              background: "#fff",
-              borderRadius: 16,
-              padding: 32,
-              border: "1px solid rgba(232, 168, 56, 0.1)",
-            }}
-          >
-            <div style={{ fontSize: 32, marginBottom: 16, color: HERO_COLOR }}>
-              &ldquo;
-            </div>
-            <p
-              style={{
-                fontFamily: "'Outfit', sans-serif",
-                fontSize: 15,
-                color: "#5C4A32",
-                lineHeight: 1.7,
-                marginBottom: 24,
-                fontStyle: "italic",
-              }}
-            >
-              {t.quote}
-            </p>
-            <div>
-              <p
-                style={{
-                  fontFamily: "'Outfit', sans-serif",
-                  fontSize: 15,
-                  color: "#2C1810",
-                  fontWeight: 600,
-                  margin: 0,
-                }}
-              >
-                {t.name}
-              </p>
-              <p
-                style={{
-                  fontFamily: "'Outfit', sans-serif",
-                  fontSize: 13,
-                  color: "#8B7355",
-                  margin: 0,
-                }}
-              >
-                {t.role} · {t.school}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function CTABanner() {
-  return (
-    <section
-      style={{
-        padding: "80px 24px",
-        background: "#2C1810",
-        textAlign: "center",
-      }}
-    >
-      <div style={{ maxWidth: 600, margin: "0 auto" }}>
-        <h2
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(28px, 3.5vw, 42px)",
-            color: "#FEFBF3",
-            fontWeight: 400,
-            letterSpacing: "-0.02em",
-            marginBottom: 16,
-          }}
-        >
-          Ready to reclaim your weekends?
-        </h2>
-        <p
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 17,
-            color: "rgba(254, 251, 243, 0.7)",
-            lineHeight: 1.6,
-            marginBottom: 32,
-          }}
-        >
-          Book a demo and we&apos;ll show you how WattleOS fits into your
-          prepared environment.
-        </p>
-        <Link
-          href="/wattleos#contact"
-          style={{
-            display: "inline-block",
-            background: HERO_COLOR,
-            color: "#2C1810",
-            borderRadius: 10,
-            padding: "16px 40px",
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 16,
-            fontWeight: 600,
-            textDecoration: "none",
-            letterSpacing: "0.02em",
-          }}
-        >
-          Book a Demo
-        </Link>
-      </div>
-    </section>
-  );
-}
-
-// ============================================================
-// Page Export
-// ============================================================
-
 export default function ForGuidesPage() {
   return (
     <MarketingShell>
       <MarketingNav />
-      <HeroBanner />
-      <FeatureDeepDive />
-      <DayInTheLife />
-      <TestimonialSection />
+      <PageHero
+        label="For Guides"
+        labelColor="#E8A838"
+        title={
+          <>
+            Capture learning moments,
+            <br />
+            <span style={{ color: "#E8A838" }}>not paperwork</span>
+          </>
+        }
+        description="WattleOS is built around the way you actually work - walking your classroom with an iPad, observing children, and trusting what you see."
+      />
+
+      <section style={{ padding: "0 24px 80px" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <FeatureRow
+            icon={<IconObserve size={28} color="#E8A838" />}
+            title="Observations that take seconds, not minutes"
+            description="Photograph a learning moment, tag the students, link to curriculum outcomes, and save. The entire flow is optimised for iPad - big tap targets, smart defaults, recently-used suggestions. Your observations build your students' portfolios and feed directly into mastery tracking and term reports."
+            color="#E8A838"
+          />
+          <FeatureRow
+            icon={<IconTree size={28} color="#5B8C5A" />}
+            title="Your curriculum, your language"
+            description="AMI and AMS scope and sequence for ages 0–18, built in from day one. Practical Life, Sensorial, Language, Mathematics, Culture - not retrofitted generic standards. Fork the template, customise for your classroom, hide what you don't use. Every outcome links back to the canonical source for cross-school consistency."
+            color="#5B8C5A"
+            reverse
+          />
+          <FeatureRow
+            icon={<IconMastery size={28} color="#C17D3A" />}
+            title="See mastery at a glance"
+            description="A visual grid showing every child's progress across the entire curriculum. Colour-coded by status - not started, presented, practicing, mastered. Spot who needs a new presentation. See class-wide patterns. Let the data guide your planning without replacing your intuition about each child."
+            color="#C17D3A"
+          />
+          <FeatureRow
+            icon={<IconReport size={28} color="#8B6F47" />}
+            title="Reports that write themselves"
+            description="When it's time for term reports, your observations and mastery data are already there. The report builder pulls everything in - you review, personalise with your own words, and publish. Parents receive a rich, evidence-based picture of their child's learning. No more blank pages at the end of term."
+            color="#8B6F47"
+            reverse
+          />
+        </div>
+      </section>
+
+      <WorkflowSection />
+      <DayInLifeSection />
       <CTABanner />
       <MarketingFooter />
     </MarketingShell>

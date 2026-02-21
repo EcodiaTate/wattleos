@@ -1,14 +1,4 @@
 // src/components/domain/billing/billing-dashboard-client.tsx
-//
-// ============================================================
-// WattleOS V2 - Billing Dashboard (Client Component)
-// ============================================================
-// Two tabs: Invoices and Fee Schedules.
-//
-// Invoices tab: List + create form + Stripe sync/send actions.
-// Fee Schedules tab: List + create form for tuition pricing.
-// ============================================================
-
 "use client";
 
 import {
@@ -29,10 +19,6 @@ import {
 } from "@/lib/constants/billing";
 import type { FeeSchedule, InvoiceWithDetails } from "@/types/domain";
 import { useState } from "react";
-
-// ============================================================
-// Props
-// ============================================================
 
 interface StudentWithGuardians {
   id: string;
@@ -65,10 +51,6 @@ interface BillingDashboardClientProps {
   currency: string;
 }
 
-// ============================================================
-// COMPONENT
-// ============================================================
-
 export function BillingDashboardClient({
   invoices: initialInvoices,
   feeSchedules: initialFeeSchedules,
@@ -92,7 +74,6 @@ export function BillingDashboardClient({
     if (result.data) setFeeSchedules(result.data);
   }
 
-  // Summary stats
   const totalOutstanding = invoices
     .filter((i) => ["sent", "pending", "overdue"].includes(i.status))
     .reduce((sum, i) => sum + (i.total_cents - i.amount_paid_cents), 0);
@@ -113,44 +94,44 @@ export function BillingDashboardClient({
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-[var(--density-section-gap)]">
       {/* Summary cards */}
-      <div className="grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-3">
-        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
-          <p className="text-xs font-medium text-muted-foreground">
+      <div className="grid grid-cols-1 gap-[var(--density-md)] sm:grid-cols-3">
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-[var(--density-card-padding)] shadow-[var(--shadow-sm)]">
+          <p className="text-[var(--text-xs)] font-medium text-[var(--muted-foreground)] uppercase tracking-wider">
             Outstanding
           </p>
-          <p className="mt-1 text-xl font-bold text-amber-700">
+          <p className="mt-1 text-[var(--text-xl)] font-bold text-[var(--warning)]">
             {formatCurrency(totalOutstanding, currency)}
           </p>
         </div>
-        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
-          <p className="text-xs font-medium text-muted-foreground">Collected</p>
-          <p className="mt-1 text-xl font-bold text-green-700">
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-[var(--density-card-padding)] shadow-[var(--shadow-sm)]">
+          <p className="text-[var(--text-xs)] font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Collected</p>
+          <p className="mt-1 text-[var(--text-xl)] font-bold text-[var(--success)]">
             {formatCurrency(totalPaid, currency)}
           </p>
         </div>
-        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
-          <p className="text-xs font-medium text-muted-foreground">Overdue</p>
-          <p className="mt-1 text-xl font-bold text-red-700">{overdueCount}</p>
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-[var(--density-card-padding)] shadow-[var(--shadow-sm)]">
+          <p className="text-[var(--text-xs)] font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Overdue</p>
+          <p className="mt-1 text-[var(--text-xl)] font-bold text-[var(--destructive)]">{overdueCount}</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center justify-between border-bborder-border">
-        <div className="flex gap-[var(--density-card-padding)]">
+      <div className="flex items-center justify-between border-b border-[var(--border)]">
+        <div className="flex gap-[var(--density-lg)]">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`border-b-2 pb-3 text-sm font-medium transition-colors ${
+              className={`border-b-2 pb-3 text-[var(--text-sm)] font-medium transition-colors ${
                 activeTab === tab.key
-                  ? "border-primary text-amber-700"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  ? "border-[var(--primary)] text-[var(--primary-700)] dark:text-[var(--primary-400)]"
+                  : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
               }`}
             >
               {tab.label}
-              <span className="ml-1.5 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+              <span className="ml-1.5 rounded-full bg-[var(--muted)] px-2 py-0.5 text-[var(--text-xs)] text-[var(--muted-foreground)]">
                 {tab.count}
               </span>
             </button>
@@ -162,7 +143,7 @@ export function BillingDashboardClient({
               ? setShowCreateInvoice(true)
               : setShowCreateFee(true)
           }
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700 transition-colors"
+          className="rounded-lg bg-[var(--primary)] px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-[var(--text-sm)] font-medium text-[var(--primary-foreground)] hover:bg-[var(--primary-600)] transition-colors shadow-[var(--shadow-sm)]"
         >
           {activeTab === "invoices" ? "New Invoice" : "New Fee Schedule"}
         </button>
@@ -170,7 +151,7 @@ export function BillingDashboardClient({
 
       {/* Invoices tab */}
       {activeTab === "invoices" && (
-        <div className="space-y-3">
+        <div className="space-y-[var(--density-md)]">
           {showCreateInvoice && (
             <CreateInvoiceForm
               students={students}
@@ -185,40 +166,40 @@ export function BillingDashboardClient({
           )}
 
           {invoices.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-gray-300 bg-background py-12 text-center">
-              <p className="text-sm text-muted-foreground">
+            <div className="rounded-lg border border-dashed border-[var(--border-strong)] bg-[var(--card)] py-12 text-center">
+              <p className="text-[var(--text-sm)] text-[var(--muted-foreground)]">
                 No invoices yet. Create one to get started.
               </p>
             </div>
           ) : (
-            <div className="overflow-hidden rounded-lg borderborder-border bg-background">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-background">
+            <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-sm)]">
+              <table className="min-w-full divide-y divide-[var(--border)]">
+                <thead className="bg-[var(--table-header-bg)]">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
+                    <th className="px-[var(--density-table-cell-x)] py-[var(--density-table-header-y)] text-left text-[var(--text-xs)] font-semibold text-[var(--table-header-fg)] uppercase tracking-wider">
                       Invoice
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
+                    <th className="px-[var(--density-table-cell-x)] py-[var(--density-table-header-y)] text-left text-[var(--text-xs)] font-semibold text-[var(--table-header-fg)] uppercase tracking-wider">
                       Student
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
+                    <th className="px-[var(--density-table-cell-x)] py-[var(--density-table-header-y)] text-left text-[var(--text-xs)] font-semibold text-[var(--table-header-fg)] uppercase tracking-wider">
                       Guardian
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
+                    <th className="px-[var(--density-table-cell-x)] py-[var(--density-table-header-y)] text-left text-[var(--text-xs)] font-semibold text-[var(--table-header-fg)] uppercase tracking-wider">
                       Amount
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
+                    <th className="px-[var(--density-table-cell-x)] py-[var(--density-table-header-y)] text-left text-[var(--text-xs)] font-semibold text-[var(--table-header-fg)] uppercase tracking-wider">
                       Due
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
+                    <th className="px-[var(--density-table-cell-x)] py-[var(--density-table-header-y)] text-left text-[var(--text-xs)] font-semibold text-[var(--table-header-fg)] uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground">
+                    <th className="px-[var(--density-table-cell-x)] py-[var(--density-table-header-y)] text-right text-[var(--text-xs)] font-semibold text-[var(--table-header-fg)] uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-[var(--border)] bg-[var(--card)]">
                   {invoices.map((inv) => (
                     <InvoiceRow
                       key={inv.id}
@@ -236,7 +217,7 @@ export function BillingDashboardClient({
 
       {/* Fee Schedules tab */}
       {activeTab === "fees" && (
-        <div className="space-y-3">
+        <div className="space-y-[var(--density-md)]">
           {showCreateFee && (
             <CreateFeeForm
               classes={classes}
@@ -250,13 +231,13 @@ export function BillingDashboardClient({
           )}
 
           {feeSchedules.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-gray-300 bg-background py-12 text-center">
-              <p className="text-sm text-muted-foreground">
+            <div className="rounded-lg border border-dashed border-[var(--border-strong)] bg-[var(--card)] py-12 text-center">
+              <p className="text-[var(--text-sm)] text-[var(--muted-foreground)]">
                 No fee schedules defined. Create one to set tuition pricing.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-[var(--density-md)] sm:grid-cols-2 lg:grid-cols-3">
               {feeSchedules.map((fee) => (
                 <FeeScheduleCard
                   key={fee.id}
@@ -272,10 +253,6 @@ export function BillingDashboardClient({
     </div>
   );
 }
-
-// ============================================================
-// INVOICE ROW
-// ============================================================
 
 function InvoiceRow({
   invoice,
@@ -316,38 +293,38 @@ function InvoiceRow({
   }
 
   return (
-    <tr className="hover:bg-background">
-      <td className="px-4 py-3">
-        <p className="text-sm font-medium text-foreground">
+    <tr className="hover:bg-[var(--table-row-hover)] transition-colors">
+      <td className="px-[var(--density-table-cell-x)] py-[var(--density-table-cell-y)]">
+        <p className="text-[var(--text-sm)] font-medium text-[var(--foreground)]">
           {invoice.invoice_number}
         </p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-[var(--text-xs)] text-[var(--muted-foreground)]">
           {invoice.line_items.length} item
           {invoice.line_items.length !== 1 ? "s" : ""}
         </p>
       </td>
-      <td className="px-4 py-3 text-sm text-foreground">{studentName}</td>
-      <td className="px-4 py-3 text-sm text-foreground">{guardianName}</td>
-      <td className="px-4 py-3 text-sm font-medium text-foreground">
+      <td className="px-[var(--density-table-cell-x)] py-[var(--density-table-cell-y)] text-[var(--text-sm)] text-[var(--foreground)]">{studentName}</td>
+      <td className="px-[var(--density-table-cell-x)] py-[var(--density-table-cell-y)] text-[var(--text-sm)] text-[var(--foreground)]">{guardianName}</td>
+      <td className="px-[var(--density-table-cell-x)] py-[var(--density-table-cell-y)] text-[var(--text-sm)] font-bold text-[var(--foreground)] tabular-nums">
         {formatCurrency(invoice.total_cents, currency)}
       </td>
-      <td className="px-4 py-3 text-sm text-foreground">
+      <td className="px-[var(--density-table-cell-x)] py-[var(--density-table-cell-y)] text-[var(--text-sm)] text-[var(--foreground)]">
         {new Date(invoice.due_date).toLocaleDateString("en-AU")}
       </td>
-      <td className="px-4 py-3">
+      <td className="px-[var(--density-table-cell-x)] py-[var(--density-table-cell-y)]">
         <span
-          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusConfig.bgColor} ${statusConfig.color}`}
+          className={`status-badge status-badge-plain px-2 py-0.5 text-[10px] ${statusConfig.bgColor} ${statusConfig.color}`}
         >
           {statusConfig.label}
         </span>
       </td>
-      <td className="px-4 py-3 text-right">
+      <td className="px-[var(--density-table-cell-x)] py-[var(--density-table-cell-y)] text-right">
         <div className="flex items-center justify-end gap-1">
           {invoice.status === "draft" && !invoice.stripe_invoice_id && (
             <button
               onClick={() => handleAction("sync")}
               disabled={acting}
-              className="rounded px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-50 disabled:opacity-50"
+              className="rounded px-2 py-1 text-[var(--text-xs)] font-medium text-[var(--info)] hover:bg-[var(--info-foreground)] hover:text-[var(--info)] transition-colors disabled:opacity-50"
             >
               Sync to Stripe
             </button>
@@ -356,7 +333,7 @@ function InvoiceRow({
             <button
               onClick={() => handleAction("send")}
               disabled={acting}
-              className="rounded px-2 py-1 text-xs font-medium text-green-700 hover:bg-green-50 disabled:opacity-50"
+              className="rounded px-2 py-1 text-[var(--text-xs)] font-medium text-[var(--success)] hover:bg-[var(--success-foreground)] transition-colors disabled:opacity-50"
             >
               Send
             </button>
@@ -366,7 +343,7 @@ function InvoiceRow({
               href={invoice.stripe_hosted_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-muted"
+              className="rounded px-2 py-1 text-[var(--text-xs)] font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)] transition-colors"
             >
               View
             </a>
@@ -375,7 +352,7 @@ function InvoiceRow({
             <button
               onClick={() => handleAction("void")}
               disabled={acting}
-              className="rounded px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+              className="rounded px-2 py-1 text-[var(--text-xs)] font-medium text-[var(--destructive)] hover:bg-[var(--destructive-foreground)] transition-colors disabled:opacity-50"
             >
               Void
             </button>
@@ -385,10 +362,6 @@ function InvoiceRow({
     </tr>
   );
 }
-
-// ============================================================
-// CREATE INVOICE FORM
-// ============================================================
 
 function CreateInvoiceForm({
   students,
@@ -450,8 +423,6 @@ function CreateInvoiceForm({
       prev.map((item, i) => {
         if (i !== index) return item;
         const updated = { ...item, [field]: value };
-
-        // If fee schedule selected, auto-fill description + amount
         if (field === "fee_schedule_id" && value) {
           const fee = feeSchedules.find((f) => f.id === value);
           if (fee) {
@@ -471,26 +442,11 @@ function CreateInvoiceForm({
 
   async function handleSubmit() {
     setError(null);
-    if (!selectedStudentId) {
-      setError("Select a student");
-      return;
-    }
-    if (!selectedGuardianId) {
-      setError("Select a guardian");
-      return;
-    }
-    if (!dueDate) {
-      setError("Set a due date");
-      return;
-    }
-    if (lineItems.some((li) => !li.description.trim())) {
-      setError("All line items need a description");
-      return;
-    }
-    if (lineItems.some((li) => li.unit_amount_cents <= 0)) {
-      setError("All line items need a positive amount");
-      return;
-    }
+    if (!selectedStudentId) { setError("Select a student"); return; }
+    if (!selectedGuardianId) { setError("Select a guardian"); return; }
+    if (!dueDate) { setError("Set a due date"); return; }
+    if (lineItems.some((li) => !li.description.trim())) { setError("All line items need a description"); return; }
+    if (lineItems.some((li) => li.unit_amount_cents <= 0)) { setError("All line items need a positive amount"); return; }
 
     setIsSaving(true);
     const result = await createInvoice({
@@ -517,19 +473,18 @@ function CreateInvoiceForm({
   }
 
   return (
-    <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-[var(--density-card-padding)]">
-      <h3 className="text-sm font-semibold text-foreground">Create Invoice</h3>
+    <div className="rounded-lg border border-[var(--primary-200)] bg-[var(--primary-50)] p-[var(--density-card-padding)] animate-fade-in">
+      <h3 className="text-[var(--text-sm)] font-semibold text-[var(--foreground)]">Create Invoice</h3>
 
       {error && (
-        <div className="mt-3 rounded-md bg-red-50 p-3">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="mt-3 rounded-md bg-[var(--form-error-bg)] p-3">
+          <p className="text-[var(--text-sm)] text-[var(--form-error-fg)]">{error}</p>
         </div>
       )}
 
-      <div className="mt-4 grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-2">
-        {/* Student */}
+      <div className="mt-4 grid grid-cols-1 gap-[var(--density-md)] sm:grid-cols-2">
         <div>
-          <label className="block text-xs font-medium text-foreground">
+          <label className="block text-[var(--text-xs)] font-medium text-[var(--form-label-fg)]">
             Student *
           </label>
           <select
@@ -538,7 +493,7 @@ function CreateInvoiceForm({
               setSelectedStudentId(e.target.value);
               setSelectedGuardianId("");
             }}
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1 block w-full rounded-lg border border-[var(--input)] bg-[var(--card)] px-3 h-[var(--density-input-height)] text-[var(--text-sm)] focus:border-[var(--input-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
           >
             <option value="">Select student...</option>
             {students.map((s) => (
@@ -549,225 +504,151 @@ function CreateInvoiceForm({
           </select>
         </div>
 
-        {/* Guardian */}
         <div>
-          <label className="block text-xs font-medium text-foreground">
+          <label className="block text-[var(--text-xs)] font-medium text-[var(--form-label-fg)]">
             Bill to (Guardian) *
           </label>
           <select
             value={selectedGuardianId}
             onChange={(e) => setSelectedGuardianId(e.target.value)}
             disabled={!selectedStudentId}
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+            className="mt-1 block w-full rounded-lg border border-[var(--input)] bg-[var(--card)] px-3 h-[var(--density-input-height)] text-[var(--text-sm)] focus:border-[var(--input-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)] disabled:bg-[var(--input-disabled-bg)] disabled:text-[var(--input-disabled-fg)]"
           >
             <option value="">Select guardian...</option>
             {guardians.map((g) => (
               <option key={g.id} value={g.id}>
-                {g.user.first_name} {g.user.last_name} ({g.relationship}) -{" "}
-                {g.user.email}
+                {g.user.first_name} {g.user.last_name} ({g.relationship})
               </option>
             ))}
           </select>
         </div>
 
-        {/* Due date */}
         <div>
-          <label className="block text-xs font-medium text-foreground">
+          <label className="block text-[var(--text-xs)] font-medium text-[var(--form-label-fg)]">
             Due Date *
           </label>
           <input
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1 block w-full rounded-lg border border-[var(--input)] bg-[var(--card)] px-3 h-[var(--density-input-height)] text-[var(--text-sm)] focus:border-[var(--input-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
           />
         </div>
 
-        {/* Period */}
         <div className="flex gap-2">
           <div className="flex-1">
-            <label className="block text-xs font-medium text-foreground">
+            <label className="block text-[var(--text-xs)] font-medium text-[var(--form-label-fg)]">
               Period Start
             </label>
             <input
               type="date"
               value={periodStart}
               onChange={(e) => setPeriodStart(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1 block w-full rounded-lg border border-[var(--input)] bg-[var(--card)] px-3 h-[var(--density-input-height)] text-[var(--text-sm)] focus:border-[var(--input-focus)]"
             />
           </div>
           <div className="flex-1">
-            <label className="block text-xs font-medium text-foreground">
+            <label className="block text-[var(--text-xs)] font-medium text-[var(--form-label-fg)]">
               Period End
             </label>
             <input
               type="date"
               value={periodEnd}
               onChange={(e) => setPeriodEnd(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1 block w-full rounded-lg border border-[var(--input)] bg-[var(--card)] px-3 h-[var(--density-input-height)] text-[var(--text-sm)] focus:border-[var(--input-focus)]"
             />
           </div>
         </div>
       </div>
 
-      {/* Line items */}
-      <div className="mt-5">
-        <div className="flex items-center justify-between">
-          <h4 className="text-xs font-semibold text-foreground">Line Items</h4>
-          <button
-            onClick={addLineItem}
-            className="text-xs font-medium text-amber-700 hover:text-amber-800"
-          >
-            + Add line
-          </button>
+      <div className="mt-6">
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="text-[var(--text-xs)] font-semibold text-[var(--foreground)] uppercase tracking-wider">Line Items</h4>
+          <button onClick={addLineItem} className="text-[var(--text-xs)] font-medium text-[var(--primary-700)] dark:text-[var(--primary-400)] hover:underline">+ Add line</button>
         </div>
-        <div className="mt-2 space-y-2">
+        <div className="space-y-2">
           {lineItems.map((li, idx) => (
-            <div key={idx} className="flex items-end gap-2">
+            <div key={idx} className="flex items-end gap-2 animate-slide-down">
               <div className="flex-1">
-                {idx === 0 && (
-                  <label className="block text-[10px] font-medium text-muted-foreground">
-                    Fee Schedule (optional)
-                  </label>
-                )}
                 <select
                   value={li.fee_schedule_id}
-                  onChange={(e) =>
-                    updateLineItem(idx, "fee_schedule_id", e.target.value)
-                  }
-                  className="block w-full rounded-md border border-gray-300 px-2 py-1.5 text-xs focus:border-ring focus:outline-none"
+                  onChange={(e) => updateLineItem(idx, "fee_schedule_id", e.target.value)}
+                  className="block w-full rounded-md border border-[var(--input)] bg-[var(--card)] px-2 py-1.5 text-[var(--text-xs)] focus:border-[var(--input-focus)] focus:outline-none"
                 >
                   <option value="">Manual entry</option>
                   {feeSchedules.map((f) => (
-                    <option key={f.id} value={f.id}>
-                      {f.name} - {formatCurrency(f.amount_cents, currency)}
-                    </option>
+                    <option key={f.id} value={f.id}>{f.name}</option>
                   ))}
                 </select>
               </div>
               <div className="flex-[2]">
-                {idx === 0 && (
-                  <label className="block text-[10px] font-medium text-muted-foreground">
-                    Description
-                  </label>
-                )}
                 <input
                   type="text"
                   value={li.description}
-                  onChange={(e) =>
-                    updateLineItem(idx, "description", e.target.value)
-                  }
-                  placeholder="Tuition - Term 1 2026"
-                  className="block w-full rounded-md border border-gray-300 px-2 py-1.5 text-xs focus:border-ring focus:outline-none"
+                  onChange={(e) => updateLineItem(idx, "description", e.target.value)}
+                  placeholder="Description"
+                  className="block w-full rounded-md border border-[var(--input)] bg-[var(--card)] px-2 py-1.5 text-[var(--text-xs)] focus:border-[var(--input-focus)]"
                 />
               </div>
               <div className="w-16">
-                {idx === 0 && (
-                  <label className="block text-[10px] font-medium text-muted-foreground">
-                    Qty
-                  </label>
-                )}
                 <input
                   type="number"
                   min={1}
                   value={li.quantity}
-                  onChange={(e) =>
-                    updateLineItem(
-                      idx,
-                      "quantity",
-                      parseInt(e.target.value) || 1,
-                    )
-                  }
-                  className="block w-full rounded-md border border-gray-300 px-2 py-1.5 text-xs focus:border-ring focus:outline-none"
+                  onChange={(e) => updateLineItem(idx, "quantity", parseInt(e.target.value) || 1)}
+                  className="block w-full rounded-md border border-[var(--input)] bg-[var(--card)] px-2 py-1.5 text-[var(--text-xs)] focus:border-[var(--input-focus)]"
                 />
               </div>
               <div className="w-28">
-                {idx === 0 && (
-                  <label className="block text-[10px] font-medium text-muted-foreground">
-                    Amount ($)
-                  </label>
-                )}
                 <input
                   type="number"
-                  min={0}
                   step={0.01}
                   value={(li.unit_amount_cents / 100).toFixed(2)}
-                  onChange={(e) =>
-                    updateLineItem(
-                      idx,
-                      "unit_amount_cents",
-                      Math.round(parseFloat(e.target.value || "0") * 100),
-                    )
-                  }
-                  className="block w-full rounded-md border border-gray-300 px-2 py-1.5 text-xs font-mono focus:border-ring focus:outline-none"
+                  onChange={(e) => updateLineItem(idx, "unit_amount_cents", Math.round(parseFloat(e.target.value || "0") * 100))}
+                  className="block w-full rounded-md border border-[var(--input)] bg-[var(--card)] px-2 py-1.5 text-[var(--text-xs)] font-mono focus:border-[var(--input-focus)]"
                 />
               </div>
               <div className="w-24 text-right">
-                {idx === 0 && (
-                  <label className="block text-[10px] font-medium text-muted-foreground">
-                    Subtotal
-                  </label>
-                )}
-                <span className="inline-block py-1.5 text-xs font-medium text-foreground">
+                <span className="inline-block py-1.5 text-[var(--text-xs)] font-bold text-[var(--foreground)] tabular-nums">
                   {formatCurrency(li.quantity * li.unit_amount_cents, currency)}
                 </span>
               </div>
               {lineItems.length > 1 && (
-                <button
-                  onClick={() => removeLineItem(idx)}
-                  className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-red-600"
-                >
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18 18 6M6 6l12 12"
-                    />
-                  </svg>
+                <button onClick={() => removeLineItem(idx)} className="rounded p-1 text-[var(--muted-foreground)] hover:text-[var(--destructive)] hover:bg-[var(--destructive-foreground)]">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18 18 6M6 6l12 12" /></svg>
                 </button>
               )}
             </div>
           ))}
         </div>
-        <div className="mt-3 flex justify-end border-tborder-border pt-3">
-          <p className="text-sm font-semibold text-foreground">
+        <div className="mt-3 flex justify-end border-t border-[var(--border)] pt-3">
+          <p className="text-[var(--text-sm)] font-bold text-[var(--foreground)]">
             Total: {formatCurrency(total, currency)}
           </p>
         </div>
       </div>
 
-      {/* Notes */}
       <div className="mt-4">
-        <label className="block text-xs font-medium text-foreground">
-          Notes (optional)
-        </label>
+        <label className="block text-[var(--text-xs)] font-medium text-[var(--form-label-fg)]">Notes (optional)</label>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
-          placeholder="Internal notes about this invoice..."
-          className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+          className="mt-1 block w-full rounded-lg border border-[var(--input)] bg-[var(--card)] px-3 py-2 text-[var(--text-sm)] focus:border-[var(--input-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
         />
       </div>
 
-      {/* Actions */}
-      <div className="mt-4 flex items-center gap-3">
+      <div className="mt-6 flex items-center gap-3">
         <button
           onClick={handleSubmit}
           disabled={isSaving}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50 transition-colors"
+          className="rounded-lg bg-[var(--primary)] px-4 py-2 text-[var(--text-sm)] font-medium text-[var(--primary-foreground)] hover:bg-[var(--primary-600)] shadow-[var(--shadow-sm)] transition-colors disabled:opacity-50"
         >
           {isSaving ? "Creating..." : "Create Invoice"}
         </button>
         <button
           onClick={onCancel}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background transition-colors"
+          className="rounded-lg border border-[var(--border-strong)] px-4 py-2 text-[var(--text-sm)] font-medium text-[var(--foreground)] hover:bg-[var(--background)] transition-colors"
         >
           Cancel
         </button>
@@ -775,10 +656,6 @@ function CreateInvoiceForm({
     </div>
   );
 }
-
-// ============================================================
-// CREATE FEE SCHEDULE FORM
-// ============================================================
 
 function CreateFeeForm({
   classes,
@@ -799,26 +676,13 @@ function CreateFeeForm({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const frequencies: FeeFrequency[] = [
-    "weekly",
-    "fortnightly",
-    "monthly",
-    "termly",
-    "annually",
-    "one_off",
-  ];
+  const frequencies: FeeFrequency[] = ["weekly", "fortnightly", "monthly", "termly", "annually", "one_off"];
 
   async function handleSubmit() {
     setError(null);
-    if (!name.trim()) {
-      setError("Name is required");
-      return;
-    }
+    if (!name.trim()) { setError("Name is required"); return; }
     const cents = Math.round(parseFloat(amountDollars || "0") * 100);
-    if (cents <= 0) {
-      setError("Amount must be greater than zero");
-      return;
-    }
+    if (cents <= 0) { setError("Amount must be greater than zero"); return; }
 
     setIsSaving(true);
     const result = await createFeeSchedule({
@@ -839,103 +703,73 @@ function CreateFeeForm({
   }
 
   return (
-    <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-[var(--density-card-padding)]">
-      <h3 className="text-sm font-semibold text-foreground">
-        Create Fee Schedule
-      </h3>
+    <div className="rounded-lg border border-[var(--primary-200)] bg-[var(--primary-50)] p-[var(--density-card-padding)] animate-fade-in">
+      <h3 className="text-[var(--text-sm)] font-semibold text-[var(--foreground)]">Create Fee Schedule</h3>
 
       {error && (
-        <div className="mt-3 rounded-md bg-red-50 p-3">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="mt-3 rounded-md bg-[var(--form-error-bg)] p-3">
+          <p className="text-[var(--text-sm)] text-[var(--form-error-fg)]">{error}</p>
         </div>
       )}
 
-      <div className="mt-4 grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-[var(--density-md)] sm:grid-cols-2">
         <div>
-          <label className="block text-xs font-medium text-foreground">
-            Name *
-          </label>
+          <label className="block text-[var(--text-xs)] font-medium text-[var(--form-label-fg)]">Name *</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="3-6 Primary Tuition - 2026"
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1 block w-full rounded-lg border border-[var(--input)] bg-[var(--card)] px-3 h-[var(--density-input-height)] text-[var(--text-sm)] focus:border-[var(--input-focus)] focus:outline-none"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-foreground">
-            Class (optional)
-          </label>
+          <label className="block text-[var(--text-xs)] font-medium text-[var(--form-label-fg)]">Class (optional)</label>
           <select
             value={classId}
             onChange={(e) => setClassId(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1 block w-full rounded-lg border border-[var(--input)] bg-[var(--card)] px-3 h-[var(--density-input-height)] text-[var(--text-sm)] focus:border-[var(--input-focus)] focus:outline-none"
           >
             <option value="">School-wide (all classes)</option>
             {classes.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name} {c.cycle_level ? `(${c.cycle_level})` : ""}
-              </option>
+              <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-foreground">
-            Amount ($) *
-          </label>
+          <label className="block text-[var(--text-xs)] font-medium text-[var(--form-label-fg)]">Amount ($) *</label>
           <input
             type="number"
-            min={0}
             step={0.01}
             value={amountDollars}
             onChange={(e) => setAmountDollars(e.target.value)}
-            placeholder="2500.00"
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1 block w-full rounded-lg border border-[var(--input)] bg-[var(--card)] px-3 h-[var(--density-input-height)] text-[var(--text-sm)] font-mono focus:border-[var(--input-focus)]"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-foreground">
-            Frequency *
-          </label>
+          <label className="block text-[var(--text-xs)] font-medium text-[var(--form-label-fg)]">Frequency *</label>
           <select
             value={frequency}
             onChange={(e) => setFrequency(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1 block w-full rounded-lg border border-[var(--input)] bg-[var(--card)] px-3 h-[var(--density-input-height)] text-[var(--text-sm)] focus:border-[var(--input-focus)]"
           >
             {frequencies.map((f) => (
-              <option key={f} value={f}>
-                {FEE_FREQUENCY_CONFIG[f].label}
-              </option>
+              <option key={f} value={f}>{FEE_FREQUENCY_CONFIG[f].label}</option>
             ))}
           </select>
         </div>
-      </div>
-
-      <div className="mt-4">
-        <label className="block text-xs font-medium text-foreground">
-          Description (appears on invoices)
-        </label>
-        <input
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Tuition fee for 3-6 Primary program, Term 1 2026"
-          className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-        />
       </div>
 
       <div className="mt-4 flex items-center gap-3">
         <button
           onClick={handleSubmit}
           disabled={isSaving}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50 transition-colors"
+          className="rounded-lg bg-[var(--primary)] px-4 py-2 text-[var(--text-sm)] font-medium text-[var(--primary-foreground)] hover:bg-[var(--primary-600)] shadow-[var(--shadow-sm)] transition-colors disabled:opacity-50"
         >
           {isSaving ? "Creating..." : "Create Fee Schedule"}
         </button>
         <button
           onClick={onCancel}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background transition-colors"
+          className="rounded-lg border border-[var(--border-strong)] px-4 py-2 text-[var(--text-sm)] font-medium text-[var(--foreground)] hover:bg-[var(--background)] transition-colors"
         >
           Cancel
         </button>
@@ -943,10 +777,6 @@ function CreateFeeForm({
     </div>
   );
 }
-
-// ============================================================
-// FEE SCHEDULE CARD
-// ============================================================
 
 function FeeScheduleCard({
   fee,
@@ -972,39 +802,45 @@ function FeeScheduleCard({
 
   return (
     <div
-      className={`rounded-lg border bg-background p-[var(--density-card-padding)] shadow-sm ${fee.is_active ? "border-border" : "border-gray-100 opacity-60"}`}
+      className={`rounded-lg border bg-[var(--card)] p-[var(--density-card-padding)] shadow-[var(--shadow-sm)] card-interactive ${
+        fee.is_active ? "border-[var(--border)]" : "border-[var(--border)] opacity-60 grayscale-[0.5]"
+      }`}
     >
       <div className="flex items-start justify-between">
         <div>
-          <h4 className="text-sm font-semibold text-foreground">{fee.name}</h4>
+          <h4 className="text-[var(--text-sm)] font-bold text-[var(--foreground)]">{fee.name}</h4>
           {fee.description && (
-            <p className="mt-0.5 text-xs text-muted-foreground">
+            <p className="mt-1 text-[var(--text-xs)] text-[var(--muted-foreground)] line-clamp-2">
               {fee.description}
             </p>
           )}
         </div>
         <span
-          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${fee.is_active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}
+          className={`status-badge px-2 py-0.5 ${
+            fee.is_active 
+              ? "bg-[var(--success-foreground)] text-[var(--success)]" 
+              : "bg-[var(--muted)] text-[var(--muted-foreground)]"
+          }`}
         >
           {fee.is_active ? "Active" : "Inactive"}
         </span>
       </div>
-      <div className="mt-3 flex items-baseline gap-1">
-        <span className="text-lg font-bold text-foreground">
+      <div className="mt-4 flex items-baseline gap-1">
+        <span className="text-[var(--text-xl)] font-bold text-[var(--foreground)] tabular-nums">
           {formatCurrency(fee.amount_cents, currency)}
         </span>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-[var(--text-xs)] text-[var(--muted-foreground)]">
           {freqConfig.shortLabel}
         </span>
       </div>
-      <p className="mt-1 text-xs text-muted-foreground">{freqConfig.label}</p>
-      <div className="mt-3 border-t border-gray-100 pt-3">
+      <p className="mt-1 text-[var(--text-xs)] font-medium text-[var(--muted-foreground)] uppercase tracking-wider">{freqConfig.label}</p>
+      <div className="mt-4 border-t border-[var(--border)] pt-3">
         <button
           onClick={handleToggleActive}
           disabled={toggling}
-          className="text-xs font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
+          className="text-[var(--text-xs)] font-semibold text-[var(--primary-700)] dark:text-[var(--primary-400)] hover:underline disabled:opacity-50"
         >
-          {fee.is_active ? "Deactivate" : "Reactivate"}
+          {fee.is_active ? "Deactivate Schedule" : "Reactivate Schedule"}
         </button>
       </div>
     </div>

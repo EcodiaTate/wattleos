@@ -201,7 +201,7 @@ export function formatCents(cents: number): string {
 
 /** Format a TIME column (e.g. "07:30:00") to display like "7:30 AM" */
 export function formatTime(time: string | null): string {
-  if (!time) return "—";
+  if (!time) return " - ";
   const [h, m] = time.split(":");
   const hour = parseInt(h, 10);
   const ampm = hour >= 12 ? "PM" : "AM";

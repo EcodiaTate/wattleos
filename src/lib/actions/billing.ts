@@ -12,6 +12,8 @@
 // 4. "Send Invoice" emails the parent via Stripe
 // 5. Parent pays via Stripe hosted page
 // 6. Webhook updates invoice status + creates payment record
+//
+// AUDIT: All mutations are logged via logAudit() for compliance.
 // ============================================================
 
 "use server";
@@ -27,6 +29,7 @@ import type {
   InvoiceWithDetails,
   Payment,
 } from "@/types/domain";
+import { logAudit, AuditActions } from "@/lib/utils/audit";
 
 // ============================================================
 // FEE SCHEDULE ACTIONS
@@ -73,6 +76,22 @@ export async function createFeeSchedule(
       .single();
 
     if (error) return failure(error.message, ErrorCodes.CREATE_FAILED);
+
+    // WHY: Fee schedule changes affect billing for all students -
+    // audit trail needed for financial compliance.
+    await logAudit({
+      context,
+      action: AuditActions.SETTINGS_UPDATED,
+      entityType: "fee_schedule",
+      entityId: (data as FeeSchedule).id,
+      metadata: {
+        name: input.name,
+        amount_cents: input.amount_cents,
+        frequency: input.frequency,
+        class_id: input.class_id || null,
+      },
+    });
+
     return success(data as FeeSchedule);
   } catch (err) {
     return failure(
@@ -110,7 +129,7 @@ export async function updateFeeSchedule(
   input: Partial<CreateFeeScheduleInput> & { is_active?: boolean },
 ): Promise<ActionResponse<FeeSchedule>> {
   try {
-    await requirePermission(Permissions.MANAGE_INTEGRATIONS);
+    const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const updateData: Record<string, unknown> = {};
@@ -133,6 +152,15 @@ export async function updateFeeSchedule(
       .single();
 
     if (error) return failure(error.message, ErrorCodes.UPDATE_FAILED);
+
+    await logAudit({
+      context,
+      action: AuditActions.SETTINGS_UPDATED,
+      entityType: "fee_schedule",
+      entityId: id,
+      metadata: { updated_fields: Object.keys(updateData) },
+    });
+
     return success(data as FeeSchedule);
   } catch (err) {
     return failure(
@@ -241,6 +269,22 @@ export async function createInvoice(
       await supabase.from("invoices").delete().eq("id", invoice.id);
       return failure(lineError.message, ErrorCodes.CREATE_FAILED);
     }
+
+    // WHY: Invoice creation is a financial event that must be
+    // traceable for school accounting and parent dispute resolution.
+    await logAudit({
+      context,
+      action: AuditActions.INVOICE_CREATED,
+      entityType: "invoice",
+      entityId: invoice.id,
+      metadata: {
+        invoice_number: invoiceNumber,
+        student_id: input.student_id,
+        guardian_id: input.guardian_id,
+        total_cents: subtotal,
+        line_item_count: input.line_items.length,
+      },
+    });
 
     return success(invoice as Invoice);
   } catch (err) {
@@ -464,6 +508,21 @@ export async function syncInvoiceToStripe(
 
     if (updateError)
       return failure(updateError.message, ErrorCodes.UPDATE_FAILED);
+
+    // WHY: Stripe sync is a critical financial integration event -
+    // tracks exactly when money-related data left WattleOS.
+    await logAudit({
+      context,
+      action: AuditActions.INTEGRATION_SYNCED,
+      entityType: "invoice",
+      entityId: invoiceId,
+      metadata: {
+        provider: "stripe",
+        stripe_invoice_id: finalized.id,
+        invoice_number: invoice.invoice_number,
+      },
+    });
+
     return success(updated as Invoice);
   } catch (err) {
     return failure(
@@ -477,12 +536,12 @@ export async function sendStripeInvoice(
   invoiceId: string,
 ): Promise<ActionResponse<Invoice>> {
   try {
-    await requirePermission(Permissions.MANAGE_INTEGRATIONS);
+    const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const { data: invoice } = await supabase
       .from("invoices")
-      .select("stripe_invoice_id")
+      .select("stripe_invoice_id, invoice_number")
       .eq("id", invoiceId)
       .single();
 
@@ -518,6 +577,19 @@ export async function sendStripeInvoice(
       .select()
       .single();
 
+    // WHY: Sending an invoice triggers a payment request to a parent -
+    // must be traceable for dispute resolution.
+    await logAudit({
+      context,
+      action: AuditActions.INVOICE_SENT,
+      entityType: "invoice",
+      entityId: invoiceId,
+      metadata: {
+        invoice_number: invoice.invoice_number,
+        stripe_invoice_id: invoice.stripe_invoice_id,
+      },
+    });
+
     return success(updated as Invoice);
   } catch (err) {
     return failure(
@@ -531,12 +603,12 @@ export async function voidInvoice(
   invoiceId: string,
 ): Promise<ActionResponse<Invoice>> {
   try {
-    await requirePermission(Permissions.MANAGE_INTEGRATIONS);
+    const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const { data: invoice } = await supabase
       .from("invoices")
-      .select("stripe_invoice_id, status")
+      .select("stripe_invoice_id, status, invoice_number")
       .eq("id", invoiceId)
       .single();
 
@@ -569,6 +641,21 @@ export async function voidInvoice(
       .eq("id", invoiceId)
       .select()
       .single();
+
+    // WHY: Voiding an invoice is a financial reversal - critical
+    // for accounting reconciliation and parent communication trail.
+    await logAudit({
+      context,
+      action: AuditActions.REFUND_ISSUED,
+      entityType: "invoice",
+      entityId: invoiceId,
+      metadata: {
+        invoice_number: invoice.invoice_number,
+        previous_status: invoice.status,
+        action: "void",
+        had_stripe_sync: !!invoice.stripe_invoice_id,
+      },
+    });
 
     return success(updated as Invoice);
   } catch (err) {

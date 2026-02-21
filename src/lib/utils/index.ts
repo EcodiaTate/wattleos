@@ -46,7 +46,7 @@ export function calculateAge(dob: string | null): number | null {
  * Format a date string for display (AU format: DD/MM/YYYY).
  */
 export function formatDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return "—";
+  if (!dateStr) return " - ";
   const date = new Date(dateStr);
   return date.toLocaleDateString("en-AU", {
     day: "2-digit",
@@ -59,7 +59,7 @@ export function formatDate(dateStr: string | null | undefined): string {
  * Format a datetime string for display.
  */
 export function formatDateTime(dateStr: string | null | undefined): string {
-  if (!dateStr) return "—";
+  if (!dateStr) return " - ";
   const date = new Date(dateStr);
   return date.toLocaleDateString("en-AU", {
     day: "2-digit",

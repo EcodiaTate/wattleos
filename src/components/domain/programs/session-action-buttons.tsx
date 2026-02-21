@@ -1,15 +1,4 @@
 // src/components/domain/programs/session-action-buttons.tsx
-//
-// ============================================================
-// WattleOS V2 - Session Action Buttons
-// ============================================================
-// Client component for session-level actions: cancel session.
-// Shows a confirmation dialog before cancelling.
-//
-// WHY client: Needs interactive state for confirm dialog
-// and loading state while the server action runs.
-// ============================================================
-
 "use client";
 
 import { cancelSession } from "@/lib/actions/programs/programs";
@@ -54,23 +43,23 @@ export function SessionActionButtons({
   }
 
   return (
-    <div className="flex items-center gap-2">
-      {error && <span className="text-xs text-red-600">{error}</span>}
+    <div className="flex items-center gap-[var(--density-sm)]">
+      {error && <span className="text-xs text-destructive font-medium">{error}</span>}
 
       {!confirming ? (
         <button
           onClick={() => setConfirming(true)}
-          className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+          className="rounded-lg border border-destructive/20 px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-medium text-destructive hover:bg-destructive/5 transition-[var(--transition-base)]"
         >
           Cancel Session
         </button>
       ) : (
         <>
-          <span className="text-sm text-gray-600">Cancel this session?</span>
+          <span className="text-sm text-muted-foreground">Cancel this session?</span>
           <button
             onClick={handleCancel}
             disabled={loading}
-            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+            className="rounded-lg bg-destructive px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-bold text-destructive-foreground hover:opacity-90 transition-[var(--transition-base)] shadow-sm disabled:opacity-50"
           >
             {loading ? "Cancelling..." : "Confirm"}
           </button>
@@ -80,7 +69,7 @@ export function SessionActionButtons({
               setError(null);
             }}
             disabled={loading}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
+            className="rounded-lg border border-border px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-medium text-muted-foreground hover:bg-muted transition-[var(--transition-base)]"
           >
             No
           </button>
@@ -88,4 +77,4 @@ export function SessionActionButtons({
       )}
     </div>
   );
-}
+} 

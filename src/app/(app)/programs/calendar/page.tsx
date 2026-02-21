@@ -1,17 +1,4 @@
 // src/app/(app)/programs/calendar/page.tsx
-//
-// ============================================================
-// WattleOS V2 - Session Calendar Page
-// ============================================================
-// Displays sessions in a week-by-week grid view across all
-// programs. Staff can navigate between weeks and filter by
-// program. Links to session detail pages.
-//
-// WHY week view not month: OSHC programs are weekly patterns.
-// A week view shows capacity at a glance without overwhelming
-// with a full month of data. Staff need to see "this week's
-// sessions" and "next week's sessions".
-// ============================================================
 
 import { listPrograms, listSessions } from "@/lib/actions/programs/programs";
 import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
@@ -102,39 +89,39 @@ export default async function CalendarPage({
   const weekLabel = `${new Date(week.start + "T00:00:00").toLocaleDateString("en-AU", { day: "numeric", month: "short" })} – ${new Date(week.end + "T00:00:00").toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}`;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="content-grid animate-fade-in space-y-[var(--density-section-gap)]">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Session Calendar</h1>
-          <p className="mt-1 text-sm text-gray-500">Week of {weekLabel}</p>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Session Calendar</h1>
+          <p className="mt-1 text-sm text-[var(--muted-foreground)]">Week of {weekLabel}</p>
         </div>
         <Link
           href="/programs"
-          className="text-sm text-amber-600 hover:text-amber-700 font-medium"
+          className="text-sm text-[var(--primary)] hover:underline font-medium flex items-center gap-1"
         >
           ← Back to Programs
         </Link>
       </div>
 
       {/* Navigation + Filter */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-[var(--card)] p-3 rounded-[var(--radius)] border border-[var(--border)] shadow-[var(--shadow-xs)]">
         <div className="flex items-center gap-2">
           <Link
             href={`/programs/calendar?week=${prevWeek}${programFilter ? `&program=${programFilter}` : ""}`}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+            className="rounded-[var(--radius-sm)] border border-[var(--border)] px-3 h-[var(--density-button-height)] flex items-center text-sm font-medium text-[var(--foreground)] hover:bg-[var(--hover-overlay)] transition-colors"
           >
             ← Prev
           </Link>
           <Link
             href={`/programs/calendar${programFilter ? `?program=${programFilter}` : ""}`}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+            className="rounded-[var(--radius-sm)] border border-[var(--border)] px-3 h-[var(--density-button-height)] flex items-center text-sm font-medium text-[var(--foreground)] hover:bg-[var(--hover-overlay)] transition-colors"
           >
-            This Week
+            Today
           </Link>
           <Link
             href={`/programs/calendar?week=${nextWeek}${programFilter ? `&program=${programFilter}` : ""}`}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+            className="rounded-[var(--radius-sm)] border border-[var(--border)] px-3 h-[var(--density-button-height)] flex items-center text-sm font-medium text-[var(--foreground)] hover:bg-[var(--hover-overlay)] transition-colors"
           >
             Next →
           </Link>
@@ -146,7 +133,7 @@ export default async function CalendarPage({
           <select
             name="program"
             defaultValue={programFilter ?? ""}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-amber-500 focus:outline-none"
+            className="rounded-[var(--radius-sm)] border border-[var(--input)] bg-[var(--card)] px-3 h-[var(--density-input-height)] text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none transition-colors"
           >
             <option value="">All Programs</option>
             {programs.map((p) => (
@@ -157,7 +144,7 @@ export default async function CalendarPage({
           </select>
           <button
             type="submit"
-            className="rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-600 hover:bg-gray-200"
+            className="rounded-[var(--radius-sm)] bg-[var(--muted)] px-3 h-[var(--density-button-height)] text-sm font-medium text-[var(--foreground)] hover:bg-[var(--hover-overlay)] transition-colors border border-[var(--border)]"
           >
             Filter
           </button>
@@ -165,7 +152,7 @@ export default async function CalendarPage({
       </div>
 
       {/* Week Grid */}
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-3">
         {weekDates.map((dateStr, idx) => {
           const daySessions = sessionsByDate.get(dateStr) ?? [];
           const dateObj = new Date(dateStr + "T00:00:00");
@@ -174,22 +161,24 @@ export default async function CalendarPage({
           return (
             <div
               key={dateStr}
-              className={`rounded-lg border bg-white p-3 min-h-[140px] ${
-                isToday ? "border-amber-300 bg-amber-50/30" : "border-gray-200"
+              className={`rounded-[var(--radius)] border p-3 min-h-[160px] flex flex-col transition-all ${
+                isToday 
+                  ? "border-[var(--primary)] bg-[var(--primary-50)] shadow-[var(--shadow-sm)]" 
+                  : "border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-xs)]"
               }`}
             >
               {/* Day header */}
-              <div className="mb-2 border-b border-gray-100 pb-1">
+              <div className="mb-3 border-b border-[var(--border)] pb-1.5">
                 <p
-                  className={`text-xs font-medium uppercase ${
-                    isToday ? "text-amber-700" : "text-gray-400"
+                  className={`text-[10px] font-bold uppercase tracking-widest ${
+                    isToday ? "text-[var(--primary-700)]" : "text-[var(--muted-foreground)]"
                   }`}
                 >
                   {WEEKDAYS[idx]}
                 </p>
                 <p
-                  className={`text-lg font-bold ${
-                    isToday ? "text-amber-800" : "text-gray-900"
+                  className={`text-xl font-bold tabular-nums ${
+                    isToday ? "text-[var(--primary-900)]" : "text-[var(--foreground)]"
                   }`}
                 >
                   {dateObj.getDate()}
@@ -198,7 +187,9 @@ export default async function CalendarPage({
 
               {/* Sessions */}
               {daySessions.length === 0 ? (
-                <p className="text-xs text-gray-300">No sessions</p>
+                <div className="flex-1 flex items-center justify-center">
+                  <p className="text-[10px] font-medium text-[var(--empty-state-icon)] italic">No sessions</p>
+                </div>
               ) : (
                 <div className="space-y-2">
                   {daySessions.map((session) => {
@@ -212,24 +203,23 @@ export default async function CalendarPage({
                       <Link
                         key={session.id}
                         href={`/programs/sessions/${session.id}`}
-                        className="block rounded-md border border-gray-100 bg-gray-50 p-2 hover:bg-gray-100 transition-colors"
+                        className="block rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--background)] p-2 hover:border-[var(--primary-300)] hover:shadow-[var(--shadow-sm)] transition-all group"
                       >
-                        <p className="text-xs font-semibold text-gray-900 truncate">
+                        <p className="text-[10px] font-bold text-[var(--foreground)] group-hover:text-[var(--primary)] truncate transition-colors">
                           {session.program.name}
                         </p>
-                        <p className="text-[10px] text-gray-500">
-                          {formatTime(session.start_time)} –{" "}
-                          {formatTime(session.end_time)}
+                        <p className="text-[9px] font-medium text-[var(--muted-foreground)] tabular-nums">
+                          {formatTime(session.start_time)} – {formatTime(session.end_time)}
                         </p>
-                        <div className="mt-1 flex items-center justify-between">
-                          <span className="text-[10px] text-gray-500">
+                        <div className="mt-1.5 flex items-center justify-between border-t border-[var(--border)] pt-1">
+                          <span className="text-[9px] font-bold text-[var(--foreground)] tabular-nums">
                             {session.confirmed_count}
                             {capacity != null ? `/${capacity}` : ""}
                           </span>
                           <span
-                            className={`inline-flex rounded-full px-1 py-0.5 text-[9px] font-medium ${statusConfig.badgeBg} ${statusConfig.badgeText}`}
+                            className={`status-badge-plain inline-flex rounded-full px-1 py-0.5 text-[8px] font-extrabold uppercase ${statusConfig.badgeBg} ${statusConfig.badgeText}`}
                           >
-                            {statusConfig.label}
+                            {statusConfig.label[0]}
                           </span>
                         </div>
                       </Link>

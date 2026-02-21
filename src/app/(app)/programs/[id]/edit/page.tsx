@@ -3,14 +3,6 @@
 // ============================================================
 // WattleOS V2 - Edit Program Page
 // ============================================================
-// Server Component that loads the existing program and
-// renders the ProgramForm in edit mode. The update action
-// is bound to the program ID.
-//
-// WHY bind the action: ProgramForm accepts a generic onSubmit.
-// This page creates a wrapper that calls updateProgram with
-// the correct ID, so the form doesn't need to know the ID.
-// ============================================================
 
 import { ProgramDeleteButton } from "@/components/domain/programs/program-delete-button";
 import { ProgramForm } from "@/components/domain/programs/program-form";
@@ -59,28 +51,30 @@ export default async function EditProgramPage({
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="content-narrow animate-fade-in space-y-[var(--density-section-gap)]">
       {/* Breadcrumb */}
-      <nav className="text-sm text-gray-500">
-        <Link href="/programs" className="hover:text-amber-600">
+      <nav className="flex items-center text-sm text-[var(--breadcrumb-fg)] gap-2">
+        <Link href="/programs" className="hover:text-[var(--primary)] transition-colors">
           Programs
         </Link>
-        <span className="mx-2">›</span>
-        <Link href={`/programs/${id}`} className="hover:text-amber-600">
+        <span className="text-[var(--breadcrumb-separator)]">/</span>
+        <Link href={`/programs/${id}`} className="hover:text-[var(--primary)] transition-colors">
           {program.name}
         </Link>
-        <span className="mx-2">›</span>
-        <span className="text-gray-900">Edit</span>
+        <span className="text-[var(--breadcrumb-separator)]">/</span>
+        <span className="text-[var(--breadcrumb-active-fg)] font-medium">Edit</span>
       </nav>
 
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900">
+      <div className="flex items-center justify-between border-b border-[var(--border)] pb-[var(--density-md)]">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
           Edit: {program.name}
         </h1>
         <ProgramDeleteButton programId={id} programName={program.name} />
       </div>
 
-      <ProgramForm program={program} onSubmit={handleUpdate} />
+      <div className="rounded-[var(--radius)] bg-[var(--card)] p-[var(--density-card-padding)] shadow-[var(--shadow-sm)] border border-[var(--border)]">
+        <ProgramForm program={program} onSubmit={handleUpdate} />
+      </div>
     </div>
   );
 }

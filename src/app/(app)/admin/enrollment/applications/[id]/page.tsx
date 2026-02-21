@@ -34,7 +34,7 @@ export const metadata = {
 // ── Helpers ──────────────────────────────────────────────────
 
 function formatDate(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return " - ";
   return new Date(iso).toLocaleDateString("en-AU", {
     day: "numeric",
     month: "short",
@@ -115,7 +115,7 @@ function Field({
   return (
     <div>
       <dt className="text-xs font-medium text-gray-500">{label}</dt>
-      <dd className="mt-0.5 text-sm text-gray-900">{value || "—"}</dd>
+      <dd className="mt-0.5 text-sm text-gray-900">{value || " - "}</dd>
     </div>
   );
 }

@@ -7,9 +7,14 @@
 // comprehensive profile view with sections for medical,
 // guardians, enrollments, safety data, and pickup authorizations.
 //
-// CHANGES from previous version:
-// - Added PickupAuthorizationSection (client component)
-// - Added "View Attendance" link in profile header
+// PART A FIX: Guardian display now handles null user (parent
+// hasn't created account yet). Falls back to guardian.first_name
+// and guardian.last_name which are populated during enrollment
+// approval. Shows "Invited" vs "Linked" account status.
+//
+// PART B: Added "Demographics & Compliance" card showing
+// nationality, languages, indigenous status, address, government
+// identifiers, and other ACARA/ISQ reporting fields.
 // ============================================================
 
 import { PickupAuthorizationSection } from "@/components/domain/attendance/pickup-authorization-section";
@@ -21,11 +26,82 @@ import {
   formatStudentName,
   severityColor,
 } from "@/lib/utils";
+import type { GuardianWithUser, ResidentialAddress } from "@/types/domain";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 interface StudentDetailPageProps {
   params: Promise<{ id: string }>;
+}
+
+// ============================================================
+// Helper: resolve display name from guardian or linked user
+// ============================================================
+function guardianDisplayName(g: GuardianWithUser): string {
+  if (g.user) {
+    return [g.user.first_name, g.user.last_name].filter(Boolean).join(" ");
+  }
+  return [g.first_name, g.last_name].filter(Boolean).join(" ") || "Unknown";
+}
+
+function guardianDisplayEmail(g: GuardianWithUser): string | null {
+  return g.user?.email ?? g.email ?? null;
+}
+
+// ============================================================
+// Helper: format address JSONB into readable string
+// ============================================================
+function formatAddress(address: ResidentialAddress | null): string | null {
+  if (!address) return null;
+  const parts = [
+    address.line1,
+    address.line2,
+    address.suburb,
+    address.state && address.postcode
+      ? `${address.state} ${address.postcode}`
+      : address.state || address.postcode,
+    address.country,
+  ].filter(Boolean);
+  return parts.join(", ");
+}
+
+// ============================================================
+// Helper: human-readable label for indigenous status
+// ============================================================
+function indigenousStatusLabel(status: string): string {
+  const map: Record<string, string> = {
+    aboriginal: "Aboriginal",
+    torres_strait_islander: "Torres Strait Islander",
+    both: "Aboriginal and Torres Strait Islander",
+    neither: "Neither",
+    not_stated: "Not stated",
+  };
+  return map[status] ?? status;
+}
+
+// ============================================================
+// Helper: human-readable label for language background
+// ============================================================
+function languageBackgroundLabel(bg: string): string {
+  const map: Record<string, string> = {
+    english_only: "English only",
+    lbote: "Language background other than English (LBOTE)",
+    not_stated: "Not stated",
+  };
+  return map[bg] ?? bg;
+}
+
+// ============================================================
+// Sub-component: single detail row for Demographics card
+// ============================================================
+function DetailRow({ label, value }: { label: string; value: string | null | undefined }) {
+  if (!value) return null;
+  return (
+    <div className="flex items-baseline justify-between gap-4 py-1.5">
+      <dt className="text-xs font-medium text-muted-foreground whitespace-nowrap">{label}</dt>
+      <dd className="text-sm text-foreground text-right">{value}</dd>
+    </div>
+  );
 }
 
 export default async function StudentDetailPage({
@@ -50,6 +126,26 @@ export default async function StudentDetailPage({
   const criticalConditions = student.medical_conditions.filter(
     (c) => c.severity === "life_threatening" || c.severity === "severe",
   );
+
+  // Pre-compute compliance display values
+  const formattedAddress = formatAddress(student.residential_address);
+  const languagesDisplay = student.languages?.join(", ") ?? null;
+
+  // Determine if there's any demographics data to show
+  const hasDemographics =
+    student.nationality ||
+    languagesDisplay ||
+    student.previous_school ||
+    student.indigenous_status ||
+    student.language_background ||
+    student.country_of_birth ||
+    student.home_language ||
+    student.visa_subclass ||
+    formattedAddress ||
+    student.religion ||
+    student.crn ||
+    student.usi ||
+    student.medicare_number;
 
   return (
     <div className="space-y-6">
@@ -100,7 +196,7 @@ export default async function StudentDetailPage({
       )}
 
       {/* Profile Header */}
-      <div className="overflow-hidden rounded-lg borderborder-border bg-background shadow-sm">
+      <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
         <div className="px-6 py-5">
           <div className="flex items-start gap-[var(--density-card-padding)]">
             {/* Avatar */}
@@ -166,9 +262,52 @@ export default async function StudentDetailPage({
 
       {/* Content Sections */}
       <div className="grid grid-cols-1 gap-[var(--density-card-padding)] lg:grid-cols-2">
+        {/* Demographics & Compliance */}
+        <section className="rounded-lg border border-border bg-background shadow-sm">
+          <div className="border-b border-border px-6 py-4">
+            <h2 className="text-lg font-medium text-foreground">
+              Demographics &amp; Compliance
+            </h2>
+          </div>
+          <div className="px-6 py-4">
+            {!hasDemographics ? (
+              <p className="text-sm text-muted-foreground">
+                No demographic or compliance data recorded yet.
+              </p>
+            ) : (
+              <dl className="divide-y divide-gray-100">
+                {/* Background */}
+                <DetailRow label="Nationality" value={student.nationality} />
+                <DetailRow label="Country of Birth" value={student.country_of_birth} />
+                <DetailRow label="Languages Spoken" value={languagesDisplay} />
+                <DetailRow label="Home Language" value={student.home_language} />
+                <DetailRow
+                  label="Indigenous Status"
+                  value={student.indigenous_status ? indigenousStatusLabel(student.indigenous_status) : null}
+                />
+                <DetailRow
+                  label="Language Background"
+                  value={student.language_background ? languageBackgroundLabel(student.language_background) : null}
+                />
+                <DetailRow label="Religion" value={student.religion} />
+                <DetailRow label="Previous School" value={student.previous_school} />
+                <DetailRow label="Visa Subclass" value={student.visa_subclass} />
+
+                {/* Address */}
+                <DetailRow label="Residential Address" value={formattedAddress} />
+
+                {/* Government identifiers */}
+                <DetailRow label="CRN" value={student.crn} />
+                <DetailRow label="USI" value={student.usi} />
+                <DetailRow label="Medicare Number" value={student.medicare_number} />
+              </dl>
+            )}
+          </div>
+        </section>
+
         {/* Enrollments */}
-        <section className="rounded-lg borderborder-border bg-background shadow-sm">
-          <div className="border-bborder-border px-6 py-4">
+        <section className="rounded-lg border border-border bg-background shadow-sm">
+          <div className="border-b border-border px-6 py-4">
             <h2 className="text-lg font-medium text-foreground">Enrollments</h2>
           </div>
           <div className="px-6 py-4">
@@ -191,11 +330,11 @@ export default async function StudentDetailPage({
                         {formatDate(enrollment.start_date)}
                         {enrollment.end_date
                           ? ` - ${formatDate(enrollment.end_date)}`
-                          : " - present"}
+                          : " - Present"}
                       </p>
                     </div>
                     <span
-                      className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${enrollmentStatusColor(enrollment.status)}`}
+                      className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${enrollmentStatusColor(enrollment.status as string)}`}
                     >
                       {enrollment.status}
                     </span>
@@ -207,9 +346,11 @@ export default async function StudentDetailPage({
         </section>
 
         {/* Guardians */}
-        <section className="rounded-lg borderborder-border bg-background shadow-sm">
-          <div className="border-bborder-border px-6 py-4">
-            <h2 className="text-lg font-medium text-foreground">Guardians</h2>
+        <section className="rounded-lg border border-border bg-background shadow-sm">
+          <div className="border-b border-border px-6 py-4">
+            <h2 className="text-lg font-medium text-foreground">
+              Guardians &amp; Parents
+            </h2>
           </div>
           <div className="px-6 py-4">
             {student.guardians.length === 0 ? (
@@ -225,16 +366,28 @@ export default async function StudentDetailPage({
                   >
                     <div>
                       <p className="text-sm font-medium text-foreground">
-                        {guardian.user?.first_name} {guardian.user?.last_name}
+                        {guardianDisplayName(guardian)}
                         {guardian.is_primary && (
                           <span className="ml-2 text-xs font-normal text-indigo-600">
                             Primary
+                          </span>
+                        )}
+                        {/* Account status */}
+                        {guardian.user_id ? (
+                          <span className="ml-2 text-xs font-normal text-green-600">
+                            ✓ Account linked
+                          </span>
+                        ) : (
+                          <span className="ml-2 text-xs font-normal text-amber-600">
+                            Invited
                           </span>
                         )}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {guardian.relationship}
                         {guardian.phone && ` · ${guardian.phone}`}
+                        {guardianDisplayEmail(guardian) &&
+                          ` · ${guardianDisplayEmail(guardian)}`}
                       </p>
                     </div>
                     <div className="flex gap-1">
@@ -257,8 +410,8 @@ export default async function StudentDetailPage({
         </section>
 
         {/* Medical Conditions */}
-        <section className="rounded-lg borderborder-border bg-background shadow-sm">
-          <div className="border-bborder-border px-6 py-4">
+        <section className="rounded-lg border border-border bg-background shadow-sm">
+          <div className="border-b border-border px-6 py-4">
             <h2 className="text-lg font-medium text-foreground">
               Medical Conditions
             </h2>
@@ -315,8 +468,8 @@ export default async function StudentDetailPage({
         </section>
 
         {/* Emergency Contacts */}
-        <section className="rounded-lg borderborder-border bg-background shadow-sm">
-          <div className="border-bborder-border px-6 py-4">
+        <section className="rounded-lg border border-border bg-background shadow-sm">
+          <div className="border-b border-border px-6 py-4">
             <h2 className="text-lg font-medium text-foreground">
               Emergency Contacts
             </h2>
@@ -353,7 +506,7 @@ export default async function StudentDetailPage({
           </div>
         </section>
 
-        {/* Pickup Authorizations - NEW */}
+        {/* Pickup Authorizations */}
         <PickupAuthorizationSection studentId={id} />
 
         {/* Custody Restrictions */}

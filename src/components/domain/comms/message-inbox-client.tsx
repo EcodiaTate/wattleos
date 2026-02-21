@@ -5,14 +5,20 @@
 // ============================================================
 // Shows message threads with preview, unread indicators,
 // and compose form for new class broadcasts.
+//
+// WHY client: Compose form state + optimistic refresh after
+// sending require client-side interactivity.
 // ============================================================
 
 "use client";
 
-import { createClassBroadcast, getInbox } from "@/lib/actions/messaging";
-import type { MessageThreadType } from "@/lib/constants/communications";
+import { createClassBroadcast, getInbox } from "@/lib/actions/comms/messaging";
 import { THREAD_TYPE_CONFIG } from "@/lib/constants/communications";
-import type { ClassWithCounts, MessageThreadWithPreview } from "@/types/domain";
+import type {
+  ClassWithCounts,
+  MessageThreadType,
+  MessageThreadWithPreview,
+} from "@/types/domain";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -92,7 +98,7 @@ export function MessageInboxClient({
           New Class Message
         </button>
       ) : (
-        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] shadow-sm">
+        <div className="rounded-lg border border-border bg-background p-[var(--density-card-padding)] shadow-sm">
           <h2 className="text-lg font-semibold text-foreground">
             Send Class Message
           </h2>
@@ -185,10 +191,9 @@ export function MessageInboxClient({
           </p>
         </div>
       ) : (
-        <div className="divide-y divide-gray-200 rounded-lg borderborder-border bg-background shadow-sm">
+        <div className="divide-y divide-gray-200 rounded-lg border border-border bg-background shadow-sm">
           {threads.map((thread) => {
-            const typeConfig =
-              THREAD_TYPE_CONFIG[thread.thread_type as MessageThreadType];
+            const typeConfig = THREAD_TYPE_CONFIG[thread.thread_type];
             const hasUnread = thread.unread_count > 0;
             const lastMsg = thread.last_message;
             const lastSender = thread.last_message_sender;
@@ -210,7 +215,7 @@ export function MessageInboxClient({
               <Link
                 key={thread.id}
                 href={`/comms/messages/${thread.id}`}
-                className={`block px-5 py-4 transition-colors hover:bg-background ${
+                className={`block px-5 py-4 transition-colors hover:bg-muted/50 ${
                   hasUnread ? "bg-amber-50/50" : ""
                 }`}
               >
@@ -243,7 +248,9 @@ export function MessageInboxClient({
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <span className="whitespace-nowrap text-xs text-muted-foreground">
-                      {lastMsg ? formatRelativeTime(lastMsg.sent_at) : ""}
+                      {lastMsg
+                        ? formatRelativeTime(lastMsg.sent_at)
+                        : ""}
                     </span>
                     {hasUnread && (
                       <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">

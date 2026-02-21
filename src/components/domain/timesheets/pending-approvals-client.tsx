@@ -426,7 +426,7 @@ export function PendingApprovalsClient({
                                       </span>
                                     </td>
                                     <td className="py-2 text-muted-foreground">
-                                      {entry.notes || "—"}
+                                      {entry.notes || " - "}
                                     </td>
                                   </tr>
                                 );

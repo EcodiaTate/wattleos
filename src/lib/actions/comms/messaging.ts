@@ -1,4 +1,6 @@
-// src/lib/actions/messaging.ts
+'use server';
+
+// src/lib/actions/comms/messaging.ts
 //
 // ============================================================
 // WattleOS V2 - Messaging Server Actions

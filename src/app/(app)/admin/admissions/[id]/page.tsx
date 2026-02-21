@@ -57,7 +57,7 @@ function formatDate(
   dateStr: string | null,
   options?: Intl.DateTimeFormatOptions,
 ): string {
-  if (!dateStr) return "—";
+  if (!dateStr) return " - ";
   return new Date(dateStr).toLocaleDateString("en-AU", {
     day: "numeric",
     month: "short",
@@ -67,7 +67,7 @@ function formatDate(
 }
 
 function formatDateTime(dateStr: string | null): string {
-  if (!dateStr) return "—";
+  if (!dateStr) return " - ";
   return new Date(dateStr).toLocaleString("en-AU", {
     day: "numeric",
     month: "short",
@@ -190,13 +190,13 @@ export default async function EntryDetailPage({
               <div>
                 <dt className="text-gray-500">Gender</dt>
                 <dd className="font-medium text-gray-900">
-                  {entry.child_gender ?? "—"}
+                  {entry.child_gender ?? " - "}
                 </dd>
               </div>
               <div>
                 <dt className="text-gray-500">Current School</dt>
                 <dd className="font-medium text-gray-900">
-                  {entry.child_current_school ?? "—"}
+                  {entry.child_current_school ?? " - "}
                 </dd>
               </div>
             </dl>
@@ -226,7 +226,7 @@ export default async function EntryDetailPage({
               <div>
                 <dt className="text-gray-500">Phone</dt>
                 <dd className="font-medium text-gray-900">
-                  {entry.parent_phone ?? "—"}
+                  {entry.parent_phone ?? " - "}
                 </dd>
               </div>
               <div>
@@ -249,7 +249,7 @@ export default async function EntryDetailPage({
               <div>
                 <dt className="text-gray-500">Requested Program</dt>
                 <dd className="font-medium text-gray-900">
-                  {entry.requested_program ?? "—"}
+                  {entry.requested_program ?? " - "}
                 </dd>
               </div>
               <div>
@@ -257,13 +257,13 @@ export default async function EntryDetailPage({
                 <dd className="font-medium text-gray-900">
                   {entry.requested_start ??
                     formatDate(entry.requested_start_date) ??
-                    "—"}
+                    " - "}
                 </dd>
               </div>
               <div>
                 <dt className="text-gray-500">How They Heard About Us</dt>
                 <dd className="font-medium text-gray-900">
-                  {entry.how_heard_about_us ?? "—"}
+                  {entry.how_heard_about_us ?? " - "}
                 </dd>
               </div>
               <div>
@@ -322,7 +322,7 @@ export default async function EntryDetailPage({
                 <div>
                   <dt className="text-gray-500">Offered Program</dt>
                   <dd className="font-medium text-gray-900">
-                    {entry.offered_program ?? "—"}
+                    {entry.offered_program ?? " - "}
                   </dd>
                 </div>
                 <div>

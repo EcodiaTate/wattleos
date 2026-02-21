@@ -1,3 +1,5 @@
+'use server';
+
 // src/lib/actions/reports/templates.ts
 //
 // ============================================================
@@ -12,6 +14,9 @@
 // data. Rather than shipping fixed formats, we let each school
 // design their own report structure.
 //
+// AUDIT: Uses centralized logAudit() for consistent metadata
+// enrichment (IP, user agent, sensitivity, user identity).
+//
 // All actions return ActionResponse<T> - never throw.
 // RLS enforces tenant isolation at the database level.
 // ============================================================
@@ -25,12 +30,10 @@ import {
   createDefaultTemplateContent,
   validateTemplateContent,
 } from "@/lib/reports/types";
-import {
-  createSupabaseAdminClient,
-  createSupabaseServerClient,
-} from "@/lib/supabase/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ActionResponse, ErrorCodes, failure, success } from "@/types/api";
 import type { ReportTemplate } from "@/types/domain";
+import { logAudit } from "@/lib/utils/audit";
 
 // ============================================================
 // Input Types
@@ -195,15 +198,18 @@ export async function createReportTemplate(
       return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    // Audit log
-    const adminClient = createSupabaseAdminClient();
-    await adminClient.from("audit_logs").insert({
-      tenant_id: context.tenant.id,
-      user_id: context.user.id,
+    // WHY audit: Templates define what data appears in student reports.
+    // Changes to templates affect all future reports generated from them.
+    await logAudit({
+      context,
       action: "report_template.created",
-      entity_type: "report_template",
-      entity_id: (data as ReportTemplate).id,
-      metadata: { name: input.name },
+      entityType: "report_template",
+      entityId: (data as ReportTemplate).id,
+      metadata: {
+        name: input.name,
+        cycle_level: input.cycleLevel ?? null,
+        section_count: content.sections?.length ?? 0,
+      },
     });
 
     return success(data as ReportTemplate);

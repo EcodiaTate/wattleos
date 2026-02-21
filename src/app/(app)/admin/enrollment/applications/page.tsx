@@ -1,17 +1,3 @@
-// src/app/(app)/admin/enrollment/applications/page.tsx
-//
-// ============================================================
-// WattleOS V2 - Application Queue Page (Module 10)
-// ============================================================
-// The main triage screen for enrollment applications. Admins
-// see all applications sorted by submission date, filterable
-// by status and enrollment period.
-//
-// WHY server component: Filtering is done via searchParams
-// passed to the server action. Each filter change triggers
-// a full navigation, keeping the URL bookmarkable.
-// ============================================================
-
 import {
   listEnrollmentApplications,
   listEnrollmentPeriods,
@@ -24,10 +10,8 @@ export const metadata = {
   title: "Application Queue - WattleOS",
 };
 
-// ── Helpers ──────────────────────────────────────────────────
-
 function formatDate(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return " - ";
   return new Date(iso).toLocaleDateString("en-AU", {
     day: "numeric",
     month: "short",
@@ -37,13 +21,13 @@ function formatDate(iso: string | null): string {
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    draft: "bg-gray-100 text-gray-600",
-    submitted: "bg-blue-100 text-blue-700",
-    under_review: "bg-purple-100 text-purple-700",
-    changes_requested: "bg-amber-100 text-amber-700",
-    approved: "bg-green-100 text-green-700",
-    rejected: "bg-red-100 text-red-700",
-    withdrawn: "bg-gray-100 text-gray-400",
+    draft: "bg-muted text-muted-foreground",
+    submitted: "bg-info/10 text-info",
+    under_review: "bg-accent/10 text-accent-foreground",
+    changes_requested: "bg-warning/10 text-warning-foreground",
+    approved: "bg-success/10 text-success",
+    rejected: "bg-destructive/10 text-destructive",
+    withdrawn: "bg-muted text-muted-foreground/60",
   };
 
   const labels: Record<string, string> = {
@@ -59,7 +43,7 @@ function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-        styles[status] ?? "bg-gray-100 text-gray-600"
+        styles[status] ?? "bg-muted text-muted-foreground"
       }`}
     >
       {labels[status] ?? status}
@@ -83,8 +67,6 @@ function isPagedResult<T>(data: unknown): data is PagedResult<T> {
   );
 }
 
-// ── Page ─────────────────────────────────────────────────────
-
 interface ApplicationsPageProps {
   searchParams: Promise<{
     status?: string;
@@ -104,11 +86,10 @@ export default async function ApplicationsPage({
   const periodId = params.period || undefined;
   const search = params.search || undefined;
 
-  // Fetch applications and periods in parallel
   const [appsResult, periodsResult] = await Promise.all([
     listEnrollmentApplications({
       page,
-      per_page: 20, // <-- use perPage to match TS typings
+      per_page: 20,
       status,
       enrollment_period_id: periodId,
       search,
@@ -117,14 +98,12 @@ export default async function ApplicationsPage({
   ]);
 
   const appsData = appsResult.data;
-
-  const applications: EnrollmentApplication[] = isPagedResult<EnrollmentApplication>(
-    appsData
-  )
-    ? appsData.items
-    : Array.isArray(appsData)
-      ? appsData
-      : [];
+  const applications: EnrollmentApplication[] =
+    isPagedResult<EnrollmentApplication>(appsData)
+      ? appsData.items
+      : Array.isArray(appsData)
+        ? appsData
+        : [];
 
   const totalCount = isPagedResult<EnrollmentApplication>(appsData)
     ? appsData.total
@@ -135,24 +114,23 @@ export default async function ApplicationsPage({
     : 1;
 
   const error = appsResult.error?.message ?? null;
-
   const periods = periodsResult.data ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-foreground">
             Application Queue
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             {totalCount} application{totalCount !== 1 ? "s" : ""} found
           </p>
         </div>
         <Link
           href="/admin/enrollment"
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
         >
           ← Enrollment Periods
         </Link>
@@ -171,18 +149,18 @@ export default async function ApplicationsPage({
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/20">
           {error}
         </div>
       )}
 
       {/* Empty state */}
       {!error && applications.length === 0 && (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
-          <p className="text-sm font-medium text-gray-900">
+        <div className="rounded-lg border border-border bg-card p-12 text-center">
+          <p className="text-sm font-medium text-foreground">
             No applications found
           </p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             {status || periodId || search
               ? "Try adjusting your filters."
               : "Applications will appear here when parents submit them."}
@@ -192,78 +170,68 @@ export default async function ApplicationsPage({
 
       {/* Applications table */}
       {applications.length > 0 && (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Child
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Parent Email
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Program
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Submitted
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {applications.map((app: EnrollmentApplication) => (
-                <tr key={app.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/admin/enrollment/applications/${app.id}`}
-                      className="text-sm font-medium text-gray-900 hover:text-amber-700"
-                    >
-                      {app.child_first_name} {app.child_last_name}
-                    </Link>
-                    {app.child_date_of_birth && (
-                      <p className="text-xs text-gray-500">
-                        DOB: {formatDate(app.child_date_of_birth)}
-                      </p>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
-                    {app.submitted_by_email}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
-                    {app.requested_program
-                      ? app.requested_program.replace(/_/g, " ")
-                      : "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={app.status} />
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
-                    {formatDate(app.submitted_at)}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      href={`/admin/enrollment/applications/${app.id}`}
-                      className="rounded bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 hover:bg-amber-100"
-                    >
-                      Review
-                    </Link>
-                  </td>
+        <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-muted/50">
+                <tr className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <th className="px-4 py-3 text-left">Child</th>
+                  <th className="px-4 py-3 text-left">Parent Email</th>
+                  <th className="px-4 py-3 text-left">Program</th>
+                  <th className="px-4 py-3 text-left">Status</th>
+                  <th className="px-4 py-3 text-left">Submitted</th>
+                  <th className="px-4 py-3 text-right">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-border bg-card">
+                {applications.map((app: EnrollmentApplication) => (
+                  <tr key={app.id} className="hover:bg-muted/30 transition-colors">
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/admin/enrollment/applications/${app.id}`}
+                        className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                      >
+                        {app.child_first_name} {app.child_last_name}
+                      </Link>
+                      {app.child_date_of_birth && (
+                        <p className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground/60">
+                          DOB: {formatDate(app.child_date_of_birth)}
+                        </p>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      {app.submitted_by_email}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground capitalize">
+                      {app.requested_program
+                        ? app.requested_program.replace(/_/g, " ")
+                        : " - "}
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={app.status} />
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground tabular-nums">
+                      {formatDate(app.submitted_at)}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Link
+                        href={`/admin/enrollment/applications/${app.id}`}
+                        className="rounded-md bg-primary-50 px-3 py-1 text-xs font-bold text-primary-700 transition-all hover:bg-primary-100"
+                      >
+                        Review
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-4 py-3">
-              <p className="text-sm text-gray-600">
-                Page {page} of {totalPages}
+            <div className="flex items-center justify-between border-t border-border bg-muted/20 px-4 py-3">
+              <p className="text-sm text-muted-foreground">
+                Page <span className="font-bold text-foreground">{page}</span> of <span className="font-bold text-foreground">{totalPages}</span>
               </p>
               <div className="flex gap-2">
                 {page > 1 && (
@@ -277,7 +245,7 @@ export default async function ApplicationsPage({
                         page: page - 1,
                       },
                     }}
-                    className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-white"
+                    className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted transition-colors"
                   >
                     ← Previous
                   </Link>
@@ -293,7 +261,7 @@ export default async function ApplicationsPage({
                         page: page + 1,
                       },
                     }}
-                    className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-white"
+                    className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted transition-colors"
                   >
                     Next →
                   </Link>

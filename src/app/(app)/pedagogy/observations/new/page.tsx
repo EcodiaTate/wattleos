@@ -6,9 +6,8 @@
 // Server Component. Loads students, curriculum outcomes, and
 // media consent data, then renders the capture form.
 //
-// CHANGES from previous version:
-// - Added getStudentMediaConsentMap() call
-// - Passes mediaConsent boolean per student to the form
+// SECURITY CHANGE: Now passes tenantId to the capture form so
+// uploads use tenant-scoped storage paths that match RLS policy.
 // ============================================================
 
 import { ObservationCaptureForm } from "@/components/domain/observations/observation-capture-form";
@@ -89,6 +88,7 @@ export default async function NewObservationPage() {
         }))}
         outcomes={allOutcomes}
         canPublish={canPublish}
+        tenantId={context.tenant.id}
       />
     </div>
   );

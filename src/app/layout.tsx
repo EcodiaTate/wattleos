@@ -1,7 +1,7 @@
 // src/app/layout.tsx
 //
 // ============================================================
-// WattleOS V2 — Root Layout
+// WattleOS V2 - Root Layout
 // ============================================================
 // Reads the display cookie (set by the (app) layout on auth)
 // and applies theme class, density, font scale, brand color,
@@ -48,7 +48,7 @@ export default async function RootLayout({
   const display = parseDisplayCookie(displayCookie);
 
   // Resolve theme class.
-  // "system" means no class — the inline script below handles it.
+  // "system" means no class - the inline script below handles it.
   const themeClass = display.theme === "dark" ? "dark" : "";
 
   // Build inline styles for brand + accent overrides.

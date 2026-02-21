@@ -1,15 +1,4 @@
 // src/components/domain/programs/generate-sessions-button.tsx
-//
-// ============================================================
-// WattleOS V2 - Generate Sessions Button
-// ============================================================
-// Client component that triggers bulk session generation
-// for a program. Shows a weeks selector and result summary.
-//
-// WHY separate component: Has interactive state (loading,
-// result display). Used on the program detail page.
-// ============================================================
-
 "use client";
 
 import { generateSessions } from "@/lib/actions/programs/programs";
@@ -43,7 +32,6 @@ export function GenerateSessionsButton({
       setError(res.error.message);
     } else if (res.data) {
       setResult(res.data);
-      // Refresh the page to show new sessions
       router.refresh();
     }
 
@@ -51,12 +39,12 @@ export function GenerateSessionsButton({
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
+    <div className="space-y-[var(--density-md)]">
+      <div className="flex items-center gap-[var(--density-sm)]">
         <select
           value={weeks}
           onChange={(e) => setWeeks(parseInt(e.target.value, 10))}
-          className="rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-700 focus:border-amber-500 focus:outline-none"
+          className="rounded-lg border border-input bg-card px-[var(--density-input-padding-x)] h-[var(--density-input-height)] text-sm text-foreground focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-[var(--transition-fast)]"
           disabled={loading}
         >
           <option value={2}>2 weeks</option>
@@ -67,16 +55,16 @@ export function GenerateSessionsButton({
         <button
           onClick={handleGenerate}
           disabled={loading}
-          className="flex-1 rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700 transition-colors disabled:opacity-50"
+          className="flex-1 rounded-lg bg-primary px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-bold text-primary-foreground hover:opacity-90 transition-[var(--transition-base)] disabled:opacity-50 shadow-sm"
         >
           {loading ? "Generating..." : "Generate"}
         </button>
       </div>
 
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-destructive font-medium">{error}</p>}
 
       {result && (
-        <p className="text-xs text-green-700">
+        <p className="text-xs text-success font-medium">
           Created {result.created} session{result.created !== 1 ? "s" : ""}.
           {result.skipped > 0 && ` ${result.skipped} already existed.`}
         </p>

@@ -7,7 +7,7 @@
 // a searchable, paginated list. No 'use client' needed here.
 //
 // Fix: Removed `params.tenant` - the (app) route group has no
-// [tenant] dynamic segment. All links now use absolute paths
+// (app) dynamic segment. All links now use absolute paths
 // without a tenant prefix (e.g., /students, /students/[id]).
 // Tenant isolation is handled by RLS + JWT, not URL segments.
 // ============================================================
@@ -187,7 +187,7 @@ export default async function StudentListPage({
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
                     {calculateAge(student.dob) !== null
                       ? `${calculateAge(student.dob)} yrs`
-                      : "—"}
+                      : " - "}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <span

@@ -26,7 +26,7 @@ export const metadata = {
 };
 
 function formatDate(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return " - ";
   return new Date(iso).toLocaleDateString("en-AU", {
     day: "numeric",
     month: "short",

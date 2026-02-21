@@ -1,4 +1,4 @@
-// src/lib/actions/enrollment-applications.ts
+// src/lib/actions/enroll/enrollment-applications.ts
 //
 // ============================================================
 // WattleOS V2 - Enrollment Application Server Actions (Module 10)
@@ -6,16 +6,26 @@
 // The heart of Module 10. Manages the full lifecycle of
 // enrollment applications from submission through approval.
 //
-// The critical function is approveApplication() - a single
-// server action that triggers a 12-step cascade creating the
-// student record, guardian links, medical conditions, emergency
+// The critical function is approveApplication() — a single
+// server action that triggers a cascade creating the student
+// record, guardian links, medical conditions, emergency
 // contacts, custody restrictions, consent flags, and parent
 // invitations. One click. Twelve outcomes. Zero re-entry.
+//
+// PART A FIX: Step 3 now ALWAYS creates guardian records, even
+// when the parent hasn't created a user account yet. Guardian
+// identity is stored via email/first_name/last_name. When the
+// parent later accepts their invitation, acceptInvitation()
+// backfills user_id onto the existing guardian record.
 //
 // WHY server action (not DB trigger): The cascade involves
 // business logic (token generation, date computation, consent
 // mapping) that doesn't belong in SQL. Server actions also
 // give us better error handling and audit trails.
+//
+// PART B FIX: Step 1 now carries through nationality, languages,
+// and previous_school from the application form to the student
+// record. Previously these were captured but discarded on approval.
 //
 // All actions return ActionResponse<T> - never throw.
 // RLS enforces tenant isolation at the database level.
@@ -25,6 +35,10 @@
 
 import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
+import {
+  submitEnrollmentApplicationSchema,
+  validate,
+} from "@/lib/validations";
 import {
   createSupabaseAdminClient,
   createSupabaseServerClient,
@@ -53,6 +67,8 @@ import type {
 // Input Types
 // ============================================================
 
+// Keep the original interface for backward-compat imports,
+// but the actual runtime validation uses the Zod schema.
 export interface SubmitApplicationInput {
   enrollment_period_id: string;
   submitted_by_email: string;
@@ -128,7 +144,6 @@ export async function listEnrollmentApplications(
     await requirePermission(Permissions.REVIEW_APPLICATIONS);
     const supabase = await createSupabaseServerClient();
 
-    // validatePagination returns { page, perPage, offset }
     const { page, perPage, offset } = validatePagination(
       params?.page,
       params?.per_page,
@@ -164,7 +179,6 @@ export async function listEnrollmentApplications(
 
     const total = count ?? 0;
 
-    // paginated expects (items, total, page, perPage)
     return paginated(
       (data ?? []) as EnrollmentApplication[],
       total,
@@ -214,12 +228,12 @@ export async function getApplicationDetails(
     }
 
     // Supabase nested selects sometimes come back as arrays depending on relationship config.
-    const enrollment_period = firstOrNull<any>(data.enrollment_period);
-    const reviewer = firstOrNull<any>(data.reviewer);
-    const existing_student = firstOrNull<any>(data.existing_student);
-    const requested_class = firstOrNull<any>(data.requested_class);
+    const enrollment_period = firstOrNull<Record<string, unknown>>(data.enrollment_period as Record<string, unknown> | Record<string, unknown>[]);
+    const reviewer = firstOrNull<Record<string, unknown>>(data.reviewer as Record<string, unknown> | Record<string, unknown>[]);
+    const existing_student = firstOrNull<Record<string, unknown>>(data.existing_student as Record<string, unknown> | Record<string, unknown>[]);
+    const requested_class = firstOrNull<Record<string, unknown>>(data.requested_class as Record<string, unknown> | Record<string, unknown>[]);
 
-    const documentsRaw = (data as any).documents;
+    const documentsRaw = (data as Record<string, unknown>).documents;
     const documents = Array.isArray(documentsRaw)
       ? documentsRaw
       : documentsRaw
@@ -233,7 +247,7 @@ export async function getApplicationDetails(
       existing_student: _es,
       requested_class: _rc,
       ...application
-    } = data as any;
+    } = data as Record<string, unknown>;
 
     return success({
       ...application,
@@ -263,42 +277,16 @@ export async function getApplicationDetails(
 
 export async function submitEnrollmentApplication(
   tenantId: string,
-  input: SubmitApplicationInput,
+  input: unknown,
 ): Promise<ActionResponse<EnrollmentApplication>> {
   try {
-    const supabase = await createSupabaseServerClient();
+    // Zod validates all fields, trims strings, lowercases email,
+    // checks date formats, enforces min guardians/contacts
+    const parsed = validate(submitEnrollmentApplicationSchema, input);
+    if (parsed.error) return parsed.error;
+    const v = parsed.data;
 
-    // Validate required fields
-    if (!input.child_first_name?.trim() || !input.child_last_name?.trim()) {
-      return failure("Child name is required", ErrorCodes.VALIDATION_ERROR);
-    }
-    if (!input.child_date_of_birth) {
-      return failure(
-        "Child date of birth is required",
-        ErrorCodes.VALIDATION_ERROR,
-      );
-    }
-    if (!input.submitted_by_email?.trim()) {
-      return failure("Parent email is required", ErrorCodes.VALIDATION_ERROR);
-    }
-    if (!input.guardians || input.guardians.length === 0) {
-      return failure(
-        "At least one guardian is required",
-        ErrorCodes.VALIDATION_ERROR,
-      );
-    }
-    if (!input.emergency_contacts || input.emergency_contacts.length < 2) {
-      return failure(
-        "At least two emergency contacts are required",
-        ErrorCodes.VALIDATION_ERROR,
-      );
-    }
-    if (!input.terms_accepted || !input.privacy_accepted) {
-      return failure(
-        "Terms and privacy policy must be accepted",
-        ErrorCodes.VALIDATION_ERROR,
-      );
-    }
+    const supabase = await createSupabaseServerClient();
 
     const now = new Date().toISOString();
 
@@ -306,31 +294,31 @@ export async function submitEnrollmentApplication(
       .from("enrollment_applications")
       .insert({
         tenant_id: tenantId,
-        enrollment_period_id: input.enrollment_period_id,
+        enrollment_period_id: v.enrollment_period_id,
         status: "submitted",
-        submitted_by_email: input.submitted_by_email.trim().toLowerCase(),
+        submitted_by_email: v.submitted_by_email,
         submitted_at: now,
-        child_first_name: input.child_first_name.trim(),
-        child_last_name: input.child_last_name.trim(),
-        child_preferred_name: input.child_preferred_name?.trim() ?? null,
-        child_date_of_birth: input.child_date_of_birth,
-        child_gender: input.child_gender ?? null,
-        child_nationality: input.child_nationality ?? null,
-        child_languages: input.child_languages ?? null,
-        child_previous_school: input.child_previous_school?.trim() ?? null,
-        requested_program: input.requested_program ?? null,
-        requested_start_date: input.requested_start_date ?? null,
-        existing_student_id: input.existing_student_id ?? null,
-        guardians: input.guardians,
-        medical_conditions: input.medical_conditions ?? [],
-        emergency_contacts: input.emergency_contacts,
-        custody_restrictions: input.custody_restrictions ?? [],
-        media_consent: input.media_consent,
-        directory_consent: input.directory_consent,
-        terms_accepted: input.terms_accepted,
+        child_first_name: v.child_first_name,
+        child_last_name: v.child_last_name,
+        child_preferred_name: v.child_preferred_name,
+        child_date_of_birth: v.child_date_of_birth,
+        child_gender: v.child_gender,
+        child_nationality: v.child_nationality,
+        child_languages: v.child_languages,
+        child_previous_school: v.child_previous_school,
+        requested_program: v.requested_program,
+        requested_start_date: v.requested_start_date,
+        existing_student_id: v.existing_student_id,
+        guardians: v.guardians,
+        medical_conditions: v.medical_conditions,
+        emergency_contacts: v.emergency_contacts,
+        custody_restrictions: v.custody_restrictions,
+        media_consent: v.media_consent,
+        directory_consent: v.directory_consent,
+        terms_accepted: v.terms_accepted,
         terms_accepted_at: now,
-        privacy_accepted: input.privacy_accepted,
-        custom_responses: input.custom_responses ?? {},
+        privacy_accepted: v.privacy_accepted,
+        custom_responses: v.custom_responses,
       })
       .select("*")
       .single();
@@ -516,6 +504,10 @@ export async function approveApplication(
           preferred_name: app.child_preferred_name,
           gender: app.child_gender,
           enrollment_status: "active",
+          // PART B: carry through compliance fields on re-enrollment too
+          nationality: app.child_nationality ?? null,
+          languages: app.child_languages ?? null,
+          previous_school: app.child_previous_school ?? null,
         })
         .eq("id", studentId);
     } else {
@@ -530,6 +522,10 @@ export async function approveApplication(
           dob: app.child_date_of_birth,
           gender: app.child_gender,
           enrollment_status: "active",
+          // PART B: carry through compliance fields from application
+          nationality: app.child_nationality ?? null,
+          languages: app.child_languages ?? null,
+          previous_school: app.child_previous_school ?? null,
         })
         .select("id")
         .single();
@@ -557,40 +553,64 @@ export async function approveApplication(
     });
 
     // ── Step 3: Create guardian records ─────────────────────────
+    // PART A FIX: ALWAYS create guardian records, even when the
+    // parent hasn't created a user account yet.
     for (const g of guardians) {
       const email = (g.email ?? "").toLowerCase().trim();
       if (!email) continue;
 
-      // Check if user exists with this email
+      // Check if user already exists with this email
       const { data: existingUser } = await admin
         .from("users")
         .select("id")
         .eq("email", email)
         .maybeSingle();
 
-      const guardianUserId = existingUser?.id;
+      const guardianUserId = existingUser?.id ?? null;
 
-      // Only create guardian link if we have a user ID
-      // (if no user exists yet, the parent invitation flow will handle it)
-      if (guardianUserId) {
-        await admin.from("guardians").upsert(
-          {
-            tenant_id: tenantId,
-            user_id: guardianUserId,
-            student_id: studentId,
-            relationship: g.relationship,
-            is_primary: g.is_primary,
-            is_emergency_contact: g.is_emergency_contact,
-            pickup_authorized: g.pickup_authorized,
-            phone: g.phone,
-            media_consent: app.media_consent,
-            directory_consent: app.directory_consent,
-          },
-          {
-            onConflict: "tenant_id,user_id,student_id",
-            ignoreDuplicates: false,
-          },
-        );
+      const existingGuardianQuery = guardianUserId
+        ? admin
+            .from("guardians")
+            .select("id")
+            .eq("tenant_id", tenantId)
+            .eq("user_id", guardianUserId)
+            .eq("student_id", studentId)
+            .is("deleted_at", null)
+            .maybeSingle()
+        : admin
+            .from("guardians")
+            .select("id")
+            .eq("tenant_id", tenantId)
+            .eq("email", email)
+            .eq("student_id", studentId)
+            .is("deleted_at", null)
+            .maybeSingle();
+
+      const { data: existingGuardian } = await existingGuardianQuery;
+
+      const guardianPayload = {
+        tenant_id: tenantId,
+        user_id: guardianUserId,
+        student_id: studentId,
+        email,
+        first_name: g.first_name,
+        last_name: g.last_name,
+        relationship: g.relationship,
+        is_primary: g.is_primary,
+        is_emergency_contact: g.is_emergency_contact,
+        pickup_authorized: g.pickup_authorized,
+        phone: g.phone,
+        media_consent: app.media_consent,
+        directory_consent: app.directory_consent,
+      };
+
+      if (existingGuardian) {
+        await admin
+          .from("guardians")
+          .update(guardianPayload)
+          .eq("id", existingGuardian.id);
+      } else {
+        await admin.from("guardians").insert(guardianPayload);
       }
     }
 
@@ -672,7 +692,6 @@ export async function approveApplication(
       }
 
       // Ignore duplicate invite errors (unique constraint)
-      // Postgres duplicate key is 23505 in many setups; Supabase may surface as "23505".
       if (inviteError.code === "23505") {
         continue;
       }

@@ -63,6 +63,16 @@ export type MediaType = "image" | "video" | "audio" | "document";
 
 export type StorageProvider = "supabase" | "google_drive";
 
+// SIS Compliance (Australian government reporting)
+export type IndigenousStatus =
+  | "aboriginal"
+  | "torres_strait_islander"
+  | "both"
+  | "neither"
+  | "not_stated";
+
+export type LanguageBackground = "english_only" | "lbote" | "not_stated";
+
 // ============================================================
 // Core Platform
 // ============================================================
@@ -272,6 +282,23 @@ export interface MasteryHistoryEntry {
 // Students & SIS
 // ============================================================
 
+// ============================================================
+// Residential Address (JSONB shape for student addresses)
+// ============================================================
+
+export interface ResidentialAddress {
+  line1: string;
+  line2?: string | null;
+  suburb: string;
+  state: string;
+  postcode: string;
+  country: string;
+}
+
+// ============================================================
+// Students
+// ============================================================
+
 export interface Student {
   id: string;
   tenant_id: string;
@@ -283,6 +310,25 @@ export interface Student {
   photo_url: string | null;
   enrollment_status: EnrollmentStatus;
   notes: string | null;
+  // Compliance: captured on enrollment form
+  nationality: string | null;
+  languages: string[] | null;
+  previous_school: string | null;
+  // Compliance: ACARA / MySchool reporting
+  indigenous_status: IndigenousStatus | null;
+  language_background: LanguageBackground | null;
+  country_of_birth: string | null;
+  home_language: string | null;
+  visa_subclass: string | null;
+  // Compliance: address
+  residential_address: ResidentialAddress | null;
+  // Compliance: ISQ reporting
+  religion: string | null;
+  // Compliance: government identifiers
+  crn: string | null;
+  usi: string | null;
+  medicare_number: string | null;
+  // Timestamps
   created_at: string;
   updated_at: string;
 }
@@ -451,8 +497,8 @@ export interface StudentWithDetails extends Student {
   medical_conditions: MedicalCondition[];
   emergency_contacts: EmergencyContact[];
   custody_restrictions: CustodyRestriction[];
+  pickup_authorizations: PickupAuthorization[];
 }
-
 export interface Class {
   id: string;
   tenant_id: string;
@@ -484,12 +530,14 @@ export interface EnrollmentWithClass extends Enrollment {
 export interface EnrollmentWithStudent extends Enrollment {
   student: Student;
 }
-
 export interface Guardian {
   id: string;
   tenant_id: string;
-  user_id: string;
+  user_id: string | null;
   student_id: string;
+  email: string | null;
+  first_name: string | null;
+  last_name: string | null;
   relationship: string;
   is_primary: boolean;
   is_emergency_contact: boolean;
@@ -500,7 +548,10 @@ export interface Guardian {
 }
 
 export interface GuardianWithUser extends Guardian {
-  user: Pick<User, "id" | "email" | "first_name" | "last_name" | "avatar_url">;
+  user: Pick<
+    User,
+    "id" | "email" | "first_name" | "last_name" | "avatar_url"
+  > | null;
 }
 
 export interface MedicalCondition {
@@ -1550,30 +1601,50 @@ export type CurriculumNodeEnhanced = Pick<
 // conversations. Module 12 upgraded to persistent channels
 // (ChatChannel, ChatMessage). Both coexist during migration.
 // ============================================================
+// ============================================================
+// REPLACEMENT: Messaging Domain Types
+// ============================================================
+// Find and replace the existing MessageThread, MessageThreadWithPreview,
+// Message, MessageWithSender, and MessageRecipient types in
+// src/types/domain.ts with the versions below.
+//
+// WHY: The old types were Module 7 (participant-based, no thread_type).
+// messaging.ts getInbox() builds objects with thread_type, creator,
+// target_class, last_message_sender, and recipient_count - the domain
+// types must match or every component consuming them will fail.
+// ============================================================
+
+// ============================================================
+// Communications - Message Thread Types
+// ============================================================
+
+export type MessageThreadType = "class_broadcast" | "direct";
 
 export interface MessageThread {
   id: string;
   tenant_id: string;
   subject: string | null;
+  thread_type: MessageThreadType;
+  class_id: string | null;
   created_by: string;
-  is_archived: boolean;
   created_at: string;
   updated_at: string;
-  deleted_at: string | null;
+  deleted_at?: string | null;
 }
 
+/** Thread enriched with preview data for inbox display */
 export interface MessageThreadWithPreview extends MessageThread {
-  participant_count: number;
-  unread_count: number;
+  creator: Pick<User, "id" | "first_name" | "last_name" | "avatar_url">;
+  target_class: Pick<Class, "id" | "name"> | null;
   last_message: {
     id: string;
     content: string;
-    sender_name: string;
-    created_at: string;
+    sent_at: string;
+    sender_id: string;
   } | null;
-  participants: Array<
-    Pick<User, "id" | "first_name" | "last_name" | "avatar_url">
-  >;
+  last_message_sender: Pick<User, "id" | "first_name" | "last_name"> | null;
+  unread_count: number;
+  recipient_count: number;
 }
 
 export interface Message {
@@ -1582,12 +1653,9 @@ export interface Message {
   thread_id: string;
   sender_id: string;
   content: string;
-  attachment_url: string | null;
-  attachment_name: string | null;
-  edited_at: string | null;
+  sent_at: string;
   created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
+  deleted_at?: string | null;
 }
 
 export interface MessageWithSender extends Message {
@@ -1599,11 +1667,9 @@ export interface MessageRecipient {
   tenant_id: string;
   thread_id: string;
   user_id: string;
-  last_read_at: string | null;
-  is_muted: boolean;
+  read_at: string | null;
   created_at: string;
 }
-
 // ============================================================
 // Communications - Announcement Compound Types
 // ============================================================

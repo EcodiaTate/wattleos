@@ -1,3 +1,5 @@
+'use server';
+
 // src/lib/actions/enroll/accept-parent-invitation.ts
 //
 // ============================================================

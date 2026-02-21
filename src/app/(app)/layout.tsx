@@ -30,7 +30,7 @@
 import { Sidebar } from "@/components/domain/sidebar";
 import { getUnacknowledgedCount } from "@/lib/actions/comms/announcements";
 import { getUnreadMessageCount } from "@/lib/actions/comms/messaging";
-import { getTenantContext } from "@/lib/auth/tenant-context";
+import { getTenantContext, getUserTenants } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 
 export default async function AppLayout({
@@ -40,17 +40,23 @@ export default async function AppLayout({
 }) {
   const context = await getTenantContext();
 
-  // Fetch unread counts for Communications badge (server-side, no client cost)
+  // Fetch unread counts and tenant count in parallel (server-side, no client cost).
+  // WHY getUserTenants here: Controls whether "Switch School" button appears.
+  // Single-tenant users (the majority) don't need it - it would just
+  // auto-select the same school and waste a round-trip.
   let totalUnreadComms = 0;
+  let tenantCount = 1;
   try {
-    const [announcementResult, messageResult] = await Promise.all([
+    const [announcementResult, messageResult, userTenants] = await Promise.all([
       getUnacknowledgedCount(),
       getUnreadMessageCount(),
+      getUserTenants(context.user.id),
     ]);
     totalUnreadComms =
       (announcementResult.data ?? 0) + (messageResult.data ?? 0);
+    tenantCount = userTenants.length;
   } catch {
-    // Non-critical - badges just won't show
+    // Non-critical - badges just won't show, switcher defaults to visible
   }
 
   const navItems = buildNavItems(context.permissions, totalUnreadComms);
@@ -69,6 +75,7 @@ export default async function AppLayout({
         userAvatar={context.user.avatar_url}
         roleName={context.role.name}
         navItems={navItems}
+        showTenantSwitcher={tenantCount > 1}
       />
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -125,6 +132,14 @@ function buildNavItems(permissions: string[], unreadComms: number): NavItem[] {
     });
   }
 
+  if (has(Permissions.MANAGE_CURRICULUM)) {
+    items.push({
+      label: "Content Library",
+      href: "/pedagogy/content-library",
+      icon: "library",
+    });
+  }
+
   if (has(Permissions.MANAGE_MASTERY)) {
     items.push({
       label: "Mastery",
@@ -169,7 +184,7 @@ function buildNavItems(permissions: string[], unreadComms: number): NavItem[] {
   }
 
   // ── Programs / OSHC (Module 11) ───────────────────────────
-  // WHY before Communications: Programs are operational —
+  // WHY before Communications: Programs are operational -
   // staff check kids in/out daily. Comms is less frequent.
   if (has(Permissions.MANAGE_PROGRAMS) || has(Permissions.CHECKIN_CHECKOUT)) {
     items.push({
@@ -266,11 +281,16 @@ function buildNavItems(permissions: string[], unreadComms: number): NavItem[] {
     has(Permissions.MANAGE_TENANT_SETTINGS)
   ) {
     items.push({
-      label: "Settings",
+      label: "Admin",
       href: "/admin",
-      icon: "settings",
+      icon: "admin",
     });
   }
 
+    items.push({
+      label: "Settings",
+      href: "/settings",
+      icon: "settings",
+    });
   return items;
 }

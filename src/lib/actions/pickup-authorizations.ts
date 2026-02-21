@@ -14,34 +14,22 @@
 "use server";
 
 import { getTenantContext } from "@/lib/auth/tenant-context";
+import {
+  createPickupAuthorizationSchema,
+  updatePickupAuthorizationSchema,
+  validate,
+} from "@/lib/validations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ActionResponse, failure, success } from "@/types/api";
 import type { PickupAuthorization } from "@/types/domain";
+import { logAudit, AuditActions } from "@/lib/utils/audit";
 
 // ============================================================
-// Input Types
+// Input Types (kept for backward-compat re-exports)
 // ============================================================
 
-export interface CreatePickupAuthorizationInput {
-  studentId: string;
-  authorizedName: string;
-  relationship?: string;
-  phone?: string;
-  photoUrl?: string;
-  isPermanent?: boolean;
-  validFrom?: string;
-  validUntil?: string;
-}
-
-export interface UpdatePickupAuthorizationInput {
-  authorizedName?: string;
-  relationship?: string;
-  phone?: string;
-  photoUrl?: string;
-  isPermanent?: boolean;
-  validFrom?: string | null;
-  validUntil?: string | null;
-}
+export type { CreatePickupAuthorizationInput } from "@/lib/validations";
+export type { UpdatePickupAuthorizationInput } from "@/lib/validations";
 
 // ============================================================
 // LIST: All pickup authorizations for a student
@@ -81,29 +69,28 @@ export async function listPickupAuthorizations(
 // ============================================================
 
 export async function createPickupAuthorization(
-  input: CreatePickupAuthorizationInput,
+  input: unknown,
 ): Promise<ActionResponse<PickupAuthorization>> {
   try {
+    const parsed = validate(createPickupAuthorizationSchema, input);
+    if (parsed.error) return parsed.error;
+    const v = parsed.data;
+
     const context = await getTenantContext();
     const supabase = await createSupabaseServerClient();
-
-    if (!input.studentId)
-      return failure("Student is required", "VALIDATION_ERROR");
-    if (!input.authorizedName?.trim())
-      return failure("Name is required", "VALIDATION_ERROR");
 
     const { data, error } = await supabase
       .from("pickup_authorizations")
       .insert({
         tenant_id: context.tenant.id,
-        student_id: input.studentId,
-        authorized_name: input.authorizedName.trim(),
-        relationship: input.relationship?.trim() || null,
-        phone: input.phone?.trim() || null,
-        photo_url: input.photoUrl || null,
-        is_permanent: input.isPermanent ?? true,
-        valid_from: input.validFrom || null,
-        valid_until: input.validUntil || null,
+        student_id: v.studentId,
+        authorized_name: v.authorizedName,
+        relationship: v.relationship ?? null,
+        phone: v.phone ?? null,
+        photo_url: v.photoUrl ?? null,
+        is_permanent: v.isPermanent,
+        valid_from: v.validFrom ?? null,
+        valid_until: v.validUntil ?? null,
         authorized_by: context.user.id,
       })
       .select()
@@ -112,6 +99,18 @@ export async function createPickupAuthorization(
     if (error) {
       return failure(error.message, "DB_ERROR");
     }
+
+    await logAudit({
+      context,
+      action: AuditActions.PICKUP_AUTHORIZED,
+      entityType: "pickup_authorization",
+      entityId: (data as PickupAuthorization).id,
+      metadata: {
+        student_id: v.studentId,
+        authorized_name: v.authorizedName,
+        is_permanent: v.isPermanent,
+      },
+    });
 
     return success(data as PickupAuthorization);
   } catch (err) {
@@ -129,24 +128,28 @@ export async function createPickupAuthorization(
 
 export async function updatePickupAuthorization(
   id: string,
-  input: UpdatePickupAuthorizationInput,
+  input: unknown,
 ): Promise<ActionResponse<PickupAuthorization>> {
   try {
-    await getTenantContext();
+    const parsed = validate(updatePickupAuthorizationSchema, input);
+    if (parsed.error) return parsed.error;
+    const v = parsed.data;
+
+    const context = await getTenantContext();
     const supabase = await createSupabaseServerClient();
 
     const updates: Record<string, unknown> = {};
-    if (input.authorizedName !== undefined)
-      updates.authorized_name = input.authorizedName.trim();
-    if (input.relationship !== undefined)
-      updates.relationship = input.relationship?.trim() || null;
-    if (input.phone !== undefined) updates.phone = input.phone?.trim() || null;
-    if (input.photoUrl !== undefined)
-      updates.photo_url = input.photoUrl || null;
-    if (input.isPermanent !== undefined)
-      updates.is_permanent = input.isPermanent;
-    if (input.validFrom !== undefined) updates.valid_from = input.validFrom;
-    if (input.validUntil !== undefined) updates.valid_until = input.validUntil;
+    if (v.authorizedName !== undefined)
+      updates.authorized_name = v.authorizedName;
+    if (v.relationship !== undefined)
+      updates.relationship = v.relationship ?? null;
+    if (v.phone !== undefined) updates.phone = v.phone ?? null;
+    if (v.photoUrl !== undefined)
+      updates.photo_url = v.photoUrl ?? null;
+    if (v.isPermanent !== undefined)
+      updates.is_permanent = v.isPermanent;
+    if (v.validFrom !== undefined) updates.valid_from = v.validFrom;
+    if (v.validUntil !== undefined) updates.valid_until = v.validUntil;
 
     if (Object.keys(updates).length === 0) {
       return failure("No fields to update", "VALIDATION_ERROR");
@@ -163,6 +166,14 @@ export async function updatePickupAuthorization(
     if (error) {
       return failure(error.message, "DB_ERROR");
     }
+
+    await logAudit({
+      context,
+      action: AuditActions.PICKUP_AUTHORIZED,
+      entityType: "pickup_authorization",
+      entityId: id,
+      metadata: { updated_fields: Object.keys(updates) },
+    });
 
     return success(data as PickupAuthorization);
   } catch (err) {
@@ -182,8 +193,16 @@ export async function deletePickupAuthorization(
   id: string,
 ): Promise<ActionResponse<{ success: boolean }>> {
   try {
-    await getTenantContext();
+    const context = await getTenantContext();
     const supabase = await createSupabaseServerClient();
+
+    // Fetch before delete for audit trail
+    const { data: existing } = await supabase
+      .from("pickup_authorizations")
+      .select("student_id, authorized_name")
+      .eq("id", id)
+      .is("deleted_at", null)
+      .single();
 
     const { error } = await supabase
       .from("pickup_authorizations")
@@ -193,6 +212,19 @@ export async function deletePickupAuthorization(
 
     if (error) {
       return failure(error.message, "DB_ERROR");
+    }
+
+    if (existing) {
+      await logAudit({
+        context,
+        action: AuditActions.PICKUP_REVOKED,
+        entityType: "pickup_authorization",
+        entityId: id,
+        metadata: {
+          student_id: existing.student_id,
+          authorized_name: existing.authorized_name,
+        },
+      });
     }
 
     return success({ success: true });

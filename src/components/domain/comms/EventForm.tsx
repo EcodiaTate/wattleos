@@ -5,14 +5,14 @@
 
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import {
   createEvent,
-  type EventType,
   type EventScope,
+  type EventType,
   type SchoolEvent,
 } from "@/lib/actions/comms/school-events";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
 interface EventFormProps {
   tenantSlug: string;
@@ -39,43 +39,37 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
   const [isPending, startTransition] = useTransition();
 
   const [title, setTitle] = useState(existing?.title ?? "");
-  const [description, setDescription] = useState(
-    existing?.description ?? ""
-  );
+  const [description, setDescription] = useState(existing?.description ?? "");
   const [eventType, setEventType] = useState<EventType>(
-    existing?.event_type ?? "general"
+    existing?.event_type ?? "general",
   );
   const [startAt, setStartAt] = useState(
     existing?.start_at
       ? new Date(existing.start_at).toISOString().slice(0, 16)
-      : ""
+      : "",
   );
   const [endAt, setEndAt] = useState(
     existing?.end_at
       ? new Date(existing.end_at).toISOString().slice(0, 16)
-      : ""
+      : "",
   );
   const [allDay, setAllDay] = useState(existing?.all_day ?? false);
   const [location, setLocation] = useState(existing?.location ?? "");
-  const [locationUrl, setLocationUrl] = useState(
-    existing?.location_url ?? ""
-  );
-  const [scope, setScope] = useState<EventScope>(
-    existing?.scope ?? "school"
-  );
+  const [locationUrl, setLocationUrl] = useState(existing?.location_url ?? "");
+  const [scope, setScope] = useState<EventScope>(existing?.scope ?? "school");
   const [targetClassId, setTargetClassId] = useState(
-    existing?.target_class_id ?? ""
+    existing?.target_class_id ?? "",
   );
   const [rsvpEnabled, setRsvpEnabled] = useState(
-    existing?.rsvp_enabled ?? true
+    existing?.rsvp_enabled ?? true,
   );
   const [rsvpDeadline, setRsvpDeadline] = useState(
     existing?.rsvp_deadline
       ? new Date(existing.rsvp_deadline).toISOString().slice(0, 16)
-      : ""
+      : "",
   );
   const [maxAttendees, setMaxAttendees] = useState(
-    existing?.max_attendees?.toString() ?? ""
+    existing?.max_attendees?.toString() ?? "",
   );
   const [error, setError] = useState<string | null>(null);
 
@@ -115,11 +109,11 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
       });
 
       if (result.error) {
-        setError(result.error);
+        setError(result.error.message);
         return;
       }
 
-      router.push(`/${tenantSlug}/comms/events`);
+      router.push(`/comms/events`);
       router.refresh();
     });
   }

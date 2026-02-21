@@ -5,11 +5,12 @@
 // ============================================================
 // Client component: text + student tags + outcome tags + photos.
 //
-// CHANGES from previous version:
-// - Added image compression via compressImage() before upload
-// - Added per-photo upload progress indicators
-// - Added upload status feedback (compressing → uploading → done / error)
-// - Added consent warning when publishing with media + tagged students
+// SECURITY CHANGES (Storage Migration):
+// - Upload path now includes tenantId: {tenantId}/{obsId}/{uuid}.ext
+//   This matches the RLS policy on observation-media bucket.
+// - No longer calls getPublicUrl (bucket is now private).
+// - Stores only the storage_path; thumbnail_url is resolved
+//   server-side via signed URLs when observations are read.
 // ============================================================
 
 "use client";
@@ -48,6 +49,8 @@ interface ObservationCaptureFormProps {
   students: StudentOption[];
   outcomes: OutcomeOption[];
   canPublish: boolean;
+  /** Tenant ID for storage path scoping. Passed from server component. */
+  tenantId: string;
 }
 
 type PhotoUploadStatus =
@@ -72,6 +75,7 @@ export function ObservationCaptureForm({
   students,
   outcomes,
   canPublish,
+  tenantId,
 }: ObservationCaptureFormProps) {
   // Form state
   const [content, setContent] = useState("");
@@ -250,9 +254,13 @@ export function ObservationCaptureForm({
         }
 
         // 2b. Upload to Supabase Storage
+        // PATH: {tenantId}/{observationId}/{uuid}.{ext}
+        // WHY tenantId prefix: RLS policy on observation-media bucket
+        // checks (storage.foldername(name))[1] = jwt.tenant_id.
+        // Without this prefix, the upload is rejected by RLS.
         updatePhotoStatus(i, "uploading");
         const ext = fileToUpload.name.split(".").pop() ?? "jpg";
-        const path = `${observationId}/${crypto.randomUUID()}.${ext}`;
+        const path = `${tenantId}/${observationId}/${crypto.randomUUID()}.${ext}`;
 
         const { error: uploadError } = await supabase.storage
           .from("observation-media")
@@ -264,18 +272,16 @@ export function ObservationCaptureForm({
           continue;
         }
 
-        // 2c. Get public URL for thumbnail
-        const { data: urlData } = supabase.storage
-          .from("observation-media")
-          .getPublicUrl(path);
-
-        // 2d. Record the media attachment
+        // 2c. Record the media attachment
+        // WHY no thumbnailUrl: The bucket is now private. Public URLs
+        // don't work. Signed URLs are generated server-side when
+        // observations are read (see resolveSignedUrls utility).
+        // We store only the storage_path.
         await addObservationMedia({
           observationId,
           mediaType: "image",
           storageProvider: "supabase",
           storagePath: path,
-          thumbnailUrl: urlData?.publicUrl ?? null,
           fileName: entry.file.name,
           fileSizeBytes: fileToUpload.size,
         });

@@ -6,46 +6,25 @@
 // Normalized medical records. Requires 'view_medical_records'
 // permission (enforced by RLS). Parents can view their own
 // children's records via is_guardian_of() check.
-//
-// Fix: createMedicalCondition now calls getTenantContext()
-// for tenant_id on INSERT.
 // ============================================================
 
 import { getTenantContext } from "@/lib/auth/tenant-context";
+import {
+  createMedicalConditionSchema,
+  updateMedicalConditionSchema,
+  validate,
+} from "@/lib/validations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ActionResponse, failure, success } from "@/types/api";
-import { MedicalCondition, MedicalSeverity } from "@/types/domain";
+import { MedicalCondition } from "@/types/domain";
+import { logAudit, AuditActions } from "@/lib/utils/audit";
 
 // ============================================================
-// Input Types
+// Input Types (kept for backward-compat re-exports)
 // ============================================================
 
-export interface CreateMedicalConditionInput {
-  student_id: string;
-  condition_type: string;
-  condition_name: string;
-  severity: MedicalSeverity;
-  description?: string | null;
-  action_plan?: string | null;
-  action_plan_doc_url?: string | null;
-  requires_medication?: boolean;
-  medication_name?: string | null;
-  medication_location?: string | null;
-  expiry_date?: string | null;
-}
-
-export interface UpdateMedicalConditionInput {
-  condition_type?: string;
-  condition_name?: string;
-  severity?: MedicalSeverity;
-  description?: string | null;
-  action_plan?: string | null;
-  action_plan_doc_url?: string | null;
-  requires_medication?: boolean;
-  medication_name?: string | null;
-  medication_location?: string | null;
-  expiry_date?: string | null;
-}
+export type { CreateMedicalConditionInput } from "@/lib/validations";
+export type { UpdateMedicalConditionInput } from "@/lib/validations";
 
 // ============================================================
 // LIST MEDICAL CONDITIONS FOR A STUDENT
@@ -113,37 +92,31 @@ export async function listCriticalMedicalConditions(): Promise<
 // ============================================================
 
 export async function createMedicalCondition(
-  input: CreateMedicalConditionInput,
+  input: unknown,
 ): Promise<ActionResponse<MedicalCondition>> {
   try {
+    const parsed = validate(createMedicalConditionSchema, input);
+    if (parsed.error) return parsed.error;
+    const v = parsed.data;
+
     const context = await getTenantContext();
     const supabase = await createSupabaseServerClient();
-
-    // Validation
-    if (!input.student_id)
-      return failure("Student is required", "VALIDATION_ERROR");
-    if (!input.condition_type?.trim())
-      return failure("Condition type is required", "VALIDATION_ERROR");
-    if (!input.condition_name?.trim())
-      return failure("Condition name is required", "VALIDATION_ERROR");
-    if (!input.severity)
-      return failure("Severity is required", "VALIDATION_ERROR");
 
     const { data, error } = await supabase
       .from("medical_conditions")
       .insert({
         tenant_id: context.tenant.id,
-        student_id: input.student_id,
-        condition_type: input.condition_type.trim(),
-        condition_name: input.condition_name.trim(),
-        severity: input.severity,
-        description: input.description?.trim() || null,
-        action_plan: input.action_plan?.trim() || null,
-        action_plan_doc_url: input.action_plan_doc_url || null,
-        requires_medication: input.requires_medication ?? false,
-        medication_name: input.medication_name?.trim() || null,
-        medication_location: input.medication_location?.trim() || null,
-        expiry_date: input.expiry_date || null,
+        student_id: v.student_id,
+        condition_type: v.condition_type,
+        condition_name: v.condition_name,
+        severity: v.severity,
+        description: v.description,
+        action_plan: v.action_plan,
+        action_plan_doc_url: v.action_plan_doc_url,
+        requires_medication: v.requires_medication,
+        medication_name: v.medication_name,
+        medication_location: v.medication_location,
+        expiry_date: v.expiry_date,
       })
       .select()
       .single();
@@ -151,6 +124,18 @@ export async function createMedicalCondition(
     if (error) {
       return failure(error.message, "DB_ERROR");
     }
+
+    await logAudit({
+      context,
+      action: AuditActions.MEDICAL_CREATED,
+      entityType: "medical_condition",
+      entityId: (data as MedicalCondition).id,
+      metadata: {
+        student_id: v.student_id,
+        condition_name: v.condition_name,
+        severity: v.severity,
+      },
+    });
 
     return success(data as MedicalCondition);
   } catch (err) {
@@ -166,32 +151,36 @@ export async function createMedicalCondition(
 
 export async function updateMedicalCondition(
   conditionId: string,
-  input: UpdateMedicalConditionInput,
+  input: unknown,
 ): Promise<ActionResponse<MedicalCondition>> {
   try {
+    const parsed = validate(updateMedicalConditionSchema, input);
+    if (parsed.error) return parsed.error;
+    const v = parsed.data;
+
+    const context = await getTenantContext();
     const supabase = await createSupabaseServerClient();
 
     const updateData: Record<string, unknown> = {};
-    if (input.condition_type !== undefined)
-      updateData.condition_type = input.condition_type.trim();
-    if (input.condition_name !== undefined)
-      updateData.condition_name = input.condition_name.trim();
-    if (input.severity !== undefined) updateData.severity = input.severity;
-    if (input.description !== undefined)
-      updateData.description = input.description?.trim() || null;
-    if (input.action_plan !== undefined)
-      updateData.action_plan = input.action_plan?.trim() || null;
-    if (input.action_plan_doc_url !== undefined)
-      updateData.action_plan_doc_url = input.action_plan_doc_url || null;
-    if (input.requires_medication !== undefined)
-      updateData.requires_medication = input.requires_medication;
-    if (input.medication_name !== undefined)
-      updateData.medication_name = input.medication_name?.trim() || null;
-    if (input.medication_location !== undefined)
-      updateData.medication_location =
-        input.medication_location?.trim() || null;
-    if (input.expiry_date !== undefined)
-      updateData.expiry_date = input.expiry_date || null;
+    if (v.condition_type !== undefined)
+      updateData.condition_type = v.condition_type;
+    if (v.condition_name !== undefined)
+      updateData.condition_name = v.condition_name;
+    if (v.severity !== undefined) updateData.severity = v.severity;
+    if (v.description !== undefined)
+      updateData.description = v.description;
+    if (v.action_plan !== undefined)
+      updateData.action_plan = v.action_plan;
+    if (v.action_plan_doc_url !== undefined)
+      updateData.action_plan_doc_url = v.action_plan_doc_url;
+    if (v.requires_medication !== undefined)
+      updateData.requires_medication = v.requires_medication;
+    if (v.medication_name !== undefined)
+      updateData.medication_name = v.medication_name;
+    if (v.medication_location !== undefined)
+      updateData.medication_location = v.medication_location;
+    if (v.expiry_date !== undefined)
+      updateData.expiry_date = v.expiry_date;
 
     if (Object.keys(updateData).length === 0) {
       return failure("No fields to update", "VALIDATION_ERROR");
@@ -213,6 +202,14 @@ export async function updateMedicalCondition(
       return failure("Medical condition not found", "NOT_FOUND");
     }
 
+    await logAudit({
+      context,
+      action: AuditActions.MEDICAL_UPDATED,
+      entityType: "medical_condition",
+      entityId: conditionId,
+      metadata: { updated_fields: Object.keys(updateData) },
+    });
+
     return success(data as MedicalCondition);
   } catch (err) {
     const message =
@@ -229,7 +226,16 @@ export async function deleteMedicalCondition(
   conditionId: string,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
+    const context = await getTenantContext();
     const supabase = await createSupabaseServerClient();
+
+    // Fetch before delete for audit trail
+    const { data: existing } = await supabase
+      .from("medical_conditions")
+      .select("student_id, condition_name, severity")
+      .eq("id", conditionId)
+      .is("deleted_at", null)
+      .single();
 
     const { error } = await supabase
       .from("medical_conditions")
@@ -239,6 +245,20 @@ export async function deleteMedicalCondition(
 
     if (error) {
       return failure(error.message, "DB_ERROR");
+    }
+
+    if (existing) {
+      await logAudit({
+        context,
+        action: AuditActions.MEDICAL_DELETED,
+        entityType: "medical_condition",
+        entityId: conditionId,
+        metadata: {
+          student_id: existing.student_id,
+          condition_name: existing.condition_name,
+          severity: existing.severity,
+        },
+      });
     }
 
     return success({ id: conditionId });

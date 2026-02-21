@@ -4,9 +4,9 @@
 
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { deleteEvent } from "@/lib/actions/comms/school-events";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
 interface EventActionsProps {
   eventId: string;
@@ -24,10 +24,10 @@ export function EventActions({ eventId, tenantSlug }: EventActionsProps) {
     startTransition(async () => {
       const result = await deleteEvent(eventId);
       if (result.error) {
-        setError(result.error);
+        setError(result.error.message);
         return;
       }
-      router.push(`/${tenantSlug}/comms/events`);
+      router.push(`/comms/events`);
       router.refresh();
     });
   }
@@ -47,9 +47,7 @@ export function EventActions({ eventId, tenantSlug }: EventActionsProps) {
           </button>
         ) : (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">
-              Delete this event?
-            </span>
+            <span className="text-sm text-gray-500">Delete this event?</span>
             <button
               type="button"
               onClick={handleDelete}

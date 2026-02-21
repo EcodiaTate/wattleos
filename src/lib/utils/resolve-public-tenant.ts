@@ -6,7 +6,7 @@
 // Resolves tenant_id from the subdomain slug for public-facing
 // pages (inquiry form, tour booking, status checker).
 //
-// WHY a shared helper: All public pages need the same logic —
+// WHY a shared helper: All public pages need the same logic  - 
 // read the x-tenant-slug header set by proxy.ts, look up the
 // tenant in the database, return { id, name, slug }. Extracted
 // here so we don't duplicate the Supabase query in 3+ pages.

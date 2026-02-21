@@ -1,7 +1,8 @@
 // src/lib/actions/observations.ts
 'use server';
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { resolveSignedUrls, resolveSignedUrlsForMap } from "@/lib/storage/signed-urls";
 import { getTenantContext, requirePermission } from '@/lib/auth/tenant-context';
 import { Permissions } from '@/lib/constants/permissions';
 import type { ActionResponse, PaginatedResponse } from '@/types/api';
@@ -14,6 +15,7 @@ import type {
   CurriculumNode,
   User,
 } from '@/types/domain';
+import { logAudit, AuditActions } from '@/lib/utils/audit';
 
 // Local helper types for relation rows returned by Supabase selects.
 // (We keep them minimal and then map into canonical domain shapes.)
@@ -31,7 +33,7 @@ type ObsRow = {
   author_id: string;
 };
 
-// Local “join row” shapes for mapping
+// Local "join row" shapes for mapping
 type ObservationStudentJoin = { student: StudentPick };
 type ObservationOutcomeJoin = { curriculum_node: OutcomePick };
 
@@ -92,6 +94,17 @@ export async function createObservation(input: {
       console.error('Failed to tag outcomes:', outcomesError.message);
     }
   }
+
+  await logAudit({
+    context,
+    action: AuditActions.OBSERVATION_CREATED,
+    entityType: 'observation',
+    entityId: (observation as any).id,
+    metadata: {
+      student_count: input.studentIds.length,
+      outcome_count: input.outcomeIds.length,
+    },
+  });
 
   return success(observation as Observation);
 }
@@ -178,7 +191,7 @@ export async function updateObservation(
 // PUBLISH: Transition observation from draft to published
 // ============================================================
 export async function publishObservation(observationId: string): Promise<ActionResponse<Observation>> {
-  await requirePermission(Permissions.PUBLISH_OBSERVATION);
+  const context = await requirePermission(Permissions.PUBLISH_OBSERVATION);
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
@@ -196,6 +209,13 @@ export async function publishObservation(observationId: string): Promise<ActionR
   if (error || !data) {
     return failure(error?.message ?? 'Observation not found or already published', ErrorCodes.NOT_FOUND);
   }
+
+  await logAudit({
+    context,
+    action: AuditActions.OBSERVATION_PUBLISHED,
+    entityType: 'observation',
+    entityId: observationId,
+  });
 
   return success(data as Observation);
 }
@@ -253,6 +273,13 @@ export async function deleteObservation(
     .eq('id', observationId);
 
   if (error) return failure(error.message, ErrorCodes.INTERNAL_ERROR);
+
+  await logAudit({
+    context,
+    action: AuditActions.OBSERVATION_DELETED,
+    entityType: 'observation',
+    entityId: observationId,
+  });
 
   return success({ success: true });
 }
@@ -435,6 +462,7 @@ export async function getObservationFeed(options?: {
     if (!mediaByObs.has(obsId)) mediaByObs.set(obsId, []);
     mediaByObs.get(obsId)!.push(row as ObservationMedia);
   }
+  const resolvedMediaByObs = await resolveSignedUrlsForMap(mediaByObs);
 
   const feedItems: ObservationFeedItem[] = obsRows.map((obs) => ({
     id: obs.id,
@@ -452,9 +480,8 @@ export async function getObservationFeed(options?: {
       } as AuthorRow),
     students: (studentsByObs.get(obs.id) ?? []).map((os: ObservationStudentJoin) => os.student),
     outcomes: (outcomesByObs.get(obs.id) ?? []).map((oo: ObservationOutcomeJoin) => oo.curriculum_node),
-    media: mediaByObs.get(obs.id) ?? [],
+    media: resolvedMediaByObs.get(obs.id) ?? [],
   }));
-
   return {
     data: feedItems,
     pagination: {
@@ -518,9 +545,10 @@ export async function getObservation(
     .filter((r) => r.curriculum_node)
     .map((r) => ({ curriculum_node: r.curriculum_node as OutcomePick }));
 
-  const observation_media: ObservationMedia[] = ((mediaRes.data ?? []) as any[]).map((m) => m as ObservationMedia);
-
-  const feedItem: ObservationFeedItem = {
+    const rawMedia: ObservationMedia[] = ((mediaRes.data ?? []) as any[]).map((m) => m as ObservationMedia);
+    const observation_media = await resolveSignedUrls(rawMedia);
+  
+    const feedItem: ObservationFeedItem = {
     id: obsRow.id,
     content: obsRow.content,
     status: obsRow.status,

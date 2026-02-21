@@ -1343,7 +1343,7 @@ export function EnrollmentWizard({
             </ReviewSection>
 
             <ReviewSection title="Program" onEdit={() => goToStep(2)}>
-              <ReviewField label="Period" value={period?.name ?? "—"} />
+              <ReviewField label="Period" value={period?.name ?? " - "} />
               {state.requested_program && (
                 <ReviewField
                   label="Program"
@@ -1568,7 +1568,7 @@ function ReviewField({ label, value }: { label: string; value: string }) {
   return (
     <>
       <dt className="text-xs text-gray-500">{label}</dt>
-      <dd className="text-sm text-gray-900">{value || "—"}</dd>
+      <dd className="text-sm text-gray-900">{value || " - "}</dd>
     </>
   );
 }

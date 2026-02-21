@@ -1,15 +1,3 @@
-// src/app/(app)/admin/enrollment/applications/application-filters.tsx
-//
-// ============================================================
-// WattleOS V2 - Application Queue Filters (Module 10)
-// ============================================================
-// 'use client' - filter controls that update URL searchParams
-// via router.push for server-side filtering.
-//
-// WHY URL-based: Filters are bookmarkable and shareable.
-// The server component re-fetches on navigation.
-// ============================================================
-
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -46,8 +34,6 @@ export function ApplicationFilters({
   const updateParams = useCallback(
     (updates: Record<string, string>) => {
       const params = new URLSearchParams(searchParams.toString());
-
-      // Remove page when filters change
       params.delete("page");
 
       for (const [key, value] of Object.entries(updates)) {
@@ -69,12 +55,12 @@ export function ApplicationFilters({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3 animate-fade-in">
       {/* Status filter */}
       <select
         value={currentStatus}
         onChange={(e) => updateParams({ status: e.target.value })}
-        className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+        className="rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
       >
         {STATUS_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -87,7 +73,7 @@ export function ApplicationFilters({
       <select
         value={currentPeriod}
         onChange={(e) => updateParams({ period: e.target.value })}
-        className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+        className="rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
       >
         <option value="">All Periods</option>
         {periods.map((p) => (
@@ -104,11 +90,11 @@ export function ApplicationFilters({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name or email…"
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+          className="rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
         />
         <button
           type="submit"
-          className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+          className="rounded-lg bg-muted px-4 py-2 text-sm font-medium text-foreground hover:bg-border transition-colors"
         >
           Search
         </button>
@@ -121,7 +107,7 @@ export function ApplicationFilters({
             setSearch("");
             router.push(pathname);
           }}
-          className="text-sm text-gray-500 hover:text-gray-700"
+          className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
         >
           Clear filters
         </button>

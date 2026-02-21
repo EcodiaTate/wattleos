@@ -25,6 +25,10 @@
 
 import { requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
+import {
+  submitInquirySchema,
+  validate,
+} from "@/lib/validations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   ActionResponse,
@@ -114,27 +118,7 @@ export interface StageHistoryRecord {
 // Input Types
 // ============================================================
 
-export interface SubmitInquiryInput {
-  tenant_id: string;
-  child_first_name: string;
-  child_last_name: string;
-  child_date_of_birth: string;
-  child_gender?: string | null;
-  child_current_school?: string | null;
-  requested_program?: string | null;
-  requested_start?: string | null;
-  requested_start_date?: string | null;
-  parent_first_name: string;
-  parent_last_name: string;
-  parent_email: string;
-  parent_phone?: string | null;
-  siblings_at_school?: boolean;
-  sibling_names?: string | null;
-  how_heard_about_us?: string | null;
-  notes?: string | null;
-  source_url?: string | null;
-  source_campaign?: string | null;
-}
+export type { SubmitInquiryInput } from "@/lib/validations/admissions";
 
 export interface UpdateWaitlistEntryInput {
   priority?: number;
@@ -187,60 +171,24 @@ export interface ListWaitlistParams {
 // ============================================================
 
 export async function submitInquiry(
-  input: SubmitInquiryInput,
+  input: unknown,
 ): Promise<ActionResponse<WaitlistEntry>> {
   try {
-    const supabase = await createSupabaseServerClient();
+    // Zod validates all required fields, trims strings, lowercases email, checks date format
+    const parsed = validate(submitInquirySchema, input);
+    if (parsed.error) return parsed.error;
+    const v = parsed.data;
 
-    // Validate required fields
-    if (!input.parent_first_name?.trim()) {
-      return failure(
-        "Parent first name is required",
-        ErrorCodes.VALIDATION_ERROR,
-      );
-    }
-    if (!input.parent_last_name?.trim()) {
-      return failure(
-        "Parent last name is required",
-        ErrorCodes.VALIDATION_ERROR,
-      );
-    }
-    if (!input.parent_email?.trim()) {
-      return failure("Parent email is required", ErrorCodes.VALIDATION_ERROR);
-    }
-    if (!input.child_first_name?.trim()) {
-      return failure(
-        "Child first name is required",
-        ErrorCodes.VALIDATION_ERROR,
-      );
-    }
-    if (!input.child_last_name?.trim()) {
-      return failure(
-        "Child last name is required",
-        ErrorCodes.VALIDATION_ERROR,
-      );
-    }
-    if (!input.child_date_of_birth) {
-      return failure(
-        "Child date of birth is required",
-        ErrorCodes.VALIDATION_ERROR,
-      );
-    }
-    if (!input.tenant_id) {
-      return failure(
-        "School identifier is required",
-        ErrorCodes.VALIDATION_ERROR,
-      );
-    }
+    const supabase = await createSupabaseServerClient();
 
     // Check for duplicate inquiry (same email + child name + tenant)
     const { data: existing } = await supabase
       .from("waitlist_entries")
       .select("id, stage")
-      .eq("tenant_id", input.tenant_id)
-      .eq("parent_email", input.parent_email.trim().toLowerCase())
-      .eq("child_first_name", input.child_first_name.trim())
-      .eq("child_last_name", input.child_last_name.trim())
+      .eq("tenant_id", v.tenant_id)
+      .eq("parent_email", v.parent_email)
+      .eq("child_first_name", v.child_first_name)
+      .eq("child_last_name", v.child_last_name)
       .is("deleted_at", null)
       .not("stage", "in", '("declined","withdrawn")')
       .limit(1);
@@ -255,27 +203,27 @@ export async function submitInquiry(
     const { data, error } = await supabase
       .from("waitlist_entries")
       .insert({
-        tenant_id: input.tenant_id,
+        tenant_id: v.tenant_id,
         stage: "inquiry" as WaitlistStage,
         priority: 0,
-        child_first_name: input.child_first_name.trim(),
-        child_last_name: input.child_last_name.trim(),
-        child_date_of_birth: input.child_date_of_birth,
-        child_gender: input.child_gender ?? null,
-        child_current_school: input.child_current_school?.trim() ?? null,
-        requested_program: input.requested_program ?? null,
-        requested_start: input.requested_start?.trim() ?? null,
-        requested_start_date: input.requested_start_date ?? null,
-        parent_first_name: input.parent_first_name.trim(),
-        parent_last_name: input.parent_last_name.trim(),
-        parent_email: input.parent_email.trim().toLowerCase(),
-        parent_phone: input.parent_phone?.trim() ?? null,
-        siblings_at_school: input.siblings_at_school ?? false,
-        sibling_names: input.sibling_names?.trim() ?? null,
-        how_heard_about_us: input.how_heard_about_us?.trim() ?? null,
-        notes: input.notes?.trim() ?? null,
-        source_url: input.source_url ?? null,
-        source_campaign: input.source_campaign ?? null,
+        child_first_name: v.child_first_name,
+        child_last_name: v.child_last_name,
+        child_date_of_birth: v.child_date_of_birth,
+        child_gender: v.child_gender,
+        child_current_school: v.child_current_school,
+        requested_program: v.requested_program,
+        requested_start: v.requested_start,
+        requested_start_date: v.requested_start_date,
+        parent_first_name: v.parent_first_name,
+        parent_last_name: v.parent_last_name,
+        parent_email: v.parent_email,
+        parent_phone: v.parent_phone,
+        siblings_at_school: v.siblings_at_school,
+        sibling_names: v.sibling_names,
+        how_heard_about_us: v.how_heard_about_us,
+        notes: v.notes,
+        source_url: v.source_url,
+        source_campaign: v.source_campaign,
         inquiry_date: new Date().toISOString().split("T")[0],
       })
       .select()
@@ -289,7 +237,7 @@ export async function submitInquiry(
 
     // Log initial stage history
     await supabase.from("waitlist_stage_history").insert({
-      tenant_id: input.tenant_id,
+      tenant_id: v.tenant_id,
       waitlist_entry_id: entry.id,
       from_stage: null,
       to_stage: "inquiry",

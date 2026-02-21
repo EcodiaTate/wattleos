@@ -1,10 +1,10 @@
 // src/components/domain/sidebar.tsx
 //
 // ============================================================
-// WattleOS V2 — Sidebar Navigation (Collapsible)
+// WattleOS V2 - Sidebar Navigation (Collapsible)
 // ============================================================
 // Client component for navigation chrome. Receives pre-computed
-// navItems from the server layout — no permission logic here.
+// navItems from the server layout - no permission logic here.
 //
 // Icon map covers all 14 modules + parent portal + admin.
 // Mobile-responsive with hamburger + overlay.
@@ -20,6 +20,10 @@
 // inline styles. This is more reliable than [data-sidebar-style]
 // selectors on <html> because inline styles have maximum
 // specificity and bypass Tailwind v4 @theme resolution issues.
+//
+// UPDATED: showTenantSwitcher prop controls whether the "Switch
+// School" button appears. Hidden for single-tenant users since
+// the tenant picker would just auto-select the same school.
 // ============================================================
 
 "use client";
@@ -28,7 +32,7 @@ import { signOutAction, switchTenantAction } from "@/lib/actions/auth";
 import type { SidebarStyle } from "@/types/display";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback,useRef, useEffect, useState } from "react";
+import { useCallback, useRef, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 // ============================================================
@@ -63,6 +67,8 @@ interface SidebarProps {
   brandHue?: number;
   /** Brand saturation for "brand" sidebar style. Default 92. */
   brandSat?: number;
+  /** Show the "Switch School" button. False for single-tenant users. */
+  showTenantSwitcher?: boolean;
 }
 
 // ============================================================
@@ -95,7 +101,7 @@ function getSidebarStyleOverrides(
     } as React.CSSProperties;
   }
 
-  // "brand" — sidebar uses the school's brand colour
+  // "brand" - sidebar uses the school's brand colour
   const bgL = 22;
   const fgS = 15;
   const fgL = 78;
@@ -115,7 +121,7 @@ function getSidebarStyleOverrides(
 }
 
 // ============================================================
-// Tooltip — lightweight hover tooltip for collapsed icons
+// Tooltip - lightweight hover tooltip for collapsed icons
 // ============================================================
 // WHY custom instead of Radix: Zero additional JS bundle for a
 // CSS-only tooltip. Radix Tooltip adds ~8kB and portal logic
@@ -184,7 +190,7 @@ function NavTooltip({
 }
 
 // ============================================================
-// Icon Map — one entry per sidebar icon key
+// Icon Map - one entry per sidebar icon key
 // ============================================================
 // Uses Heroicons (outline, 24x24) rendered inline as SVG.
 // WHY inline SVGs instead of an icon library: zero JS bundle
@@ -205,6 +211,22 @@ const ICON_MAP: Record<string, React.ReactNode> = {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+      />
+    </svg>
+  ),
+
+  library: (
+    <svg
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"
       />
     </svg>
   ),
@@ -384,7 +406,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
     </svg>
   ),
 
-  // Module 12: Communications — Announcements
+  // Module 12: Communications - Announcements
   megaphone: (
     <svg
       className="h-5 w-5"
@@ -486,7 +508,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
     </svg>
   ),
 
-  // Admin: Settings
+  // Settings
   settings: (
     <svg
       className="h-5 w-5"
@@ -507,7 +529,29 @@ const ICON_MAP: Record<string, React.ReactNode> = {
       />
     </svg>
   ),
+  // Admin: Shield / Admin badge
+  admin: (
+    <svg
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 3l7.5 4.5v6.75c0 4.98-3.27 7.98-7.5 9-4.23-1.02-7.5-4.02-7.5-9V7.5L12 3z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9.75 12l1.5 1.5 3-3"
+      />
+    </svg>
+  ),
 };
+
 
 // ============================================================
 // Collapse Toggle Icons
@@ -560,9 +604,24 @@ export function Sidebar({
   sidebarStyle = "light",
   brandHue = 38,
   brandSat = 92,
+  showTenantSwitcher = true,
 }: SidebarProps) {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Lock body scroll when mobile sidebar is open.
+  // WHY: Prevents content scrolling behind the overlay on touch
+  // devices - especially iPads which guides use daily.
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileOpen]);
 
   // ── Collapsed state with localStorage persistence ──
   // WHY localStorage: Sidebar preference should survive page
@@ -576,7 +635,7 @@ export function Sidebar({
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored === "true") setIsCollapsed(true);
     } catch {
-      // localStorage unavailable (e.g. private browsing) — use default
+      // localStorage unavailable (e.g. private browsing) - use default
     }
     setHydrated(true);
   }, []);
@@ -594,7 +653,11 @@ export function Sidebar({
   }, []);
 
   // Compute inline style overrides for dark/brand sidebar
-  const styleOverrides = getSidebarStyleOverrides(sidebarStyle, brandHue, brandSat);
+  const styleOverrides = getSidebarStyleOverrides(
+    sidebarStyle,
+    brandHue,
+    brandSat,
+  );
 
   // Merge width override into style object for collapsed state.
   // On mobile we always use full width regardless of collapse.
@@ -636,12 +699,14 @@ export function Sidebar({
         />
       )}
 
-      {/* Sidebar panel — style + width overrides applied here */}
+      {/* Sidebar panel - style + width overrides applied here */}
       <aside
         style={asideStyle}
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-sidebar-border bg-sidebar transition-all duration-[var(--duration-base)] lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar-background)] transition-all duration-[var(--duration-base)] lg:static lg:translate-x-0 ${
           // On mobile, always use full sidebar width
-          isMobileOpen ? "w-[var(--sidebar-width)] translate-x-0" : "-translate-x-full lg:translate-x-0"
+          isMobileOpen
+            ? "w-[var(--sidebar-width)] translate-x-0"
+            : "-translate-x-full lg:translate-x-0"
         } ${
           // On desktop, width is controlled by asideStyle inline
           // but we need the default when not collapsed
@@ -654,7 +719,7 @@ export function Sidebar({
             Visually "attached" to the sidebar border. */}
         <button
           onClick={toggleCollapsed}
-          className="absolute -right-3 top-7 z-[60] hidden h-6 w-6 items-center justify-center rounded-full border border-sidebar-border bg-sidebar shadow-sm transition-colors hover:bg-sidebar-accent lg:flex"
+          className="absolute -right-3 top-7 z-[60] hidden h-6 w-6 items-center justify-center rounded-full border border-sidebar-border bg-[var(--sidebar-background)] shadow-sm transition-colors hover:bg-sidebar-accent lg:flex"
           aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <span className="text-sidebar-foreground">
@@ -664,7 +729,7 @@ export function Sidebar({
 
         {/* Tenant header */}
         <div className="flex items-center gap-3 border-b border-sidebar-border px-4 py-5">
-          <div className="flex h-[var(--density-button-height)] w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/15 text-sm font-bold text-primary">
+          <div className="flex h-[var(--density-button-height)] w-10 flex-shrink-0 items-center justify-center text-sm font-bold text-primary">
             {tenantLogo ? (
               <img
                 src={tenantLogo}
@@ -687,15 +752,15 @@ export function Sidebar({
         </div>
 
         {/* Navigation */}
-<nav
-className={[
-  "sidebar-scroll flex-1 space-y-1 px-3 py-4",
-  "overflow-y-auto overflow-x-hidden", // ✅ kill horizontal scroll always
-  "overscroll-contain",
-  "[scrollbar-gutter:stable]", // ✅ prevents layout shift when scrollbar appears
-].join(" ")}
->
-            {navItems.map((item) => {
+        <nav
+          className={[
+            "sidebar-scroll flex-1 space-y-1 px-3 py-4",
+            "overflow-y-auto overflow-x-hidden",
+            "overscroll-contain",
+            "[scrollbar-gutter:stable]",
+          ].join(" ")}
+        >
+          {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
 
@@ -769,15 +834,17 @@ className={[
           {/* Hide action buttons when collapsed */}
           {(!isCollapsed || !hydrated) && (
             <div className="mt-3 flex gap-2">
-              <form action={switchTenantAction} className="flex-1">
-                <button
-                  type="submit"
-                  className="w-full rounded-md border border-sidebar-border px-3 py-1.5 text-xs font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
-                >
-                  Switch School
-                </button>
-              </form>
-              <form action={signOutAction} className="flex-1">
+              {showTenantSwitcher && (
+                <form action={switchTenantAction} className="flex-1">
+                  <button
+                    type="submit"
+                    className="w-full rounded-md border border-sidebar-border px-3 py-1.5 text-xs font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
+                  >
+                    Switch School
+                  </button>
+                </form>
+              )}
+              <form action={signOutAction} className={showTenantSwitcher ? "flex-1" : "w-full"}>
                 <button
                   type="submit"
                   className="w-full rounded-md border border-sidebar-border px-3 py-1.5 text-xs font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"

@@ -1,16 +1,4 @@
 // src/components/domain/reports/TemplateActions.tsx
-//
-// ============================================================
-// WattleOS V2 - Template Card Actions (Client Component)
-// ============================================================
-// Dropdown menu for template management: duplicate, toggle
-// active status, delete. Uses a simple popover pattern
-// consistent with other WattleOS action menus.
-//
-// WHY client: User clicks trigger server actions with
-// optimistic feedback and router refresh.
-// ============================================================
-
 "use client";
 
 import {
@@ -36,7 +24,6 @@ export function TemplateActions({
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // Close on click outside
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -94,7 +81,7 @@ export function TemplateActions({
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={isPending}
-        className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-muted-foreground disabled:opacity-50"
+        className="rounded-md p-1 text-muted-foreground transition-all hover:bg-muted hover:text-foreground disabled:opacity-50 touch-target"
         aria-label="Template actions"
       >
         <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -103,10 +90,10 @@ export function TemplateActions({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 z-10 mt-1 w-44 rounded-md borderborder-border bg-background py-1 shadow-lg">
+        <div className="absolute right-0 z-10 mt-1 w-44 animate-scale-in rounded-lg border border-border bg-popover py-1 shadow-lg">
           <button
             onClick={handleDuplicate}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-background"
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
           >
             <svg
               className="h-4 w-4 text-muted-foreground"
@@ -125,7 +112,7 @@ export function TemplateActions({
           </button>
           <button
             onClick={handleToggleActive}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-background"
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
           >
             {isActive ? (
               <>
@@ -168,10 +155,10 @@ export function TemplateActions({
               </>
             )}
           </button>
-          <div className="my-1 border-t border-gray-100" />
+          <div className="my-1 border-t border-border" />
           <button
             onClick={handleDelete}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-destructive transition-colors hover:bg-destructive/10"
           >
             <svg
               className="h-4 w-4"
@@ -192,11 +179,11 @@ export function TemplateActions({
       )}
 
       {error && (
-        <div className="absolute right-0 z-10 mt-1 w-64 rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-700 shadow-lg">
+        <div className="absolute right-0 z-10 mt-1 w-64 animate-slide-down rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive shadow-lg">
           {error}
           <button
             onClick={() => setError(null)}
-            className="mt-1 block text-xs font-medium text-red-800 underline"
+            className="mt-1 block text-xs font-medium underline"
           >
             Dismiss
           </button>

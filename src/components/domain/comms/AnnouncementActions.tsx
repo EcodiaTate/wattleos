@@ -5,12 +5,12 @@
 
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import {
-  publishAnnouncement,
   deleteAnnouncement,
+  publishAnnouncement,
 } from "@/lib/actions/comms/announcements";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
 interface AnnouncementActionsProps {
   announcementId: string;
@@ -48,21 +48,19 @@ export function AnnouncementActions({
         setError(result.error);
         return;
       }
-      router.push(`/${tenantSlug}/comms/announcements`);
+      router.push(`/comms/announcements`);
       router.refresh();
     });
   }
 
   return (
     <div className="space-y-3">
-      {error && (
-        <p className="text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <a
-            href={`/${tenantSlug}/comms/announcements/new?edit=${announcementId}`}
+            href={`/comms/announcements/new?edit=${announcementId}`}
             className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             Edit

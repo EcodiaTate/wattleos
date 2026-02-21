@@ -3,13 +3,6 @@
 // ============================================================
 // WattleOS V2 - Create Program Page
 // ============================================================
-// Server Component wrapper that permission-checks, then
-// renders the ProgramForm in create mode.
-//
-// WHY server wrapper: Permission check runs on the server.
-// The form itself is a client component because it has
-// interactive state (day toggles, conditional CCS section).
-// ============================================================
 
 import { ProgramForm } from "@/components/domain/programs/program-form";
 import { createProgram } from "@/lib/actions/programs/programs";
@@ -26,19 +19,23 @@ export default async function NewProgramPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="content-narrow animate-fade-in space-y-[var(--density-section-gap)]">
       {/* Breadcrumb */}
-      <nav className="text-sm text-gray-500">
-        <Link href="/programs" className="hover:text-amber-600">
+      <nav className="flex items-center text-sm text-[var(--breadcrumb-fg)] gap-2">
+        <Link href="/programs" className="hover:text-[var(--primary)] transition-colors">
           Programs
         </Link>
-        <span className="mx-2">›</span>
-        <span className="text-gray-900">New Program</span>
+        <span className="text-[var(--breadcrumb-separator)]">/</span>
+        <span className="text-[var(--breadcrumb-active-fg)] font-medium">New Program</span>
       </nav>
 
-      <h1 className="text-xl font-bold text-gray-900">Create Program</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+        Create Program
+      </h1>
 
-      <ProgramForm onSubmit={createProgram} />
+      <div className="rounded-[var(--radius)] bg-[var(--card)] p-[var(--density-card-padding)] shadow-[var(--shadow-sm)] border border-[var(--border)]">
+        <ProgramForm onSubmit={createProgram} />
+      </div>
     </div>
   );
 }

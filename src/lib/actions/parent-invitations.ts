@@ -5,11 +5,16 @@
 // ============================================================
 // Manages the invite links sent to parents after enrollment
 // approval. The flow:
-//   1. approveApplication() creates invitations (see enrollment-applications.ts)
+//   1. approveApplication() creates guardians + invitations
 //   2. Email with link: yourschool.wattleos.au/invite/{token}
 //   3. Parent clicks link → validateInvitation()
 //   4. Parent signs in / creates account → acceptInvitation()
-//   5. System links parent as guardian to child
+//   5. System BACKFILLS user_id onto existing guardian record
+//
+// PART A FIX: Step 5 changed from "create new bare-bones guardian"
+// to "find existing guardian by email + student + tenant and set
+// user_id". This preserves all the rich data (phone, consent,
+// relationship) that was stored when the enrollment was approved.
 //
 // WHY tokens (not magic links): Tokens work across devices.
 // A parent can receive the email on their phone, then open it
@@ -25,6 +30,10 @@
 import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import {
+  acceptInvitationSchema,
+  validate,
+} from "@/lib/validations";
+import {
   createSupabaseAdminClient,
   createSupabaseServerClient,
 } from "@/lib/supabase/server";
@@ -33,6 +42,7 @@ import type {
   ParentInvitation,
   ParentInvitationWithDetails,
 } from "@/types/domain";
+import { logAudit, logAuditSystem, AuditActions } from "@/lib/utils/audit";
 
 // ============================================================
 // Input Types
@@ -80,11 +90,8 @@ export async function listParentInvitations(params?: {
       return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    // NOTE:
-    // Supabase nested selects can come back as arrays (even when logically 1:1)
-    // depending on relationship configuration. Normalize to the expected shape.
     const normalized: ParentInvitationWithDetails[] = (data ?? []).map(
-      (row: any) => {
+      (row: Record<string, unknown>) => {
         const studentRaw = row.student;
         const inviterRaw = row.inviter;
 
@@ -173,6 +180,17 @@ export async function createParentInvitation(
       return failure(error.message, ErrorCodes.CREATE_FAILED);
     }
 
+    await logAudit({
+      context,
+      action: AuditActions.INVITATION_SENT,
+      entityType: "parent_invitation",
+      entityId: (data as ParentInvitation).id,
+      metadata: {
+        email: input.email.trim().toLowerCase(),
+        student_id: input.student_id,
+      },
+    });
+
     return success(data as ParentInvitation);
   } catch (err) {
     const message =
@@ -249,10 +267,9 @@ export async function validateInvitationToken(
       );
     }
 
-    // Supabase may return nested relationships as arrays depending on FK config.
-    // Normalize to single objects.
-    const studentRaw = (data as any).student;
-    const tenantRaw = (data as any).tenant;
+    // Normalize nested relationships
+    const studentRaw = (data as Record<string, unknown>).student;
+    const tenantRaw = (data as Record<string, unknown>).tenant;
 
     const student = Array.isArray(studentRaw)
       ? (studentRaw[0] ?? null)
@@ -268,14 +285,17 @@ export async function validateInvitationToken(
       );
     }
 
+    const s = student as Record<string, string>;
+    const t = tenant as Record<string, string>;
+
     return success({
       invitation_id: data.id,
       email: data.email,
       tenant_id: data.tenant_id,
-      tenant_name: tenant.name,
-      tenant_slug: tenant.slug,
-      student_first_name: student.first_name,
-      student_last_name: student.last_name,
+      tenant_name: t.name ?? "",
+      tenant_slug: t.slug ?? "",
+      student_first_name: s.first_name ?? "",
+      student_last_name: s.last_name ?? "",
       expires_at: data.expires_at,
     });
   } catch (err) {
@@ -289,13 +309,24 @@ export async function validateInvitationToken(
 // ACCEPT INVITATION (Authenticated parent)
 // ============================================================
 // Called after the parent signs in or creates an account.
-// Links the parent as a guardian to the child, sets up their
-// tenant membership, and marks the invitation as accepted.
+//
+// PART A FIX: Instead of creating a bare-bones guardian, we now:
+//   1. Look for an existing guardian record by email + student + tenant
+//   2. If found → backfill user_id (preserving all enrollment data)
+//   3. If not found → create a new guardian (fallback for manual invites)
+//
+// This preserves the rich data (phone, consent, relationship type,
+// primary status) that was stored during enrollment approval.
 
 export async function acceptInvitation(
-  token: string,
+  token: unknown,
 ): Promise<ActionResponse<{ student_id: string; tenant_slug: string }>> {
   try {
+    // Zod validates the token is a non-empty, trimmed string
+    const parsed = validate(acceptInvitationSchema, { token });
+    if (parsed.error) return parsed.error;
+    const v = parsed.data;
+
     const admin = createSupabaseAdminClient();
 
     // Re-validate the token
@@ -308,7 +339,7 @@ export async function acceptInvitation(
         tenant:tenants(slug)
       `,
       )
-      .eq("token", token)
+      .eq("token", v.token)
       .eq("status", "pending")
       .is("deleted_at", null)
       .single();
@@ -384,19 +415,47 @@ export async function acceptInvitation(
       );
     }
 
-    // 3. Create guardian link
-    await admin.from("guardians").upsert(
-      {
+    // 3. Link guardian - backfill user_id onto existing record if possible
+    // WHY backfill: approveApplication() already created a guardian record
+    // with all the rich enrollment data (phone, consent, relationship).
+    // We just need to attach the user_id now that the parent has an account.
+    const { data: existingGuardian } = await admin
+      .from("guardians")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .eq("email", invite.email.toLowerCase())
+      .eq("student_id", studentId)
+      .is("deleted_at", null)
+      .maybeSingle();
+
+    if (existingGuardian) {
+      // Backfill: set user_id on the existing guardian record
+      // This preserves all enrollment data (phone, consent, relationship, primary status)
+      await admin
+        .from("guardians")
+        .update({
+          user_id: user.id,
+          // Also update name from the user's account in case they differ
+          first_name: user.user_metadata?.first_name ?? null,
+          last_name: user.user_metadata?.last_name ?? null,
+        })
+        .eq("id", existingGuardian.id);
+    } else {
+      // Fallback: no existing guardian (manual invite without enrollment form)
+      // Create a new guardian with defaults
+      await admin.from("guardians").insert({
         tenant_id: tenantId,
         user_id: user.id,
         student_id: studentId,
+        email: invite.email.toLowerCase(),
+        first_name: user.user_metadata?.first_name ?? user.email!.split("@")[0],
+        last_name: user.user_metadata?.last_name ?? "",
         relationship: "parent",
         is_primary: false,
         is_emergency_contact: false,
         pickup_authorized: true,
-      },
-      { onConflict: "tenant_id,user_id,student_id", ignoreDuplicates: false },
-    );
+      });
+    }
 
     // 4. Set tenant_id in user's app_metadata for RLS
     await admin.auth.admin.updateUserById(user.id, {
@@ -413,14 +472,30 @@ export async function acceptInvitation(
       })
       .eq("id", invite.id);
 
-    const tenantRaw = (invite as any).tenant;
+    // WHY logAuditSystem: The parent isn't fully in the tenant context yet
+    // (they just accepted), so we use the system logger with the tenant ID.
+    await logAuditSystem({
+      tenantId,
+      action: AuditActions.INVITATION_ACCEPTED,
+      entityType: "parent_invitation",
+      entityId: invite.id,
+      metadata: {
+        email: invite.email,
+        student_id: studentId,
+        user_id: user.id,
+        backfilled_guardian: !!existingGuardian,
+      },
+    });
+
+    const tenantRaw = (invite as Record<string, unknown>).tenant;
     const tenant = Array.isArray(tenantRaw)
       ? (tenantRaw[0] ?? null)
       : (tenantRaw ?? null);
+    const tenantObj = tenant as Record<string, string> | null;
 
     return success({
       student_id: studentId,
-      tenant_slug: tenant?.slug ?? "",
+      tenant_slug: tenantObj?.slug ?? "",
     });
   } catch (err) {
     const message =

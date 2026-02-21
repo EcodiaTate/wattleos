@@ -356,7 +356,7 @@ export default async function ProgramDetailPage({
                         {formatTime(session.end_time)}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-500">
-                        {session.location ?? "—"}
+                        {session.location ?? " - "}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span
@@ -371,12 +371,12 @@ export default async function ProgramDetailPage({
                       <td className="px-4 py-3 text-center text-sm text-gray-500">
                         {session.waitlisted_count > 0
                           ? session.waitlisted_count
-                          : "—"}
+                          : " - "}
                       </td>
                       <td className="px-4 py-3 text-center text-sm text-gray-700">
                         {session.checked_in_count > 0
                           ? session.checked_in_count
-                          : "—"}
+                          : " - "}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span

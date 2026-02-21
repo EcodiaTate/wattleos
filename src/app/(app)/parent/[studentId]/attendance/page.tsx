@@ -167,13 +167,15 @@ export default async function ChildAttendancePage({
                       </span>
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
-                      {record.checkInAt ? formatTime(record.checkInAt) : "—"}
+                      {record.checkInAt ? formatTime(record.checkInAt) : " - "}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
-                      {record.checkOutAt ? formatTime(record.checkOutAt) : "—"}
+                      {record.checkOutAt
+                        ? formatTime(record.checkOutAt)
+                        : " - "}
                     </td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">
-                      {record.notes ?? "—"}
+                      {record.notes ?? " - "}
                     </td>
                   </tr>
                 );

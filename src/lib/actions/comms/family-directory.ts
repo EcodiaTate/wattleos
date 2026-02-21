@@ -1,3 +1,5 @@
+'use server';
+
 // src/lib/actions/comms/family-directory.ts
 //
 // ============================================================

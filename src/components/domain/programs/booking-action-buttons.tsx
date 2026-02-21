@@ -1,19 +1,4 @@
 // src/components/domain/programs/booking-action-buttons.tsx
-//
-// ============================================================
-// WattleOS V2 - Booking Action Buttons
-// ============================================================
-// Client component for per-booking row actions on the session
-// detail page. Actions depend on booking state:
-// - Not checked in: Check In, Cancel, No-Show
-// - Checked in: Check Out, Undo Check-in
-// - Checked out: (no actions)
-//
-// WHY per-row client component: Each booking row needs its
-// own loading state. A single client wrapper for the whole
-// table would be overkill.
-// ============================================================
-
 "use client";
 
 import {
@@ -62,13 +47,13 @@ export function BookingActionButtons({
 
   if (status !== "confirmed") return null;
   if (checkedOut) {
-    return <span className="text-xs text-gray-400">Complete</span>;
+    return <span className="text-xs text-muted-foreground italic">Complete</span>;
   }
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-[var(--density-xs)]">
       {error && (
-        <span className="mr-1 text-xs text-red-500" title={error}>
+        <span className="mr-1 text-xs text-destructive font-bold" title={error}>
           !
         </span>
       )}
@@ -78,7 +63,7 @@ export function BookingActionButtons({
           <button
             onClick={() => handleAction(() => checkIn(bookingId))}
             disabled={loading}
-            className="rounded-md bg-green-600 px-2 py-1 text-xs font-medium text-white hover:bg-green-700 transition-colors disabled:opacity-50"
+            className="rounded-md bg-success px-2 py-1 text-xs font-semibold text-success-foreground hover:opacity-90 transition-[var(--transition-fast)] disabled:opacity-50"
           >
             {loading ? "..." : "In"}
           </button>
@@ -87,14 +72,14 @@ export function BookingActionButtons({
               handleAction(() => cancelBooking({ booking_id: bookingId }))
             }
             disabled={loading}
-            className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="rounded-md border border-border px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-muted transition-[var(--transition-fast)] disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={() => handleAction(() => markNoShow(bookingId))}
             disabled={loading}
-            className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="rounded-md border border-border px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-muted transition-[var(--transition-fast)] disabled:opacity-50"
             title="Mark as no-show"
           >
             NS
@@ -105,14 +90,14 @@ export function BookingActionButtons({
           <button
             onClick={() => handleAction(() => checkOut(bookingId))}
             disabled={loading}
-            className="rounded-md bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="rounded-md bg-info px-2 py-1 text-xs font-semibold text-info-foreground hover:opacity-90 transition-[var(--transition-fast)] disabled:opacity-50"
           >
             {loading ? "..." : "Out"}
           </button>
           <button
             onClick={() => handleAction(() => undoCheckIn(bookingId))}
             disabled={loading}
-            className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="rounded-md border border-border px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-muted transition-[var(--transition-fast)] disabled:opacity-50"
             title="Undo check-in"
           >
             Undo

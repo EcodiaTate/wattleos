@@ -35,6 +35,8 @@ export const ErrorCodes = {
 
   // CRUD
   NOT_FOUND: 'NOT_FOUND',
+  RATE_LIMITED:'RATE_LIMITED',
+
   ALREADY_EXISTS: 'ALREADY_EXISTS',
   CREATE_FAILED: 'CREATE_FAILED',
   // ── Module 10: Enrollment ──────────────────────────────────

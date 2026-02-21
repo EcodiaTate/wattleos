@@ -1,14 +1,14 @@
 // src/components/domain/admin/appearance-settings-client.tsx
 //
 // ============================================================
-// WattleOS V2 — Appearance Settings Form (Client Component)
+// WattleOS V2 - Appearance Settings Form (Client Component)
 // ============================================================
 // Full appearance configuration for school admins:
-//   1. Brand colour — presets, sliders, hex input
-//   2. Accent colour — presets, sliders, hex input
-//   3. Sidebar style — light / dark / brand
-//   4. Layout density — compact / comfortable / spacious
-//   5. Default theme — light / dark / system
+//   1. Brand colour - presets, sliders, hex input
+//   2. Accent colour - presets, sliders, hex input
+//   3. Sidebar style - light / dark / brand
+//   4. Layout density - compact / comfortable / spacious
+//   5. Default theme - light / dark / system
 //
 // LIVE PREVIEW: A sticky panel on the right shows a mini
 // mockup of the WattleOS interface that updates in real-time.
@@ -157,7 +157,7 @@ export function AppearanceSettingsClient({
     } else if (s.defaultTheme === "light") {
       html.classList.remove("dark");
     }
-    // "system" — leave as-is (respects prefers-color-scheme)
+    // "system" - leave as-is (respects prefers-color-scheme)
   }, []);
 
   // Apply on mount + whenever settings change
@@ -173,7 +173,7 @@ export function AppearanceSettingsClient({
 
   // ── Save ──────────────────────────────────────────────────
   // WHY router.refresh() instead of window.location.reload():
-  // reload() destroys all client state — the CSS vars the live
+  // reload() destroys all client state - the CSS vars the live
   // preview set on <html> get wiped and replaced by whatever
   // the cookie says. Even with the cookie fix, there's a race
   // condition. router.refresh() re-runs server components (so

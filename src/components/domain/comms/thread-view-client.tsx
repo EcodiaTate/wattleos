@@ -6,6 +6,9 @@
 // Chat-style message display with reply input.
 // Messages from current user appear on the right (amber),
 // others on the left (gray). Auto-scrolls to newest message.
+//
+// WHY client: Optimistic message rendering, auto-scroll,
+// keyboard shortcuts (Enter to send) all require client state.
 // ============================================================
 
 "use client";
@@ -17,7 +20,9 @@ import { useEffect, useRef, useState } from "react";
 interface ThreadViewClientProps {
   threadId: string;
   initialMessages: MessageWithSender[];
-  recipients: Array<Pick<User, "id" | "first_name" | "last_name" | "avatar_url">>;
+  recipients: Array<
+    Pick<User, "id" | "first_name" | "last_name" | "avatar_url">
+  >;
   currentUserId: string;
 }
 
@@ -27,7 +32,8 @@ export function ThreadViewClient({
   recipients,
   currentUserId,
 }: ThreadViewClientProps) {
-  const [messages, setMessages] = useState<MessageWithSender[]>(initialMessages);
+  const [messages, setMessages] =
+    useState<MessageWithSender[]>(initialMessages);
   const [replyContent, setReplyContent] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +50,8 @@ export function ThreadViewClient({
     setError(null);
     setIsSending(true);
 
-    // Optimistic add
+    // Optimistic add - Message type only has:
+    // id, tenant_id, thread_id, sender_id, content, sent_at, created_at
     const nowIso = new Date().toISOString();
     const optimisticMessage: MessageWithSender = {
       id: `temp-${Date.now()}`,
@@ -52,15 +59,8 @@ export function ThreadViewClient({
       thread_id: threadId,
       sender_id: currentUserId,
       content: replyContent.trim(),
-
+      sent_at: nowIso,
       created_at: nowIso,
-      updated_at: nowIso,
-      edited_at: null,
-      deleted_at: null,
-
-      attachment_url: null,
-      attachment_name: null,
-
       sender: {
         id: currentUserId,
         first_name: "You",
@@ -88,25 +88,20 @@ export function ThreadViewClient({
       return;
     }
 
-    const data = result.data; // <- this is Message (no sender)
+    const data = result.data;
     if (!data) return;
 
-    // Replace optimistic message with real one
-    // IMPORTANT: keep `sender` from optimistic message because `Message` doesn't include it.
+    // Replace optimistic message with real one.
+    // Keep `sender` from optimistic message because sendMessage
+    // returns Message (no sender join).
     setMessages((prev) =>
       prev.map((m) =>
         m.id === optimisticMessage.id
           ? {
               ...optimisticMessage,
               id: data.id,
-
-              created_at: data.created_at ?? optimisticMessage.created_at,
-              updated_at: data.updated_at ?? optimisticMessage.updated_at,
-              edited_at: data.edited_at ?? optimisticMessage.edited_at,
-              deleted_at: data.deleted_at ?? optimisticMessage.deleted_at,
-
-              attachment_url: data.attachment_url ?? optimisticMessage.attachment_url,
-              attachment_name: data.attachment_name ?? optimisticMessage.attachment_name,
+              sent_at: data.sent_at,
+              created_at: data.created_at,
             }
           : m,
       ),
@@ -191,7 +186,7 @@ export function ThreadViewClient({
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                     </div>
                     <p className="mt-1 text-[10px] text-muted-foreground">
-                      {formatTime(msg.created_at)}
+                      {formatTime(msg.sent_at)}
                     </p>
                   </div>
                 </div>

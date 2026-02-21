@@ -12,7 +12,7 @@
 // by fetching all stages in parallel.
 //
 // Terminal stages (enrolled, declined, withdrawn) are shown
-// as summary counts in the header, not as kanban columns —
+// as summary counts in the header, not as kanban columns  -
 // they're "done" states that don't need daily management.
 // ============================================================
 

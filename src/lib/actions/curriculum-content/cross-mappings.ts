@@ -1,5 +1,7 @@
-"use server";
+'use server';
 
+// src/lib/actions/curriculum-content/cross-mappings.ts
+//
 // ============================================================
 // WattleOS V2 - Module 14: Curriculum Cross-Mappings
 // ============================================================
@@ -14,7 +16,13 @@
 // AND report against ACARA (F–10) or QCAA (11–12). Cross-
 // mappings automate this so guides tag once (AMI) and the system
 // resolves all linked compliance outcomes.
+//
+// IMPORTANT: Node FKs reference curriculum_template_nodes (the
+// global table), NOT curriculum_nodes (the tenant fork table).
+// Cross-mappings link template outcomes regardless of scope.
 // ============================================================
+
+"use server";
 
 import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
 import {
@@ -87,6 +95,11 @@ export interface LinkedOutcome {
   confidence: CrossMappingConfidence;
 }
 
+export interface LinkedOutcomesResult {
+  outcomes: LinkedOutcome[];
+  by_framework: Record<string, LinkedOutcome[]>;
+}
+
 // ============================================================
 // Input Types
 // ============================================================
@@ -126,12 +139,45 @@ export interface ListCrossMappingsFilter {
   include_tenant?: boolean;
 }
 
+export interface BulkCrossMappingInput {
+  source_node_id: string;
+  target_node_id: string;
+  source_template_id: string;
+  target_template_id: string;
+  mapping_type: CrossMappingType;
+  confidence?: CrossMappingConfidence;
+  notes?: string | null;
+}
+
+export interface BulkCreateResult {
+  created: number;
+  skipped: number;
+  errors: string[];
+}
+
 // ============================================================
 // Permission keys (must match the seeded permissions)
 // ============================================================
 
 const PERM_MANAGE_CROSS_MAPPINGS = "manage_cross_mappings";
 const PERM_MANAGE_CURRICULUM_TEMPLATES = "manage_curriculum_templates";
+
+// ============================================================
+// The standard join fragment for reading cross-mappings with
+// resolved node/template details.
+//
+// WHY curriculum_template_nodes: Cross-mappings link global
+// template outcomes, not tenant-forked nodes. The FK points
+// to curriculum_template_nodes after the migration fix.
+// ============================================================
+
+const CROSS_MAPPING_JOIN = `
+  *,
+  source_node:curriculum_template_nodes!curriculum_cross_mappings_source_node_id_fkey(id, title, code, level),
+  source_template:curriculum_templates!curriculum_cross_mappings_source_template_id_fkey(id, name, framework),
+  target_node:curriculum_template_nodes!curriculum_cross_mappings_target_node_id_fkey(id, title, code, level),
+  target_template:curriculum_templates!curriculum_cross_mappings_target_template_id_fkey(id, name, framework)
+`;
 
 // ============================================================
 // CREATE: Add a cross-mapping between two curriculum nodes
@@ -155,17 +201,19 @@ export async function createCrossMapping(
 
     const supabase = await createSupabaseServerClient();
 
-    // Validate source and target nodes exist
+    // Validate source and target nodes exist in the TEMPLATE table
+    // WHY curriculum_template_nodes: Cross-mappings link template
+    // outcomes, not tenant-forked nodes. The FK references this table.
     const adminClient = createSupabaseAdminClient();
 
     const [sourceNode, targetNode] = await Promise.all([
       adminClient
-        .from("curriculum_nodes")
+        .from("curriculum_template_nodes")
         .select("id")
         .eq("id", input.source_node_id)
         .single(),
       adminClient
-        .from("curriculum_nodes")
+        .from("curriculum_template_nodes")
         .select("id")
         .eq("id", input.target_node_id)
         .single(),
@@ -211,7 +259,7 @@ export async function createCrossMapping(
       if (error.code === "23505") {
         return failure(
           "A mapping between these two nodes already exists",
-          ErrorCodes.CONFLICT,
+          ErrorCodes.ALREADY_EXISTS,
         );
       }
       return failure(error.message, ErrorCodes.INTERNAL_ERROR);
@@ -226,7 +274,7 @@ export async function createCrossMapping(
 }
 
 // ============================================================
-// UPDATE: Modify mapping type, confidence, or notes
+// UPDATE: Modify an existing cross-mapping's metadata
 // ============================================================
 
 export async function updateCrossMapping(
@@ -248,7 +296,6 @@ export async function updateCrossMapping(
       return failure("No fields to update", ErrorCodes.VALIDATION_ERROR);
     }
 
-    // Try tenant-scoped first
     const { data, error } = await supabase
       .from("curriculum_cross_mappings")
       .update(updateData)
@@ -261,10 +308,7 @@ export async function updateCrossMapping(
     }
 
     if (!data) {
-      return failure(
-        "Cross-mapping not found or not editable",
-        ErrorCodes.NOT_FOUND,
-      );
+      return failure("Cross-mapping not found", ErrorCodes.NOT_FOUND);
     }
 
     return success(data as CurriculumCrossMapping);
@@ -276,16 +320,12 @@ export async function updateCrossMapping(
 }
 
 // ============================================================
-// DELETE: Remove a cross-mapping
-// ============================================================
-// WHY hard delete (not soft): Cross-mappings are metadata links,
-// not user content. Removing one just unlinks two outcomes. The
-// UNIQUE constraint means we can re-create later if needed.
+// DELETE: Remove a tenant-scoped cross-mapping
 // ============================================================
 
 export async function deleteCrossMapping(
   mappingId: string,
-): Promise<ActionResponse<{ deleted: boolean }>> {
+): Promise<ActionResponse<{ deleted: true }>> {
   try {
     await requirePermission(PERM_MANAGE_CROSS_MAPPINGS);
     const supabase = await createSupabaseServerClient();
@@ -308,15 +348,12 @@ export async function deleteCrossMapping(
 }
 
 // ============================================================
-// DELETE (Global): Remove a global cross-mapping
-// ============================================================
-// WHY separate function: Global mappings have tenant_id IS NULL,
-// so tenant-scoped RLS won't match. Requires system permission.
+// DELETE GLOBAL: Remove a global cross-mapping (admin only)
 // ============================================================
 
 export async function deleteGlobalCrossMapping(
   mappingId: string,
-): Promise<ActionResponse<{ deleted: boolean }>> {
+): Promise<ActionResponse<{ deleted: true }>> {
   try {
     await requirePermission(PERM_MANAGE_CURRICULUM_TEMPLATES);
     const adminClient = createSupabaseAdminClient();
@@ -363,15 +400,7 @@ export async function listCrossMappingsForNode(
     // Fetch mappings where this node is the source
     const { data: asSource, error: sourceError } = await adminClient
       .from("curriculum_cross_mappings")
-      .select(
-        `
-        *,
-        source_node:curriculum_nodes!curriculum_cross_mappings_source_node_id_fkey(id, title, code, level),
-        source_template:curriculum_templates!curriculum_cross_mappings_source_template_id_fkey(id, name, framework),
-        target_node:curriculum_nodes!curriculum_cross_mappings_target_node_id_fkey(id, title, code, level),
-        target_template:curriculum_templates!curriculum_cross_mappings_target_template_id_fkey(id, name, framework)
-      `,
-      )
+      .select(CROSS_MAPPING_JOIN)
       .eq("source_node_id", nodeId);
 
     if (sourceError) {
@@ -381,15 +410,7 @@ export async function listCrossMappingsForNode(
     // Fetch mappings where this node is the target
     const { data: asTarget, error: targetError } = await adminClient
       .from("curriculum_cross_mappings")
-      .select(
-        `
-        *,
-        source_node:curriculum_nodes!curriculum_cross_mappings_source_node_id_fkey(id, title, code, level),
-        source_template:curriculum_templates!curriculum_cross_mappings_source_template_id_fkey(id, name, framework),
-        target_node:curriculum_nodes!curriculum_cross_mappings_target_node_id_fkey(id, title, code, level),
-        target_template:curriculum_templates!curriculum_cross_mappings_target_template_id_fkey(id, name, framework)
-      `,
-      )
+      .select(CROSS_MAPPING_JOIN)
       .eq("target_node_id", nodeId);
 
     if (targetError) {
@@ -436,15 +457,7 @@ export async function listCrossMappingsBetweenTemplates(
     // Get mappings in both directions between the two templates
     const { data, error } = await adminClient
       .from("curriculum_cross_mappings")
-      .select(
-        `
-        *,
-        source_node:curriculum_nodes!curriculum_cross_mappings_source_node_id_fkey(id, title, code, level),
-        source_template:curriculum_templates!curriculum_cross_mappings_source_template_id_fkey(id, name, framework),
-        target_node:curriculum_nodes!curriculum_cross_mappings_target_node_id_fkey(id, title, code, level),
-        target_template:curriculum_templates!curriculum_cross_mappings_target_template_id_fkey(id, name, framework)
-      `,
-      )
+      .select(CROSS_MAPPING_JOIN)
       .or(
         `and(source_template_id.eq.${templateIdA},target_template_id.eq.${templateIdB}),` +
           `and(source_template_id.eq.${templateIdB},target_template_id.eq.${templateIdA})`,
@@ -468,56 +481,60 @@ export async function listCrossMappingsBetweenTemplates(
 }
 
 // ============================================================
-// LIST (Filtered): General-purpose cross-mapping query
+// LIST: Get cross-mappings with flexible filtering
 // ============================================================
 
 export async function listCrossMappings(
   filter: ListCrossMappingsFilter = {},
 ): Promise<ActionResponse<CrossMappingWithDetails[]>> {
   try {
-    await getTenantContext();
+    const context = await getTenantContext();
     const adminClient = createSupabaseAdminClient();
 
-    let query = adminClient.from("curriculum_cross_mappings").select(`
-        *,
-        source_node:curriculum_nodes!curriculum_cross_mappings_source_node_id_fkey(id, title, code, level),
-        source_template:curriculum_templates!curriculum_cross_mappings_source_template_id_fkey(id, name, framework),
-        target_node:curriculum_nodes!curriculum_cross_mappings_target_node_id_fkey(id, title, code, level),
-        target_template:curriculum_templates!curriculum_cross_mappings_target_template_id_fkey(id, name, framework)
-      `);
+    let query = adminClient
+      .from("curriculum_cross_mappings")
+      .select(CROSS_MAPPING_JOIN);
 
+    // Node filter (either direction)
     if (filter.node_id) {
       query = query.or(
         `source_node_id.eq.${filter.node_id},target_node_id.eq.${filter.node_id}`,
       );
     }
+
+    // Template filters
     if (filter.source_template_id) {
       query = query.eq("source_template_id", filter.source_template_id);
     }
     if (filter.target_template_id) {
       query = query.eq("target_template_id", filter.target_template_id);
     }
+
+    // Mapping type filter
     if (filter.mapping_type) {
       query = query.eq("mapping_type", filter.mapping_type);
     }
+
+    // Confidence filter
     if (filter.confidence) {
       query = query.eq("confidence", filter.confidence);
     }
 
-    // Scope: global vs tenant
-    if (filter.include_global === false && filter.include_tenant === false) {
-      return success([]);
-    }
-    if (filter.include_global === false) {
-      query = query.not("tenant_id", "is", null);
-    }
-    if (filter.include_tenant === false) {
+    // Scope filter
+    const includeGlobal = filter.include_global !== false;
+    const includeTenant = filter.include_tenant !== false;
+
+    if (includeGlobal && !includeTenant) {
       query = query.is("tenant_id", null);
+    } else if (!includeGlobal && includeTenant) {
+      query = query.eq("tenant_id", context.tenant.id);
+    } else if (includeGlobal && includeTenant) {
+      query = query.or(`tenant_id.is.null,tenant_id.eq.${context.tenant.id}`);
     }
 
-    const { data, error } = await query.order("created_at", {
-      ascending: true,
-    });
+    const { data, error } = await query
+      .order("created_at", { ascending: true })
+      .limit(500);
 
     if (error) {
       return failure(error.message, ErrorCodes.INTERNAL_ERROR);
@@ -536,77 +553,54 @@ export async function listCrossMappings(
 }
 
 // ============================================================
-// RESOLVE: Get all linked compliance outcomes for a set of
-// curriculum node IDs
+// RESOLVE: Get all linked outcomes for a given template node
 // ============================================================
-// WHY: This is the core compliance auto-tagging function. When
-// a guide tags an observation with AMI outcomes, the system
-// calls this to find all linked EYLF/ACARA/QCAA outcomes.
-// The observation can then be automatically cross-tagged for
-// compliance reporting.
-//
-// Returns outcomes grouped by framework for easy consumption.
+// WHY: When a guide tags an observation with an AMI outcome,
+// the system needs to resolve all linked EYLF/ACARA/QCAA
+// outcomes for automatic compliance tagging.
 // ============================================================
-
-export interface LinkedOutcomesResult {
-  /** All linked outcomes across all frameworks */
-  outcomes: LinkedOutcome[];
-  /** Outcomes grouped by framework name */
-  by_framework: Record<string, LinkedOutcome[]>;
-}
 
 export async function resolveLinkedOutcomes(
-  nodeIds: string[],
+  nodeId: string,
 ): Promise<ActionResponse<LinkedOutcomesResult>> {
   try {
     await getTenantContext();
-
-    if (nodeIds.length === 0) {
-      return success({ outcomes: [], by_framework: {} });
-    }
-
     const adminClient = createSupabaseAdminClient();
 
-    // Find all cross-mappings where any of these nodes is the source
+    const outcomes: LinkedOutcome[] = [];
+    const seen = new Set<string>();
+
+    // Forward mappings (this node is the source)
     const { data: forwardMappings, error: fwdError } = await adminClient
       .from("curriculum_cross_mappings")
       .select(
         `
-        target_node_id,
-        target_template_id,
-        mapping_type,
-        confidence,
-        target_node:curriculum_nodes!curriculum_cross_mappings_target_node_id_fkey(id, title, code),
+        mapping_type, confidence,
+        target_node:curriculum_template_nodes!curriculum_cross_mappings_target_node_id_fkey(id, title, code),
         target_template:curriculum_templates!curriculum_cross_mappings_target_template_id_fkey(id, name, framework)
       `,
       )
-      .in("source_node_id", nodeIds);
+      .eq("source_node_id", nodeId);
 
     if (fwdError) {
       return failure(fwdError.message, ErrorCodes.INTERNAL_ERROR);
     }
 
-    // Also find reverse mappings (where these nodes are the target)
+    // Reverse mappings (this node is the target)
     const { data: reverseMappings, error: revError } = await adminClient
       .from("curriculum_cross_mappings")
       .select(
         `
-        source_node_id,
-        source_template_id,
-        mapping_type,
-        confidence,
-        source_node:curriculum_nodes!curriculum_cross_mappings_source_node_id_fkey(id, title, code),
+        mapping_type, confidence,
+        source_node:curriculum_template_nodes!curriculum_cross_mappings_source_node_id_fkey(id, title, code),
         source_template:curriculum_templates!curriculum_cross_mappings_source_template_id_fkey(id, name, framework)
       `,
       )
-      .in("target_node_id", nodeIds);
+      .eq("target_node_id", nodeId);
 
     if (revError) {
       return failure(revError.message, ErrorCodes.INTERNAL_ERROR);
     }
-
-    const outcomes: LinkedOutcome[] = [];
-    const seen = new Set<string>();
 
     // Process forward mappings (source → target)
     for (const row of forwardMappings ?? []) {
@@ -615,12 +609,12 @@ export async function resolveLinkedOutcomes(
       const targetTemplate = unwrapJoin(r.target_template);
       if (!targetNode || !targetTemplate) continue;
 
-      const nodeId = targetNode.id as string;
-      if (seen.has(nodeId)) continue;
-      seen.add(nodeId);
+      const nid = targetNode.id as string;
+      if (seen.has(nid)) continue;
+      seen.add(nid);
 
       outcomes.push({
-        node_id: nodeId,
+        node_id: nid,
         node_title: targetNode.title as string,
         node_code: (targetNode.code as string) ?? null,
         template_id: targetTemplate.id as string,
@@ -638,12 +632,12 @@ export async function resolveLinkedOutcomes(
       const sourceTemplate = unwrapJoin(r.source_template);
       if (!sourceNode || !sourceTemplate) continue;
 
-      const nodeId = sourceNode.id as string;
-      if (seen.has(nodeId)) continue;
-      seen.add(nodeId);
+      const nid = sourceNode.id as string;
+      if (seen.has(nid)) continue;
+      seen.add(nid);
 
       outcomes.push({
-        node_id: nodeId,
+        node_id: nid,
         node_title: sourceNode.title as string,
         node_code: (sourceNode.code as string) ?? null,
         template_id: sourceTemplate.id as string,
@@ -680,46 +674,21 @@ export async function resolveLinkedOutcomes(
 // the admin cross-mapping bulk editor.
 // ============================================================
 
-export interface BulkCrossMappingInput {
-  source_node_id: string;
-  target_node_id: string;
-  source_template_id: string;
-  target_template_id: string;
-  mapping_type: CrossMappingType;
-  confidence?: CrossMappingConfidence;
-  notes?: string | null;
-}
-
-export interface BulkCreateResult {
-  created: number;
-  skipped: number;
-  errors: string[];
-}
-
 export async function bulkCreateCrossMappings(
   mappings: BulkCrossMappingInput[],
-  isGlobal: boolean = false,
+  options?: { is_global?: boolean },
 ): Promise<ActionResponse<BulkCreateResult>> {
   try {
+    const isGlobal = options?.is_global === true;
     const permKey = isGlobal
       ? PERM_MANAGE_CURRICULUM_TEMPLATES
       : PERM_MANAGE_CROSS_MAPPINGS;
     const context = await requirePermission(permKey);
 
-    if (mappings.length === 0) {
-      return success({ created: 0, skipped: 0, errors: [] });
-    }
+    const adminClient = createSupabaseAdminClient();
+    const supabase = await createSupabaseServerClient();
 
-    if (mappings.length > 500) {
-      return failure(
-        "Maximum 500 mappings per batch",
-        ErrorCodes.VALIDATION_ERROR,
-      );
-    }
-
-    const client = isGlobal
-      ? createSupabaseAdminClient()
-      : await createSupabaseServerClient();
+    const client = isGlobal ? adminClient : supabase;
 
     const rows = mappings.map((m) => ({
       tenant_id: isGlobal ? null : context.tenant.id,
@@ -733,7 +702,6 @@ export async function bulkCreateCrossMappings(
       created_by: context.user.id,
     }));
 
-    // Use upsert with onConflict to skip duplicates
     const { data, error } = await client
       .from("curriculum_cross_mappings")
       .upsert(rows, {
@@ -747,9 +715,12 @@ export async function bulkCreateCrossMappings(
     }
 
     const created = (data ?? []).length;
-    const skipped = mappings.length - created;
 
-    return success({ created, skipped, errors: [] });
+    return success({
+      created,
+      skipped: mappings.length - created,
+      errors: [],
+    });
   } catch (err) {
     const message =
       err instanceof Error

@@ -1,17 +1,19 @@
+'use server';
+
 // src/lib/actions/display-settings.ts
 //
 // ============================================================
-// WattleOS V2 — Display Settings Server Actions
+// WattleOS V2 - Display Settings Server Actions
 // ============================================================
 // Two layers of display configuration:
 //
-//   1. TENANT (admin)  — brand colour, accent, sidebar style,
+//   1. TENANT (admin)  - brand colour, accent, sidebar style,
 //      default theme & density. Stored in tenants.settings JSONB.
 //      Requires MANAGE_TENANT_SETTINGS permission.
 //
-//   2. USER (personal) — theme, density, font scale overrides.
+//   2. USER (personal) - theme, density, font scale overrides.
 //      Stored in a cookie (wattle-user-prefs). No permission
-//      needed — every authenticated user can set their own.
+//      needed - every authenticated user can set their own.
 //
 // WHY cookies for user prefs instead of a DB table: User display
 // preferences are inherently per-device (you might want dark on
@@ -20,10 +22,10 @@
 // per-device, and avoid a DB round-trip in the root layout.
 //
 // COOKIE ARCHITECTURE:
-//   wattle-display    — effective values the root layout reads
-//   wattle-user-prefs — tracks user overrides (null = school default)
+//   wattle-display    - effective values the root layout reads
+//   wattle-user-prefs - tracks user overrides (null = school default)
 //
-// All actions return ActionResponse<T> — never throw.
+// All actions return ActionResponse<T> - never throw.
 // ============================================================
 
 "use server";
@@ -161,7 +163,7 @@ export async function updateTenantDisplaySettings(
     await requirePermission(Permissions.MANAGE_TENANT_SETTINGS);
     const context = await getTenantContext();
 
-    // ── 1. Use admin client — tenants table has no UPDATE RLS
+    // ── 1. Use admin client - tenants table has no UPDATE RLS
     // policy, so the user client silently fails (0 rows, no
     // error). Admin client bypasses RLS; requirePermission()
     // above is the access control. ───────────────────────────
@@ -233,7 +235,7 @@ export async function updateTenantDisplaySettings(
         COOKIE_OPTIONS,
       );
     } catch {
-      // Cookie write failure is non-fatal — the (app) layout
+      // Cookie write failure is non-fatal - the (app) layout
       // will refresh the cookie from DB on next load anyway.
     }
 
@@ -280,8 +282,8 @@ export async function getUserDisplayPreferences(): Promise<
 // USER: UPDATE DISPLAY PREFERENCES
 // ============================================================
 // Writes BOTH cookies:
-//   1. wattle-user-prefs — stores the overrides (with nulls)
-//   2. wattle-display    — stores effective values for root layout
+//   1. wattle-user-prefs - stores the overrides (with nulls)
+//   2. wattle-display    - stores effective values for root layout
 //
 // WHY both: The root layout reads wattle-display for <html>
 // data attributes. The user settings page reads wattle-user-prefs

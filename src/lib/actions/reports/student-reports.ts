@@ -1,3 +1,5 @@
+'use server';
+
 // src/lib/actions/reports/student-reports.ts
 //
 // ============================================================
@@ -13,6 +15,9 @@
 // This separation mirrors the curriculum template → instance
 // pattern used throughout WattleOS.
 //
+// AUDIT: Uses centralized logAudit() for consistent metadata
+// enrichment (IP, user agent, sensitivity, user identity).
+//
 // All actions return ActionResponse<T> - never throw.
 // RLS enforces tenant isolation at the database level.
 // ============================================================
@@ -21,7 +26,6 @@
 
 import {
   createSupabaseServerClient,
-  createSupabaseAdminClient,
 } from "@/lib/supabase/server";
 import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
@@ -36,7 +40,7 @@ import {
 } from "@/types/api";
 import type {
   StudentReport,
-  ReportStatus as DomainReportStatus,
+  ReportStatus,
   Student,
   User,
   ReportTemplate,
@@ -51,13 +55,8 @@ import type {
   ReportAutoData,
 } from "@/lib/reports/types";
 import { validateTemplateContent } from "@/lib/reports/types";
+import { logAudit, AuditActions } from "@/lib/utils/audit";
 
-// NOTE:
-// DomainReportStatus in @/types/domain may currently be missing "published".
-// This actions file uses the canonical DB workflow union to avoid TS2367.
-
-// keep this import referenced so it doesn't get flagged as unused in some configs
-void (null as unknown as DomainReportStatus);
 
 // ============================================================
 // Input Types
@@ -366,18 +365,19 @@ export async function generateStudentReport(
       return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    // Audit log
-    const adminClient = createSupabaseAdminClient();
-    await adminClient.from("audit_logs").insert({
-      tenant_id: context.tenant.id,
-      user_id: context.user.id,
-      action: "student_report.generated",
-      entity_type: "student_report",
-      entity_id: (data as StudentReport).id,
+    // WHY audit: Report generation pulls sensitive student data
+    // (mastery, attendance, observations) into a single document.
+    // Schools need to track who generated which reports and when.
+    await logAudit({
+      context,
+      action: AuditActions.REPORT_CREATED,
+      entityType: "student_report",
+      entityId: (data as StudentReport).id,
       metadata: {
         student_id: input.studentId,
         template_id: input.templateId,
         term: input.term,
+        generation_method: "template",
       },
     });
 
@@ -518,15 +518,10 @@ export async function updateReportContent(
   }
 }
 
-// ============================================================
-// UPDATE REPORT STATUS (workflow transitions)
-// ============================================================
-type ReportStatus = "draft" | "review" | "approved" | "published";
-type WorkflowReportStatus = "draft" | "review" | "approved" | "published";
 
 const VALID_TRANSITIONS: Record<
-  WorkflowReportStatus,
-  readonly WorkflowReportStatus[]
+  ReportStatus,
+  readonly ReportStatus[]
 > = {
   draft: ["review"],
   review: ["draft", "approved"],
@@ -535,7 +530,7 @@ const VALID_TRANSITIONS: Record<
 } as const;
 export async function updateReportStatus(
   reportId: string,
-  newStatus: WorkflowReportStatus
+  newStatus: ReportStatus
 ): Promise<ActionResponse<StudentReport>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_REPORTS);
@@ -555,7 +550,7 @@ export async function updateReportStatus(
     const report = existing as StudentReport;
 
     // ✅ hard cast to the workflow union (cannot narrow away "published")
-    const currentStatus = (report as any).status as WorkflowReportStatus;
+    const currentStatus = (report as any).status as ReportStatus;
 
     const validNext = VALID_TRANSITIONS[currentStatus] ?? [];
 
@@ -587,13 +582,16 @@ export async function updateReportStatus(
       return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    const adminClient = createSupabaseAdminClient();
-    await adminClient.from("audit_logs").insert({
-      tenant_id: context.tenant.id,
-      user_id: context.user.id,
-      action: "student_report.status_changed",
-      entity_type: "student_report",
-      entity_id: reportId,
+    // WHY audit: Report status transitions are a compliance checkpoint.
+    // Publishing makes reports visible to parents — schools need to know
+    // who approved and who published each report.
+    await logAudit({
+      context,
+      action: newStatus === "published"
+        ? AuditActions.REPORT_PUBLISHED
+        : AuditActions.REPORT_CREATED, // Re-use for generic status changes
+      entityType: "student_report",
+      entityId: reportId,
       metadata: {
         from: currentStatus,
         to: newStatus,
@@ -627,12 +625,11 @@ export async function deleteStudentReport(
       .eq("id", reportId)
       .is("deleted_at", null)
       .single();
-
-    const existingStatus = (existing as { status?: unknown } | null)?.status as
-      | ReportStatus
-      | undefined;
-
-    if (existingStatus === "published") {
+      const existingStatus = String(
+        (existing as Record<string, unknown> | null)?.status ?? "",
+      );
+  
+      if (existingStatus === "published") {
       return failure(
         "Cannot delete a published report. Unpublish it first.",
         ErrorCodes.VALIDATION_ERROR

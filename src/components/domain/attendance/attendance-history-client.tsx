@@ -305,7 +305,7 @@ function StatusCell({
   status: keyof typeof ATTENDANCE_STATUS_CONFIG;
 }) {
   if (count === 0) {
-    return <span className="text-gray-300">—</span>;
+    return <span className="text-gray-300"> - </span>;
   }
 
   const config = ATTENDANCE_STATUS_CONFIG[status];

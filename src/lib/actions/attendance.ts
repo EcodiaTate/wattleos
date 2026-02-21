@@ -1,3 +1,5 @@
+'use server';
+
 // src/lib/actions/attendance.ts
 //
 // ============================================================
@@ -14,8 +16,6 @@
 // if a record already exists.
 // ============================================================
 
-"use server";
-
 import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -30,6 +30,7 @@ import type {
   AttendanceStatus,
   Student,
 } from "@/types/domain";
+import { logAudit, logAuditBulk, AuditActions } from "@/lib/utils/audit";
 
 // ============================================================
 // Input Types
@@ -139,6 +140,18 @@ export async function markAttendance(
       return failure(error.message, "DB_ERROR");
     }
 
+    await logAudit({
+      context,
+      action: AuditActions.ATTENDANCE_MARKED,
+      entityType: "attendance_record",
+      entityId: (data as AttendanceRecord).id,
+      metadata: {
+        student_id: input.studentId,
+        date: input.date,
+        status: input.status,
+      },
+    });
+
     return success(data as AttendanceRecord);
   } catch (err) {
     const message =
@@ -184,6 +197,21 @@ export async function bulkMarkAttendance(
     if (error) {
       return failure(error.message, "DB_ERROR");
     }
+
+    await logAuditBulk(
+      context,
+      (data ?? []).map((record: Record<string, unknown>) => ({
+        action: AuditActions.ATTENDANCE_MARKED,
+        entityType: "attendance_record",
+        entityId: record.id as string,
+        metadata: {
+          student_id: record.student_id as string,
+          date: input.date,
+          status: record.status as string,
+          class_id: input.classId,
+        },
+      })),
+    );
 
     return success({
       marked: data?.length ?? 0,
@@ -283,7 +311,7 @@ export async function getClassAttendance(
     }
 
     // 4. Assemble rows, sorted by last name
-    const rows: StudentAttendanceRow[] = studentRows
+    const attendanceRows: StudentAttendanceRow[] = studentRows
       .map((s) => ({
         student: s.student,
         record: recordMap.get(s.studentId) ?? null,
@@ -291,7 +319,7 @@ export async function getClassAttendance(
       }))
       .sort((a, b) => a.student.last_name.localeCompare(b.student.last_name));
 
-    return success(rows);
+    return success(attendanceRows);
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to get class attendance";
@@ -570,6 +598,18 @@ export async function checkOutStudent(
     if (error) {
       return failure(error.message, "DB_ERROR");
     }
+
+    await logAudit({
+      context,
+      action: AuditActions.ATTENDANCE_UPDATED,
+      entityType: "attendance_record",
+      entityId: (existing as AttendanceRecord).id,
+      metadata: {
+        student_id: studentId,
+        date,
+        action: "check_out",
+      },
+    });
 
     return success(data as AttendanceRecord);
   } catch (err) {

@@ -1,18 +1,4 @@
 // src/components/domain/reports/GenerateReportsForm.tsx
-//
-// ============================================================
-// WattleOS V2 - Generate Reports Form (Client Component)
-// ============================================================
-// Multi-step form for generating student reports:
-//   1. Pick a template
-//   2. Pick a class (loads students) or select individual students
-//   3. Set term label and reporting period dates
-//   4. Generate → shows results → link to reports list
-//
-// WHY client: Multi-step form with dynamic student loading
-// requires client-side state management.
-// ============================================================
-
 "use client";
 
 import { bulkGenerateReports } from "@/lib/actions/reports";
@@ -50,7 +36,6 @@ export function GenerateReportsForm({
   templates,
   classes,
 }: GenerateReportsFormProps) {
-  // ── Form state ──────────────────────────────────────────
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [selectedClassId, setSelectedClassId] = useState("");
   const [students, setStudents] = useState<
@@ -66,7 +51,6 @@ export function GenerateReportsForm({
   const [periodStart, setPeriodStart] = useState("");
   const [periodEnd, setPeriodEnd] = useState("");
 
-  // ── UI state ────────────────────────────────────────────
   const [isLoadingStudents, setIsLoadingStudents] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
@@ -74,7 +58,6 @@ export function GenerateReportsForm({
 
   const router = useRouter();
 
-  // ── Load students when class changes ────────────────────
   useEffect(() => {
     if (!selectedClassId) {
       setStudents([]);
@@ -97,7 +80,6 @@ export function GenerateReportsForm({
         photo_url: s.photo_url,
       }));
       setStudents(studentList);
-      // Select all by default
       setSelectedStudentIds(new Set(studentList.map((s) => s.id)));
       setIsLoadingStudents(false);
     }
@@ -105,7 +87,6 @@ export function GenerateReportsForm({
     loadStudents();
   }, [selectedClassId]);
 
-  // ── Helpers ─────────────────────────────────────────────
   function toggleStudent(studentId: string) {
     setSelectedStudentIds((prev) => {
       const next = new Set(prev);
@@ -133,7 +114,6 @@ export function GenerateReportsForm({
     periodStart &&
     periodEnd;
 
-  // ── Generate ────────────────────────────────────────────
   async function handleGenerate() {
     if (!isValid) return;
 
@@ -158,68 +138,43 @@ export function GenerateReportsForm({
     setIsGenerating(false);
   }
 
-  // ── Result screen ───────────────────────────────────────
   if (result) {
     return (
-      <div className="rounded-lg borderborder-border bg-background p-8">
+      <div className="rounded-xl border border-border bg-card p-10 shadow-lg animate-scale-in">
         <div className="mx-auto max-w-md text-center">
           {result.generated > 0 ? (
-            <div className="mb-4 flex h-[var(--density-button-height)] w-12 mx-auto items-center justify-center rounded-full bg-green-100">
-              <svg
-                className="h-6 w-6 text-green-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m4.5 12.75 6 6 9-13.5"
-                />
+            <div className="mb-6 flex h-14 w-14 mx-auto items-center justify-center rounded-full bg-success/10 text-success">
+              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
               </svg>
             </div>
           ) : (
-            <div className="mb-4 flex h-[var(--density-button-height)] w-12 mx-auto items-center justify-center rounded-full bg-amber-100">
-              <svg
-                className="h-6 w-6 text-primary"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
-                />
+            <div className="mb-6 flex h-14 w-14 mx-auto items-center justify-center rounded-full bg-warning/10 text-warning">
+              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
               </svg>
             </div>
           )}
 
-          <h2 className="text-lg font-semibold text-foreground">
-            Generation Complete
-          </h2>
+          <h2 className="text-2xl font-bold text-foreground">Generation Complete</h2>
 
-          <div className="mt-4 space-y-2 text-sm">
+          <div className="mt-6 space-y-3">
             {result.generated > 0 && (
-              <p className="text-green-700">
-                ✓ {result.generated} report{result.generated !== 1 ? "s" : ""}{" "}
-                generated
+              <p className="text-success font-semibold">
+                ✓ {result.generated} report{result.generated !== 1 ? "s" : ""} generated
               </p>
             )}
             {result.skipped > 0 && (
-              <p className="text-amber-700">
+              <p className="text-warning font-semibold">
                 ⊘ {result.skipped} skipped (already exist for this term)
               </p>
             )}
             {result.errors.length > 0 && (
-              <div className="text-left">
-                <p className="font-medium text-red-700">
-                  ✕ {result.errors.length} error
-                  {result.errors.length !== 1 ? "s" : ""}:
+              <div className="text-left bg-destructive/5 border border-destructive/10 p-4 rounded-lg mt-4">
+                <p className="font-bold text-destructive text-sm mb-2">
+                  ✕ {result.errors.length} error{result.errors.length !== 1 ? "s" : ""}:
                 </p>
-                <ul className="mt-1 list-inside list-disc text-xs text-red-600">
+                <ul className="list-inside list-disc text-xs text-destructive/80 space-y-1">
                   {result.errors.slice(0, 5).map((err, i) => (
                     <li key={i}>{err}</li>
                   ))}
@@ -231,13 +186,13 @@ export function GenerateReportsForm({
             )}
           </div>
 
-          <div className="mt-6 flex justify-center gap-3">
+          <div className="mt-8 flex justify-center gap-4">
             <button
               onClick={() => {
                 setResult(null);
                 setSelectedStudentIds(new Set());
               }}
-              className="rounded-md border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
+              className="rounded-lg border border-border bg-background px-6 h-[var(--density-button-height)] text-sm font-bold text-foreground transition-all hover:bg-muted active:scale-95"
             >
               Generate More
             </button>
@@ -245,7 +200,7 @@ export function GenerateReportsForm({
               onClick={() =>
                 router.push(`/reports?term=${encodeURIComponent(term)}`)
               }
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700"
+              className="rounded-lg bg-primary px-6 h-[var(--density-button-height)] text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary-600 active:scale-95"
             >
               View Reports
             </button>
@@ -255,32 +210,38 @@ export function GenerateReportsForm({
     );
   }
 
-  // ── Main form ───────────────────────────────────────────
   return (
-    <div className="space-y-6">
+    <div className="space-y-[var(--density-section-gap)]">
       {/* Step 1: Template */}
-      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
-        <h2 className="text-sm font-semibold text-foreground">
-          1. Choose a Template
+      <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm">
+        <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-xs">1</span>
+          Choose a Template
         </h2>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1.5 text-xs font-medium text-muted-foreground ml-8">
           The template determines what sections appear in each report.
         </p>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 ml-8">
           {templates.map((t) => (
             <button
               key={t.id}
               onClick={() => setSelectedTemplateId(t.id)}
-              className={`rounded-md border p-3 text-left transition-all ${
+              className={`rounded-lg border p-4 text-left transition-all card-interactive ${
                 selectedTemplateId === t.id
-                  ? "border-primary bg-amber-50 ring-1 ring-primary"
-                  : "border-border hover:border-gray-300 hover:bg-background"
+                  ? "border-primary bg-primary-50/50 ring-2 ring-primary/20"
+                  : "border-border bg-card hover:bg-muted/50"
               }`}
             >
-              <p className="text-sm font-medium text-foreground">{t.name}</p>
-              <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                {t.cycleLevel && <span>{t.cycleLevel}</span>}
-                <span>{t.sectionCount} sections</span>
+              <p className={`text-sm font-bold ${selectedTemplateId === t.id ? 'text-primary-700' : 'text-foreground'}`}>{t.name}</p>
+              <div className="mt-2 flex items-center gap-3">
+                {t.cycleLevel && (
+                  <span className="status-badge bg-muted text-muted-foreground status-badge-plain px-2 py-0">
+                    {t.cycleLevel}
+                  </span>
+                )}
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
+                  {t.sectionCount} sections
+                </span>
               </div>
             </button>
           ))}
@@ -288,88 +249,74 @@ export function GenerateReportsForm({
       </div>
 
       {/* Step 2: Students */}
-      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
-        <h2 className="text-sm font-semibold text-foreground">
-          2. Select Students
+      <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm">
+        <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-xs">2</span>
+          Select Students
         </h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Pick a class to load its students, then select which ones to generate
-          reports for.
+        <p className="mt-1.5 text-xs font-medium text-muted-foreground ml-8">
+          Pick a class to load its students, then select which ones to generate reports for.
         </p>
 
-        {/* Class picker */}
-        <div className="mt-3">
+        <div className="mt-5 ml-8">
           <select
             value={selectedClassId}
             onChange={(e) => setSelectedClassId(e.target.value)}
-            className="block w-full max-w-xs rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="block w-full max-w-xs rounded-lg border border-input bg-background px-4 h-[var(--density-input-height)] text-sm font-medium shadow-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
           >
             <option value="">Select a class...</option>
             {classes.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
-                {c.cycleLevel ? ` (${c.cycleLevel})` : ""} - {c.studentCount}{" "}
-                student{c.studentCount !== 1 ? "s" : ""}
+                {c.cycleLevel ? ` (${c.cycleLevel})` : ""} - {c.studentCount} student{c.studentCount !== 1 ? "s" : ""}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Student list */}
         {isLoadingStudents && (
-          <div className="mt-4 text-sm text-muted-foreground">
+          <div className="mt-6 ml-8 flex items-center gap-3 text-sm text-muted-foreground font-medium animate-pulse-soft">
+            <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
             Loading students...
           </div>
         )}
 
         {!isLoadingStudents && students.length > 0 && (
-          <div className="mt-4">
-            <div className="mb-2 flex items-center justify-between">
+          <div className="mt-6 ml-8">
+            <div className="mb-4 flex items-center justify-between">
               <button
                 onClick={toggleAllStudents}
-                className="text-xs font-medium text-primary hover:text-amber-700"
+                className="text-xs font-bold text-primary hover:text-primary-600 transition-colors"
               >
-                {selectedStudentIds.size === students.length
-                  ? "Deselect All"
-                  : "Select All"}
+                {selectedStudentIds.size === students.length ? "Deselect All" : "Select All Students"}
               </button>
-              <span className="text-xs text-muted-foreground">
+              <span className="status-badge bg-muted text-muted-foreground status-badge-plain">
                 {selectedStudentIds.size} of {students.length} selected
               </span>
             </div>
-            <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {students.map((student) => {
                 const isSelected = selectedStudentIds.has(student.id);
                 return (
                   <button
                     key={student.id}
                     onClick={() => toggleStudent(student.id)}
-                    className={`flex items-center gap-2 rounded-md border px-3 py-2 text-left text-sm transition-all ${
+                    className={`flex items-center gap-3 rounded-lg border p-3 text-left transition-all ${
                       isSelected
-                        ? "border-amber-300 bg-amber-50"
-                        : "border-border text-muted-foreground hover:border-gray-300"
+                        ? "border-primary-300 bg-primary-50/30"
+                        : "border-border bg-card text-muted-foreground hover:border-primary-200"
                     }`}
                   >
                     <div
-                      className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border ${
+                      className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border transition-all ${
                         isSelected
-                          ? "border-primary bg-primary"
-                          : "border-gray-300"
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-input bg-background"
                       }`}
                     >
                       {isSelected && (
-                        <svg
-                          className="h-3 w-3 text-primary-foreground"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={3}
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="m4.5 12.75 6 6 9-13.5"
-                          />
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                         </svg>
                       )}
                     </div>
@@ -377,19 +324,15 @@ export function GenerateReportsForm({
                       <img
                         src={student.photo_url}
                         alt=""
-                        className="h-6 w-6 rounded-full object-cover"
+                        className="h-8 w-8 rounded-full object-cover ring-1 ring-border shadow-sm"
                       />
                     ) : (
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
-                        {student.first_name?.[0]}
-                        {student.last_name?.[0]}
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground uppercase">
+                        {student.first_name?.[0]}{student.last_name?.[0]}
                       </div>
                     )}
-                    <span
-                      className={`truncate ${isSelected ? "text-foreground" : ""}`}
-                    >
-                      {student.preferred_name ?? student.first_name}{" "}
-                      {student.last_name}
+                    <span className={`truncate text-sm font-bold ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>
+                      {student.preferred_name ?? student.first_name} {student.last_name}
                     </span>
                   </button>
                 );
@@ -399,97 +342,91 @@ export function GenerateReportsForm({
         )}
 
         {!isLoadingStudents && selectedClassId && students.length === 0 && (
-          <p className="mt-4 text-sm text-muted-foreground">
-            No active students in this class.
+          <p className="mt-6 ml-8 text-sm text-muted-foreground italic font-medium">
+            No active students found in this class.
           </p>
         )}
       </div>
 
       {/* Step 3: Term & Period */}
-      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
-        <h2 className="text-sm font-semibold text-foreground">
-          3. Reporting Period
+      <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm">
+        <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-xs">3</span>
+          Reporting Period
         </h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Set the term label and date range. Auto-populated data (attendance,
-          observations) will be pulled from this period.
+        <p className="mt-1.5 text-xs font-medium text-muted-foreground ml-8">
+          Set the term label and date range. Data will be auto-populated from this period.
         </p>
-        <div className="mt-3 grid gap-[var(--density-card-padding)] sm:grid-cols-3">
+        <div className="mt-6 ml-8 grid gap-5 sm:grid-cols-3">
           <div>
-            <label className="block text-xs font-medium text-muted-foreground">
-              Term Label <span className="text-red-500">*</span>
+            <label className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
+              Term Label <span className="text-destructive">*</span>
             </label>
             <input
               type="text"
               value={term}
               onChange={(e) => setTerm(e.target.value)}
               placeholder="e.g., Term 1 2026"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1.5 block w-full rounded-lg border border-input bg-background px-4 h-[var(--density-input-height)] text-sm shadow-sm transition-all focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground">
-              Period Start <span className="text-red-500">*</span>
+            <label className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
+              Period Start <span className="text-destructive">*</span>
             </label>
             <input
               type="date"
               value={periodStart}
               onChange={(e) => setPeriodStart(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1.5 block w-full rounded-lg border border-input bg-background px-4 h-[var(--density-input-height)] text-sm shadow-sm transition-all focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground">
-              Period End <span className="text-red-500">*</span>
+            <label className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
+              Period End <span className="text-destructive">*</span>
             </label>
             <input
               type="date"
               value={periodEnd}
               onChange={(e) => setPeriodEnd(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1.5 block w-full rounded-lg border border-input bg-background px-4 h-[var(--density-input-height)] text-sm shadow-sm transition-all focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             />
           </div>
         </div>
       </div>
 
-      {/* Error */}
       {error && (
-        <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <div className="animate-slide-down rounded-lg bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive font-bold">
           {error}
         </div>
       )}
 
-      {/* Generate button */}
-      <div className="flex items-center justify-between rounded-lg borderborder-border bg-background px-5 py-4">
-        <div className="text-sm text-muted-foreground">
+      {/* Generate button footer */}
+      <div className="sticky bottom-4 flex items-center justify-between rounded-xl border border-primary-100 bg-primary-50/80 backdrop-blur-sm px-6 py-5 shadow-lg">
+        <div className="text-sm font-medium text-primary-900">
           {selectedStudentIds.size > 0 ? (
-            <>
-              Ready to generate{" "}
-              <span className="font-medium text-foreground">
+            <div className="flex items-center gap-2">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground font-bold">
                 {selectedStudentIds.size}
-              </span>{" "}
-              report{selectedStudentIds.size !== 1 ? "s" : ""}
-              {selectedTemplateId && (
-                <>
-                  {" "}
-                  using{" "}
-                  <span className="font-medium text-foreground">
-                    {templates.find((t) => t.id === selectedTemplateId)?.name}
-                  </span>
-                </>
-              )}
-            </>
+              </span>
+              <span>
+                Report{selectedStudentIds.size !== 1 ? "s" : ""} ready to generate
+                {selectedTemplateId && (
+                  <> using <span className="font-bold underline decoration-primary/30 underline-offset-2">{templates.find((t) => t.id === selectedTemplateId)?.name}</span></>
+                )}
+              </span>
+            </div>
           ) : (
-            "Select a template and students to continue"
+            <span className="text-muted-foreground italic">Select a template and students to continue</span>
           )}
         </div>
         <button
           onClick={handleGenerate}
           disabled={!isValid || isGenerating}
-          className="rounded-md bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-amber-700 disabled:opacity-50"
+          className="rounded-lg bg-primary px-8 h-11 text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary-600 disabled:opacity-50 active:scale-95"
         >
           {isGenerating
-            ? `Generating ${selectedStudentIds.size} report${selectedStudentIds.size !== 1 ? "s" : ""}...`
+            ? `Generating ${selectedStudentIds.size} reports...`
             : `Generate ${selectedStudentIds.size} Report${selectedStudentIds.size !== 1 ? "s" : ""}`}
         </button>
       </div>

@@ -1,14 +1,4 @@
 // src/components/domain/billing/parent-billing-client.tsx
-//
-// ============================================================
-// WattleOS V2 - Parent Billing View (Client Component)
-// ============================================================
-// Read-only invoice list. Parents can:
-// • See all their invoices (excluding drafts)
-// • Click through to Stripe hosted page to pay
-// • See payment status and history
-// ============================================================
-
 "use client";
 
 import type { InvoiceStatus } from "@/lib/constants/billing";
@@ -33,21 +23,22 @@ export function ParentBillingClient({ invoices }: ParentBillingClientProps) {
 
   if (invoices.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-gray-300 bg-background py-12 text-center">
-        <p className="text-sm text-muted-foreground">No invoices yet.</p>
+      <div className="rounded-lg border border-dashed border-[var(--border-strong)] bg-[var(--card)] py-12 text-center animate-fade-in">
+        <p className="text-[var(--text-sm)] text-[var(--muted-foreground)]">No invoices yet.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-[var(--density-section-gap)] animate-fade-in">
       {/* Outstanding */}
       {outstanding.length > 0 && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-foreground">
+          <h2 className="mb-3 text-[var(--text-sm)] font-bold text-[var(--foreground)] uppercase tracking-wider flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-[var(--warning)] animate-pulse" />
             Outstanding ({outstanding.length})
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-[var(--density-md)]">
             {outstanding.map((inv) => (
               <InvoiceCard
                 key={inv.id}
@@ -65,10 +56,10 @@ export function ParentBillingClient({ invoices }: ParentBillingClientProps) {
       {/* Paid */}
       {paid.length > 0 && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-foreground">
+          <h2 className="mb-3 text-[var(--text-sm)] font-bold text-[var(--foreground)] uppercase tracking-wider">
             Paid ({paid.length})
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-[var(--density-md)]">
             {paid.map((inv) => (
               <InvoiceCard
                 key={inv.id}
@@ -86,10 +77,10 @@ export function ParentBillingClient({ invoices }: ParentBillingClientProps) {
       {/* Other (void, refunded) */}
       {other.length > 0 && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-foreground">
+          <h2 className="mb-3 text-[var(--text-sm)] font-bold text-[var(--foreground)] uppercase tracking-wider">
             Other ({other.length})
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-[var(--density-md)]">
             {other.map((inv) => (
               <InvoiceCard
                 key={inv.id}
@@ -106,10 +97,6 @@ export function ParentBillingClient({ invoices }: ParentBillingClientProps) {
     </div>
   );
 }
-
-// ============================================================
-// INVOICE CARD
-// ============================================================
 
 function InvoiceCard({
   invoice,
@@ -133,114 +120,103 @@ function InvoiceCard({
     invoice.stripe_hosted_url;
 
   return (
-    <div className="overflow-hidden rounded-lg borderborder-border bg-background shadow-sm">
-      {/* Header - always visible */}
+    <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-sm)] card-interactive">
       <button
         onClick={onToggle}
-        className="flex w-full items-center justify-between px-5 py-4 text-left hover:bg-background transition-colors"
+        className="flex w-full items-center justify-between px-[var(--density-card-padding)] py-4 text-left transition-colors hover:bg-[var(--hover-overlay)]"
       >
-        <div className="flex items-center gap-[var(--density-card-padding)]">
+        <div className="flex items-center gap-[var(--density-md)]">
           <div>
-            <p className="text-sm font-semibold text-foreground">
+            <p className="text-[var(--text-sm)] font-bold text-[var(--foreground)]">
               {invoice.invoice_number}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[var(--text-xs)] text-[var(--muted-foreground)]">
               {studentName} · Due{" "}
               {new Date(invoice.due_date).toLocaleDateString("en-AU")}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusConfig.bgColor} ${statusConfig.color}`}
+            className={`status-badge px-2.5 py-0.5 text-[10px] ${statusConfig.bgColor} ${statusConfig.color}`}
           >
             {statusConfig.label}
           </span>
-          <span className="text-sm font-bold text-foreground">
+          <span className="text-[var(--text-base)] font-bold text-[var(--foreground)] tabular-nums">
             {formatCurrency(invoice.total_cents, invoice.currency)}
           </span>
           <svg
-            className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`}
+            className={`h-4 w-4 text-[var(--muted-foreground)] transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}
             fill="none"
             viewBox="0 0 24 24"
-            strokeWidth={2}
+            strokeWidth={2.5}
             stroke="currentColor"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m19.5 8.25-7.5 7.5-7.5-7.5"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
           </svg>
         </div>
       </button>
 
-      {/* Expanded detail */}
       {expanded && (
-        <div className="border-t border-gray-100 px-5 py-4">
-          {/* Period */}
+        <div className="border-t border-[var(--border)] bg-[var(--background)]/50 px-[var(--density-card-padding)] py-4 animate-slide-down">
           {(invoice.period_start || invoice.period_end) && (
-            <p className="mb-3 text-xs text-muted-foreground">
+            <p className="mb-4 text-[var(--text-xs)] font-medium text-[var(--muted-foreground)] uppercase tracking-wider">
               Billing period:{" "}
               {invoice.period_start
                 ? new Date(invoice.period_start).toLocaleDateString("en-AU")
-                : "—"}{" "}
+                : " - "}{" "}
               to{" "}
               {invoice.period_end
                 ? new Date(invoice.period_end).toLocaleDateString("en-AU")
-                : "—"}
+                : " - "}
             </p>
           )}
 
-          {/* Line items */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             {invoice.line_items.map((li) => (
               <div key={li.id} className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-foreground">{li.description}</p>
+                  <p className="text-[var(--text-sm)] font-medium text-[var(--foreground)]">{li.description}</p>
                   {li.quantity > 1 && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[var(--text-xs)] text-[var(--muted-foreground)]">
                       {li.quantity} ×{" "}
                       {formatCurrency(li.unit_amount_cents, invoice.currency)}
                     </p>
                   )}
                 </div>
-                <span className="text-sm font-medium text-foreground">
+                <span className="text-[var(--text-sm)] font-bold text-[var(--foreground)] tabular-nums">
                   {formatCurrency(li.total_cents, invoice.currency)}
                 </span>
               </div>
             ))}
           </div>
 
-          {/* Total */}
-          <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3">
-            <span className="text-sm font-semibold text-foreground">Total</span>
-            <span className="text-sm font-bold text-foreground">
+          <div className="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-4">
+            <span className="text-[var(--text-sm)] font-bold text-[var(--foreground)]">Total Amount</span>
+            <span className="text-[var(--text-base)] font-black text-[var(--foreground)] tabular-nums">
               {formatCurrency(invoice.total_cents, invoice.currency)}
             </span>
           </div>
 
-          {/* Amount paid (if partially paid) */}
           {invoice.amount_paid_cents > 0 &&
             invoice.amount_paid_cents < invoice.total_cents && (
-              <div className="mt-1 flex items-center justify-between">
-                <span className="text-xs text-green-700">Amount paid</span>
-                <span className="text-xs font-medium text-green-700">
+              <div className="mt-2 flex items-center justify-between">
+                <span className="text-[var(--text-xs)] font-semibold text-[var(--success)]">Amount already paid</span>
+                <span className="text-[var(--text-xs)] font-bold text-[var(--success)] tabular-nums">
                   {formatCurrency(invoice.amount_paid_cents, invoice.currency)}
                 </span>
               </div>
             )}
 
-          {/* Pay button */}
           {isPayable && (
-            <div className="mt-4">
+            <div className="mt-6">
               <a
                 href={invoice.stripe_hosted_url!}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex w-full items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 transition-colors"
+                className="inline-flex w-full items-center justify-center rounded-lg bg-[var(--primary)] px-4 py-3 text-[var(--text-sm)] font-bold text-[var(--primary-foreground)] shadow-[var(--shadow-primary)] hover:bg-[var(--primary-600)] transition-all active:scale-[0.98]"
               >
-                Pay Now -{" "}
+                Pay Outstanding Balance -{" "}
                 {formatCurrency(
                   invoice.total_cents - invoice.amount_paid_cents,
                   invoice.currency,
@@ -249,12 +225,11 @@ function InvoiceCard({
             </div>
           )}
 
-          {/* Paid confirmation */}
           {invoice.status === "paid" && invoice.paid_at && (
-            <div className="mt-3 rounded-md bg-green-50 p-3">
-              <p className="text-xs font-medium text-green-700">
-                ✓ Paid on{" "}
-                {new Date(invoice.paid_at).toLocaleDateString("en-AU")}
+            <div className="mt-4 rounded-md bg-[var(--success-foreground)] p-3 border border-[var(--success)]/20 animate-fade-in">
+              <p className="text-[var(--text-xs)] font-bold text-[var(--success)] flex items-center gap-2">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                Payment received on {new Date(invoice.paid_at).toLocaleDateString("en-AU")}
               </p>
             </div>
           )}

@@ -1,17 +1,3 @@
-// src/app/(app)/admin/enrollment/applications/[id]/document-section.tsx
-//
-// ============================================================
-// WattleOS V2 - Document Section (Module 10)
-// ============================================================
-// 'use client' - displays uploaded documents for an enrollment
-// application. Admins can verify/unverify documents and add
-// notes. Verification is a compliance requirement for
-// immunization records and custody orders.
-//
-// WHY client: Verify/unverify toggles need immediate feedback
-// without a full page reload.
-// ============================================================
-
 "use client";
 
 import {
@@ -34,7 +20,7 @@ function formatFileSize(bytes: number): string {
 }
 
 function formatDate(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return " - ";
   return new Date(iso).toLocaleDateString("en-AU", {
     day: "numeric",
     month: "short",
@@ -86,15 +72,15 @@ export function DocumentSection({ documents }: DocumentSectionProps) {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white">
-      <div className="border-b border-gray-100 px-5 py-3">
-        <h2 className="text-sm font-semibold text-gray-900">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden animate-fade-in">
+      <div className="border-b border-border bg-muted/10 px-5 py-3 flex items-center justify-between">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
           Documents ({documents.length})
         </h2>
       </div>
       <div className="px-5 py-4">
         {documents.length === 0 ? (
-          <p className="text-sm text-gray-400">
+          <p className="text-sm italic text-muted-foreground/50 py-4 text-center">
             No documents uploaded with this application.
           </p>
         ) : (
@@ -102,65 +88,64 @@ export function DocumentSection({ documents }: DocumentSectionProps) {
             {documents.map((doc) => (
               <div
                 key={doc.id}
-                className={`rounded-lg border p-4 ${
+                className={`rounded-lg border p-4 transition-all animate-slide-up ${
                   doc.verified
-                    ? "border-green-200 bg-green-50"
-                    : "border-gray-100 bg-gray-50"
+                    ? "border-success/30 bg-success/5"
+                    : "border-border bg-muted/20"
                 }`}
               >
                 <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-900">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-bold text-foreground">
                         <DocumentTypeLabel type={doc.document_type} />
                       </span>
                       {doc.verified && (
-                        <span className="rounded-full bg-green-200 px-2 py-0.5 text-xs font-medium text-green-800">
-                          ✓ Verified
+                        <span className="rounded-full bg-success text-success-foreground px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter shadow-sm">
+                          Verified
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 text-xs text-gray-500">
-                      {doc.file_name} · {formatFileSize(doc.file_size_bytes)} ·
-                      Uploaded {formatDate(doc.created_at)}
+                    <p className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground/60">
+                      {doc.file_name} · {formatFileSize(doc.file_size_bytes)} · {formatDate(doc.created_at)}
                     </p>
                     {doc.verified_by && (
-                      <p className="text-xs text-green-600">
+                      <p className="text-[10px] font-medium text-success mt-1 italic">
                         Verified {formatDate(doc.verified_at)}
                       </p>
                     )}
 
-                    {/* Notes */}
+                    {/* Notes logic remains identical */}
                     {editingNotesId === doc.id ? (
-                      <div className="mt-2 flex gap-2">
+                      <div className="mt-3 flex gap-2 animate-fade-in">
                         <input
                           type="text"
                           value={notesDraft}
                           onChange={(e) => setNotesDraft(e.target.value)}
                           placeholder="Add a note…"
-                          className="flex-1 rounded border border-gray-300 px-2 py-1 text-xs focus:border-amber-500 focus:outline-none"
+                          className="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                           autoFocus
                         />
                         <button
                           onClick={() => handleSaveNotes(doc.id)}
                           disabled={isPending}
-                          className="rounded bg-amber-600 px-2 py-1 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+                          className="rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground hover:opacity-90 transition-all"
                         >
                           Save
                         </button>
                         <button
                           onClick={() => setEditingNotesId(null)}
-                          className="rounded bg-gray-200 px-2 py-1 text-xs text-gray-700 hover:bg-gray-300"
+                          className="rounded-md bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-border"
                         >
                           Cancel
                         </button>
                       </div>
                     ) : doc.notes ? (
-                      <p className="mt-1 text-xs text-gray-600">
-                        Note: {doc.notes}{" "}
+                      <p className="mt-2 text-xs text-muted-foreground bg-card/50 p-2 rounded border border-border/50">
+                        <span className="font-bold uppercase text-[9px] mr-1">Admin Note:</span> {doc.notes}{" "}
                         <button
                           onClick={() => startEditNotes(doc)}
-                          className="text-amber-600 hover:text-amber-700"
+                          className="ml-2 text-primary hover:underline font-bold"
                         >
                           edit
                         </button>
@@ -169,11 +154,11 @@ export function DocumentSection({ documents }: DocumentSectionProps) {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 ml-4">
                     {!doc.notes && editingNotesId !== doc.id && (
                       <button
                         onClick={() => startEditNotes(doc)}
-                        className="rounded bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200"
+                        className="rounded-md bg-muted/50 px-3 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-border transition-colors"
                       >
                         Note
                       </button>
@@ -181,10 +166,10 @@ export function DocumentSection({ documents }: DocumentSectionProps) {
                     <button
                       onClick={() => handleToggleVerify(doc)}
                       disabled={isPending}
-                      className={`rounded px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
+                      className={`rounded-md px-3 py-1.5 text-xs font-bold transition-all disabled:opacity-50 active:scale-95 ${
                         doc.verified
-                          ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                          : "bg-green-600 text-white hover:bg-green-700"
+                          ? "bg-muted text-muted-foreground hover:bg-border"
+                          : "bg-primary text-primary-foreground shadow-primary hover:opacity-90"
                       }`}
                     >
                       {doc.verified ? "Unverify" : "Verify"}

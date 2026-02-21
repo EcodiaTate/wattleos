@@ -323,7 +323,7 @@ function StatusGroup({
                 <td className="px-4 py-2.5 text-gray-600">
                   {app.requested_program
                     ? app.requested_program.replace(/_/g, " ")
-                    : "—"}
+                    : " - "}
                 </td>
                 <td className="px-4 py-2.5">
                   <span

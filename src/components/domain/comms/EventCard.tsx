@@ -3,8 +3,8 @@
 // WHY server component: Event cards are read-only display.
 // Clicking navigates to the detail page for RSVP actions.
 
-import Link from "next/link";
 import type { SchoolEventWithDetails } from "@/lib/actions/comms/school-events";
+import Link from "next/link";
 
 interface EventCardProps {
   event: SchoolEventWithDetails;
@@ -59,7 +59,7 @@ export function EventCard({ event, tenantSlug }: EventCardProps) {
 
   return (
     <Link
-      href={`/${tenantSlug}/comms/events/${event.id}`}
+      href={`/comms/events/${event.id}`}
       className={`block rounded-lg border transition-shadow hover:shadow-md ${
         isPast
           ? "border-gray-200 bg-gray-50 opacity-75"

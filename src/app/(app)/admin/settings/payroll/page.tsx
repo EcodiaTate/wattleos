@@ -39,7 +39,7 @@ export default async function PayrollSettingsPage() {
       <div>
         <nav className="flex items-center gap-2 text-sm text-muted-foreground">
           <Link href="/admin" className="hover:text-foreground">
-            Settings
+            Admin
           </Link>
           <span>/</span>
           <span className="text-foreground">Payroll</span>

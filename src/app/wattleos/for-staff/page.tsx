@@ -1,466 +1,384 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { MarketingFooter, MarketingNav, MarketingShell } from "../page";
+import {
+  CTABanner,
+  FeatureRow,
+  IconCalendar,
+  IconOSHC,
+  IconShield,
+  MarketingFooter,
+  MarketingNav,
+  MarketingShell,
+  PageHero,
+  SectionDescription,
+  SectionHeading,
+  SectionLabel,
+  useReveal,
+} from "../components";
 
-// ============================================================
-// Types
-// ============================================================
+function DailyOpsSection() {
+  const reveal = useReveal();
 
-interface DetailFeature {
-  icon: string;
-  title: string;
-  desc: string;
-  detail: string;
-}
-
-// ============================================================
-// Data
-// ============================================================
-
-const HERO_COLOR = "#C17D3A";
-
-const FEATURES: DetailFeature[] = [
-  {
-    icon: "📋",
-    title: "iPad Roll Call",
-    desc: "Tap through your class list in under a minute.",
-    detail:
-      "Large touch targets designed for busy mornings. Mark present, absent, or late with a single tap. Unexplained absences are automatically flagged for follow-up. The system generates regulatory-compliant attendance records without you ever touching a spreadsheet.",
-  },
-  {
-    icon: "🏥",
-    title: "Medical Alerts & Action Plans",
-    desc: "Critical health info, always one tap away.",
-    detail:
-      "Every child's medical conditions, allergies, action plans, and emergency contacts are instantly accessible. Colour-coded severity badges mean you can spot anaphylaxis risks at a glance. Medication logs are tracked digitally with timestamps and staff sign-off.",
-  },
-  {
-    icon: "📁",
-    title: "Complete Student Profiles",
-    desc: "Everything about each child, organised and current.",
-    detail:
-      "Family contacts, authorised pickups, custody arrangements, dietary requirements, learning notes, and enrolment history — all in one place. No more flipping through paper files or chasing the office for information.",
-  },
-  {
-    icon: "⏰",
-    title: "Timesheets & Leave",
-    desc: "Clock in, clock out, submit leave — all digital.",
-    detail:
-      "Simple digital timekeeping that replaces paper sign-in sheets. Submit leave requests, view your roster, and track your hours. Managers approve with a tap. Data flows directly into payroll processing.",
-  },
-  {
-    icon: "🔔",
-    title: "Announcements & Updates",
-    desc: "Stay in the loop without drowning in emails.",
-    detail:
-      "Receive school-wide and team-specific announcements through the app. Important safety alerts are prioritised. Event reminders, roster changes, and policy updates reach you where you actually see them.",
-  },
-  {
-    icon: "🛡️",
-    title: "Emergency Procedures",
-    desc: "Digital emergency rolls and headcount tools.",
-    detail:
-      "During emergency evacuations, pull up a live headcount on your device. Mark children as accounted for in real-time. The system knows exactly who should be on-site based on today's attendance and any early pickups.",
-  },
-];
-
-const QUICK_WINS: { stat: string; label: string }[] = [
-  { stat: "< 60s", label: "Morning roll call" },
-  { stat: "1 tap", label: "Access medical info" },
-  { stat: "0", label: "Paper forms to fill" },
-  { stat: "Real-time", label: "Emergency headcount" },
-];
-
-// ============================================================
-// Components
-// ============================================================
-
-function HeroBanner() {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    setTimeout(() => setVisible(true), 100);
-  }, []);
+  const ops = [
+    {
+      title: "Morning Roll Call",
+      time: "2 minutes",
+      desc: "Open the attendance screen on the classroom iPad. Tap present, tap absent. Students with medical conditions show a coloured badge - you know who has an EpiPen before the day starts.",
+      color: "#C17D3A",
+    },
+    {
+      title: "Medical Info - Instant Access",
+      time: "One tap",
+      desc: "A child mentions they feel unwell. Tap their name, see their conditions, medication locations, action plans, and emergency contacts. No walking to the office for a paper file.",
+      color: "#D4877F",
+    },
+    {
+      title: "Pickup & Dismissal",
+      time: "Tap to check out",
+      desc: "Authorised adults are listed per child with photos. If someone not on the list arrives, you know immediately. Custody restrictions are flagged - the system doesn't let you miss them.",
+      color: "#8B6F47",
+    },
+    {
+      title: "OSHC Check-in Kiosk",
+      time: "Self-service",
+      desc: "A dedicated kiosk screen at the OSHC desk. Children's names for today's session are listed. Tap to check in, tap to check out. Allergy badges visible. Feeds straight into attendance and billing.",
+      color: "#5B8C5A",
+    },
+  ];
 
   return (
     <section
       style={{
-        minHeight: "70vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        padding: "140px 24px 80px",
-        position: "relative",
-        overflow: "hidden",
+        padding: "80px 24px",
+        background: "linear-gradient(180deg, #FEFCF6 0%, #FAF5EA 100%)",
       }}
     >
       <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: `
-            radial-gradient(ellipse 70% 50% at 30% 20%, rgba(193,125,58,0.12) 0%, transparent 60%),
-            radial-gradient(ellipse 50% 40% at 80% 70%, rgba(193,125,58,0.06) 0%, transparent 50%)
-          `,
-          zIndex: 0,
-        }}
-      />
-
-      <div
-        style={{
-          maxWidth: 800,
-          margin: "0 auto",
-          position: "relative",
-          zIndex: 1,
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(30px)",
-          transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
+        ref={reveal.ref}
+        className={`section-reveal ${reveal.visible ? "visible" : ""}`}
+        style={{ maxWidth: 800, margin: "0 auto" }}
       >
-        <Link
-          href="/wattleos"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 13,
-            color: "#8B7355",
-            textDecoration: "none",
-            marginBottom: 24,
-          }}
-        >
-          ← Back to WattleOS
-        </Link>
-
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            background: `${HERO_COLOR}18`,
-            borderRadius: 100,
-            padding: "6px 18px",
-            marginBottom: 24,
-            border: `1px solid ${HERO_COLOR}30`,
-            marginLeft: 16,
-          }}
-        >
-          <span
-            style={{
-              fontSize: 13,
-              color: HERO_COLOR,
-              fontFamily: "'Outfit', sans-serif",
-              fontWeight: 600,
-            }}
-          >
-            For Staff
-          </span>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <SectionLabel color="#C17D3A">Daily Operations</SectionLabel>
+          <SectionHeading>
+            The tasks you do every day, made instant
+          </SectionHeading>
+          <SectionDescription>
+            Attendance, medical lookups, pickup authorisation, OSHC check-in -
+            all designed for speed and safety.
+          </SectionDescription>
         </div>
 
-        <h1
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(36px, 5vw, 60px)",
-            color: "#2C1810",
-            lineHeight: 1.1,
-            fontWeight: 400,
-            maxWidth: 700,
-            letterSpacing: "-0.03em",
-            marginBottom: 24,
-          }}
-        >
-          Run your classroom,
-          <br />
-          <span style={{ color: HERO_COLOR }}>not spreadsheets</span>
-        </h1>
-
-        <p
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: "clamp(17px, 2vw, 20px)",
-            color: "#6B5744",
-            lineHeight: 1.6,
-            maxWidth: 560,
-            marginBottom: 36,
-          }}
-        >
-          Attendance, medical info, student records, timesheets — all the
-          operational essentials that keep your classroom running, now digital,
-          fast, and on your iPad.
-        </p>
-
-        <Link
-          href="/wattleos#contact"
-          style={{
-            display: "inline-block",
-            background: "#2C1810",
-            color: "#FEFBF3",
-            borderRadius: 10,
-            padding: "16px 36px",
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 16,
-            fontWeight: 600,
-            textDecoration: "none",
-            letterSpacing: "0.02em",
-          }}
-        >
-          Book a Demo
-        </Link>
-      </div>
-    </section>
-  );
-}
-
-function QuickWins() {
-  return (
-    <section style={{ padding: "60px 24px", maxWidth: 900, margin: "0 auto" }}>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-          gap: 20,
-        }}
-      >
-        {QUICK_WINS.map((w, i: number) => (
-          <div
-            key={i}
-            style={{
-              background: "#FEFBF3",
-              border: "1px solid rgba(232, 168, 56, 0.12)",
-              borderRadius: 16,
-              padding: 28,
-              textAlign: "center",
-            }}
-          >
-            <p
-              style={{
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: 36,
-                color: HERO_COLOR,
-                fontWeight: 400,
-                marginBottom: 4,
-              }}
-            >
-              {w.stat}
-            </p>
-            <p
-              style={{
-                fontFamily: "'Outfit', sans-serif",
-                fontSize: 14,
-                color: "#6B5744",
-                margin: 0,
-              }}
-            >
-              {w.label}
-            </p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function FeatureDeepDive() {
-  const [expanded, setExpanded] = useState<number | null>(null);
-
-  return (
-    <section style={{ padding: "80px 24px", maxWidth: 900, margin: "0 auto" }}>
-      <div style={{ textAlign: "center", marginBottom: 56 }}>
-        <p
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 13,
-            fontWeight: 600,
-            color: HERO_COLOR,
-            textTransform: "uppercase",
-            letterSpacing: "0.12em",
-            marginBottom: 12,
-          }}
-        >
-          Built for Classroom Operations
-        </p>
-        <h2
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(28px, 3.5vw, 42px)",
-            color: "#2C1810",
-            fontWeight: 400,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          Tools that respect your time
-        </h2>
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {FEATURES.map((f: DetailFeature, i: number) => (
-          <div
-            key={i}
-            style={{
-              background: expanded === i ? "#fff" : "#FEFBF3",
-              border: `1px solid ${expanded === i ? HERO_COLOR : "rgba(232, 168, 56, 0.12)"}`,
-              borderRadius: 16,
-              overflow: "hidden",
-              transition: "all 0.3s ease",
-              cursor: "pointer",
-            }}
-            onClick={() => setExpanded(expanded === i ? null : i)}
-          >
+        <div style={{ display: "grid", gap: 20 }}>
+          {ops.map((op, i) => (
             <div
+              key={i}
               style={{
-                padding: "24px 28px",
+                background: "#fff",
+                borderRadius: 16,
+                padding: "30px 28px",
+                border: "1px solid rgba(44, 24, 16, 0.05)",
                 display: "flex",
+                gap: 24,
                 alignItems: "flex-start",
-                gap: 16,
+                flexWrap: "wrap",
               }}
             >
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 12,
-                  background: `${HERO_COLOR}15`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 20,
-                  flexShrink: 0,
-                }}
-              >
-                {f.icon}
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3
+              <div style={{ flex: "1 1 400px" }}>
+                <div
                   style={{
-                    fontFamily: "'DM Serif Display', Georgia, serif",
-                    fontSize: 20,
-                    color: "#2C1810",
-                    fontWeight: 400,
-                    marginBottom: 4,
+                    display: "flex",
+                    alignItems: "baseline",
+                    gap: 12,
+                    marginBottom: 8,
                   }}
                 >
-                  {f.title}
-                </h3>
+                  <h4
+                    style={{
+                      fontFamily: "'Fraunces', Georgia, serif",
+                      fontSize: 20,
+                      color: "#2C1810",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {op.title}
+                  </h4>
+                  <span
+                    style={{
+                      fontFamily: "'Outfit', sans-serif",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: op.color,
+                      background: `${op.color}0D`,
+                      padding: "3px 12px",
+                      borderRadius: 100,
+                    }}
+                  >
+                    {op.time}
+                  </span>
+                </div>
                 <p
                   style={{
                     fontFamily: "'Outfit', sans-serif",
                     fontSize: 15,
                     color: "#6B5744",
+                    lineHeight: 1.65,
                     margin: 0,
-                    lineHeight: 1.5,
                   }}
                 >
-                  {f.desc}
+                  {op.desc}
                 </p>
-              </div>
-              <div
-                style={{
-                  fontSize: 18,
-                  color: "#8B7355",
-                  transform: expanded === i ? "rotate(180deg)" : "rotate(0)",
-                  transition: "transform 0.3s ease",
-                  flexShrink: 0,
-                  marginTop: 4,
-                }}
-              >
-                ▼
               </div>
             </div>
-            {expanded === i && (
-              <div
-                style={{
-                  padding: "0 28px 24px 88px",
-                  animation: "fadeIn 0.3s ease",
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: "'Outfit', sans-serif",
-                    fontSize: 15,
-                    color: "#5C4A32",
-                    lineHeight: 1.7,
-                    margin: 0,
-                  }}
-                >
-                  {f.detail}
-                </p>
-              </div>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
-function CTABanner() {
+function StudentRecordsSection() {
+  const reveal = useReveal();
+
+  const fields = [
+    "Demographics & photo",
+    "Class enrolment history",
+    "Guardian & family links",
+    "Medical conditions & action plans",
+    "Emergency contacts (priority ordered)",
+    "Custody restrictions & court orders",
+    "Allergy severity badges",
+    "Medication name & storage location",
+    "Consent flags (media, directory)",
+    "Pickup authorisation list",
+    "Attendance history & patterns",
+    "Notes & admin comments",
+  ];
+
+  return (
+    <section style={{ padding: "80px 24px 100px" }}>
+      <div
+        ref={reveal.ref}
+        className={`section-reveal ${reveal.visible ? "visible" : ""}`}
+        style={{ maxWidth: 800, margin: "0 auto" }}
+      >
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <SectionLabel color="#8B6F47">Student Records</SectionLabel>
+          <SectionHeading>
+            Complete student files, not scattered spreadsheets
+          </SectionHeading>
+          <SectionDescription>
+            Every piece of information about a student lives in one record.
+            Entered once during enrolment, updated by parents through the
+            portal, accessible to staff based on their permissions.
+          </SectionDescription>
+        </div>
+
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 18,
+            padding: "36px 32px",
+            border: "1px solid rgba(44, 24, 16, 0.06)",
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+              gap: "12px 28px",
+            }}
+          >
+            {fields.map((f, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: 14,
+                  color: "#5C4A32",
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <circle cx="7" cy="7" r="7" fill="rgba(139, 111, 71, 0.1)" />
+                  <path
+                    d="M4.5 7l1.8 1.8 3.2-3.2"
+                    stroke="#8B6F47"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                {f}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div
+          style={{
+            marginTop: 28,
+            background: "rgba(193, 125, 58, 0.04)",
+            borderRadius: 14,
+            padding: "24px 28px",
+            border: "1px solid rgba(193, 125, 58, 0.1)",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "'Outfit', sans-serif",
+              fontSize: 15,
+              color: "#5C4A32",
+              lineHeight: 1.65,
+              margin: 0,
+            }}
+          >
+            <strong style={{ color: "#2C1810" }}>
+              Permission-controlled access.
+            </strong>{" "}
+            Not everyone sees everything. Medical records require the{" "}
+            <em>view_medical_records</em> permission. Custody restrictions
+            require <em>manage_safety_records</em>. An assistant guide sees what
+            they need for safety - an admin sees the full picture. Every access
+            is logged in the audit trail.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TimesheetsSection() {
+  const reveal = useReveal();
+
   return (
     <section
       style={{
         padding: "80px 24px",
-        background: "#2C1810",
-        textAlign: "center",
+        background: "linear-gradient(180deg, #FAF5EA 0%, #FEFCF6 100%)",
       }}
     >
-      <div style={{ maxWidth: 600, margin: "0 auto" }}>
-        <h2
+      <div
+        ref={reveal.ref}
+        className={`section-reveal ${reveal.visible ? "visible" : ""}`}
+        style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}
+      >
+        <SectionLabel color="#5B8C5A">Timesheets & Scheduling</SectionLabel>
+        <SectionHeading>
+          Log hours. Get approved. Push to payroll.
+        </SectionHeading>
+        <SectionDescription maxWidth={560}>
+          WattleOS captures timesheets and pushes approved hours to your payroll
+          system. It does not calculate award rates, tax, or superannuation -
+          that&apos;s what Xero and KeyPay are for. What it does is eliminate
+          the paper timesheets and manual data entry that sits between &quot;I
+          worked today&quot; and &quot;I got paid correctly.&quot;
+        </SectionDescription>
+
+        <div
           style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: "clamp(28px, 3.5vw, 42px)",
-            color: "#FEFBF3",
-            fontWeight: 400,
-            letterSpacing: "-0.02em",
-            marginBottom: 16,
+            display: "flex",
+            gap: 12,
+            justifyContent: "center",
+            marginTop: 36,
+            flexWrap: "wrap",
           }}
         >
-          Less admin, more time with children
-        </h2>
-        <p
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 17,
-            color: "rgba(254, 251, 243, 0.7)",
-            lineHeight: 1.6,
-            marginBottom: 32,
-          }}
-        >
-          See how WattleOS simplifies your daily operations.
-        </p>
-        <Link
-          href="/wattleos#contact"
-          style={{
-            display: "inline-block",
-            background: HERO_COLOR,
-            color: "#fff",
-            borderRadius: 10,
-            padding: "16px 40px",
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 16,
-            fontWeight: 600,
-            textDecoration: "none",
-            letterSpacing: "0.02em",
-          }}
-        >
-          Book a Demo
-        </Link>
+          {[
+            "Log hours against your roster",
+            "Head of School approves",
+            "Approved hours push to Xero/KeyPay",
+            "Payroll handles the rest",
+          ].map((step, i) => (
+            <div
+              key={i}
+              style={{ display: "flex", alignItems: "center", gap: 8 }}
+            >
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  background: "rgba(91,140,90,0.08)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontFamily: "'Fraunces', Georgia, serif",
+                  fontSize: 13,
+                  color: "#5B8C5A",
+                  fontWeight: 600,
+                }}
+              >
+                {i + 1}
+              </div>
+              <span
+                style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: 14,
+                  color: "#5C4A32",
+                }}
+              >
+                {step}
+              </span>
+              {i < 3 && (
+                <span style={{ color: "#C17D3A", fontSize: 16, marginLeft: 4 }}>
+                  →
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
-
-// ============================================================
-// Page Export
-// ============================================================
 
 export default function ForStaffPage() {
   return (
     <MarketingShell>
       <MarketingNav />
-      <HeroBanner />
-      <QuickWins />
-      <FeatureDeepDive />
+      <PageHero
+        label="For Staff"
+        labelColor="#C17D3A"
+        title={
+          <>
+            Less clipboard,
+            <br />
+            <span style={{ color: "#C17D3A" }}>more classroom</span>
+          </>
+        }
+        description="Attendance, medical info, timesheets, student records - the operational tasks that eat your day, rebuilt for speed and safety on a tablet."
+      />
+
+      <section style={{ padding: "0 24px 60px" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <FeatureRow
+            icon={<IconShield size={28} color="#C17D3A" />}
+            title="Roll call in seconds, not minutes"
+            description="Open the attendance view for your class. Tap present, tap absent. Children with medical conditions are flagged with severity badges - a red badge for life-threatening allergies means you know about the EpiPen before the first work cycle. Late arrivals update the record in real time. Unexplained absences trigger an alert to the office."
+            color="#C17D3A"
+          />
+          <FeatureRow
+            icon={<IconCalendar size={28} color="#8B6F47" />}
+            title="Medical info when it matters"
+            description="A child says they feel sick. You don't walk to the office - you tap their name. Conditions, severity, action plans, medication locations, emergency contacts in priority order. Custody restrictions flagged for pickup. Every lookup is logged in the audit trail for compliance. Information that was buried in a filing cabinet is now one tap away."
+            color="#8B6F47"
+            reverse
+          />
+          <FeatureRow
+            icon={<IconOSHC size={28} color="#5B8C5A" />}
+            title="OSHC kiosk built for the front desk"
+            description="A full-screen check-in view designed for the iPad at your OSHC desk. Today's booked children are listed. Tap to check in, tap to check out. Allergy badges show next to each name. If a child isn't on today's list, you know immediately. Check-in times feed into attendance records and billing - no double entry."
+            color="#5B8C5A"
+          />
+        </div>
+      </section>
+
+      <DailyOpsSection />
+      <StudentRecordsSection />
+      <TimesheetsSection />
       <CTABanner />
       <MarketingFooter />
     </MarketingShell>
