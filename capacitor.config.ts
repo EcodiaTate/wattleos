@@ -13,7 +13,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 import { KeyboardResize } from "@capacitor/keyboard";
 
 const config: CapacitorConfig = {
-  appId: "au.wattleos.app",
+  appId: "au.ecodia.wattleos",
   appName: "WattleOS",
   webDir: "public", // Fallback only - not used when server.url is set
 
