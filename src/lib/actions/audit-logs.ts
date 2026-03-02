@@ -329,7 +329,7 @@ export async function getAuditLogFilterOptions(): Promise<
 // in a period should narrow their filters.
 //
 // COLUMNS: Matches what an auditor or compliance officer would
-// need — timestamp, user, action, entity, sensitivity, IP,
+// need - timestamp, user, action, entity, sensitivity, IP,
 // plus flattened metadata for forensic detail.
 // ============================================================
 

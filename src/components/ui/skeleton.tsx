@@ -13,7 +13,7 @@ function Skeleton({
 }) {
   return (
     <div
-      className={`animate-pulse rounded-md bg-muted/60 ${className}`}
+      className={`skeleton-shimmer rounded-md ${className}`}
       style={style}
     />
   );

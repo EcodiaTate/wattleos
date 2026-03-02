@@ -47,7 +47,7 @@ interface ProfileConfig {
 interface FileTypeCheck {
   mime: string;
   label: string;
-  /** Magic byte signatures — file must start with one of these */
+  /** Magic byte signatures - file must start with one of these */
   signatures: readonly Uint8Array[];
   extensions: string[];
 }
@@ -89,7 +89,7 @@ const SIGNATURES = {
   // MP4/MOV: "ftyp" at offset 4 (same container as HEIC but different ftyp brands)
   MP4: [new Uint8Array([0x66, 0x74, 0x79, 0x70])], // Checked at offset 4
 
-  // CSV/TXT: No magic bytes — validated by extension + content check
+  // CSV/TXT: No magic bytes - validated by extension + content check
   // Excel XLSX: PK (zip) signature
   ZIP: [new Uint8Array([0x50, 0x4b, 0x03, 0x04])],
 
@@ -154,7 +154,7 @@ const FILE_TYPES: Record<string, FileTypeCheck> = {
   csv: {
     mime: "text/csv",
     label: "CSV file",
-    signatures: [], // Text-based — no magic bytes, validated by content
+    signatures: [], // Text-based - no magic bytes, validated by content
     extensions: [".csv"],
   },
   xlsx: {
@@ -274,7 +274,7 @@ export function validateUpload(
   // 2. Check magic bytes against allowed types
   for (const typeCheck of config.allowedTypes) {
     if (typeCheck.signatures.length === 0) {
-      // Text-based format (CSV) — validate by extension
+      // Text-based format (CSV) - validate by extension
       const ext = getExtension(fileName);
       if (typeCheck.extensions.includes(ext)) {
         // Additional CSV sanity check: first bytes should be printable ASCII
@@ -380,14 +380,14 @@ function getExtension(fileName: string): string {
 }
 
 function isLikelyTextFile(buffer: Buffer | Uint8Array): boolean {
-  // Check first 512 bytes — should be printable ASCII/UTF-8
+  // Check first 512 bytes - should be printable ASCII/UTF-8
   const checkLength = Math.min(buffer.length, 512);
   for (let i = 0; i < checkLength; i++) {
     const byte = buffer[i];
     // Allow printable ASCII (32-126), tab (9), newline (10), carriage return (13)
     // Also allow bytes >= 128 for UTF-8 multi-byte sequences
     if (byte < 9 || (byte > 13 && byte < 32 && byte !== 27)) {
-      // Found a non-text byte — likely binary
+      // Found a non-text byte - likely binary
       return false;
     }
   }

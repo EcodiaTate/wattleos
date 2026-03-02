@@ -13,21 +13,23 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const metadata = { title: "Announcement Detail - WattleOS" };
+
 interface AnnouncementDetailPageProps {
-  params: Promise<{ tenant: string; id: string }>;
+  params: Promise<{ id: string }>;
 }
 
 const PRIORITY_STYLES: Record<string, string> = {
-  urgent: "bg-red-100 text-red-700",
-  high: "bg-orange-100 text-orange-700",
-  normal: "bg-gray-100 text-gray-600",
-  low: "bg-blue-100 text-blue-600",
+  urgent: "bg-destructive/15 text-destructive",
+  high: "bg-primary/15 text-primary",
+  normal: "bg-muted text-muted-foreground",
+  low: "bg-info/15 text-info",
 };
 
 export default async function AnnouncementDetailPage({
   params,
 }: AnnouncementDetailPageProps) {
-  const { tenant, id } = await params;
+  const { id } = await params;
 
   const result = await getAnnouncement(id);
   if (result.error || !result.data) {
@@ -40,8 +42,8 @@ export default async function AnnouncementDetailPage({
     total_acknowledged: number;
     acknowledgers: Array<{
       id: string;
-      first_name: string;
-      last_name: string;
+      first_name: string | null;
+      last_name: string | null;
       acknowledged_at: string;
     }>;
   } | null = null;
@@ -74,7 +76,7 @@ export default async function AnnouncementDetailPage({
       {/* ── Back link ─────────────────────────────────── */}
       <Link
         href={`/comms/announcements`}
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         <svg
           className="h-4 w-4"
@@ -93,7 +95,7 @@ export default async function AnnouncementDetailPage({
       </Link>
 
       {/* ── Announcement Content ──────────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-white">
+      <div className="rounded-lg border border-border bg-card">
         <div className="p-6 space-y-4">
           {/* Badges */}
           <div className="flex flex-wrap items-center gap-2">
@@ -104,7 +106,7 @@ export default async function AnnouncementDetailPage({
                 announcement.priority.slice(1)}{" "}
               Priority
             </span>
-            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+            <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
               {announcement.scope === "school"
                 ? "School-wide"
                 : announcement.scope === "class"
@@ -112,44 +114,44 @@ export default async function AnnouncementDetailPage({
                   : "Program"}
             </span>
             {isDraft && !isScheduled && (
-              <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
+              <span className="rounded-full bg-warning/15 px-3 py-1 text-xs font-medium text-warning">
                 Draft
               </span>
             )}
             {isScheduled && (
-              <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-700">
+              <span className="rounded-full bg-info/15 px-3 py-1 text-xs font-medium text-info">
                 Scheduled
               </span>
             )}
             {isExpired && (
-              <span className="rounded-full bg-gray-200 px-3 py-1 text-xs font-medium text-gray-500">
+              <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
                 Expired
               </span>
             )}
             {announcement.pin_to_top && (
-              <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">
+              <span className="rounded-full bg-primary/15 px-3 py-1 text-xs font-medium text-primary">
                 Pinned
               </span>
             )}
           </div>
 
           {/* Title */}
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-foreground">
             {announcement.title}
           </h2>
 
           {/* Author + Date */}
-          <div className="flex items-center gap-3 text-sm text-gray-500">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-xs font-medium text-amber-700">
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-xs font-medium text-primary">
               {announcement.author.first_name?.[0]}
               {announcement.author.last_name?.[0]}
             </div>
             <div>
-              <p className="font-medium text-gray-700">
+              <p className="font-medium text-foreground">
                 {announcement.author.first_name} {announcement.author.last_name}
               </p>
               {publishedDate && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Published {publishedDate}
                 </p>
               )}
@@ -157,7 +159,7 @@ export default async function AnnouncementDetailPage({
           </div>
 
           {/* Body */}
-          <div className="prose prose-sm max-w-none pt-2 text-gray-700">
+          <div className="prose prose-sm max-w-none pt-2 text-foreground">
             {announcement.body.split("\n").map((line, i) => (
               <p key={i}>{line}</p>
             ))}
@@ -165,8 +167,8 @@ export default async function AnnouncementDetailPage({
 
           {/* Attachments */}
           {announcement.attachment_urls.length > 0 && (
-            <div className="border-t border-gray-100 pt-4">
-              <h4 className="text-sm font-medium text-gray-700">Attachments</h4>
+            <div className="border-t border-border pt-4">
+              <h4 className="text-sm font-medium text-foreground">Attachments</h4>
               <div className="mt-2 space-y-2">
                 {announcement.attachment_urls.map((att, i) => (
                   <a
@@ -174,10 +176,10 @@ export default async function AnnouncementDetailPage({
                     href={att.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:bg-muted"
                   >
                     <svg
-                      className="h-4 w-4 text-gray-400"
+                      className="h-4 w-4 text-muted-foreground"
                       fill="none"
                       viewBox="0 0 24 24"
                       strokeWidth={1.5}
@@ -198,7 +200,7 @@ export default async function AnnouncementDetailPage({
 
           {/* Scheduling info */}
           {isScheduled && announcement.scheduled_for && (
-            <div className="rounded-lg bg-purple-50 p-3 text-sm text-purple-700">
+            <div className="rounded-lg bg-info/10 p-3 text-sm text-info">
               Scheduled to publish on{" "}
               {new Date(announcement.scheduled_for).toLocaleDateString(
                 "en-AU",
@@ -215,7 +217,7 @@ export default async function AnnouncementDetailPage({
           )}
 
           {announcement.expires_at && !isExpired && (
-            <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">
+            <div className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
               Expires on{" "}
               {new Date(announcement.expires_at).toLocaleDateString("en-AU", {
                 day: "numeric",
@@ -227,11 +229,10 @@ export default async function AnnouncementDetailPage({
         </div>
 
         {/* ── Staff Actions ───────────────────────────── */}
-        <div className="border-t border-gray-200 px-6 py-4">
+        <div className="border-t border-border px-6 py-4">
           <AnnouncementActions
             announcementId={announcement.id}
             isDraft={isDraft}
-            tenantSlug={tenant}
           />
         </div>
       </div>

@@ -1,6 +1,7 @@
 // src/components/domain/reports/TemplateActions.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import {
   deleteReportTemplate,
   duplicateReportTemplate,
@@ -91,6 +92,7 @@ export function TemplateActions({
 
       {isOpen && (
         <div className="absolute right-0 z-10 mt-1 w-44 animate-scale-in rounded-lg border border-border bg-popover py-1 shadow-lg">
+          <GlowTarget id="reports-btn-duplicate-template" category="button" label="Duplicate template">
           <button
             onClick={handleDuplicate}
             className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
@@ -110,6 +112,8 @@ export function TemplateActions({
             </svg>
             Duplicate
           </button>
+          </GlowTarget>
+          <GlowTarget id="reports-btn-export-template" category="button" label={isActive ? "Deactivate template" : "Activate template"}>
           <button
             onClick={handleToggleActive}
             className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
@@ -155,7 +159,9 @@ export function TemplateActions({
               </>
             )}
           </button>
+          </GlowTarget>
           <div className="my-1 border-t border-border" />
+          <GlowTarget id="reports-btn-delete-template" category="button" label="Delete template">
           <button
             onClick={handleDelete}
             className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-destructive transition-colors hover:bg-destructive/10"
@@ -175,6 +181,7 @@ export function TemplateActions({
             </svg>
             Delete
           </button>
+          </GlowTarget>
         </div>
       )}
 

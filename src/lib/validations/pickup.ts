@@ -1,7 +1,7 @@
 // src/lib/validations/pickup.ts
 //
 // ============================================================
-// Zod Schemas — Pickup Authorizations
+// Zod Schemas - Pickup Authorizations
 // ============================================================
 // Tier 2: Authenticated but SAFETY-CRITICAL. Controls who is
 // physically allowed to collect a child from school. Wrong

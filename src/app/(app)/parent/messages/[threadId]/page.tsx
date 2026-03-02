@@ -18,6 +18,8 @@ interface ParentThreadPageProps {
   params: Promise<{ threadId: string }>;
 }
 
+export const metadata = { title: "Message Thread - WattleOS" };
+
 export default async function ParentThreadPage({
   params,
 }: ParentThreadPageProps) {
@@ -56,7 +58,7 @@ export default async function ParentThreadPage({
       </Link>
 
       {/* Thread header */}
-      <div className="rounded-lg borderborder-border bg-background px-6 py-4 shadow-sm">
+      <div className="rounded-lg border border-border bg-background px-6 py-4 shadow-sm">
         <h1 className="text-lg font-semibold text-foreground">
           {thread.subject || "Conversation"}
         </h1>

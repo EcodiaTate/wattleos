@@ -76,7 +76,7 @@ export function TenantPickerClient({
   return (
     <div className="space-y-3">
       {error && (
-        <div className="rounded-md bg-red-50 p-[var(--density-card-padding)] text-sm text-red-700">
+        <div className="rounded-md bg-destructive/10 p-[var(--density-card-padding)] text-sm text-destructive">
           {error}
         </div>
       )}
@@ -92,9 +92,9 @@ export function TenantPickerClient({
             key={tenant.tenantId}
             onClick={() => handleSelect(tenant.tenantId)}
             disabled={isLoading !== null}
-            className="flex w-full items-center gap-[var(--density-card-padding)] rounded-lg border border-border p-[var(--density-card-padding)] text-left transition-colors hover:border-amber-300 hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full items-center gap-[var(--density-card-padding)] rounded-lg border border-border p-[var(--density-card-padding)] text-left transition-colors hover:border-primary/30 hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <div className="flex h-[var(--density-button-height)] w-12 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100 text-lg font-bold text-amber-700">
+            <div className="flex h-[var(--density-button-height)] w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/15 text-lg font-bold text-primary">
               {tenant.logoUrl ? (
                 <img
                   src={tenant.logoUrl}

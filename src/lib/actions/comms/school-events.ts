@@ -31,6 +31,7 @@ import {
   success,
 } from "@/types/api";
 import type { Class, User } from "@/types/domain";
+import { logAudit, AuditActions } from "@/lib/utils/audit";
 
 // ============================================================
 // Types
@@ -228,7 +229,16 @@ export async function createEvent(
       return failure(error.message, ErrorCodes.CREATE_FAILED);
     }
 
-    return success(data as SchoolEvent);
+    const created = data as SchoolEvent;
+    await logAudit({
+      context,
+      action: AuditActions.EVENT_CREATED,
+      entityType: "school_event",
+      entityId: created.id,
+      metadata: { title: created.title, event_type: created.event_type, scope: created.scope },
+    });
+
+    return success(created);
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to create event";
@@ -245,7 +255,7 @@ export async function updateEvent(
   input: UpdateEventInput,
 ): Promise<ActionResponse<SchoolEvent>> {
   try {
-    await requirePermission(Permissions.MANAGE_EVENTS);
+    const context = await requirePermission(Permissions.MANAGE_EVENTS);
     const supabase = await createSupabaseServerClient();
 
     const updateData: Record<string, unknown> = {};
@@ -291,6 +301,14 @@ export async function updateEvent(
       return failure(error.message, ErrorCodes.UPDATE_FAILED);
     }
 
+    await logAudit({
+      context,
+      action: AuditActions.EVENT_UPDATED,
+      entityType: "school_event",
+      entityId: eventId,
+      metadata: { changed_fields: Object.keys(updateData) },
+    });
+
     return success(data as SchoolEvent);
   } catch (err) {
     const message =
@@ -307,7 +325,7 @@ export async function deleteEvent(
   eventId: string,
 ): Promise<ActionResponse<{ deleted: boolean }>> {
   try {
-    await requirePermission(Permissions.MANAGE_EVENTS);
+    const context = await requirePermission(Permissions.MANAGE_EVENTS);
     const supabase = await createSupabaseServerClient();
 
     const { error } = await supabase
@@ -319,6 +337,13 @@ export async function deleteEvent(
     if (error) {
       return failure(error.message, ErrorCodes.DELETE_FAILED);
     }
+
+    await logAudit({
+      context,
+      action: AuditActions.EVENT_DELETED,
+      entityType: "school_event",
+      entityId: eventId,
+    });
 
     return success({ deleted: true });
   } catch (err) {
@@ -843,6 +868,14 @@ export async function respondToEvent(
     if (error) {
       return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
+
+    await logAudit({
+      context,
+      action: AuditActions.EVENT_RSVP_SUBMITTED,
+      entityType: "event_rsvp",
+      entityId: eventId,
+      metadata: { status: rsvpStatus, guests },
+    });
 
     return success(data as EventRSVP);
   } catch (err) {

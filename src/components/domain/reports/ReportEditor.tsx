@@ -1,6 +1,7 @@
 // src/components/domain/reports/ReportEditor.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type { ReportCompletionStats } from "@/lib/actions/reports";
 import { updateReportContent, updateReportStatus } from "@/lib/actions/reports";
 import type {
@@ -220,6 +221,7 @@ export function ReportEditor({
 
         <div className="flex items-center gap-2">
           {isEditable && (
+            <GlowTarget id="reports-btn-save-report" category="button" label="Save report">
             <button
               onClick={handleSave}
               disabled={isSaving || !hasChanges}
@@ -227,6 +229,7 @@ export function ReportEditor({
             >
               {isSaving ? "Saving..." : "Save"}
             </button>
+            </GlowTarget>
           )}
           {statusConfig.actions.map((action) => (
             <button
@@ -260,6 +263,7 @@ export function ReportEditor({
         </div>
       )}
 
+      <GlowTarget id="reports-section-editor" category="section" label="Report editor sections">
       <div className="space-y-4">
         {sections.map((section) => (
           <ReportSection
@@ -271,6 +275,7 @@ export function ReportEditor({
           />
         ))}
       </div>
+      </GlowTarget>
     </div>
   );
 }
@@ -549,7 +554,7 @@ function AutoDataRenderer({
                 {obs.outcomes.map((outcome, i) => (
                   <span
                     key={i}
-                    className="status-badge bg-primary-50 text-primary-700 text-[10px] font-bold px-2 py-0 status-badge-plain"
+                    className="status-badge bg-primary-50 text-primary text-[10px] font-bold px-2 py-0 status-badge-plain"
                   >
                     {outcome}
                   </span>

@@ -25,6 +25,8 @@ import { Permissions } from "@/lib/constants/permissions";
 
 import { AuditLogClient } from "./audit-log-client";
 
+export const metadata = { title: "Audit Logs - WattleOS" };
+
 export default async function AuditLogsPage() {
   const context = await getTenantContext();
 

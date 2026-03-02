@@ -13,6 +13,8 @@ import { ParentInboxClient } from "@/components/domain/comms/parent-inbox-client
 import { getInbox } from "@/lib/actions/comms/messaging";
 import { getTenantContext } from "@/lib/auth/tenant-context";
 
+export const metadata = { title: "Messages - WattleOS" };
+
 export default async function ParentMessagesPage() {
   const context = await getTenantContext();
 

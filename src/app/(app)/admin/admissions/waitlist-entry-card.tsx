@@ -34,8 +34,8 @@ function PriorityBadge({ priority }: { priority: number }) {
 
   const isHigh = priority >= 5;
   const colorClasses = isHigh
-    ? "bg-red-50 text-red-700 ring-red-600/20"
-    : "bg-amber-50 text-amber-700 ring-amber-600/20";
+    ? "bg-destructive/10 text-destructive ring-destructive/20"
+    : "bg-primary/10 text-primary ring-primary/20";
 
   return (
     <span
@@ -57,9 +57,9 @@ function getDaysWaiting(inquiryDate: string): number {
 }
 
 function DaysWaitingBadge({ days }: { days: number }) {
-  let colorClasses = "text-gray-500";
-  if (days > 180) colorClasses = "text-red-600 font-semibold";
-  else if (days > 90) colorClasses = "text-amber-600";
+  let colorClasses = "text-muted-foreground";
+  if (days > 180) colorClasses = "text-destructive font-semibold";
+  else if (days > 90) colorClasses = "text-primary";
 
   return (
     <span className={`text-[11px] ${colorClasses}`} title="Days in pipeline">
@@ -80,7 +80,7 @@ function OfferExpiryWarning({ expiresAt }: { expiresAt: string | null }) {
 
   if (daysLeft < 0) {
     return (
-      <span className="text-[10px] font-semibold text-red-600">
+      <span className="text-[10px] font-semibold text-destructive">
         Offer expired
       </span>
     );
@@ -88,7 +88,7 @@ function OfferExpiryWarning({ expiresAt }: { expiresAt: string | null }) {
 
   if (daysLeft <= 3) {
     return (
-      <span className="text-[10px] font-semibold text-amber-600">
+      <span className="text-[10px] font-semibold text-primary">
         Expires in {daysLeft}d
       </span>
     );
@@ -109,7 +109,7 @@ export function WaitlistEntryCard({
   const parentName = `${entry.parent_first_name} ${entry.parent_last_name}`;
 
   return (
-    <div className="group rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+    <div className="group rounded-lg border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
       {/* Card body - links to detail page */}
       <Link
         href={`/admin/admissions/${entry.id}`}
@@ -118,10 +118,10 @@ export function WaitlistEntryCard({
         {/* Top row: child name + priority + days */}
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-gray-900">
+            <p className="truncate text-sm font-semibold text-foreground">
               {childName}
             </p>
-            <p className="truncate text-xs text-gray-500">{parentName}</p>
+            <p className="truncate text-xs text-muted-foreground">{parentName}</p>
           </div>
           <div className="flex flex-shrink-0 items-center gap-1.5">
             <PriorityBadge priority={entry.priority} />
@@ -132,11 +132,11 @@ export function WaitlistEntryCard({
         {/* Program + DOB */}
         <div className="mt-1.5 flex items-center gap-2">
           {entry.requested_program && (
-            <span className="inline-flex items-center rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-600">
+            <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
               {entry.requested_program}
             </span>
           )}
-          <span className="text-[10px] text-gray-400">
+          <span className="text-[10px] text-muted-foreground">
             DOB:{" "}
             {new Date(entry.child_date_of_birth).toLocaleDateString("en-AU", {
               day: "numeric",
@@ -156,7 +156,7 @@ export function WaitlistEntryCard({
         {/* Tour date (for tour_scheduled) */}
         {entry.stage === "tour_scheduled" && entry.tour_date && (
           <div className="mt-1">
-            <span className="text-[10px] text-teal-600">
+            <span className="text-[10px] text-success">
               Tour:{" "}
               {new Date(entry.tour_date).toLocaleDateString("en-AU", {
                 weekday: "short",
@@ -172,7 +172,7 @@ export function WaitlistEntryCard({
         {/* Siblings flag */}
         {entry.siblings_at_school && (
           <div className="mt-1">
-            <span className="text-[10px] text-purple-600">
+            <span className="text-[10px] text-info">
               🏫 Sibling at school
             </span>
           </div>
@@ -181,21 +181,21 @@ export function WaitlistEntryCard({
 
       {/* Action bar - only visible on hover or when canManage */}
       {canManage && (
-        <div className="flex border-t border-gray-100 px-2 py-1.5">
+        <div className="flex border-t border-border px-2 py-1.5">
           <button
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               onMoveClick();
             }}
-            className="flex-1 rounded px-2 py-1 text-[11px] font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+            className="flex-1 rounded px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             Move →
           </button>
           <Link
             href={`mailto:${entry.parent_email}`}
             onClick={(e) => e.stopPropagation()}
-            className="rounded px-2 py-1 text-[11px] font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+            className="rounded px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             Email
           </Link>

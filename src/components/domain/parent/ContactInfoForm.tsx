@@ -9,6 +9,7 @@
 
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { updateContactInfo } from "@/lib/actions/parent";
 import { useState, useTransition } from "react";
 
@@ -69,11 +70,11 @@ export function ContactInfoForm({
         </div>
         <button
           onClick={() => setIsEditing(true)}
-          className="text-xs font-medium text-primary hover:text-amber-700"
+          className="text-xs font-medium text-primary hover:text-primary"
         >
           Edit
         </button>
-        {saved && <span className="text-xs text-green-600">Saved</span>}
+        {saved && <span className="text-xs text-success">Saved</span>}
       </div>
     );
   }
@@ -81,30 +82,34 @@ export function ContactInfoForm({
   return (
     <div className="mt-2 space-y-2">
       <div className="flex items-center gap-2">
-        <input
-          type="tel"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder="e.g., 0412 345 678"
-          autoFocus
-          className="block w-full max-w-xs rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-        />
-        <button
-          onClick={handleSave}
-          disabled={isPending}
-          className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
-        >
-          {isPending ? "Saving..." : "Save"}
-        </button>
+        <GlowTarget id="parent-input-phone" category="input" label="Phone number">
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="e.g., 0412 345 678"
+            autoFocus
+            className="block w-full max-w-xs rounded-md border border-border px-3 py-1.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+        </GlowTarget>
+        <GlowTarget id="parent-btn-save-contact" category="button" label="Save contact info">
+          <button
+            onClick={handleSave}
+            disabled={isPending}
+            className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary disabled:opacity-50"
+          >
+            {isPending ? "Saving..." : "Save"}
+          </button>
+        </GlowTarget>
         <button
           onClick={handleCancel}
           disabled={isPending}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-background"
+          className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-background"
         >
           Cancel
         </button>
       </div>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }

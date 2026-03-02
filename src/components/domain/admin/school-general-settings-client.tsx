@@ -10,7 +10,7 @@
 // WHY separate client component: The general settings form
 // needs interactivity (file upload, form state, optimistic
 // preview). The server page fetches initial data and passes
-// it as props — fast, no loading state.
+// it as props - fast, no loading state.
 //
 // WHY router.refresh() on save: Same pattern as appearance
 // settings. Re-runs server components so the sidebar picks up
@@ -19,6 +19,7 @@
 
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import {
   deleteTenantLogo,
   updateTenantGeneralSettings,
@@ -61,9 +62,9 @@ export function SchoolGeneralSettingsClient({
   const [settings, setSettings] =
     useState<TenantGeneralSettings>(initialSettings);
   const [isPending, startTransition] = useTransition();
-  const [saveStatus, setSaveStatus] = useState<
-    "idle" | "saved" | "error"
-  >("idle");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saved" | "error">(
+    "idle",
+  );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // ── Logo upload state ─────────────────────────────────────
@@ -182,9 +183,7 @@ export function SchoolGeneralSettingsClient({
 
   return (
     <section className="rounded-lg border border-border bg-card p-[var(--density-card-padding)]">
-      <h2 className="text-lg font-semibold text-foreground">
-        School Profile
-      </h2>
+      <h2 className="text-lg font-semibold text-foreground">School Profile</h2>
       <p className="mt-1 text-sm text-muted-foreground">
         Your school&apos;s name, logo, and regional settings. The logo appears
         in the sidebar, reports, and public-facing pages.
@@ -215,40 +214,46 @@ export function SchoolGeneralSettingsClient({
 
             {/* Upload area */}
             <div className="flex-1 space-y-2">
-              <div
-                onDragOver={onDragOver}
-                onDragLeave={onDragLeave}
-                onDrop={onDrop}
-                onClick={() => fileInputRef.current?.click()}
-                className={`flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed px-4 py-4 text-center transition-colors ${
-                  isDragging
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50 hover:bg-muted/20"
-                }`}
+              <GlowTarget
+                id="admin-input-logo"
+                category="input"
+                label="Logo upload"
               >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                  onChange={onFileChange}
-                  className="hidden"
-                />
+                <div
+                  onDragOver={onDragOver}
+                  onDragLeave={onDragLeave}
+                  onDrop={onDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed px-4 py-4 text-center transition-colors ${
+                    isDragging
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/50 hover:bg-muted/20"
+                  }`}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    onChange={onFileChange}
+                    className="hidden"
+                  />
 
-                {isUploading ? (
-                  <span className="text-sm text-muted-foreground">
-                    Uploading…
-                  </span>
-                ) : (
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Drop an image here or click to browse
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      PNG, JPG, WebP or SVG. Max 2 MB.
-                    </p>
-                  </div>
-                )}
-              </div>
+                  {isUploading ? (
+                    <span className="text-sm text-muted-foreground">
+                      Uploading…
+                    </span>
+                  ) : (
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        Drop an image here or click to browse
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        PNG, JPG, WebP or SVG. Max 2 MB.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </GlowTarget>
 
               {settings.logo_url && (
                 <button
@@ -272,17 +277,23 @@ export function SchoolGeneralSettingsClient({
           >
             School Name
           </label>
-          <input
-            id="school-name"
-            type="text"
-            value={settings.name}
-            onChange={(e) => updateField("name", e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            placeholder="Green Valley Montessori"
-          />
+          <GlowTarget
+            id="admin-input-school-name"
+            category="input"
+            label="School name"
+          >
+            <input
+              id="school-name"
+              type="text"
+              value={settings.name}
+              onChange={(e) => updateField("name", e.target.value)}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              placeholder="Green Valley Montessori"
+            />
+          </GlowTarget>
           <p className="mt-1 text-xs text-muted-foreground">
-            Displayed in the sidebar, reports, and emails. Your URL slug
-            remains <span className="font-mono text-foreground">{tenantSlug}</span>.
+            Displayed in the sidebar, reports, and emails. Your URL slug remains{" "}
+            <span className="font-mono text-foreground">{tenantSlug}</span>.
           </p>
         </div>
 
@@ -294,18 +305,24 @@ export function SchoolGeneralSettingsClient({
           >
             Timezone
           </label>
-          <select
-            id="school-timezone"
-            value={settings.timezone}
-            onChange={(e) => updateField("timezone", e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          <GlowTarget
+            id="admin-select-timezone"
+            category="select"
+            label="Timezone"
           >
-            {AUSTRALIAN_TIMEZONES.map((tz) => (
-              <option key={tz.value} value={tz.value}>
-                {tz.label}
-              </option>
-            ))}
-          </select>
+            <select
+              id="school-timezone"
+              value={settings.timezone}
+              onChange={(e) => updateField("timezone", e.target.value)}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            >
+              {AUSTRALIAN_TIMEZONES.map((tz) => (
+                <option key={tz.value} value={tz.value}>
+                  {tz.label}
+                </option>
+              ))}
+            </select>
+          </GlowTarget>
           <p className="mt-1 text-xs text-muted-foreground">
             Used for attendance times, report dates, and scheduled
             communications.
@@ -321,18 +338,24 @@ export function SchoolGeneralSettingsClient({
             >
               Country
             </label>
-            <select
-              id="school-country"
-              value={settings.country}
-              onChange={(e) => updateField("country", e.target.value)}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            <GlowTarget
+              id="admin-select-country"
+              category="select"
+              label="Country"
             >
-              {SUPPORTED_COUNTRIES.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
+              <select
+                id="school-country"
+                value={settings.country}
+                onChange={(e) => updateField("country", e.target.value)}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                {SUPPORTED_COUNTRIES.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </GlowTarget>
           </div>
 
           <div>
@@ -342,31 +365,43 @@ export function SchoolGeneralSettingsClient({
             >
               Currency
             </label>
-            <select
-              id="school-currency"
-              value={settings.currency}
-              onChange={(e) => updateField("currency", e.target.value)}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            <GlowTarget
+              id="admin-select-currency"
+              category="select"
+              label="Currency"
             >
-              {SUPPORTED_CURRENCIES.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
+              <select
+                id="school-currency"
+                value={settings.currency}
+                onChange={(e) => updateField("currency", e.target.value)}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                {SUPPORTED_CURRENCIES.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </GlowTarget>
           </div>
         </div>
 
         {/* ── Save button ── */}
         <div className="flex items-center gap-4 pt-2">
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={isPending || !hasChanges}
-            className="rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-90 disabled:opacity-50"
+          <GlowTarget
+            id="admin-btn-save-general"
+            category="button"
+            label="Save general settings"
           >
-            {isPending ? "Saving…" : "Save Profile"}
-          </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={isPending || !hasChanges}
+              className="rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-90 disabled:opacity-50"
+            >
+              {isPending ? "Saving…" : "Save Profile"}
+            </button>
+          </GlowTarget>
 
           {saveStatus === "saved" && (
             <span className="text-sm text-success animate-fade-in">

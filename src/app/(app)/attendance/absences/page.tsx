@@ -15,6 +15,8 @@ import { Permissions } from "@/lib/constants/permissions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "Absence Report - WattleOS" };
+
 export default async function AbsenceReportPage() {
   const context = await getTenantContext();
 
@@ -45,7 +47,7 @@ export default async function AbsenceReportPage() {
         </div>
         <Link
           href="/attendance/history"
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-foreground hover:bg-background"
+          className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-background"
         >
           Full History
         </Link>

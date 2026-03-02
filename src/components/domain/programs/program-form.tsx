@@ -8,6 +8,7 @@ import type {
   Program,
   UpdateProgramInput,
 } from "@/lib/actions/programs/programs";
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import {
   BILLING_TYPES,
   DAYS_OF_WEEK,
@@ -166,6 +167,7 @@ export function ProgramForm({ program, onSubmit }: ProgramFormProps) {
             <label htmlFor="name" className={labelCls}>
               Program Name <span className="text-[var(--form-required-indicator)]">*</span>
             </label>
+            <GlowTarget id="programs-input-name" category="input" label="Program name">
             <input
               id="name"
               type="text"
@@ -176,6 +178,7 @@ export function ProgramForm({ program, onSubmit }: ProgramFormProps) {
               className={inputCls}
               disabled={submitting}
             />
+            </GlowTarget>
           </div>
 
           <div>
@@ -196,6 +199,7 @@ export function ProgramForm({ program, onSubmit }: ProgramFormProps) {
             <label htmlFor="program_type" className={labelCls}>
               Program Type <span className="text-[var(--form-required-indicator)]">*</span>
             </label>
+            <GlowTarget id="programs-select-type" category="select" label="Program type">
             <select
               id="program_type"
               value={programType}
@@ -207,6 +211,7 @@ export function ProgramForm({ program, onSubmit }: ProgramFormProps) {
                 <option key={pt.value} value={pt.value}>{pt.label}</option>
               ))}
             </select>
+            </GlowTarget>
           </div>
 
           <div className="sm:col-span-2">
@@ -276,6 +281,7 @@ export function ProgramForm({ program, onSubmit }: ProgramFormProps) {
           </div>
           <div>
             <label htmlFor="max_capacity" className={labelCls}>Max Capacity</label>
+            <GlowTarget id="programs-input-capacity" category="input" label="Max capacity">
             <input
               id="max_capacity"
               type="number"
@@ -285,6 +291,7 @@ export function ProgramForm({ program, onSubmit }: ProgramFormProps) {
               className={inputCls}
               disabled={submitting}
             />
+            </GlowTarget>
           </div>
         </div>
       </fieldset>
@@ -330,6 +337,7 @@ export function ProgramForm({ program, onSubmit }: ProgramFormProps) {
         >
           Cancel
         </button>
+        <GlowTarget id="programs-btn-save" category="button" label={isEdit ? "Save program changes" : "Create program"}>
         <button
           type="submit"
           disabled={submitting || !name.trim()}
@@ -337,6 +345,7 @@ export function ProgramForm({ program, onSubmit }: ProgramFormProps) {
         >
           {submitting ? "Processing..." : isEdit ? "Save Changes" : "Create Program"}
         </button>
+        </GlowTarget>
       </div>
     </form>
   );

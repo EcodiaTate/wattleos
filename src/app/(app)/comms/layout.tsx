@@ -9,14 +9,11 @@ import Link from "next/link";
 
 interface CommsLayoutProps {
   children: React.ReactNode;
-  params: Promise<{ tenant: string }>;
 }
 
 export default async function CommsLayout({
   children,
-  params,
 }: CommsLayoutProps) {
-  const { tenant: tenantSlug } = await params;
   await getTenantContext();
 
   const tabs = [
@@ -83,19 +80,19 @@ export default async function CommsLayout({
     <div className="space-y-6">
       {/* ── Page Header ──────────────────────────────────── */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Communications</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-foreground">Communications</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Announcements, messaging, and events for your school community.
         </p>
       </div>
 
       {/* ── Tab Navigation ───────────────────────────────── */}
-      <nav className="flex gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1">
+      <nav className="flex gap-1 rounded-lg border border-border bg-muted p-1">
         {tabs.map((tab) => (
           <Link
             key={tab.href}
             href={tab.href}
-            className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-white hover:text-gray-900 hover:shadow-sm [&.active]:bg-white [&.active]:text-amber-700 [&.active]:shadow-sm"
+            className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-card hover:text-foreground hover:shadow-sm [&.active]:bg-card [&.active]:text-primary [&.active]:shadow-sm"
           >
             {tab.icon}
             {tab.label}

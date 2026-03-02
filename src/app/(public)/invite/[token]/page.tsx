@@ -74,10 +74,10 @@ export default async function InvitePage({ params }: InvitePageProps) {
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="max-w-sm text-center">
           <div className="mb-4 text-5xl">🔗</div>
-          <h1 className="text-xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-foreground">
             Invalid Invitation
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             This invitation link is not valid. It may have been revoked or the
             URL may be incorrect. Please contact the school for a new
             invitation.
@@ -95,14 +95,14 @@ export default async function InvitePage({ params }: InvitePageProps) {
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="max-w-sm text-center">
           <div className="mb-4 text-5xl">✓</div>
-          <h1 className="text-xl font-bold text-gray-900">Already Accepted</h1>
-          <p className="mt-2 text-sm text-gray-500">
+          <h1 className="text-xl font-bold text-foreground">Already Accepted</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
             This invitation has already been accepted. You can log in to
             WattleOS to access your parent portal.
           </p>
           <a
             href="/login"
-            className="mt-4 inline-block rounded-lg bg-amber-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-amber-700"
+            className="mt-4 inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-background hover:bg-primary"
           >
             Log In
           </a>
@@ -116,10 +116,10 @@ export default async function InvitePage({ params }: InvitePageProps) {
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="max-w-sm text-center">
           <div className="mb-4 text-5xl">✕</div>
-          <h1 className="text-xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-foreground">
             Invitation Revoked
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             This invitation has been revoked by the school. Please contact them
             directly if you believe this is an error.
           </p>
@@ -135,10 +135,10 @@ export default async function InvitePage({ params }: InvitePageProps) {
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="max-w-sm text-center">
           <div className="mb-4 text-5xl">⏰</div>
-          <h1 className="text-xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-foreground">
             Invitation Expired
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             This invitation has expired. Please contact{" "}
             <span className="font-medium">{inviteData.tenant.name}</span> to
             request a new one.
@@ -151,7 +151,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
   // Valid invitation - show acceptance UI
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b border-gray-200 bg-white px-6 py-4">
+      <header className="border-b border-border bg-card px-6 py-4">
         <div className="mx-auto flex max-w-md items-center gap-3">
           {inviteData.tenant.logo_url && (
             <img
@@ -160,7 +160,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
               className="h-10 w-10 rounded-lg object-cover"
             />
           )}
-          <h1 className="text-lg font-semibold text-gray-900">
+          <h1 className="text-lg font-semibold text-foreground">
             {inviteData.tenant.name}
           </h1>
         </div>
@@ -177,7 +177,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
         />
       </main>
 
-      <footer className="border-t border-gray-200 bg-white px-6 py-4 text-center text-xs text-gray-400">
+      <footer className="border-t border-border bg-card px-6 py-4 text-center text-xs text-muted-foreground">
         Powered by WattleOS
       </footer>
     </div>

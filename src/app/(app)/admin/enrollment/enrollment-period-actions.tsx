@@ -157,7 +157,7 @@ export function EnrollmentPeriodActions({
           {applicationCount > 0 && (
             <Link
               href={`/admin/enrollment/applications?period=${periodId}`}
-              className="rounded bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 transition-colors hover:bg-primary-100"
+              className="rounded bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/15"
             >
               View Apps
             </Link>

@@ -27,7 +27,7 @@ export function ParentInboxClient({
 }: ParentInboxClientProps) {
   if (initialThreads.length === 0) {
     return (
-      <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+      <div className="rounded-lg border-2 border-dashed border-border p-12 text-center">
         <p className="text-sm text-muted-foreground">
           No messages yet. Your child&apos;s guides will reach out when they
           have updates to share.
@@ -61,7 +61,7 @@ export function ParentInboxClient({
             key={thread.id}
             href={`/parent/messages/${thread.id}`}
             className={`block px-5 py-4 transition-colors hover:bg-muted/50 ${
-              hasUnread ? "bg-amber-50/50" : ""
+              hasUnread ? "bg-primary/10/50" : ""
             }`}
           >
             <div className="flex items-start justify-between gap-[var(--density-card-padding)]">

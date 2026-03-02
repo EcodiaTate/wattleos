@@ -5,11 +5,8 @@
 
 import { redirect } from "next/navigation";
 
-interface CommsPageProps {
-  params: Promise<{ tenant: string }>;
-}
+export const metadata = { title: "Communications - WattleOS" };
 
-export default async function CommsPage({ params }: CommsPageProps) {
-  const { tenant } = await params;
+export default async function CommsPage() {
   redirect(`/comms/announcements`);
 }

@@ -13,15 +13,18 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const metadata = { title: "Chat - WattleOS" };
+
 interface ChatThreadPageProps {
-  params: Promise<{ tenant: string; channelId: string }>;
+  params: Promise<{ channelId: string }>;
 }
 
 export default async function ChatThreadPage({ params }: ChatThreadPageProps) {
-  const { tenant, channelId } = await params;
+  const { channelId } = await params;
 
   // Load initial messages (most recent 50)
-  const messagesResult = await listMessages(channelId, {
+  const messagesResult = await listMessages({
+    channel_id: channelId,
     limit: 50,
   });
 
@@ -41,11 +44,11 @@ export default async function ChatThreadPage({ params }: ChatThreadPageProps) {
   return (
     <div className="flex h-[calc(100vh-16rem)] flex-col">
       {/* ── Channel Header ────────────────────────────── */}
-      <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+      <div className="flex items-center justify-between border-b border-border pb-4">
         <div className="flex items-center gap-3">
           <Link
             href={`/comms/messages`}
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 lg:hidden"
+            className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground lg:hidden"
           >
             <svg
               className="h-5 w-5"
@@ -62,8 +65,8 @@ export default async function ChatThreadPage({ params }: ChatThreadPageProps) {
             </svg>
           </Link>
           <div>
-            <h2 className="text-base font-semibold text-gray-900">Channel</h2>
-            <p className="text-xs text-gray-500">
+            <h2 className="text-base font-semibold text-foreground">Channel</h2>
+            <p className="text-xs text-muted-foreground">
               {members.length} member{members.length !== 1 ? "s" : ""}
             </p>
           </div>
@@ -74,7 +77,6 @@ export default async function ChatThreadPage({ params }: ChatThreadPageProps) {
       <ChatWindow
         channelId={channelId}
         initialMessages={messages}
-        tenantSlug={tenant}
       />
     </div>
   );

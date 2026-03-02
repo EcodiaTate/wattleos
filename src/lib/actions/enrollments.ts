@@ -12,7 +12,8 @@
 // getTenantContext() for tenant_id on INSERT operations.
 // ============================================================
 
-import { getTenantContext } from "@/lib/auth/tenant-context";
+import { requirePermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ActionResponse, failure, success } from "@/types/api";
 import { Enrollment } from "@/types/domain";
@@ -44,7 +45,7 @@ export async function enrollStudent(
   input: EnrollStudentInput,
 ): Promise<ActionResponse<Enrollment>> {
   try {
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_ENROLLMENT);
     const supabase = await createSupabaseServerClient();
 
     // Validation
@@ -106,7 +107,7 @@ export async function transferStudent(
   input: TransferStudentInput,
 ): Promise<ActionResponse<{ withdrawn: Enrollment; enrolled: Enrollment }>> {
   try {
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_ENROLLMENT);
     const supabase = await createSupabaseServerClient();
 
     // Validation
@@ -215,6 +216,7 @@ export async function withdrawStudent(
   withdrawDate: string,
 ): Promise<ActionResponse<Enrollment>> {
   try {
+    await requirePermission(Permissions.MANAGE_ENROLLMENT);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
@@ -254,6 +256,7 @@ export async function getStudentEnrollmentHistory(
   studentId: string,
 ): Promise<ActionResponse<Enrollment[]>> {
   try {
+    await requirePermission(Permissions.VIEW_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase

@@ -16,13 +16,11 @@ import { ChatInput } from "@/components/domain/comms/ChatInput";
 interface ChatWindowProps {
   channelId: string;
   initialMessages: ChatMessageWithSender[];
-  tenantSlug: string;
 }
 
 export function ChatWindow({
   channelId,
   initialMessages,
-  tenantSlug,
 }: ChatWindowProps) {
   const [messages, setMessages] =
     useState<ChatMessageWithSender[]>(initialMessages);
@@ -132,10 +130,10 @@ export function ChatWindow({
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto px-2 py-4"
+        className="scroll-native flex-1 px-2 py-4"
       >
         {groupedByDate.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-gray-400">
+          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
             No messages yet. Start the conversation!
           </div>
         ) : (
@@ -144,11 +142,11 @@ export function ChatWindow({
               <div key={group.date}>
                 {/* Date divider */}
                 <div className="flex items-center gap-3 py-2">
-                  <div className="flex-1 border-t border-gray-200" />
-                  <span className="text-xs font-medium text-gray-400">
+                  <div className="flex-1 border-t border-border" />
+                  <span className="text-xs font-medium text-muted-foreground">
                     {group.date}
                   </span>
-                  <div className="flex-1 border-t border-gray-200" />
+                  <div className="flex-1 border-t border-border" />
                 </div>
 
                 {/* Messages */}
@@ -181,7 +179,8 @@ export function ChatWindow({
           <button
             type="button"
             onClick={scrollToBottom}
-            className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 shadow-sm hover:bg-amber-200"
+            className="active-push rounded-full px-3 py-1 text-xs font-medium shadow-sm"
+            style={{ background: "var(--primary-100)", color: "var(--primary-700)" }}
           >
             ↓ New messages
           </button>
@@ -210,7 +209,7 @@ function MessageBubble({
   if (isHidden) {
     return (
       <div className="px-12 py-1">
-        <p className="text-xs italic text-gray-400">
+        <p className="text-xs italic text-muted-foreground">
           Message hidden by moderator
           {message.hidden_reason && `: ${message.hidden_reason}`}
         </p>
@@ -221,7 +220,10 @@ function MessageBubble({
   if (message.message_type === "system") {
     return (
       <div className="flex justify-center py-1">
-        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-500">
+        <span
+          className="rounded-full px-3 py-1 text-xs"
+          style={{ background: "var(--muted)", color: "var(--muted-foreground)" }}
+        >
           {message.content}
         </span>
       </div>
@@ -229,14 +231,28 @@ function MessageBubble({
   }
 
   return (
-    <div className={`group flex gap-3 px-2 py-0.5 hover:bg-gray-50 ${showSender ? "mt-3" : ""}`}>
+    <div
+      className={`group flex gap-3 px-2 py-0.5 rounded-[var(--radius-md)] transition-colors ${showSender ? "mt-3" : ""}`}
+      style={{ ["--tw-hover-bg" as string]: "var(--hover-overlay)" }}
+    >
       {/* Avatar column */}
       <div className="w-8 flex-shrink-0">
         {showSender && (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-xs font-medium text-amber-700">
-            {message.sender.first_name?.[0]}
-            {message.sender.last_name?.[0]}
-          </div>
+          message.sender.avatar_url ? (
+            <img
+              src={message.sender.avatar_url}
+              alt=""
+              className="h-8 w-8 rounded-full object-cover"
+            />
+          ) : (
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold"
+              style={{ background: "var(--primary-100)", color: "var(--primary-700)" }}
+            >
+              {message.sender.first_name?.[0]}
+              {message.sender.last_name?.[0]}
+            </div>
+          )
         )}
       </div>
 
@@ -244,22 +260,22 @@ function MessageBubble({
       <div className="flex-1 min-w-0">
         {showSender && (
           <div className="flex items-baseline gap-2">
-            <span className="text-sm font-semibold text-gray-900">
+            <span className="text-sm font-semibold text-foreground">
               {message.sender.first_name} {message.sender.last_name}
             </span>
-            <time className="text-xs text-gray-400">
+            <time className="text-xs text-muted-foreground">
               {new Date(message.created_at).toLocaleTimeString("en-AU", {
                 hour: "numeric",
                 minute: "2-digit",
               })}
             </time>
             {message.edited_at && (
-              <span className="text-xs text-gray-400">(edited)</span>
+              <span className="text-xs text-muted-foreground">(edited)</span>
             )}
           </div>
         )}
 
-        <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">
+        <p className="text-sm text-foreground whitespace-pre-wrap break-words">
           {message.content}
         </p>
 
@@ -270,17 +286,18 @@ function MessageBubble({
               <img
                 src={message.attachment_url}
                 alt={message.attachment_name ?? "Attachment"}
-                className="max-h-64 max-w-sm rounded-lg border border-gray-200"
+                className="max-h-64 max-w-sm rounded-[var(--radius-md)] border border-border"
               />
             ) : (
               <a
                 href={message.attachment_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+                className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-1.5 text-sm text-foreground"
+                style={{ background: "var(--muted)" }}
               >
                 <svg
-                  className="h-4 w-4 text-gray-400"
+                  className="h-4 w-4 text-muted-foreground"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}

@@ -1,6 +1,7 @@
 // src/components/domain/sis/EmergencyContactSection.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type { CreateEmergencyContactInput, UpdateEmergencyContactInput } from "@/lib/actions/emergency-contacts";
 import { createEmergencyContact, deleteEmergencyContact, updateEmergencyContact } from "@/lib/actions/emergency-contacts";
 import type { EmergencyContact } from "@/types/domain";
@@ -94,7 +95,7 @@ export function EmergencyContactSection({ studentId, contacts, canManage }: Emer
       <div className="flex items-center justify-between border-b border-border bg-muted/20 px-6 py-4">
         <h2 className="text-lg font-bold text-foreground">Emergency Contacts</h2>
         {canManage && !showAddForm && !editingId && (
-          <button onClick={() => { setEditingId(null); resetForm(); setPriorityOrder(contacts.length + 1); setShowAddForm(true); }} className="text-sm font-bold text-primary hover:underline">+ Add Contact</button>
+          <GlowTarget id="sis-btn-add-emergency-contact" category="button" label="Add emergency contact"><button onClick={() => { setEditingId(null); resetForm(); setPriorityOrder(contacts.length + 1); setShowAddForm(true); }} className="text-sm font-bold text-primary hover:underline">+ Add Contact</button></GlowTarget>
         )}
       </div>
       <div className="p-6">
@@ -104,7 +105,8 @@ export function EmergencyContactSection({ studentId, contacts, canManage }: Emer
           <div className="space-y-4">
             {contacts.map(c => (
               editingId === c.id ? <div key={c.id}>{renderForm("edit", c.id)}</div> : (
-                <div key={c.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background p-4 transition-all hover:border-primary-200 shadow-sm">
+                <GlowTarget key={c.id} id={`sis-card-emergency-${c.id}`} category="card" label={c.name}>
+                <div className="flex items-center justify-between rounded-xl border border-border/60 bg-background p-4 transition-all hover:border-primary-200 shadow-sm">
                   <div className="flex items-center gap-5">
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary tabular-nums">
                       {c.priority_order}
@@ -114,7 +116,7 @@ export function EmergencyContactSection({ studentId, contacts, canManage }: Emer
                       <p className="text-xs font-bold text-muted-foreground uppercase tracking-tight">
                         {c.relationship} • {c.phone_primary}{c.phone_secondary && ` / ${c.phone_secondary}`}{c.email && ` • ${c.email}`}
                       </p>
-                      {c.notes && <p className="mt-1 text-xs font-medium italic text-primary-700/80">Note: {c.notes}</p>}
+                      {c.notes && <p className="mt-1 text-xs font-medium italic text-primary/80">Note: {c.notes}</p>}
                     </div>
                   </div>
                   {canManage && (
@@ -124,6 +126,7 @@ export function EmergencyContactSection({ studentId, contacts, canManage }: Emer
                     </div>
                   )}
                 </div>
+                </GlowTarget>
               )
             ))}
           </div>

@@ -15,6 +15,7 @@
 import type { AttendanceDaySummary } from "@/lib/actions/attendance";
 import { getAttendanceSummary } from "@/lib/actions/attendance";
 import { ATTENDANCE_STATUS_CONFIG } from "@/lib/constants/attendance";
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { useCallback, useEffect, useState } from "react";
 
 // ============================================================
@@ -115,7 +116,8 @@ export function AttendanceHistoryClient({
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-wrap items-end gap-[var(--density-card-padding)] rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+      <div className="flex flex-wrap items-end gap-[var(--density-card-padding)] rounded-lg border border-border bg-background p-[var(--density-card-padding)]">
+        <GlowTarget id="att-select-history-class" category="select" label="Class filter">
         <div className="min-w-[200px] flex-1">
           <label className="block text-xs font-medium text-foreground">
             Class
@@ -123,7 +125,7 @@ export function AttendanceHistoryClient({
           <select
             value={selectedClassId}
             onChange={(e) => setSelectedClassId(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           >
             <option value="">Select a class...</option>
             {classes.map((c) => (
@@ -134,7 +136,9 @@ export function AttendanceHistoryClient({
             ))}
           </select>
         </div>
+        </GlowTarget>
 
+        <GlowTarget id="att-input-history-date-start" category="input" label="Start date">
         <div>
           <label className="block text-xs font-medium text-foreground">
             From
@@ -143,10 +147,12 @@ export function AttendanceHistoryClient({
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="mt-1 block rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1 block rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           />
         </div>
+        </GlowTarget>
 
+        <GlowTarget id="att-input-history-date-end" category="input" label="End date">
         <div>
           <label className="block text-xs font-medium text-foreground">
             To
@@ -155,22 +161,23 @@ export function AttendanceHistoryClient({
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="mt-1 block rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1 block rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           />
         </div>
+        </GlowTarget>
       </div>
 
       {/* No class selected */}
       {!selectedClassId && (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center text-sm text-muted-foreground">
+        <div className="rounded-lg border border-border bg-background p-12 text-center text-sm text-muted-foreground">
           Select a class to view attendance history.
         </div>
       )}
 
       {/* Loading */}
       {loading && (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-amber-600" />
+        <div className="rounded-lg border border-border bg-background p-12 text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-border border-t-amber-600" />
         </div>
       )}
 
@@ -209,11 +216,11 @@ export function AttendanceHistoryClient({
 
           {/* Daily table */}
           {summaries.length === 0 ? (
-            <div className="rounded-lg borderborder-border bg-background p-12 text-center text-sm text-muted-foreground">
+            <div className="rounded-lg border border-border bg-background p-12 text-center text-sm text-muted-foreground">
               No attendance records found for this date range.
             </div>
           ) : (
-            <div className="overflow-hidden rounded-lg borderborder-border bg-background">
+            <div className="overflow-hidden rounded-lg border border-border bg-background">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-background">
                   <tr>
@@ -223,19 +230,19 @@ export function AttendanceHistoryClient({
                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Total
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-green-600">
+                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-success">
                       Present
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-red-600">
+                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-destructive">
                       Absent
                     </th>
                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-primary">
                       Late
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-blue-600">
+                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-info">
                       Excused
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-purple-600">
+                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-info">
                       Half Day
                     </th>
                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -305,7 +312,7 @@ function StatusCell({
   status: keyof typeof ATTENDANCE_STATUS_CONFIG;
 }) {
   if (count === 0) {
-    return <span className="text-gray-300"> - </span>;
+    return <span className="text-muted-foreground"> - </span>;
   }
 
   const config = ATTENDANCE_STATUS_CONFIG[status];
@@ -326,17 +333,17 @@ interface SummaryCardProps {
 }
 
 const CARD_COLORS: Record<SummaryCardProps["color"], string> = {
-  green: "border-green-200 bg-green-50",
-  red: "border-red-200 bg-red-50",
-  amber: "border-amber-200 bg-amber-50",
-  blue: "border-blue-200 bg-blue-50",
+  green: "border-success/30 bg-success/10",
+  red: "border-destructive/30 bg-destructive/10",
+  amber: "border-primary/30 bg-primary/10",
+  blue: "border-info/30 bg-info/10",
 };
 
 const CARD_TEXT_COLORS: Record<SummaryCardProps["color"], string> = {
-  green: "text-green-700",
-  red: "text-red-700",
-  amber: "text-amber-700",
-  blue: "text-blue-700",
+  green: "text-success",
+  red: "text-destructive",
+  amber: "text-primary",
+  blue: "text-info",
 };
 
 function SummaryCard({ label, value, sublabel, color }: SummaryCardProps) {

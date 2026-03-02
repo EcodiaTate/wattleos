@@ -18,13 +18,9 @@ import { listTemplatesFiltered } from "@/lib/actions/curriculum-content";
 import { requirePermission } from "@/lib/auth/tenant-context";
 import Link from "next/link";
 
-interface ImportPageProps {
-  params: Promise<{ tenant: string }>;
-}
+export const metadata = { title: "Import Template - WattleOS" };
 
-export default async function ImportPage({ params }: ImportPageProps) {
-  const { tenant } = await params;
-
+export default async function ImportPage() {
   // Gate: only users with manage_curriculum_templates can access
   await requirePermission("manage_curriculum_templates");
 
@@ -125,7 +121,7 @@ export default async function ImportPage({ params }: ImportPageProps) {
                     {t.framework} · {t.age_range ?? "All ages"} ·{" "}
                     {t.version ?? "v1"}
                     {t.is_compliance_framework && (
-                      <span className="ml-1 text-orange-600 dark:text-orange-400">
+                      <span className="ml-1 text-primary ">
                         · Compliance
                       </span>
                     )}
@@ -147,16 +143,17 @@ export default async function ImportPage({ params }: ImportPageProps) {
 }
 
 function FrameworkDot({ framework }: { framework: string }) {
-  const colorMap: Record<string, string> = {
-    AMI: "bg-amber-500",
-    AMS: "bg-blue-500",
-    EYLF: "bg-emerald-500",
-    ACARA: "bg-purple-500",
-    QCAA: "bg-rose-500",
+  const varMap: Record<string, string> = {
+    AMI: "var(--primary)",
+    AMS: "var(--framework-ams)",
+    EYLF: "var(--framework-eylf)",
+    ACARA: "var(--framework-acara)",
+    QCAA: "var(--framework-qcaa)",
   };
   return (
     <span
-      className={`w-2.5 h-2.5 rounded-full shrink-0 ${colorMap[framework] ?? "bg-gray-400"}`}
+      className="w-2.5 h-2.5 rounded-full shrink-0"
+      style={{ backgroundColor: varMap[framework] ?? "var(--muted-foreground)" }}
     />
   );
 }

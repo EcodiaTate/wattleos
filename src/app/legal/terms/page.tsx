@@ -11,7 +11,7 @@ import type { CSSProperties } from "react";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "WattleOS Terms of Service — the agreement governing use of the WattleOS platform.",
+    "WattleOS Terms of Service - the agreement governing use of the WattleOS platform.",
 };
 
 // ────────────────────────────────────────────────────────────
@@ -118,8 +118,8 @@ export default function TermsOfServicePage() {
         binding agreement between the school, organisation, or individual
         (&ldquo;you&rdquo;, &ldquo;your&rdquo;, the &ldquo;School&rdquo;, or the
         &ldquo;Tenant&rdquo;) and Ecodia Pty Ltd trading as Ecodia Code (ABN:
-        89693123278) (&ldquo;Ecodia&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or
-        &ldquo;our&rdquo;) governing your access to and use of the WattleOS
+        89693123278) (&ldquo;Ecodia&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;,
+        or &ldquo;our&rdquo;) governing your access to and use of the WattleOS
         platform.
       </p>
       <p style={body}>
@@ -316,8 +316,8 @@ export default function TermsOfServicePage() {
       {/* ── 7. Intellectual Property ── */}
       <h2 style={heading2}>7. Intellectual Property</h2>
       <p style={body}>
-        The Platform — including its design, code, features, documentation, and
-        branding — is owned by Ecodia Pty Ltd trading as Ecodia Code and
+        The Platform - including its design, code, features, documentation, and
+        branding - is owned by Ecodia Pty Ltd trading as Ecodia Code and
         protected by Australian and international intellectual property laws.
         Your subscription grants a non-exclusive, non-transferable, revocable
         licence to use the Platform for its intended purpose during the

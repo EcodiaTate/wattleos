@@ -35,6 +35,7 @@
 // ============================================================
 
 import { acceptParentInvitation } from "@/lib/actions/enroll/accept-parent-invitation";
+import { acceptSetupToken } from "@/lib/actions/setup/accept-setup-token";
 import { getUserTenants, setUserTenant } from "@/lib/auth/tenant-context";
 import { createServerClient } from "@supabase/ssr";
 import type { CookieSerializeOptions } from "cookie";
@@ -53,8 +54,17 @@ type CookieToSet = {
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const code = searchParams.get("code");
-  const redirectTo = searchParams.get("redirect") ?? "/dashboard";
   const inviteToken = searchParams.get("invite_token");
+  const setupToken  = searchParams.get("setup_token");
+
+  // SECURITY: Validate redirect param to prevent open redirect attacks.
+  // Only allow same-origin relative paths (e.g. "/dashboard").
+  // Reject protocol-relative URLs (//evil.com) and absolute URLs (https://evil.com).
+  const rawRedirect = searchParams.get("redirect") ?? "/dashboard";
+  const redirectTo =
+    rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+      ? rawRedirect
+      : "/dashboard";
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);
@@ -88,6 +98,44 @@ export async function GET(request: NextRequest) {
 
   const userId = sessionData.user.id;
   const userEmail = sessionData.user.email ?? "";
+
+  // ── SETUP FLOW: If setup_token is present, accept the owner setup link ──
+  // WHY before invite flow: setup_token has stricter semantics (single-use,
+  // creates Owner, activates tenant). Handle it first so there's no ambiguity
+  // if somehow both params appear.
+  if (setupToken) {
+    const result = await acceptSetupToken(userId, userEmail, setupToken);
+
+    if (result.data) {
+      await setUserTenant(userId, result.data.tenant_id);
+      await supabase.auth.refreshSession();
+
+      const response = NextResponse.redirect(`${origin}/admin/onboarding`);
+      for (const { name, value, options } of cookieStore) {
+        response.cookies.set(name, value, options);
+      }
+      return response;
+    }
+
+    function setupErrorToString(err: unknown): string {
+      if (typeof err === "string") return err;
+      if (err && typeof err === "object") {
+        const anyErr = err as { message?: unknown; code?: unknown };
+        if (typeof anyErr.message === "string") return anyErr.message;
+        if (typeof anyErr.code === "string") return anyErr.code;
+      }
+      return "Failed to complete school setup";
+    }
+
+    const errorMsg = encodeURIComponent(setupErrorToString(result.error));
+    const response = NextResponse.redirect(
+      `${origin}/login?error=setup_failed&message=${errorMsg}`,
+    );
+    for (const { name, value, options } of cookieStore) {
+      response.cookies.set(name, value, options);
+    }
+    return response;
+  }
 
   // ── INVITE FLOW: If invite_token is present, accept the invitation ──
   // WHY before tenant resolution: The parent has no tenant_users row yet.

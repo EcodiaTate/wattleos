@@ -15,6 +15,8 @@ import { getChildOverview, getMyChildren } from "@/lib/actions/parent";
 import { getTenantContext } from "@/lib/auth/tenant-context";
 import Link from "next/link";
 
+export const metadata = { title: "My Children - WattleOS" };
+
 export default async function ParentDashboardPage() {
   const context = await getTenantContext();
 
@@ -30,7 +32,7 @@ export default async function ParentDashboardPage() {
             Welcome, {context.user.first_name ?? context.user.email}
           </p>
         </div>
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+        <div className="rounded-lg border border-border bg-background p-12 text-center">
           <p className="text-sm text-muted-foreground">
             No children are linked to your account yet. Please contact the
             school to set up your parent access.
@@ -88,9 +90,9 @@ function ChildOverviewCard({ overview }: { overview: ChildOverview }) {
   const displayName = child.preferredName ?? child.firstName;
 
   return (
-    <div className="overflow-hidden rounded-lg borderborder-border bg-background">
+    <div className="overflow-hidden rounded-lg border border-border bg-background">
       {/* Child header */}
-      <div className="flex items-center gap-[var(--density-card-padding)] border-b border-gray-100 px-6 py-4">
+      <div className="flex items-center gap-[var(--density-card-padding)] border-b border-border px-6 py-4">
         {child.photoUrl ? (
           <img
             src={child.photoUrl}
@@ -98,7 +100,7 @@ function ChildOverviewCard({ overview }: { overview: ChildOverview }) {
             className="h-14 w-14 rounded-full object-cover"
           />
         ) : (
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-lg font-bold text-amber-700">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/15 text-lg font-bold text-primary">
             {child.firstName[0]}
             {child.lastName[0]}
           </div>
@@ -119,7 +121,7 @@ function ChildOverviewCard({ overview }: { overview: ChildOverview }) {
         </div>
         <Link
           href={`/parent/${child.id}`}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-amber-700"
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary"
         >
           View Portfolio
         </Link>
@@ -143,7 +145,7 @@ function ChildOverviewCard({ overview }: { overview: ChildOverview }) {
           </p>
           <Link
             href={`/parent/${child.id}/attendance`}
-            className="mt-2 inline-block text-xs font-medium text-primary hover:text-amber-700"
+            className="mt-2 inline-block text-xs font-medium text-primary hover:text-primary"
           >
             View details →
           </Link>
@@ -163,15 +165,15 @@ function ChildOverviewCard({ overview }: { overview: ChildOverview }) {
             </span>
           </div>
           <div className="mt-1 flex gap-2 text-xs text-muted-foreground">
-            <span className="text-green-600">{mastery.mastered} mastered</span>
+            <span className="text-success">{mastery.mastered} mastered</span>
             <span className="text-primary">
               {mastery.practicing} practicing
             </span>
-            <span className="text-blue-600">{mastery.presented} presented</span>
+            <span className="text-info">{mastery.presented} presented</span>
           </div>
           <Link
             href={`/parent/${child.id}`}
-            className="mt-2 inline-block text-xs font-medium text-primary hover:text-amber-700"
+            className="mt-2 inline-block text-xs font-medium text-primary hover:text-primary"
           >
             View progress →
           </Link>
@@ -208,7 +210,7 @@ function ChildOverviewCard({ overview }: { overview: ChildOverview }) {
           </div>
           <Link
             href={`/parent/${child.id}`}
-            className="mt-2 inline-block text-xs font-medium text-primary hover:text-amber-700"
+            className="mt-2 inline-block text-xs font-medium text-primary hover:text-primary"
           >
             View all →
           </Link>
@@ -230,7 +232,7 @@ function ChildOverviewCard({ overview }: { overview: ChildOverview }) {
           {publishedReportCount > 0 && (
             <Link
               href={`/parent/${child.id}/reports`}
-              className="mt-2 inline-block text-xs font-medium text-primary hover:text-amber-700"
+              className="mt-2 inline-block text-xs font-medium text-primary hover:text-primary"
             >
               Read reports →
             </Link>

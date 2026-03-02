@@ -12,6 +12,8 @@ import { ParentAnnouncementFeed } from "@/components/domain/comms/parent-announc
 import { getAnnouncementsForParent } from "@/lib/actions/comms/announcements";
 import { getTenantContext } from "@/lib/auth/tenant-context";
 
+export const metadata = { title: "Announcements - WattleOS" };
+
 export default async function ParentAnnouncementsPage() {
   // Ensure tenant context is loaded for scoping/auth
   await getTenantContext();

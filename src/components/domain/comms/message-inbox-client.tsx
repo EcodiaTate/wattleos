@@ -13,6 +13,7 @@
 "use client";
 
 import { createClassBroadcast, getInbox } from "@/lib/actions/comms/messaging";
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { THREAD_TYPE_CONFIG } from "@/lib/constants/communications";
 import type {
   ClassWithCounts,
@@ -78,25 +79,27 @@ export function MessageInboxClient({
     <div className="space-y-4">
       {/* Compose button / form */}
       {!showCompose ? (
-        <button
-          onClick={() => setShowCompose(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 transition-colors"
-        >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
+        <GlowTarget id="comms-btn-compose" category="button" label="New message">
+          <button
+            onClick={() => setShowCompose(true)}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary transition-colors"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 4.5v15m7.5-7.5h-15"
-            />
-          </svg>
-          New Class Message
-        </button>
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+              />
+            </svg>
+            New Class Message
+          </button>
+        </GlowTarget>
       ) : (
         <div className="rounded-lg border border-border bg-background p-[var(--density-card-padding)] shadow-sm">
           <h2 className="text-lg font-semibold text-foreground">
@@ -108,8 +111,8 @@ export function MessageInboxClient({
           </p>
 
           {error && (
-            <div className="mt-3 rounded-md bg-red-50 p-3">
-              <p className="text-sm text-red-700">{error}</p>
+            <div className="mt-3 rounded-md bg-destructive/10 p-3">
+              <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
 
@@ -121,7 +124,7 @@ export function MessageInboxClient({
               <select
                 value={composeClassId}
                 onChange={(e) => setComposeClassId(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
               >
                 <option value="">Select a class...</option>
                 {classes.map((cls) => (
@@ -141,7 +144,7 @@ export function MessageInboxClient({
                 value={composeSubject}
                 onChange={(e) => setComposeSubject(e.target.value)}
                 placeholder="e.g., Field Trip Reminder"
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
@@ -154,7 +157,7 @@ export function MessageInboxClient({
                 onChange={(e) => setComposeMessage(e.target.value)}
                 rows={4}
                 placeholder="Write your message to parents..."
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
@@ -167,13 +170,13 @@ export function MessageInboxClient({
                   !composeSubject.trim() ||
                   !composeMessage.trim()
                 }
-                className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
               >
                 {isSubmitting ? "Sending..." : "Send to Class"}
               </button>
               <button
                 onClick={() => setShowCompose(false)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background transition-colors"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-background transition-colors"
               >
                 Cancel
               </button>
@@ -184,7 +187,7 @@ export function MessageInboxClient({
 
       {/* Thread list */}
       {threads.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+        <div className="rounded-lg border-2 border-dashed border-border p-12 text-center">
           <p className="text-sm text-muted-foreground">
             No messages yet. Send a class message to start communicating with
             parents.
@@ -212,11 +215,16 @@ export function MessageInboxClient({
               : "";
 
             return (
-              <Link
+              <GlowTarget
                 key={thread.id}
+                id={`comms-row-channel-${thread.id}`}
+                category="row"
+                label={thread.subject || "Message thread"}
+              >
+              <Link
                 href={`/comms/messages/${thread.id}`}
                 className={`block px-5 py-4 transition-colors hover:bg-muted/50 ${
-                  hasUnread ? "bg-amber-50/50" : ""
+                  hasUnread ? "bg-primary/10/50" : ""
                 }`}
               >
                 <div className="flex items-start justify-between gap-[var(--density-card-padding)]">
@@ -263,6 +271,7 @@ export function MessageInboxClient({
                   </div>
                 </div>
               </Link>
+              </GlowTarget>
             );
           })}
         </div>

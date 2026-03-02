@@ -14,11 +14,13 @@
 
 import { GenerateReportsForm } from "@/components/domain/reports/GenerateReportsForm";
 import { listReportTemplates } from "@/lib/actions/reports";
-import { listClasses } from "@/lib/actions/sis";
+import { listClasses } from "@/lib/actions/classes";
 import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+
+export const metadata = { title: "Generate Reports - WattleOS" };
 
 export default async function GenerateReportsPage() {
   const context = await getTenantContext();
@@ -51,13 +53,13 @@ export default async function GenerateReportsPage() {
             Generate Reports
           </h1>
         </div>
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+        <div className="rounded-lg border border-border bg-background p-12 text-center">
           <p className="text-sm text-muted-foreground">
             You need at least one active report template to generate reports.
           </p>
           <Link
             href="/reports/templates/new"
-            className="mt-4 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700"
+            className="mt-4 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary"
           >
             Create a Template
           </Link>

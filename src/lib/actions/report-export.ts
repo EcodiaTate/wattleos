@@ -61,6 +61,15 @@ type StudentJoin = {
 type TemplateJoin = { id: string; name: string };
 type AuthorJoin = { id: string; first_name: string; last_name: string };
 
+/** Shape for partial-select queries that only fetch id, pdf_storage_path, and term */
+type PartialReportRow = {
+  id: string;
+  pdf_storage_path: string | null;
+  term: string | null;
+  status?: string;
+  student: StudentJoin | StudentJoin[] | null;
+};
+
 /**
  * Supabase/PostgREST sometimes returns joined relations as arrays
  * even when logically 1:1. This normalizes "object | object[] | null"
@@ -143,7 +152,6 @@ export async function exportReportToPdf(
       student_dob:
         (rawContent.student_dob as string) ??
         student?.dob ??
-        undefined ??
         undefined,
       class_name: (rawContent.class_name as string) ?? undefined,
       term: (rawContent.term as string) ?? typedReport.term ?? "Unknown Term",
@@ -272,10 +280,8 @@ export async function getReportPdfUrl(
         | null,
     );
 
-    const pdf_storage_path = (report as any).pdf_storage_path as
-      | string
-      | null
-      | undefined;
+    const typedReport = report as unknown as PartialReportRow;
+    const pdf_storage_path = typedReport.pdf_storage_path;
 
     if (!pdf_storage_path) {
       return failure(
@@ -296,7 +302,7 @@ export async function getReportPdfUrl(
     const studentName = student
       ? `${student.preferred_name ?? student.first_name} ${student.last_name}`
       : "Student";
-    const term = (report as any).term ?? "Report";
+    const term = typedReport.term ?? "Report";
     const filename = `${studentName.replace(/\s+/g, "_")}_${String(
       term,
     ).replace(/\s+/g, "_")}_Report.pdf`;
@@ -355,10 +361,8 @@ export async function getParentReportPdfUrl(
         | null,
     );
 
-    const pdf_storage_path = (report as any).pdf_storage_path as
-      | string
-      | null
-      | undefined;
+    const typedParentReport = report as unknown as PartialReportRow;
+    const pdf_storage_path = typedParentReport.pdf_storage_path;
 
     if (!pdf_storage_path) {
       return failure("PDF is not yet available for this report", "NOT_FOUND");
@@ -376,7 +380,7 @@ export async function getParentReportPdfUrl(
     const studentName = student
       ? `${student.preferred_name ?? student.first_name} ${student.last_name}`
       : "Student";
-    const term = (report as any).term ?? "Report";
+    const term = typedParentReport.term ?? "Report";
     const filename = `${studentName.replace(/\s+/g, "_")}_${String(
       term,
     ).replace(/\s+/g, "_")}_Report.pdf`;

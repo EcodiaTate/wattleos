@@ -30,58 +30,55 @@ import type {
   Payment,
 } from "@/types/domain";
 import { logAudit, AuditActions } from "@/lib/utils/audit";
+import {
+  createFeeScheduleSchema,
+  createInvoiceSchema,
+  type CreateFeeScheduleInput,
+  type CreateInvoiceInput,
+} from "@/lib/validations/billing";
 
 // ============================================================
 // FEE SCHEDULE ACTIONS
 // ============================================================
 
-export interface CreateFeeScheduleInput {
-  name: string;
-  class_id?: string | null;
-  amount_cents: number;
-  currency?: string;
-  frequency: string;
-  description?: string;
-  effective_from?: string;
-  effective_until?: string | null;
-}
-
 export async function createFeeSchedule(
   input: CreateFeeScheduleInput,
 ): Promise<ActionResponse<FeeSchedule>> {
   try {
-    const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
+    const context = await requirePermission(Permissions.MANAGE_BILLING);
     const supabase = await createSupabaseServerClient();
 
-    if (!input.name?.trim())
-      return failure("Name is required", ErrorCodes.VALIDATION_ERROR);
-    if (input.amount_cents < 0)
-      return failure("Amount must be positive", ErrorCodes.VALIDATION_ERROR);
+    const parsed = createFeeScheduleSchema.safeParse(input);
+    if (!parsed.success) {
+      return failure(
+        parsed.error.issues[0]?.message ?? "Invalid input",
+        ErrorCodes.VALIDATION_ERROR,
+      );
+    }
+    const v = parsed.data;
 
     const { data, error } = await supabase
       .from("fee_schedules")
       .insert({
         tenant_id: context.tenant.id,
-        name: input.name.trim(),
-        class_id: input.class_id || null,
-        amount_cents: input.amount_cents,
-        currency: input.currency ?? context.tenant.currency.toLowerCase(),
-        frequency: input.frequency,
-        description: input.description?.trim() || null,
+        name: v.name,
+        class_id: v.class_id ?? null,
+        amount_cents: v.amount_cents,
+        currency: v.currency ?? context.tenant.currency.toLowerCase(),
+        frequency: v.frequency,
+        description: v.description ?? null,
         effective_from:
-          input.effective_from ?? new Date().toISOString().split("T")[0],
-        effective_until: input.effective_until || null,
+          v.effective_from ?? new Date().toISOString().split("T")[0],
+        effective_until: v.effective_until ?? null,
       })
       .select()
       .single();
 
     if (error) return failure(error.message, ErrorCodes.CREATE_FAILED);
 
-    // WHY: Fee schedule changes affect billing for all students -
-    // audit trail needed for financial compliance.
     await logAudit({
       context,
-      action: AuditActions.SETTINGS_UPDATED,
+      action: AuditActions.FEE_SCHEDULE_CREATED,
       entityType: "fee_schedule",
       entityId: (data as FeeSchedule).id,
       metadata: {
@@ -105,7 +102,7 @@ export async function listFeeSchedules(): Promise<
   ActionResponse<FeeSchedule[]>
 > {
   try {
-    await requirePermission(Permissions.MANAGE_INTEGRATIONS);
+    await requirePermission(Permissions.MANAGE_BILLING);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
@@ -129,7 +126,7 @@ export async function updateFeeSchedule(
   input: Partial<CreateFeeScheduleInput> & { is_active?: boolean },
 ): Promise<ActionResponse<FeeSchedule>> {
   try {
-    const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
+    const context = await requirePermission(Permissions.MANAGE_BILLING);
     const supabase = await createSupabaseServerClient();
 
     const updateData: Record<string, unknown> = {};
@@ -155,7 +152,7 @@ export async function updateFeeSchedule(
 
     await logAudit({
       context,
-      action: AuditActions.SETTINGS_UPDATED,
+      action: AuditActions.FEE_SCHEDULE_UPDATED,
       entityType: "fee_schedule",
       entityId: id,
       metadata: { updated_fields: Object.keys(updateData) },
@@ -174,39 +171,21 @@ export async function updateFeeSchedule(
 // INVOICE ACTIONS
 // ============================================================
 
-export interface CreateInvoiceInput {
-  student_id: string;
-  guardian_id: string;
-  due_date: string;
-  period_start?: string;
-  period_end?: string;
-  notes?: string;
-  line_items: Array<{
-    fee_schedule_id?: string;
-    description: string;
-    quantity: number;
-    unit_amount_cents: number;
-  }>;
-}
-
 export async function createInvoice(
   input: CreateInvoiceInput,
 ): Promise<ActionResponse<Invoice>> {
   try {
-    const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
+    const context = await requirePermission(Permissions.MANAGE_BILLING);
     const supabase = await createSupabaseServerClient();
 
-    if (!input.student_id)
-      return failure("Student is required", ErrorCodes.VALIDATION_ERROR);
-    if (!input.guardian_id)
-      return failure("Guardian is required", ErrorCodes.VALIDATION_ERROR);
-    if (!input.due_date)
-      return failure("Due date is required", ErrorCodes.VALIDATION_ERROR);
-    if (!input.line_items.length)
+    const parsed = createInvoiceSchema.safeParse(input);
+    if (!parsed.success) {
       return failure(
-        "At least one line item is required",
+        parsed.error.issues[0]?.message ?? "Invalid input",
         ErrorCodes.VALIDATION_ERROR,
       );
+    }
+    const v = parsed.data;
 
     // Generate invoice number
     const { data: numResult } = await supabase.rpc("next_invoice_number", {
@@ -216,7 +195,7 @@ export async function createInvoice(
     const invoiceNumber = numResult ?? `INV-${new Date().getFullYear()}-0001`;
 
     // Calculate totals
-    const subtotal = input.line_items.reduce(
+    const subtotal = v.line_items.reduce(
       (sum, li) => sum + li.quantity * li.unit_amount_cents,
       0,
     );
@@ -226,17 +205,17 @@ export async function createInvoice(
       .from("invoices")
       .insert({
         tenant_id: context.tenant.id,
-        student_id: input.student_id,
-        guardian_id: input.guardian_id,
+        student_id: v.student_id,
+        guardian_id: v.guardian_id,
         invoice_number: invoiceNumber,
         status: "draft",
         subtotal_cents: subtotal,
         total_cents: subtotal, // No tax/discount for now
         currency: context.tenant.currency.toLowerCase(),
-        due_date: input.due_date,
-        period_start: input.period_start || null,
-        period_end: input.period_end || null,
-        notes: input.notes?.trim() || null,
+        due_date: v.due_date,
+        period_start: v.period_start || null,
+        period_end: v.period_end || null,
+        notes: v.notes ?? null,
         created_by: context.user.id,
       })
       .select()
@@ -250,7 +229,7 @@ export async function createInvoice(
     }
 
     // Create line items
-    const lineItems = input.line_items.map((li) => ({
+    const lineItems = v.line_items.map((li) => ({
       tenant_id: context.tenant.id,
       invoice_id: invoice.id,
       fee_schedule_id: li.fee_schedule_id || null,
@@ -279,10 +258,10 @@ export async function createInvoice(
       entityId: invoice.id,
       metadata: {
         invoice_number: invoiceNumber,
-        student_id: input.student_id,
-        guardian_id: input.guardian_id,
+        student_id: v.student_id,
+        guardian_id: v.guardian_id,
         total_cents: subtotal,
-        line_item_count: input.line_items.length,
+        line_item_count: v.line_items.length,
       },
     });
 
@@ -301,7 +280,7 @@ export async function listInvoices(params?: {
   limit?: number;
 }): Promise<ActionResponse<InvoiceWithDetails[]>> {
   try {
-    await requirePermission(Permissions.MANAGE_INTEGRATIONS);
+    await requirePermission(Permissions.MANAGE_BILLING);
     const supabase = await createSupabaseServerClient();
 
     let query = supabase
@@ -384,7 +363,7 @@ export async function syncInvoiceToStripe(
   invoiceId: string,
 ): Promise<ActionResponse<Invoice>> {
   try {
-    const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
+    const context = await requirePermission(Permissions.MANAGE_BILLING);
     const supabase = await createSupabaseServerClient();
 
     // 1. Get invoice with guardian details
@@ -536,7 +515,7 @@ export async function sendStripeInvoice(
   invoiceId: string,
 ): Promise<ActionResponse<Invoice>> {
   try {
-    const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
+    const context = await requirePermission(Permissions.MANAGE_BILLING);
     const supabase = await createSupabaseServerClient();
 
     const { data: invoice } = await supabase
@@ -603,7 +582,7 @@ export async function voidInvoice(
   invoiceId: string,
 ): Promise<ActionResponse<Invoice>> {
   try {
-    const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
+    const context = await requirePermission(Permissions.MANAGE_BILLING);
     const supabase = await createSupabaseServerClient();
 
     const { data: invoice } = await supabase
@@ -642,17 +621,14 @@ export async function voidInvoice(
       .select()
       .single();
 
-    // WHY: Voiding an invoice is a financial reversal - critical
-    // for accounting reconciliation and parent communication trail.
     await logAudit({
       context,
-      action: AuditActions.REFUND_ISSUED,
+      action: AuditActions.INVOICE_VOIDED,
       entityType: "invoice",
       entityId: invoiceId,
       metadata: {
         invoice_number: invoice.invoice_number,
         previous_status: invoice.status,
-        action: "void",
         had_stripe_sync: !!invoice.stripe_invoice_id,
       },
     });

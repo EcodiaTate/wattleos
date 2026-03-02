@@ -11,6 +11,12 @@ type RolePermissionRow = {
   permission: { key: string } | { key: string }[] | null;
 };
 
+// Helper type for the permission override select shape
+type OverrideRow = {
+  override_type: string;
+  permission: { key: string } | { key: string }[] | null;
+};
+
 // ============================================================
 // getTenantContext
 // ============================================================
@@ -95,17 +101,42 @@ export const getTenantContext = cache(async (): Promise<TenantContext> => {
     console.error('Failed to load role permissions:', permsError.message);
   }
 
-  const permissions = ((rolePermissions ?? []) as unknown as RolePermissionRow[])
-    .map((rp) => {
-      const perm = rp.permission;
-      if (!perm) return null;
+  const rolePermKeys = new Set(
+    ((rolePermissions ?? []) as unknown as RolePermissionRow[])
+      .map((rp) => {
+        const perm = rp.permission;
+        if (!perm) return null;
+        if (Array.isArray(perm)) return perm[0]?.key ?? null;
+        return perm.key ?? null;
+      })
+      .filter((key): key is string => !!key),
+  );
 
-      // Supabase sometimes returns a 1-item array for nested selects
-      if (Array.isArray(perm)) return perm[0]?.key ?? null;
+  // 7. Fetch per-user permission overrides (grant/deny layered on role)
+  const { data: overrides } = await supabase
+    .from('tenant_user_permission_overrides')
+    .select(
+      `
+      override_type,
+      permission:permissions(key)
+    `
+    )
+    .eq('tenant_user_id', membership.id);
 
-      return perm.key ?? null;
-    })
-    .filter((key): key is string => !!key);
+  for (const ov of (overrides ?? []) as unknown as OverrideRow[]) {
+    const perm = ov.permission;
+    if (!perm) continue;
+    const key = Array.isArray(perm) ? perm[0]?.key : perm.key;
+    if (!key) continue;
+
+    if (ov.override_type === 'grant') {
+      rolePermKeys.add(key);
+    } else if (ov.override_type === 'deny') {
+      rolePermKeys.delete(key);
+    }
+  }
+
+  const permissions = Array.from(rolePermKeys);
 
   return {
     tenant: tenant as Tenant,

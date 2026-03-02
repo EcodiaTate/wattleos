@@ -14,6 +14,8 @@ interface PageProps {
   }>;
 }
 
+export const metadata = { title: "Observations - WattleOS" };
+
 export default async function ObservationsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const context = await getTenantContext();
@@ -47,7 +49,7 @@ export default async function ObservationsPage({ searchParams }: PageProps) {
         {canCreate && (
           <Link
             href="/pedagogy/observations/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary"
           >
             <svg
               className="h-4 w-4"
@@ -81,9 +83,9 @@ export default async function ObservationsPage({ searchParams }: PageProps) {
 
       {/* Feed */}
       {feed.length === 0 ? (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+        <div className="rounded-lg border border-border bg-background p-12 text-center">
           <svg
-            className="mx-auto h-[var(--density-button-height)] w-12 text-gray-300"
+            className="mx-auto h-[var(--density-button-height)] w-12 text-muted-foreground"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1}
@@ -111,7 +113,7 @@ export default async function ObservationsPage({ searchParams }: PageProps) {
           {canCreate && (
             <Link
               href="/pedagogy/observations/new"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary"
             >
               New Observation
             </Link>
@@ -142,7 +144,7 @@ export default async function ObservationsPage({ searchParams }: PageProps) {
             {page > 1 && (
               <Link
                 href={`/pedagogy/observations?page=${page - 1}${status ? `&status=${status}` : ""}${studentId ? `&student=${studentId}` : ""}`}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-background"
+                className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-background"
               >
                 Previous
               </Link>
@@ -150,7 +152,7 @@ export default async function ObservationsPage({ searchParams }: PageProps) {
             {page < pagination.total_pages && (
               <Link
                 href={`/pedagogy/observations?page=${page + 1}${status ? `&status=${status}` : ""}${studentId ? `&student=${studentId}` : ""}`}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-background"
+                className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-background"
               >
                 Next
               </Link>

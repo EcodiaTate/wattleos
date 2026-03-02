@@ -22,15 +22,14 @@ import {
 import Link from "next/link";
 
 interface MaterialsPageProps {
-  params: Promise<{ tenant: string }>;
   searchParams: Promise<{ q?: string }>;
 }
 
+export const metadata = { title: "Material Search - WattleOS" };
+
 export default async function MaterialsPage({
-  params,
   searchParams,
 }: MaterialsPageProps) {
-  const { tenant } = await params;
   const { q } = await searchParams;
 
   let results: MaterialSearchResult[] = [];
@@ -95,7 +94,6 @@ export default async function MaterialsPage({
                 <MaterialResultGroup
                   key={group.key}
                   group={group}
-                  tenant={tenant}
                   queryLower={queryLower}
                 />
               ))}
@@ -199,11 +197,9 @@ function groupResults(results: MaterialSearchResult[]): ResultGroup[] {
 
 function MaterialResultGroup({
   group,
-  tenant,
   queryLower,
 }: {
   group: ResultGroup;
-  tenant: string;
   queryLower: string;
 }) {
   return (
@@ -290,13 +286,13 @@ function MaterialResultGroup({
 
 function LevelBadge({ level }: { level: string }) {
   const styles: Record<string, string> = {
-    area: "bg-[var(--curriculum-area-bg,hsl(38,30%,85%))] text-amber-800 dark:text-amber-300",
+    area: "bg-[var(--curriculum-area-bg)] text-primary",
     strand:
-      "bg-[var(--curriculum-strand-bg,hsl(152,18%,85%))] text-emerald-800 dark:text-emerald-300",
+      "bg-[var(--curriculum-strand-bg)] text-[var(--curriculum-strand-fg)]",
     outcome:
-      "bg-[var(--curriculum-outcome-bg,hsl(210,22%,85%))] text-blue-800 dark:text-blue-300",
+      "bg-[var(--curriculum-outcome-bg)] text-info",
     activity:
-      "bg-[var(--curriculum-activity-bg,hsl(270,15%,85%))] text-purple-800 dark:text-purple-300",
+      "bg-[var(--curriculum-activity-bg)] text-info",
   };
 
   return (
@@ -312,17 +308,18 @@ function LevelBadge({ level }: { level: string }) {
 }
 
 function FrameworkDot({ framework }: { framework: string }) {
-  const colorMap: Record<string, string> = {
-    AMI: "bg-amber-500",
-    AMS: "bg-blue-500",
-    EYLF: "bg-emerald-500",
-    ACARA: "bg-purple-500",
-    QCAA: "bg-rose-500",
+  const varMap: Record<string, string> = {
+    AMI: "var(--primary)",
+    AMS: "var(--framework-ams)",
+    EYLF: "var(--framework-eylf)",
+    ACARA: "var(--framework-acara)",
+    QCAA: "var(--framework-qcaa)",
   };
 
   return (
     <span
-      className={`w-2 h-2 rounded-full shrink-0 ${colorMap[framework] ?? "bg-gray-400"}`}
+      className="w-2 h-2 rounded-full shrink-0"
+      style={{ backgroundColor: varMap[framework] ?? "var(--muted-foreground)" }}
       aria-hidden="true"
     />
   );

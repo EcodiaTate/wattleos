@@ -14,6 +14,8 @@ interface PageProps {
   searchParams: Promise<{ instance?: string }>;
 }
 
+export const metadata = { title: "Mastery Heatmap - WattleOS" };
+
 export default async function HeatmapPage({ searchParams }: PageProps) {
   const { instance: instanceParam } = await searchParams;
   const context = await getTenantContext();
@@ -21,7 +23,7 @@ export default async function HeatmapPage({ searchParams }: PageProps) {
 
   if (!canViewStudents) {
     return (
-      <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+      <div className="rounded-lg border border-border bg-background p-8 text-center">
         <p className="text-sm text-muted-foreground">
           You do not have permission to view student data.
         </p>
@@ -50,7 +52,7 @@ export default async function HeatmapPage({ searchParams }: PageProps) {
           <span className="text-sm text-muted-foreground">/</span>
           <h1 className="text-2xl font-bold text-foreground">Class Heatmap</h1>
         </div>
-        <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+        <div className="rounded-lg border border-border bg-background p-8 text-center">
           <p className="text-sm text-muted-foreground">
             {instances.length === 0
               ? "Set up a curriculum first."
@@ -103,7 +105,7 @@ export default async function HeatmapPage({ searchParams }: PageProps) {
                   className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                     inst.id === selectedInstance.id
                       ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-foreground hover:bg-gray-200"
+                      : "bg-muted text-foreground hover:bg-muted"
                   }`}
                 >
                   {inst.name}

@@ -1,8 +1,9 @@
 // src/components/domain/reports/GenerateReportsForm.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { bulkGenerateReports } from "@/lib/actions/reports";
-import { listStudents } from "@/lib/actions/sis";
+import { listStudents } from "@/lib/actions/students";
 import type { Student } from "@/types/domain";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -221,6 +222,7 @@ export function GenerateReportsForm({
         <p className="mt-1.5 text-xs font-medium text-muted-foreground ml-8">
           The template determines what sections appear in each report.
         </p>
+        <GlowTarget id="reports-select-template" category="select" label="Choose report template">
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 ml-8">
           {templates.map((t) => (
             <button
@@ -232,7 +234,7 @@ export function GenerateReportsForm({
                   : "border-border bg-card hover:bg-muted/50"
               }`}
             >
-              <p className={`text-sm font-bold ${selectedTemplateId === t.id ? 'text-primary-700' : 'text-foreground'}`}>{t.name}</p>
+              <p className={`text-sm font-bold ${selectedTemplateId === t.id ? 'text-primary' : 'text-foreground'}`}>{t.name}</p>
               <div className="mt-2 flex items-center gap-3">
                 {t.cycleLevel && (
                   <span className="status-badge bg-muted text-muted-foreground status-badge-plain px-2 py-0">
@@ -246,6 +248,7 @@ export function GenerateReportsForm({
             </button>
           ))}
         </div>
+        </GlowTarget>
       </div>
 
       {/* Step 2: Students */}
@@ -259,6 +262,7 @@ export function GenerateReportsForm({
         </p>
 
         <div className="mt-5 ml-8">
+          <GlowTarget id="reports-select-students" category="select" label="Select students by class">
           <select
             value={selectedClassId}
             onChange={(e) => setSelectedClassId(e.target.value)}
@@ -272,6 +276,7 @@ export function GenerateReportsForm({
               </option>
             ))}
           </select>
+          </GlowTarget>
         </div>
 
         {isLoadingStudents && (
@@ -357,6 +362,7 @@ export function GenerateReportsForm({
         <p className="mt-1.5 text-xs font-medium text-muted-foreground ml-8">
           Set the term label and date range. Data will be auto-populated from this period.
         </p>
+        <GlowTarget id="reports-select-period" category="section" label="Reporting period settings">
         <div className="mt-6 ml-8 grid gap-5 sm:grid-cols-3">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
@@ -393,6 +399,7 @@ export function GenerateReportsForm({
             />
           </div>
         </div>
+        </GlowTarget>
       </div>
 
       {error && (
@@ -420,6 +427,7 @@ export function GenerateReportsForm({
             <span className="text-muted-foreground italic">Select a template and students to continue</span>
           )}
         </div>
+        <GlowTarget id="reports-btn-generate" category="button" label="Generate reports">
         <button
           onClick={handleGenerate}
           disabled={!isValid || isGenerating}
@@ -429,6 +437,7 @@ export function GenerateReportsForm({
             ? `Generating ${selectedStudentIds.size} reports...`
             : `Generate ${selectedStudentIds.size} Report${selectedStudentIds.size !== 1 ? "s" : ""}`}
         </button>
+        </GlowTarget>
       </div>
     </div>
   );

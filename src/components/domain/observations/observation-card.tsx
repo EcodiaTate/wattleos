@@ -70,7 +70,7 @@ export function ObservationCard({
   return (
     <div
       className={`rounded-lg border bg-background transition-shadow hover:shadow-sm ${
-        observation.status === "draft" ? "border-amber-200" : "border-border"
+        observation.status === "draft" ? "border-primary/30" : "border-border"
       }`}
     >
       <div className="p-[var(--density-card-padding)]">
@@ -78,7 +78,7 @@ export function ObservationCard({
         <div className="flex items-start justify-between gap-[var(--density-card-padding)]">
           <div className="flex items-center gap-3">
             {/* Author avatar */}
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-medium text-muted-foreground">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
               {observation.author.avatar_url ? (
                 <img
                   src={observation.author.avatar_url}
@@ -121,7 +121,7 @@ export function ObservationCard({
             {observation.students.map((student) => (
               <span
                 key={student.id}
-                className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"
+                className="inline-flex items-center gap-1 rounded-full bg-info/10 px-2.5 py-1 text-xs font-medium text-info"
               >
                 {student.photo_url ? (
                   <img
@@ -156,7 +156,7 @@ export function ObservationCard({
             {observation.outcomes.map((outcome) => (
               <span
                 key={outcome.id}
-                className="inline-flex items-center rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700"
+                className="inline-flex items-center rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success"
               >
                 {outcome.title}
               </span>
@@ -165,7 +165,7 @@ export function ObservationCard({
         )}
 
         {/* Actions */}
-        <div className="mt-4 flex items-center gap-2 border-t border-gray-100 pt-3">
+        <div className="mt-4 flex items-center gap-2 border-t border-border pt-3">
           <Link
             href={`/pedagogy/observations/${observation.id}`}
             className="text-xs font-medium text-muted-foreground hover:text-foreground"
@@ -177,7 +177,7 @@ export function ObservationCard({
             <button
               onClick={handlePublish}
               disabled={isPending}
-              className="rounded-md bg-[var(--mastery-mastered)] px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-green-700 disabled:opacity-50"
+              className="rounded-md bg-[var(--mastery-mastered)] px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-success disabled:opacity-50"
             >
               Publish
             </button>
@@ -187,7 +187,7 @@ export function ObservationCard({
             <button
               onClick={handleArchive}
               disabled={isPending}
-              className="rounded-md border border-gray-300 px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-background disabled:opacity-50"
+              className="rounded-md border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-background disabled:opacity-50"
             >
               Archive
             </button>
@@ -197,7 +197,7 @@ export function ObservationCard({
             <button
               onClick={handleDelete}
               disabled={isPending}
-              className="ml-auto text-xs font-medium text-red-500 hover:text-red-700 disabled:opacity-50"
+              className="ml-auto text-xs font-medium text-destructive hover:text-destructive disabled:opacity-50"
             >
               Delete
             </button>
@@ -214,8 +214,8 @@ export function ObservationCard({
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    draft: "bg-amber-100 text-amber-700",
-    published: "bg-green-100 text-green-700",
+    draft: "bg-primary/15 text-primary",
+    published: "bg-success/15 text-success",
     archived: "bg-muted text-muted-foreground",
   };
 

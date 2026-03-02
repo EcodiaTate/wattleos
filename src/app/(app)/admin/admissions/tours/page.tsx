@@ -21,6 +21,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { TourManagementClient } from "./tour-management-client";
 
+export const metadata = { title: "Tour Management - WattleOS" };
+
 export default async function TourManagementPage() {
   const context = await getTenantContext();
 
@@ -35,24 +37,24 @@ export default async function TourManagementPage() {
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/dashboard" className="hover:text-gray-700">
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/dashboard" className="hover:text-foreground">
           Dashboard
         </Link>
         <span>/</span>
-        <Link href="/admin/admissions" className="hover:text-gray-700">
+        <Link href="/admin/admissions" className="hover:text-foreground">
           Admissions
         </Link>
         <span>/</span>
-        <span className="text-gray-900">Tour Management</span>
+        <span className="text-foreground">Tour Management</span>
       </nav>
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
+        <h1 className="text-2xl font-semibold text-foreground">
           Tour Management
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Schedule tours, track bookings, and record attendance. {total} total
           slots.
         </p>

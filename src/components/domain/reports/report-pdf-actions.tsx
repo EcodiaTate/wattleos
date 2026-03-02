@@ -1,6 +1,7 @@
 // src/components/domain/reports/report-pdf-actions.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import {
   exportReportToPdf,
   getReportPdfUrl,
@@ -76,6 +77,7 @@ export function ReportPdfActions({
     if (!hasPdf) return null;
 
     return (
+      <GlowTarget id="reports-btn-download-pdf" category="button" label="Download report PDF">
       <button
         onClick={handleDownload}
         disabled={isDownloading}
@@ -84,6 +86,7 @@ export function ReportPdfActions({
         <DownloadIcon />
         {isDownloading ? "Preparing..." : "Download Report PDF"}
       </button>
+      </GlowTarget>
     );
   }
 
@@ -92,6 +95,7 @@ export function ReportPdfActions({
       <div className="flex flex-wrap items-center gap-3">
         {hasPdf ? (
           <>
+            <GlowTarget id="reports-btn-download-pdf" category="button" label="Download PDF">
             <button
               onClick={handleDownload}
               disabled={isDownloading}
@@ -100,7 +104,9 @@ export function ReportPdfActions({
               <DownloadIcon />
               {isDownloading ? "Preparing..." : "Download PDF"}
             </button>
+            </GlowTarget>
             {canExport && (
+              <GlowTarget id="reports-btn-email-report" category="button" label="Re-export PDF">
               <button
                 onClick={handleExport}
                 disabled={isExporting}
@@ -110,9 +116,11 @@ export function ReportPdfActions({
                 <RefreshIcon />
                 {isExporting ? "Generating..." : "Re-export"}
               </button>
+              </GlowTarget>
             )}
           </>
         ) : canExport ? (
+          <GlowTarget id="reports-btn-archive" category="button" label="Export report to PDF">
           <button
             onClick={handleExport}
             disabled={isExporting}
@@ -121,6 +129,7 @@ export function ReportPdfActions({
             <ExportIcon />
             {isExporting ? "Generating PDF..." : "Export to PDF"}
           </button>
+          </GlowTarget>
         ) : (
           <div className="flex items-center gap-2 rounded-lg bg-muted/50 border border-border px-4 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">

@@ -113,7 +113,7 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
   return (
     <div className="space-y-4">
       {error && (
-        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
@@ -126,28 +126,28 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
         summary={`${application.child_first_name} ${application.child_last_name} - DOB: ${application.child_date_of_birth}`}
       >
         <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-          <dt className="text-gray-500">Name</dt>
-          <dd className="text-gray-900">
+          <dt className="text-muted-foreground">Name</dt>
+          <dd className="text-foreground">
             {application.child_first_name} {application.child_last_name}
           </dd>
-          <dt className="text-gray-500">Date of Birth</dt>
-          <dd className="text-gray-900">{application.child_date_of_birth}</dd>
+          <dt className="text-muted-foreground">Date of Birth</dt>
+          <dd className="text-foreground">{application.child_date_of_birth}</dd>
           {application.child_gender && (
             <>
-              <dt className="text-gray-500">Gender</dt>
-              <dd className="text-gray-900">{application.child_gender}</dd>
+              <dt className="text-muted-foreground">Gender</dt>
+              <dd className="text-foreground">{application.child_gender}</dd>
             </>
           )}
           {application.requested_program && (
             <>
-              <dt className="text-gray-500">Program</dt>
-              <dd className="text-gray-900">
+              <dt className="text-muted-foreground">Program</dt>
+              <dd className="text-foreground">
                 {application.requested_program.replace(/_/g, " ")}
               </dd>
             </>
           )}
         </dl>
-        <p className="mt-2 text-xs text-gray-400">
+        <p className="mt-2 text-xs text-muted-foreground">
           Contact the school to change child details.
         </p>
       </CollapsibleSection>
@@ -164,10 +164,10 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
         {guardians.map((g, i) => (
           <div
             key={i}
-            className="mb-3 rounded-lg border border-gray-100 bg-gray-50 p-3"
+            className="mb-3 rounded-lg border border-border bg-muted p-3"
           >
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-700">
+              <span className="text-xs font-medium text-foreground">
                 {g.is_primary ? "Primary Guardian" : `Guardian ${i + 1}`}
               </span>
             </div>
@@ -195,7 +195,7 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
                 value={g.email ?? ""}
                 onChange={(v) => {
                   const arr = [...guardians];
-                  arr[i] = { ...arr[i], email: v || null };
+                  arr[i] = { ...arr[i], email: v ?? "" };
                   setGuardians(arr);
                 }}
               />
@@ -229,7 +229,7 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
               },
             ])
           }
-          className="mt-1 text-xs font-medium text-amber-600 hover:text-amber-700"
+          className="mt-1 text-xs font-medium text-primary hover:text-primary"
         >
           + Add Guardian
         </button>
@@ -249,10 +249,10 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
         {medicalConditions.map((mc, i) => (
           <div
             key={i}
-            className="mb-3 rounded-lg border border-gray-100 bg-gray-50 p-3"
+            className="mb-3 rounded-lg border border-border bg-muted p-3"
           >
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-700">
+              <span className="text-xs font-medium text-foreground">
                 {mc.condition_name || `Condition ${i + 1}`}
               </span>
               <button
@@ -262,7 +262,7 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
                     medicalConditions.filter((_, j) => j !== i),
                   )
                 }
-                className="text-xs text-red-500 hover:text-red-700"
+                className="text-xs text-destructive hover:text-destructive"
               >
                 Remove
               </button>
@@ -288,7 +288,7 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
               />
             </div>
             <div className="mt-2">
-              <label className="mb-1 block text-xs text-gray-500">
+              <label className="mb-1 block text-xs text-muted-foreground">
                 Action Plan
               </label>
               <textarea
@@ -299,7 +299,7 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
                   setMedicalConditions(arr);
                 }}
                 rows={2}
-                className="block w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="block w-full rounded border border-border px-2 py-1.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
@@ -321,7 +321,7 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
               },
             ])
           }
-          className="mt-1 text-xs font-medium text-amber-600 hover:text-amber-700"
+          className="mt-1 text-xs font-medium text-primary hover:text-primary"
         >
           + Add Condition
         </button>
@@ -340,7 +340,7 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
         {emergencyContacts.map((ec, i) => (
           <div
             key={i}
-            className="mb-3 rounded-lg border border-gray-100 bg-gray-50 p-3"
+            className="mb-3 rounded-lg border border-border bg-muted p-3"
           >
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <SmallInput
@@ -388,22 +388,22 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
               },
             ])
           }
-          className="mt-1 text-xs font-medium text-amber-600 hover:text-amber-700"
+          className="mt-1 text-xs font-medium text-primary hover:text-primary"
         >
           + Add Contact
         </button>
       </CollapsibleSection>
 
       {/* Consents */}
-      <div className="rounded-lg border border-gray-200 bg-white p-5">
-        <h3 className="mb-3 text-sm font-semibold text-gray-900">Consents</h3>
+      <div className="rounded-lg border border-border bg-card p-5">
+        <h3 className="mb-3 text-sm font-semibold text-foreground">Consents</h3>
         <div className="space-y-3">
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={mediaConsent}
               onChange={(e) => setMediaConsent(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-amber-600"
+              className="h-4 w-4 rounded border-border text-primary"
             />
             Media consent (photos/videos in school communications)
           </label>
@@ -412,7 +412,7 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
               type="checkbox"
               checked={directoryConsent}
               onChange={(e) => setDirectoryConsent(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-amber-600"
+              className="h-4 w-4 rounded border-border text-primary"
             />
             Family directory consent
           </label>
@@ -422,19 +422,19 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
               type="checkbox"
               checked={termsAccepted}
               onChange={(e) => setTermsAccepted(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-amber-600"
+              className="h-4 w-4 rounded border-border text-primary"
             />
             I accept the terms and conditions{" "}
-            <span className="text-red-500">*</span>
+            <span className="text-destructive">*</span>
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={privacyAccepted}
               onChange={(e) => setPrivacyAccepted(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-amber-600"
+              className="h-4 w-4 rounded border-border text-primary"
             />
-            I accept the privacy policy <span className="text-red-500">*</span>
+            I accept the privacy policy <span className="text-destructive">*</span>
           </label>
         </div>
       </div>
@@ -443,14 +443,14 @@ export function ReEnrollmentForm({ application }: ReEnrollmentFormProps) {
       <div className="flex items-center justify-end gap-3 pt-2">
         <a
           href="/portal/applications"
-          className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
         >
           Cancel
         </a>
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+          className="rounded-lg bg-success px-6 py-2.5 text-sm font-medium text-background hover:bg-success disabled:opacity-50"
         >
           {submitting ? "Submitting…" : "Confirm Re-enrollment"}
         </button>
@@ -475,23 +475,23 @@ function CollapsibleSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white">
+    <div className="rounded-lg border border-border bg-card">
       <button
         onClick={onToggle}
         className="flex w-full items-center justify-between px-5 py-4 text-left"
       >
         <div>
-          <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
           {!expanded && (
-            <p className="mt-0.5 text-xs text-gray-500 truncate max-w-md">
+            <p className="mt-0.5 text-xs text-muted-foreground truncate max-w-md">
               {summary}
             </p>
           )}
         </div>
-        <span className="text-gray-400">{expanded ? "▲" : "▼"}</span>
+        <span className="text-muted-foreground">{expanded ? "▲" : "▼"}</span>
       </button>
       {expanded && (
-        <div className="border-t border-gray-100 px-5 py-4">{children}</div>
+        <div className="border-t border-border px-5 py-4">{children}</div>
       )}
     </div>
   );
@@ -508,12 +508,12 @@ function SmallInput({
 }) {
   return (
     <div>
-      <label className="mb-0.5 block text-xs text-gray-500">{label}</label>
+      <label className="mb-0.5 block text-xs text-muted-foreground">{label}</label>
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="block w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+        className="block w-full rounded border border-border px-2 py-1.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
       />
     </div>
   );

@@ -1,6 +1,7 @@
 // src/components/domain/programs/booking-action-buttons.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import {
   cancelBooking,
   checkIn,
@@ -60,6 +61,7 @@ export function BookingActionButtons({
 
       {!checkedIn ? (
         <>
+          <GlowTarget id={`programs-btn-book`} category="button" label="Check in booking">
           <button
             onClick={() => handleAction(() => checkIn(bookingId))}
             disabled={loading}
@@ -67,6 +69,8 @@ export function BookingActionButtons({
           >
             {loading ? "..." : "In"}
           </button>
+          </GlowTarget>
+          <GlowTarget id={`programs-btn-cancel-booking`} category="button" label="Cancel booking">
           <button
             onClick={() =>
               handleAction(() => cancelBooking({ booking_id: bookingId }))
@@ -76,6 +80,7 @@ export function BookingActionButtons({
           >
             Cancel
           </button>
+          </GlowTarget>
           <button
             onClick={() => handleAction(() => markNoShow(bookingId))}
             disabled={loading}

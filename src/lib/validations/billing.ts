@@ -1,7 +1,7 @@
 // src/lib/validations/billing.ts
 //
 // ============================================================
-// Zod Schemas — Billing (Module 9 Integration)
+// Zod Schemas - Billing (Module 9 Integration)
 // ============================================================
 // Tier 2: Authenticated + permissioned, but FINANCIAL data.
 // Wrong amounts or missing line items directly affect

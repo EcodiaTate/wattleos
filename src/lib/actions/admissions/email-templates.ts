@@ -484,6 +484,94 @@ export async function getAvailableMergeTags(): Promise<
 }
 
 // ============================================================
+// SEND TEMPLATED EMAIL
+// ============================================================
+// Renders a template for a specific waitlist entry, then sends
+// the resolved email via Resend. Called from the admissions UI
+// when an admin clicks "Send" on a template, or auto-triggered
+// by stage transitions when a trigger_stage template is set.
+//
+// Returns the Resend email ID for tracking.
+// ============================================================
+
+export async function sendTemplatedEmail(
+  templateId: string,
+  entryId: string,
+): Promise<ActionResponse<{ emailId: string }>> {
+  try {
+    const context = await requirePermission(
+      Permissions.MANAGE_EMAIL_TEMPLATES
+    );
+    const supabase = await createSupabaseServerClient();
+
+    // 1. Render the template with merge tags resolved
+    const renderResult = await renderTemplate(templateId, entryId);
+    if (renderResult.error || !renderResult.data) {
+      return failure(
+        renderResult.error?.message ?? "Failed to render template",
+        ErrorCodes.INTERNAL_ERROR
+      );
+    }
+
+    // 2. Get the entry to find the recipient email
+    const { data: entry, error: entryError } = await supabase
+      .from("waitlist_entries")
+      .select("parent_email, parent_first_name, tenant_id")
+      .eq("id", entryId)
+      .is("deleted_at", null)
+      .single();
+
+    if (entryError || !entry) {
+      return failure("Waitlist entry not found", ErrorCodes.NOT_FOUND);
+    }
+
+    const typedEntry = entry as {
+      parent_email: string;
+      parent_first_name: string;
+      tenant_id: string;
+    };
+
+    // 3. Get tenant name for the sender display name
+    const { data: tenant } = await supabase
+      .from("tenants")
+      .select("name")
+      .eq("id", context.tenant.id)
+      .single();
+
+    const tenantName = tenant
+      ? (tenant as { name: string }).name
+      : undefined;
+
+    // 4. Send via Resend
+    const { sendTransactionalEmail } = await import(
+      "@/lib/integrations/email/send"
+    );
+
+    const emailResult = await sendTransactionalEmail({
+      to: typedEntry.parent_email,
+      subject: renderResult.data.subject,
+      html: renderResult.data.body,
+      fromName: tenantName,
+      tags: [
+        { name: "module", value: "admissions" },
+        { name: "template_id", value: templateId },
+        { name: "entry_id", value: entryId },
+      ],
+    });
+
+    if (emailResult.error) {
+      return failure(emailResult.error, ErrorCodes.INTEGRATION_ERROR);
+    }
+
+    return success({ emailId: emailResult.data?.id ?? "" });
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to send email";
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
+  }
+}
+
+// ============================================================
 // PREVIEW TEMPLATE (with sample data)
 // ============================================================
 // Renders a template with realistic sample data so admins

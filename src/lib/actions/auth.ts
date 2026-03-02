@@ -60,8 +60,12 @@ export async function selectTenantAction(
 // Signs the user out and redirects to login.
 // ============================================================
 export async function signOutAction(): Promise<void> {
-  const supabase = await createSupabaseServerClient();
-  await supabase.auth.signOut();
+  try {
+    const supabase = await createSupabaseServerClient();
+    await supabase.auth.signOut();
+  } catch {
+    // Sign-out should always redirect regardless of errors
+  }
   redirect('/login');
 }
 
@@ -72,24 +76,28 @@ export async function signOutAction(): Promise<void> {
 // Clears the current tenant from JWT and redirects to picker.
 // ============================================================
 export async function switchTenantAction(): Promise<void> {
-  const supabase = await createSupabaseServerClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/login');
-  }
-
-  // Clear tenant_id from app_metadata to force tenant picker
-  // (If your setUserTenant expects null instead of '', adjust it there.)
-  await setUserTenant(user.id, '');
-
   try {
-    await supabase.auth.refreshSession();
-  } catch {
-    // ok
+    const supabase = await createSupabaseServerClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      redirect('/login');
+    }
+
+    // Clear tenant_id from app_metadata to force tenant picker
+    await setUserTenant(user.id, '');
+
+    try {
+      await supabase.auth.refreshSession();
+    } catch {
+      // If refresh fails, the next request/middleware refresh will still pick up changes.
+    }
+  } catch (err) {
+    // If anything fails, still redirect to tenant picker
+    if (err && typeof err === 'object' && 'digest' in err) throw err; // Re-throw Next.js redirects
   }
 
   redirect('/tenant-picker');

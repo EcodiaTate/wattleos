@@ -11,11 +11,11 @@ import {
   type EventType,
   type SchoolEvent,
 } from "@/lib/actions/comms/school-events";
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 interface EventFormProps {
-  tenantSlug: string;
   classes: Array<{ id: string; name: string }>;
   existing?: SchoolEvent;
 }
@@ -34,7 +34,7 @@ const EVENT_TYPES: { value: EventType; label: string; icon: string }[] = [
   { value: "term_end", label: "Term End", icon: "🎉" },
 ];
 
-export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
+export function EventForm({ classes, existing }: EventFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -121,14 +121,14 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
   return (
     <div className="space-y-6">
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
           {error}
         </div>
       )}
 
       {/* ── Event Type ────────────────────────────────── */}
       <div>
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-foreground">
           Event Type
         </label>
         <div className="mt-2 flex flex-wrap gap-2">
@@ -139,8 +139,8 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
               onClick={() => setEventType(et.value)}
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
                 eventType === et.value
-                  ? "bg-amber-100 text-amber-800 ring-2 ring-amber-300"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                  ? "bg-primary/15 text-primary ring-2 ring-primary/30"
+                  : "bg-muted text-muted-foreground hover:bg-muted"
               }`}
             >
               <span>{et.icon}</span>
@@ -154,25 +154,27 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
       <div>
         <label
           htmlFor="title"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-foreground"
         >
           Title
         </label>
-        <input
-          id="title"
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g. Term 2 Parent Information Evening"
-          className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-        />
+        <GlowTarget id="comms-input-event-title" category="input" label="Event title">
+          <input
+            id="title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g. Term 2 Parent Information Evening"
+            className="mt-1 block w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+        </GlowTarget>
       </div>
 
       {/* ── Description ───────────────────────────────── */}
       <div>
         <label
           htmlFor="description"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-foreground"
         >
           Description (optional)
         </label>
@@ -182,20 +184,20 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Provide details about the event..."
-          className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+          className="mt-1 block w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
         />
       </div>
 
       {/* ── Date/Time ─────────────────────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-4">
+      <div className="rounded-lg border border-border bg-muted p-4 space-y-4">
         <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={allDay}
             onChange={(e) => setAllDay(e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+            className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
           />
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-foreground">
             All-day event
           </span>
         </label>
@@ -204,23 +206,25 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
           <div>
             <label
               htmlFor="startAt"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-foreground"
             >
               {allDay ? "Date" : "Start"}
             </label>
-            <input
-              id="startAt"
-              type={allDay ? "date" : "datetime-local"}
-              value={allDay ? startAt.slice(0, 10) : startAt}
-              onChange={(e) => setStartAt(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-            />
+            <GlowTarget id="comms-input-event-date" category="input" label="Event date">
+              <input
+                id="startAt"
+                type={allDay ? "date" : "datetime-local"}
+                value={allDay ? startAt.slice(0, 10) : startAt}
+                onChange={(e) => setStartAt(e.target.value)}
+                className="mt-1 block w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </GlowTarget>
           </div>
           {!allDay && (
             <div>
               <label
                 htmlFor="endAt"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-foreground"
               >
                 End (optional)
               </label>
@@ -229,7 +233,7 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
                 type="datetime-local"
                 value={endAt}
                 onChange={(e) => setEndAt(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="mt-1 block w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           )}
@@ -241,23 +245,25 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
         <div>
           <label
             htmlFor="location"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-foreground"
           >
             Location (optional)
           </label>
-          <input
-            id="location"
-            type="text"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder="e.g. School Hall"
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-          />
+          <GlowTarget id="comms-input-event-location" category="input" label="Event location">
+            <input
+              id="location"
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="e.g. School Hall"
+              className="mt-1 block w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </GlowTarget>
         </div>
         <div>
           <label
             htmlFor="locationUrl"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-foreground"
           >
             Map / Link (optional)
           </label>
@@ -267,15 +273,15 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
             value={locationUrl}
             onChange={(e) => setLocationUrl(e.target.value)}
             placeholder="https://maps.google.com/..."
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            className="mt-1 block w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
       </div>
 
       {/* ── Scope ─────────────────────────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-4">
+      <div className="rounded-lg border border-border bg-muted p-4 space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-foreground">
             Audience
           </label>
           <div className="mt-2 flex gap-2">
@@ -286,8 +292,8 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
                 onClick={() => setScope(s)}
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   scope === s
-                    ? "bg-amber-600 text-white"
-                    : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-100"
+                    ? "bg-primary text-background"
+                    : "bg-card text-muted-foreground border border-border hover:bg-muted"
                 }`}
               >
                 {s === "school"
@@ -304,7 +310,7 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
           <div>
             <label
               htmlFor="targetClass"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-foreground"
             >
               Target Class
             </label>
@@ -312,7 +318,7 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
               id="targetClass"
               value={targetClassId}
               onChange={(e) => setTargetClassId(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="mt-1 block w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="">Select a class...</option>
               {classes.map((c) => (
@@ -332,13 +338,13 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
             type="checkbox"
             checked={rsvpEnabled}
             onChange={(e) => setRsvpEnabled(e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+            className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
           />
           <div>
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-foreground">
               Enable RSVPs
             </span>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Allow parents to respond Going / Not Going / Maybe
             </p>
           </div>
@@ -349,7 +355,7 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
             <div>
               <label
                 htmlFor="rsvpDeadline"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-foreground"
               >
                 RSVP Deadline (optional)
               </label>
@@ -358,13 +364,13 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
                 type="datetime-local"
                 value={rsvpDeadline}
                 onChange={(e) => setRsvpDeadline(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="mt-1 block w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div>
               <label
                 htmlFor="maxAttendees"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-foreground"
               >
                 Max Attendees (optional)
               </label>
@@ -375,7 +381,7 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
                 value={maxAttendees}
                 onChange={(e) => setMaxAttendees(e.target.value)}
                 placeholder="Unlimited"
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="mt-1 block w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
@@ -383,26 +389,28 @@ export function EventForm({ tenantSlug, classes, existing }: EventFormProps) {
       </div>
 
       {/* ── Actions ───────────────────────────────────── */}
-      <div className="flex items-center justify-end gap-3 border-t border-gray-200 pt-6">
+      <div className="flex items-center justify-end gap-3 border-t border-border pt-6">
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
         >
           Cancel
         </button>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={isPending}
-          className="rounded-lg bg-amber-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-amber-700 disabled:opacity-50"
-        >
-          {isPending
-            ? "Creating..."
-            : existing
-              ? "Update Event"
-              : "Create Event"}
-        </button>
+        <GlowTarget id="comms-btn-event-submit" category="button" label="Create event">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isPending}
+            className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-background shadow-sm hover:bg-primary disabled:opacity-50"
+          >
+            {isPending
+              ? "Creating..."
+              : existing
+                ? "Update Event"
+                : "Create Event"}
+          </button>
+        </GlowTarget>
       </div>
     </div>
   );

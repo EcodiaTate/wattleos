@@ -1,8 +1,11 @@
 // src/components/domain/comms/ChatInput.tsx
 //
 // WHY client component: Message input requires keyboard
-// handling (Enter to send), form state, and optimistic
-// message submission.
+// handling (Enter to send on desktop), form state, and
+// optimistic message submission.
+//
+// Mobile: hides the "Press Enter" hint, uses touch-target
+// send button, and fires haptic feedback on send.
 
 "use client";
 
@@ -11,6 +14,8 @@ import {
   sendMessage,
   type ChatMessageWithSender,
 } from "@/lib/actions/comms/chat-channels";
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
+import { useHaptics } from "@/lib/hooks/use-haptics";
 
 interface ChatInputProps {
   channelId: string;
@@ -21,9 +26,10 @@ export function ChatInput({ channelId, onOptimisticMessage }: ChatInputProps) {
   const [content, setContent] = useState("");
   const [isPending, startTransition] = useTransition();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const haptics = useHaptics();
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    // Enter to send, Shift+Enter for new line
+    // Enter to send on desktop, Shift+Enter for new line
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -33,6 +39,8 @@ export function ChatInput({ channelId, onOptimisticMessage }: ChatInputProps) {
   function handleSend() {
     const trimmed = content.trim();
     if (!trimmed) return;
+
+    haptics.impact("medium");
 
     // Create optimistic message
     const optimisticMsg: ChatMessageWithSender = {
@@ -86,40 +94,50 @@ export function ChatInput({ channelId, onOptimisticMessage }: ChatInputProps) {
   }
 
   return (
-    <div className="border-t border-gray-200 bg-white px-2 pt-3 pb-2">
+    <div
+      className="border-t border-border px-2 pb-2 pt-3"
+      style={{ background: "var(--card)" }}
+    >
       <div className="flex items-end gap-2">
-        <textarea
-          ref={textareaRef}
-          value={content}
-          onChange={handleInput}
-          onKeyDown={handleKeyDown}
-          placeholder="Type a message..."
-          rows={1}
-          className="flex-1 resize-none rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-          style={{ maxHeight: "150px" }}
-        />
-        <button
-          type="button"
-          onClick={handleSend}
-          disabled={!content.trim() || isPending}
-          className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-600 text-white transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <svg
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
+        <GlowTarget id="comms-input-message" category="input" label="Message input">
+          <textarea
+            ref={textareaRef}
+            value={content}
+            onChange={handleInput}
+            onKeyDown={handleKeyDown}
+            placeholder="Type a message..."
+            rows={1}
+            className="selectable flex-1 resize-none rounded-[var(--radius-md)] border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-[var(--input-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
+            style={{ maxHeight: "150px" }}
+          />
+        </GlowTarget>
+        <GlowTarget id="comms-btn-send" category="button" label="Send message">
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={!content.trim() || isPending}
+            className="active-push touch-target flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+            style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+            aria-label="Send message"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
-            />
-          </svg>
-        </button>
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+              />
+            </svg>
+          </button>
+        </GlowTarget>
       </div>
-      <p className="mt-1 text-xs text-gray-400">
+      {/* Only show keyboard hint on non-touch devices */}
+      <p className="mt-1 hidden text-xs text-muted-foreground sm:block" style={{ opacity: 0.6 }}>
         Press Enter to send, Shift+Enter for new line
       </p>
     </div>

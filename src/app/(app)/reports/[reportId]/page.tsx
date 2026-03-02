@@ -24,6 +24,8 @@ import type { ReportContent } from "@/lib/reports/types";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "Report Editor - WattleOS" };
+
 interface PageProps {
   params: Promise<{ reportId: string }>;
 }
@@ -44,7 +46,7 @@ export default async function ReportEditorPage({ params }: PageProps) {
 
   const report = result.data;
   const content = report.content as unknown as ReportContent;
-  const stats = getReportCompletionStats(report.content);
+  const stats = await getReportCompletionStats(report.content);
   const studentName = `${report.student.preferred_name ?? report.student.first_name} ${report.student.last_name}`;
 
   return (

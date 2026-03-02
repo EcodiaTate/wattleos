@@ -125,16 +125,16 @@ export function StageTransitionModal({
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+      <div className="relative w-full max-w-md rounded-xl bg-card p-6 shadow-xl">
         {/* Header */}
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-foreground">
             Move Pipeline Entry
           </h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Moving{" "}
-            <span className="font-medium text-gray-700">{childName}</span> from{" "}
-            <span className="font-medium text-gray-700">
+            <span className="font-medium text-foreground">{childName}</span> from{" "}
+            <span className="font-medium text-foreground">
               {STAGE_LABELS[entry.stage] ?? entry.stage}
             </span>
           </p>
@@ -142,14 +142,14 @@ export function StageTransitionModal({
 
         {/* Error */}
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mb-4 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {error}
           </div>
         )}
 
         {/* Target stage selection */}
         <div className="mb-4 space-y-2">
-          <label className="text-sm font-medium text-gray-700">Move to:</label>
+          <label className="text-sm font-medium text-foreground">Move to:</label>
 
           {/* Simple transitions */}
           <div className="grid grid-cols-2 gap-2">
@@ -167,15 +167,15 @@ export function StageTransitionModal({
                   onClick={() => setSelectedStage(stage)}
                   className={`rounded-lg border-2 px-3 py-2.5 text-left text-sm font-medium transition-all ${
                     isSelected
-                      ? "border-amber-500 bg-amber-50 text-amber-700 ring-1 ring-amber-500"
+                      ? "border-primary bg-primary/10 text-primary ring-1 ring-primary"
                       : isTerminal
-                        ? "border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+                        ? "border-border bg-muted text-muted-foreground hover:border-border"
+                        : "border-border bg-card text-foreground hover:border-border hover:bg-muted"
                   }`}
                 >
                   {STAGE_LABELS[stage] ?? stage}
                   {isTerminal && (
-                    <span className="block text-[10px] font-normal text-gray-400">
+                    <span className="block text-[10px] font-normal text-muted-foreground">
                       Terminal
                     </span>
                   )}
@@ -186,7 +186,7 @@ export function StageTransitionModal({
 
           {/* Special transitions (e.g., Make Offer) */}
           {specialTargets.length > 0 && (
-            <div className="mt-3 border-t border-gray-100 pt-3">
+            <div className="mt-3 border-t border-border pt-3">
               {specialTargets.map((stage) => (
                 <button
                   key={stage}
@@ -197,12 +197,12 @@ export function StageTransitionModal({
                     );
                     onClose();
                   }}
-                  className="w-full rounded-lg border-2 border-dashed border-orange-200 bg-orange-50 px-3 py-2.5 text-left text-sm font-medium text-orange-700 transition-colors hover:border-orange-300 hover:bg-orange-100"
+                  className="w-full rounded-lg border-2 border-dashed border-primary/30 bg-primary/10 px-3 py-2.5 text-left text-sm font-medium text-primary transition-colors hover:border-primary/30 hover:bg-primary/15"
                 >
                   {stage === "offered"
                     ? "Make Offer →"
                     : `${STAGE_LABELS[stage] ?? stage} →`}
-                  <span className="block text-[10px] font-normal text-orange-500">
+                  <span className="block text-[10px] font-normal text-primary">
                     Opens detail form (requires additional fields)
                   </span>
                 </button>
@@ -216,10 +216,10 @@ export function StageTransitionModal({
           <div className="mb-4">
             <label
               htmlFor="transition-notes"
-              className="mb-1 block text-sm font-medium text-gray-700"
+              className="mb-1 block text-sm font-medium text-foreground"
             >
               Notes{" "}
-              <span className="font-normal text-gray-400">(optional)</span>
+              <span className="font-normal text-muted-foreground">(optional)</span>
             </label>
             <textarea
               id="transition-notes"
@@ -227,7 +227,7 @@ export function StageTransitionModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Add context for this transition…"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
         )}
@@ -238,7 +238,7 @@ export function StageTransitionModal({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-muted disabled:opacity-50"
           >
             Cancel
           </button>
@@ -247,7 +247,7 @@ export function StageTransitionModal({
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-700 disabled:opacity-50"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-background shadow-sm hover:bg-primary disabled:opacity-50"
             >
               {isSubmitting
                 ? "Moving…"

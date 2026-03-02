@@ -25,12 +25,14 @@ const STATUS_STYLES: Record<
   string,
   { bg: string; text: string; label: string }
 > = {
-  present: { bg: "bg-green-100", text: "text-green-700", label: "Present" },
-  absent: { bg: "bg-red-100", text: "text-red-700", label: "Absent" },
-  late: { bg: "bg-amber-100", text: "text-amber-700", label: "Late" },
-  excused: { bg: "bg-blue-100", text: "text-blue-700", label: "Excused" },
+  present: { bg: "bg-success/15", text: "text-success", label: "Present" },
+  absent: { bg: "bg-destructive/15", text: "text-destructive", label: "Absent" },
+  late: { bg: "bg-primary/15", text: "text-primary", label: "Late" },
+  excused: { bg: "bg-info/15", text: "text-info", label: "Excused" },
   half_day: { bg: "bg-muted", text: "text-foreground", label: "Half Day" },
 };
+
+export const metadata = { title: "Child Attendance - WattleOS" };
 
 export default async function ChildAttendancePage({
   params,
@@ -93,7 +95,7 @@ export default async function ChildAttendancePage({
           </Link>
           <Link
             href={`/parent/${studentId}/attendance`}
-            className="border-b-2 border-primary px-1 pb-3 text-sm font-medium text-amber-700"
+            className="border-b-2 border-primary px-1 pb-3 text-sm font-medium text-primary"
           >
             Attendance
           </Link>
@@ -123,13 +125,13 @@ export default async function ChildAttendancePage({
 
       {/* Records table */}
       {records.length === 0 ? (
-        <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+        <div className="rounded-lg border border-border bg-background p-8 text-center">
           <p className="text-sm text-muted-foreground">
             No attendance records found for this period.
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg borderborder-border bg-background">
+        <div className="overflow-hidden rounded-lg border border-border bg-background">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-background">
               <tr>
@@ -204,14 +206,14 @@ function SummaryCard({
   large?: boolean;
 }) {
   const colorMap: Record<string, string> = {
-    green: "text-green-700",
-    red: "text-red-700",
-    amber: "text-amber-700",
-    blue: "text-blue-700",
+    green: "text-success",
+    red: "text-destructive",
+    amber: "text-primary",
+    blue: "text-info",
   };
 
   return (
-    <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] text-center">
+    <div className="rounded-lg border border-border bg-background p-[var(--density-card-padding)] text-center">
       <p
         className={`${large ? "text-2xl" : "text-xl"} font-bold ${color ? colorMap[color] : "text-foreground"}`}
       >

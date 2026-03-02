@@ -1,6 +1,7 @@
 // src/components/domain/programs/toggle-program-active-button.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { updateProgram } from "@/lib/actions/programs/programs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -29,6 +30,7 @@ export function ToggleProgramActiveButton({
   }
 
   return (
+    <GlowTarget id="programs-toggle-active" category="toggle" label={isActive ? "Deactivate program" : "Activate program"}>
     <button
       onClick={handleToggle}
       disabled={loading}
@@ -40,5 +42,6 @@ export function ToggleProgramActiveButton({
     >
       {loading ? "Updating..." : isActive ? "Deactivate" : "Activate"}
     </button>
+    </GlowTarget>
   );
 }

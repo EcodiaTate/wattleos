@@ -63,7 +63,7 @@ export default async function PayPeriodManagementPage() {
         </div>
         <Link
           href="/admin/timesheets"
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background"
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background"
         >
           <svg
             className="h-4 w-4"

@@ -4023,6 +4023,7 @@ export type Database = {
           religion: string | null
           residential_address: Json | null
           tenant_id: string
+          interpreter_required: boolean
           updated_at: string
           usi: string | null
           visa_subclass: string | null
@@ -4039,6 +4040,7 @@ export type Database = {
           home_language?: string | null
           id?: string
           indigenous_status?: string | null
+          interpreter_required?: boolean
           language_background?: string | null
           languages?: string[] | null
           last_name: string
@@ -4067,6 +4069,7 @@ export type Database = {
           home_language?: string | null
           id?: string
           indigenous_status?: string | null
+          interpreter_required?: boolean
           language_background?: string | null
           languages?: string[] | null
           last_name?: string

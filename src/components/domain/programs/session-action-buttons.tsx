@@ -1,6 +1,7 @@
 // src/components/domain/programs/session-action-buttons.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { cancelSession } from "@/lib/actions/programs/programs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -47,15 +48,18 @@ export function SessionActionButtons({
       {error && <span className="text-xs text-destructive font-medium">{error}</span>}
 
       {!confirming ? (
+        <GlowTarget id="programs-btn-cancel-session" category="button" label="Cancel session">
         <button
           onClick={() => setConfirming(true)}
           className="rounded-lg border border-destructive/20 px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-medium text-destructive hover:bg-destructive/5 transition-[var(--transition-base)]"
         >
           Cancel Session
         </button>
+        </GlowTarget>
       ) : (
         <>
           <span className="text-sm text-muted-foreground">Cancel this session?</span>
+          <GlowTarget id="programs-btn-override" category="button" label="Confirm cancel session">
           <button
             onClick={handleCancel}
             disabled={loading}
@@ -63,6 +67,7 @@ export function SessionActionButtons({
           >
             {loading ? "Cancelling..." : "Confirm"}
           </button>
+          </GlowTarget>
           <button
             onClick={() => {
               setConfirming(false);

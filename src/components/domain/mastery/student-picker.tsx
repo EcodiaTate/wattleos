@@ -1,5 +1,6 @@
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type { Student } from "@/types/domain";
 import { useEffect, useRef, useState } from "react";
 
@@ -45,6 +46,7 @@ export function StudentPicker({
   });
 
   return (
+    <GlowTarget id="mastery-select-student" category="select" label="Student picker">
     <div className="relative" ref={dropdownRef}>
       {/* Trigger button */}
       <button
@@ -54,7 +56,7 @@ export function StudentPicker({
             setTimeout(() => inputRef.current?.focus(), 50);
           }
         }}
-        className="flex items-center gap-2 rounded-lg border border-gray-300 bg-background px-3 py-2 text-sm transition-colors hover:bg-background"
+        className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm transition-colors hover:bg-background"
       >
         {selected ? (
           <>
@@ -65,7 +67,7 @@ export function StudentPicker({
                 className="h-6 w-6 rounded-full object-cover"
               />
             ) : (
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-[10px] font-semibold text-amber-700">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/15 text-[10px] font-semibold text-primary">
                 {selected.first_name.charAt(0)}
                 {selected.last_name.charAt(0)}
               </div>
@@ -95,16 +97,16 @@ export function StudentPicker({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute left-0 top-full z-20 mt-1 w-72 rounded-lg borderborder-border bg-background shadow-lg">
+        <div className="absolute left-0 top-full z-20 mt-1 w-72 rounded-lg border border-border bg-background shadow-lg">
           {/* Search input */}
-          <div className="border-b border-gray-100 p-2">
+          <div className="border-b border-border p-2">
             <input
               ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search students..."
-              className="w-full rounded borderborder-border px-2 py-1.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded border border-border px-2 py-1.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
 
@@ -124,7 +126,7 @@ export function StudentPicker({
                     setQuery("");
                   }}
                   className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-background ${
-                    student.id === selectedStudentId ? "bg-amber-50" : ""
+                    student.id === selectedStudentId ? "bg-primary/10" : ""
                   }`}
                 >
                   {student.photo_url ? (
@@ -167,5 +169,6 @@ export function StudentPicker({
         </div>
       )}
     </div>
+    </GlowTarget>
   );
 }

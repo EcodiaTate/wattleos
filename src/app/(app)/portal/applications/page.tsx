@@ -30,8 +30,8 @@ export default async function ParentApplicationsPage() {
   if (!email) {
     return (
       <div className="py-8 text-center">
-        <h1 className="text-xl font-bold text-gray-900">No Email Found</h1>
-        <p className="mt-2 text-sm text-gray-500">
+        <h1 className="text-xl font-bold text-foreground">No Email Found</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
           We couldn&apos;t determine your email address. Please contact the
           school for assistance.
         </p>
@@ -39,25 +39,25 @@ export default async function ParentApplicationsPage() {
     );
   }
 
-  const result = await getApplicationStatusByEmail(ctx.tenantId, email);
+  const result = await getApplicationStatusByEmail(ctx.tenant.id, email);
   const applications = result.data ?? [];
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">My Applications</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-foreground">My Applications</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Track the status of your enrollment applications.
         </p>
       </div>
 
       {applications.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white px-6 py-12 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="rounded-lg border border-border bg-card px-6 py-12 text-center">
+          <p className="text-sm text-muted-foreground">
             No enrollment applications found for{" "}
             <span className="font-medium">{email}</span>.
           </p>
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-muted-foreground">
             If you&apos;ve recently submitted an application, it may take a
             moment to appear.
           </p>

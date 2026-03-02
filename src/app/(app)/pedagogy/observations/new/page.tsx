@@ -3,11 +3,8 @@
 // ============================================================
 // WattleOS V2 - New Observation Page
 // ============================================================
-// Server Component. Loads students, curriculum outcomes, and
-// media consent data, then renders the capture form.
-//
-// SECURITY CHANGE: Now passes tenantId to the capture form so
-// uploads use tenant-scoped storage paths that match RLS policy.
+// Server Component. Loads students, curriculum outcomes, media
+// consent data, and active sensitive periods for tagging.
 // ============================================================
 
 import { ObservationCaptureForm } from "@/components/domain/observations/observation-capture-form";
@@ -17,9 +14,13 @@ import {
   listCurriculumInstances,
 } from "@/lib/actions/curriculum";
 import { listStudents } from "@/lib/actions/students";
+import { listActiveSensitivePeriods } from "@/lib/actions/three-period-lessons";
 import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import { redirect } from "next/navigation";
+import type { ActivePeriodOption } from "@/components/domain/sensitive-periods/observation-period-tagger";
+
+export const metadata = { title: "New Observation - WattleOS" };
 
 export default async function NewObservationPage() {
   const context = await getTenantContext();
@@ -30,22 +31,32 @@ export default async function NewObservationPage() {
 
   const canPublish = hasPermission(context, Permissions.PUBLISH_OBSERVATION);
 
-  // Load students and curriculum data in parallel
-  const [studentsResult, instancesResult] = await Promise.all([
-    listStudents(),
-    listCurriculumInstances(),
-  ]);
+  const [studentsResult, instancesResult, activePeriodsResult] =
+    await Promise.all([
+      listStudents(),
+      listCurriculumInstances(),
+      listActiveSensitivePeriods(),
+    ]);
 
   const students = studentsResult.data ?? [];
   const instances = instancesResult.data ?? [];
+
+  // Build ActivePeriodOption list - one entry per active period with student name
+  const activePeriods: ActivePeriodOption[] = (
+    activePeriodsResult.data ?? []
+  ).map((p) => ({
+    id: p.id,
+    studentId: p.student_id,
+    studentName: `${p.student.first_name} ${p.student.last_name}`,
+    sensitivePeriod: p.sensitive_period,
+    intensity: p.intensity,
+  }));
 
   // Load media consent for all students
   const studentIds = students.map((s) => s.id);
   const consentResult = await getStudentMediaConsentMap(studentIds);
   const consentMap = consentResult.data ?? {};
 
-  // Load all curriculum nodes for all active instances
-  // (for outcome tagging - we need a flat searchable list)
   let allOutcomes: Array<{
     id: string;
     title: string;
@@ -56,7 +67,6 @@ export default async function NewObservationPage() {
   for (const instance of instances.filter((i) => i.is_active)) {
     const treeResult = await getCurriculumTree(instance.id);
     const nodes = treeResult.data ?? [];
-    // Only include outcomes and activities (not areas/strands) for tagging
     const outcomes = nodes
       .filter((n) => n.level === "outcome" || n.level === "activity")
       .map((n) => ({
@@ -87,6 +97,7 @@ export default async function NewObservationPage() {
           mediaConsent: consentMap[s.id] ?? false,
         }))}
         outcomes={allOutcomes}
+        activePeriods={activePeriods}
         canPublish={canPublish}
         tenantId={context.tenant.id}
       />

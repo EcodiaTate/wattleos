@@ -1,0 +1,44 @@
+{
+  "model": "claude-opus-4-6",
+  "effortLevel": "high",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(npx tsc:*)",
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=8192\" npx tsc:*)",
+      "Bash(node:*)",
+      "Bash(grep:*)",
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" npx next lint:*)",
+      "Bash(npx next lint:*)",
+      "Bash(npx eslint:*)",
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" npx tsc:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const f = (process.env.CLAUDE_TOOL_INPUT_FILE_PATH || process.env.CLAUDE_TOOL_INPUT_PATH || ''); const blocked = f.includes('.env') || (f.includes('supabase/migrations') && !f.includes('_new')); if (blocked) { console.error('BLOCKED: Direct edits to .env or existing migration files are protected. Create a new migration file instead.'); process.exit(2); }\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const f = (process.env.CLAUDE_TOOL_INPUT_FILE_PATH || process.env.CLAUDE_TOOL_INPUT_PATH || ''); const shouldCheck = f.includes('/actions/') || f.includes('/validations/') || f.includes('/types/domain') || f.includes('/lib/constants/') || f.includes('/lib/utils/audit'); if (shouldCheck) { const { execSync } = require('child_process'); try { const out = execSync('NODE_OPTIONS=\\\"--max-old-space-size=8192\\\" npx tsc --noEmit 2>&1', { cwd: 'd:\\\\.code\\\\wattleos', timeout: 120000 }).toString(); if (out.trim()) { console.log('\\n[tsc] Type errors detected:\\n' + out.split('\\n').slice(-30).join('\\n')); } else { console.log('[tsc] Clean'); } } catch(e) { const lines = (e.stdout || '').toString().split('\\n'); console.log('\\n[tsc] Errors:\\n' + lines.slice(-30).join('\\n')); } }\""
+          }
+        ]
+      }
+    ]
+  }
+}

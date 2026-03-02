@@ -23,6 +23,10 @@ export interface PublicTenantInfo {
   name: string;
   logo_url: string | null;
   timezone: string;
+  /** Brand hue (0-360), resolved from tenant settings with amber fallback */
+  brand_hue: number;
+  /** Brand saturation (0-100), resolved from tenant settings with amber fallback */
+  brand_sat: number;
 }
 
 /**
@@ -51,12 +55,13 @@ export async function resolvePublicTenant(
       const supabase = await createSupabaseServerClient();
       const { data } = await supabase
         .from("tenants")
-        .select("id, slug, name, logo_url, timezone")
+        .select("id, slug, name, logo_url, timezone, settings")
         .eq("id", devTenantId)
         .eq("is_active", true)
         .single();
 
-      return data as PublicTenantInfo | null;
+      if (!data) return null;
+      return resolveBrandInfo(data as Record<string, unknown>);
     }
     return null;
   }
@@ -65,10 +70,30 @@ export async function resolvePublicTenant(
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("tenants")
-    .select("id, slug, name, logo_url, timezone")
+    .select("id, slug, name, logo_url, timezone, settings")
     .eq("slug", slug)
     .eq("is_active", true)
     .single();
 
-  return data as PublicTenantInfo | null;
+  if (!data) return null;
+  return resolveBrandInfo(data as Record<string, unknown>);
+}
+
+/**
+ * Extracts brand hue/sat from tenant settings with amber fallback.
+ * Amber: hue=38, sat=92 (matches existing public page styling).
+ */
+function resolveBrandInfo(row: Record<string, unknown>): PublicTenantInfo {
+  const settings = (row.settings ?? {}) as Record<string, unknown>;
+  const hue = typeof settings.brand_hue === "number" ? settings.brand_hue : 38;
+  const sat = typeof settings.brand_saturation === "number" ? settings.brand_saturation : 92;
+  return {
+    id: row.id as string,
+    slug: row.slug as string,
+    name: row.name as string,
+    logo_url: (row.logo_url ?? null) as string | null,
+    timezone: row.timezone as string,
+    brand_hue: hue,
+    brand_sat: sat,
+  };
 }

@@ -59,8 +59,8 @@ export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
             onClick={() => setSelectedArea(area.id)}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
               selectedArea === area.id
-                ? "bg-purple-600 text-primary-foreground"
-                : "bg-muted text-foreground hover:bg-gray-200"
+                ? "bg-info text-primary-foreground"
+                : "bg-muted text-foreground hover:bg-muted"
             }`}
           >
             {area.title}
@@ -88,7 +88,7 @@ export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
 
       {/* Hover tooltip */}
       {hoveredCell && (
-        <div className="rounded-md borderborder-border bg-background px-3 py-2 text-xs shadow-sm">
+        <div className="rounded-md border border-border bg-background px-3 py-2 text-xs shadow-sm">
           <span className="font-semibold">{hoveredCell.studentName}</span>
           {" - "}
           <span className="text-muted-foreground">
@@ -103,15 +103,15 @@ export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
 
       {/* Heatmap grid */}
       {outcomes.length === 0 ? (
-        <div className="rounded-lg borderborder-border bg-background p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-lg border border-border bg-background p-8 text-center text-sm text-muted-foreground">
           Select an area to view the heatmap.
         </div>
       ) : rows.length === 0 ? (
-        <div className="rounded-lg borderborder-border bg-background p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-lg border border-border bg-background p-8 text-center text-sm text-muted-foreground">
           No students to display. Add students to this class first.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg borderborder-border bg-background">
+        <div className="overflow-x-auto rounded-lg border border-border bg-background">
           <table className="min-w-full">
             <thead>
               <tr>
@@ -136,7 +136,7 @@ export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
             <tbody>
               {rows.map((row) => (
                 <tr key={row.student_id} className="hover:bg-background">
-                  <td className="sticky left-0 z-10 border-r border-gray-100 bg-background px-3 py-1.5 text-xs font-medium text-foreground">
+                  <td className="sticky left-0 z-10 border-r border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground">
                     {row.student_first_name} {row.student_last_name}
                   </td>
                   {outcomes.map((outcome) => {
@@ -146,7 +146,7 @@ export function ClassHeatmap({ rows, tree, instanceName }: ClassHeatmapProps) {
                     return (
                       <td
                         key={outcome.id}
-                        className="border-gray-50 px-0.5 py-0.5 text-center"
+                        className="border-border/50 px-0.5 py-0.5 text-center"
                         onMouseEnter={() =>
                           setHoveredCell({
                             studentName: `${row.student_first_name} ${row.student_last_name}`,

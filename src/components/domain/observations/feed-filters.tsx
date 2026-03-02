@@ -1,5 +1,6 @@
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface FeedFiltersProps {
@@ -37,6 +38,7 @@ export function FeedFilters({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       {/* Status tabs */}
+      <GlowTarget id="obs-filter-status" category="tab" label="Filter by status">
       <div className="flex gap-1 rounded-lg bg-muted p-1">
         {STATUS_TABS.map((tab) => (
           <button
@@ -52,12 +54,14 @@ export function FeedFilters({
           </button>
         ))}
       </div>
+      </GlowTarget>
 
       {/* Student filter */}
+      <GlowTarget id="obs-filter-student" category="select" label="Filter by student">
       <select
         value={currentStudentId ?? ""}
         onChange={(e) => updateParams("student", e.target.value || undefined)}
-        className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+        className="rounded-lg border border-border px-3 py-1.5 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
       >
         <option value="">All Students</option>
         {students.map((s) => (
@@ -66,6 +70,7 @@ export function FeedFilters({
           </option>
         ))}
       </select>
+      </GlowTarget>
     </div>
   );
 }

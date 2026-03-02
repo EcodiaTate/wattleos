@@ -15,6 +15,7 @@
 
 import { getOpenEnrollmentPeriods } from "@/lib/actions/enroll";
 import { resolvePublicTenant } from "@/lib/auth/public-tenant";
+import { PublicPageShell } from "@/components/public/PublicPageShell";
 import { EnrollmentWizard } from "./enrollment-wizard";
 
 export const metadata = {
@@ -33,8 +34,8 @@ export default async function EnrollPage({ searchParams }: EnrollPageProps) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">School Not Found</h1>
-          <p className="mt-2 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">School Not Found</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
             We couldn&apos;t identify which school this enrollment form belongs
             to. Please check the URL and try again.
           </p>
@@ -48,35 +49,25 @@ export default async function EnrollPage({ searchParams }: EnrollPageProps) {
 
   if (periods.length === 0) {
     return (
-      <div className="flex min-h-screen flex-col">
-        {/* School header */}
-        <header className="border-b border-gray-200 bg-white px-6 py-4">
-          <div className="mx-auto flex max-w-2xl items-center gap-3">
-            {tenant.logo_url && (
-              <img
-                src={tenant.logo_url}
-                alt=""
-                className="h-10 w-10 rounded-lg object-cover"
-              />
-            )}
-            <h1 className="text-lg font-semibold text-gray-900">
-              {tenant.name}
-            </h1>
-          </div>
-        </header>
-
-        <div className="flex flex-1 items-center justify-center px-4">
+      <PublicPageShell tenant={tenant}>
+        <div className="flex flex-1 items-center justify-center px-4 py-20">
           <div className="text-center">
-            <h2 className="text-xl font-bold text-gray-900">
-              Enrollment Not Currently Open
+            <h2 className="text-xl font-bold text-foreground">
+              Enrolment Not Currently Open
             </h2>
-            <p className="mt-2 text-sm text-gray-500">
-              {tenant.name} is not accepting enrollment applications at this
+            <p className="mt-2 text-sm text-muted-foreground">
+              {tenant.name} is not accepting enrolment applications at this
               time. Please check back later or contact the school directly.
             </p>
+            <a
+              href="/inquiry"
+              className="mt-6 inline-block rounded-lg px-6 py-2.5 text-sm font-semibold pb-btn"
+            >
+              Submit an Enquiry
+            </a>
           </div>
         </div>
-      </div>
+      </PublicPageShell>
     );
   }
 
@@ -88,7 +79,7 @@ export default async function EnrollPage({ searchParams }: EnrollPageProps) {
     year: p.year,
     available_programs: (p.available_programs ?? []) as string[],
     required_documents: (p.required_documents ?? []) as string[],
-    custom_fields: (p.custom_fields ?? []) as Array<{
+    custom_fields: (p.custom_fields ?? []) as unknown as Array<{
       key: string;
       label: string;
       type: string;
@@ -99,34 +90,14 @@ export default async function EnrollPage({ searchParams }: EnrollPageProps) {
   }));
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* School header */}
-      <header className="border-b border-gray-200 bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-2xl items-center gap-3">
-          {tenant.logo_url && (
-            <img
-              src={tenant.logo_url}
-              alt=""
-              className="h-10 w-10 rounded-lg object-cover"
-            />
-          )}
-          <h1 className="text-lg font-semibold text-gray-900">{tenant.name}</h1>
-        </div>
-      </header>
-
-      {/* Wizard */}
-      <main className="flex-1 px-4 py-8">
+    <PublicPageShell tenant={tenant}>
+      <div className="px-4 py-8">
         <EnrollmentWizard
           tenantId={tenant.id}
           schoolName={tenant.name}
           periods={serializedPeriods}
         />
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white px-6 py-4 text-center text-xs text-gray-400">
-        Powered by WattleOS
-      </footer>
-    </div>
+      </div>
+    </PublicPageShell>
   );
 }

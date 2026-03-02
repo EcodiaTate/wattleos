@@ -35,7 +35,7 @@ export function CreateBlankButton() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="rounded-md border border-gray-300 bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-background"
+        className="rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-background"
       >
         Create Blank
       </button>
@@ -54,13 +54,13 @@ export function CreateBlankButton() {
           if (e.key === "Enter") handleCreate();
           if (e.key === "Escape") setIsOpen(false);
         }}
-        className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-xs focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+        className="w-full rounded-md border border-border px-3 py-1.5 text-xs focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
       />
       <div className="flex gap-2">
         <button
           onClick={handleCreate}
           disabled={isLoading || !name.trim()}
-          className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
+          className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:bg-primary disabled:opacity-50"
         >
           {isLoading ? "Creating..." : "Create"}
         </button>
@@ -69,12 +69,12 @@ export function CreateBlankButton() {
             setIsOpen(false);
             setName("");
           }}
-          className="rounded-md border border-gray-300 px-3 py-1 text-xs text-muted-foreground hover:bg-background"
+          className="rounded-md border border-border px-3 py-1 text-xs text-muted-foreground hover:bg-background"
         >
           Cancel
         </button>
       </div>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }

@@ -8,8 +8,9 @@ import type { EventScope } from "@/lib/actions/comms/school-events";
 import { listEvents } from "@/lib/actions/comms/school-events";
 import Link from "next/link";
 
+export const metadata = { title: "Events - WattleOS" };
+
 interface EventsPageProps {
-  params: Promise<{ tenant: string }>;
   searchParams: Promise<{
     scope?: EventScope;
     past?: string;
@@ -18,10 +19,8 @@ interface EventsPageProps {
 }
 
 export default async function EventsPage({
-  params,
   searchParams,
 }: EventsPageProps) {
-  const { tenant } = await params;
   const search = await searchParams;
 
   const page = parseInt(search.page ?? "1", 10);
@@ -29,7 +28,7 @@ export default async function EventsPage({
 
   const result = await listEvents({
     scope: search.scope,
-    include_past: includePast,
+    from_date: includePast ? undefined : new Date().toISOString().split("T")[0],
     page,
     per_page: 20,
   });
@@ -60,14 +59,14 @@ export default async function EventsPage({
       {/* ── Header + Actions ──────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Events</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-lg font-semibold text-foreground">Events</h2>
+          <p className="text-sm text-muted-foreground">
             {result.pagination?.total ?? 0} events
           </p>
         </div>
         <Link
           href={`/comms/events/new`}
-          className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-background shadow-sm hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
         >
           <svg
             className="h-4 w-4"
@@ -88,7 +87,7 @@ export default async function EventsPage({
 
       {/* ── Filters ───────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex gap-1 rounded-lg border border-gray-200 bg-white p-1">
+        <div className="flex gap-1 rounded-lg border border-border bg-card p-1">
           {scopeOptions.map((opt) => {
             const isActive =
               (opt.value === "" && !search.scope) || search.scope === opt.value;
@@ -98,8 +97,8 @@ export default async function EventsPage({
                 href={buildFilterUrl("scope", opt.value)}
                 className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                   isActive
-                    ? "bg-amber-100 text-amber-800"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted-foreground hover:bg-muted"
                 }`}
               >
                 {opt.label}
@@ -112,8 +111,8 @@ export default async function EventsPage({
           href={buildFilterUrl("past", includePast ? "" : "true")}
           className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
             includePast
-              ? "bg-gray-800 text-white"
-              : "border border-gray-300 text-gray-600 hover:bg-gray-100"
+              ? "bg-foreground text-background"
+              : "border border-border text-muted-foreground hover:bg-muted"
           }`}
         >
           Include Past Events
@@ -122,9 +121,9 @@ export default async function EventsPage({
 
       {/* ── Events Grid ───────────────────────────────── */}
       {events.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-gray-200 p-12 text-center">
+        <div className="rounded-lg border-2 border-dashed border-border p-12 text-center">
           <svg
-            className="mx-auto h-12 w-12 text-gray-400"
+            className="mx-auto h-12 w-12 text-muted-foreground"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1}
@@ -136,15 +135,15 @@ export default async function EventsPage({
               d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v9.75"
             />
           </svg>
-          <h3 className="mt-4 text-sm font-semibold text-gray-900">
+          <h3 className="mt-4 text-sm font-semibold text-foreground">
             No events found
           </h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Create your first event for the school community.
           </p>
           <Link
             href={`/comms/events/new`}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-background hover:bg-primary"
           >
             Create Event
           </Link>
@@ -152,22 +151,22 @@ export default async function EventsPage({
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {events.map((event) => (
-            <EventCard key={event.id} event={event} tenantSlug={tenant} />
+            <EventCard key={event.id} event={event} />
           ))}
         </div>
       )}
 
       {/* ── Pagination ────────────────────────────────── */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-          <p className="text-sm text-gray-500">
+        <div className="flex items-center justify-between border-t border-border pt-4">
+          <p className="text-sm text-muted-foreground">
             Page {page} of {totalPages}
           </p>
           <div className="flex gap-2">
             {page > 1 && (
               <Link
                 href={buildFilterUrl("page", String(page - 1))}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
               >
                 Previous
               </Link>
@@ -175,7 +174,7 @@ export default async function EventsPage({
             {page < totalPages && (
               <Link
                 href={buildFilterUrl("page", String(page + 1))}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
               >
                 Next
               </Link>

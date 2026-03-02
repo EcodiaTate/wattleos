@@ -18,7 +18,7 @@ import { type ActionResponse, ErrorCodes, failure } from "@/types/api";
 
 /**
  * Formats Zod errors into a single user-friendly string.
- * Returns the first issue's message — keeps error toasts clean.
+ * Returns the first issue's message - keeps error toasts clean.
  */
 function formatFirstError(error: z.ZodError): string {
   const first = error.issues[0];
@@ -31,9 +31,7 @@ function formatFirstError(error: z.ZodError): string {
  * Useful for form-level validation where you want to highlight
  * every invalid field at once.
  */
-export function formatAllErrors(
-  error: z.ZodError,
-): Record<string, string> {
+export function formatAllErrors(error: z.ZodError): Record<string, string> {
   const errors: Record<string, string> = {};
   for (const issue of error.issues) {
     const path = issue.path.join(".") || "_root";
@@ -69,7 +67,10 @@ export function validate<T>(
   if (!result.success) {
     return {
       data: null,
-      error: failure(formatFirstError(result.error), ErrorCodes.VALIDATION_ERROR),
+      error: failure(
+        formatFirstError(result.error),
+        ErrorCodes.VALIDATION_ERROR,
+      ),
     };
   }
 

@@ -11,7 +11,7 @@ import type { CSSProperties } from "react";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "WattleOS Privacy Policy — how we collect, store, and protect your data under Australian law.",
+    "WattleOS Privacy Policy - how we collect, store, and protect your data under Australian law.",
 };
 
 // ────────────────────────────────────────────────────────────
@@ -210,8 +210,8 @@ export default function PrivacyPolicyPage() {
 
       <h3 style={heading3}>3.1 Australian Data Residency</h3>
       <p style={body}>
-        All primary data — including student records, observations, files, and
-        backups — is stored in Australia using the following infrastructure:
+        All primary data - including student records, observations, files, and
+        backups - is stored in Australia using the following infrastructure:
       </p>
       <ul style={{ paddingLeft: 24, margin: "0 0 16px" }}>
         <li style={listItem}>
@@ -255,7 +255,7 @@ export default function PrivacyPolicyPage() {
         WattleOS uses a multi-tenant architecture where each school is
         identified by a unique tenant ID. Every database query is scoped to the
         authenticated user&apos;s tenant through RLS policies that are enforced
-        at the database level — not just in application code. This means that
+        at the database level - not just in application code. This means that
         even in the event of an application-layer bug, the database itself will
         refuse to return data belonging to another school.
       </p>
@@ -405,7 +405,7 @@ export default function PrivacyPolicyPage() {
 
       <p style={body}>
         Stripe is the only sub-processor that may store data outside Australia.
-        Stripe processes only payment card details and billing metadata — it
+        Stripe processes only payment card details and billing metadata - it
         does not receive student records, observations, or educational data.
         Stripe is certified PCI-DSS Level 1 and provides contractual commitments
         regarding data protection.

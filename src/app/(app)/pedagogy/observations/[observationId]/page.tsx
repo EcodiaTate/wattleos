@@ -23,6 +23,8 @@ interface PageProps {
   params: Promise<{ observationId: string }>;
 }
 
+export const metadata = { title: "Observation Detail - WattleOS" };
+
 export default async function ObservationDetailPage({ params }: PageProps) {
   const { observationId } = await params;
   const context = await getTenantContext();
@@ -54,12 +56,12 @@ export default async function ObservationDetailPage({ params }: PageProps) {
         <span className="text-foreground">Detail</span>
       </div>
 
-      <div className="rounded-lg borderborder-border bg-background">
+      <div className="rounded-lg border border-border bg-background">
         <div className="p-[var(--density-card-padding)]">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-[var(--density-button-height)] w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-medium text-muted-foreground">
+              <div className="flex h-[var(--density-button-height)] w-10 flex-shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
                 {obs.author.avatar_url ? (
                   <img
                     src={obs.author.avatar_url}
@@ -90,9 +92,9 @@ export default async function ObservationDetailPage({ params }: PageProps) {
             <span
               className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
                 obs.status === "draft"
-                  ? "bg-amber-100 text-amber-700"
+                  ? "bg-primary/15 text-primary"
                   : obs.status === "published"
-                    ? "bg-green-100 text-green-700"
+                    ? "bg-success/15 text-success"
                     : "bg-muted text-muted-foreground"
               }`}
             >
@@ -102,7 +104,7 @@ export default async function ObservationDetailPage({ params }: PageProps) {
 
           {/* Published date */}
           {obs.published_at && (
-            <p className="mt-2 text-xs text-green-600">
+            <p className="mt-2 text-xs text-success">
               Published{" "}
               {new Date(obs.published_at).toLocaleDateString("en-AU", {
                 day: "numeric",
@@ -130,7 +132,7 @@ export default async function ObservationDetailPage({ params }: PageProps) {
 
           {/* Students */}
           {obs.students.length > 0 && (
-            <div className="mt-5 border-t border-gray-100 pt-4">
+            <div className="mt-5 border-t border-border pt-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Students
               </h3>
@@ -139,7 +141,7 @@ export default async function ObservationDetailPage({ params }: PageProps) {
                   <Link
                     key={student.id}
                     href={`/students/${student.id}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100"
+                    className="inline-flex items-center gap-2 rounded-full bg-info/10 px-3 py-1.5 text-sm font-medium text-info transition-colors hover:bg-info/15"
                   >
                     {student.photo_url ? (
                       <img
@@ -148,7 +150,7 @@ export default async function ObservationDetailPage({ params }: PageProps) {
                         className="h-5 w-5 rounded-full object-cover"
                       />
                     ) : (
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-200 text-xs font-bold">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-info/20 text-xs font-bold">
                         {student.first_name.charAt(0)}
                       </span>
                     )}
@@ -161,7 +163,7 @@ export default async function ObservationDetailPage({ params }: PageProps) {
 
           {/* Outcomes */}
           {obs.outcomes.length > 0 && (
-            <div className="mt-4 border-t border-gray-100 pt-4">
+            <div className="mt-4 border-t border-border pt-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Curriculum Outcomes
               </h3>
@@ -169,13 +171,13 @@ export default async function ObservationDetailPage({ params }: PageProps) {
                 {obs.outcomes.map((outcome) => (
                   <span
                     key={outcome.id}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1.5 text-sm font-medium text-success"
                   >
                     <span
                       className={`inline-flex rounded px-1 py-0.5 text-[9px] font-semibold uppercase ${
                         outcome.level === "outcome"
-                          ? "bg-green-200 text-green-800"
-                          : "bg-amber-200 text-amber-800"
+                          ? "bg-success/20 text-success"
+                          : "bg-primary/20 text-primary"
                       }`}
                     >
                       {outcome.level}

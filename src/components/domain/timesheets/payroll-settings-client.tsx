@@ -16,6 +16,11 @@
 "use client";
 
 import { updatePayrollSettings } from "@/lib/actions/payroll-integration";
+import {
+  getKeyPayAuthorizationUrl,
+  checkKeyPayStatus,
+  disconnectKeyPayIntegration,
+} from "@/lib/actions/keypay-oauth";
 import { PAY_FREQUENCY_OPTIONS } from "@/lib/constants/timesheets";
 import type {
   PayFrequency,
@@ -23,7 +28,7 @@ import type {
   PayrollSettings,
 } from "@/types/domain";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 // ============================================================
 // Props
@@ -46,6 +51,125 @@ const DAY_OPTIONS = [
   { value: 6, label: "Saturday" },
   { value: 7, label: "Sunday" },
 ];
+
+// ============================================================
+// KeyPay Integration Card
+// ============================================================
+
+function KeyPayIntegrationCard() {
+  const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [confirmDisconnect, setConfirmDisconnect] = useState(false);
+
+  useEffect(() => {
+    const checkStatus = async () => {
+      const result = await checkKeyPayStatus();
+      if (result.data) {
+        setIsConnected(result.data.isConnected);
+      }
+      setIsLoading(false);
+    };
+    checkStatus();
+  }, []);
+
+  const handleConnect = async () => {
+    setError(null);
+    startTransition(async () => {
+      const result = await getKeyPayAuthorizationUrl();
+      if (result.data) {
+        window.location.href = result.data.authorizationUrl;
+      } else if (result.error) {
+        setError(result.error.message);
+      }
+    });
+  };
+
+  const handleDisconnect = async () => {
+    setError(null);
+    startTransition(async () => {
+      const result = await disconnectKeyPayIntegration();
+      if (result.data) {
+        setIsConnected(false);
+        setConfirmDisconnect(false);
+      } else if (result.error) {
+        setError(result.error.message);
+        setConfirmDisconnect(false);
+      }
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="mt-4 flex items-center gap-2">
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-primary" />
+        <span className="text-sm text-muted-foreground">Checking status…</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 space-y-2">
+      <div className="rounded-lg border border-border bg-background p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium text-foreground">
+              {isConnected ? "Connected to KeyPay" : "Not connected"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {isConnected
+                ? "Approved timesheets can be automatically pushed to KeyPay"
+                : "Connect to enable automatic timesheet sync"}
+            </p>
+          </div>
+
+          {isConnected ? (
+            confirmDisconnect ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Sure?</span>
+                <button
+                  onClick={handleDisconnect}
+                  disabled={isPending}
+                  className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
+                >
+                  {isPending ? "Disconnecting…" : "Yes, disconnect"}
+                </button>
+                <button
+                  onClick={() => setConfirmDisconnect(false)}
+                  className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setConfirmDisconnect(true)}
+                className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20"
+              >
+                Disconnect
+              </button>
+            )
+          ) : (
+            <button
+              onClick={handleConnect}
+              disabled={isPending}
+              className="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+            >
+              {isPending ? "Connecting…" : "Connect"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {error && (
+        <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
 
 // ============================================================
 // Component
@@ -120,8 +244,8 @@ export function PayrollSettingsClient({
         <div
           className={`rounded-lg border px-4 py-3 text-sm ${
             message.type === "success"
-              ? "border-green-200 bg-green-50 text-green-800"
-              : "border-red-200 bg-red-50 text-red-800"
+              ? "border-success/30 bg-success/10 text-success"
+              : "border-destructive/30 bg-destructive/10 text-destructive"
           }`}
         >
           {message.text}
@@ -129,7 +253,7 @@ export function PayrollSettingsClient({
       )}
 
       {/* Pay Cycle Section */}
-      <section className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+      <section className="rounded-lg border border-border bg-background p-[var(--density-card-padding)]">
         <h2 className="text-base font-semibold text-foreground">Pay Cycle</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           How often staff get paid and when the cycle starts.
@@ -146,7 +270,7 @@ export function PayrollSettingsClient({
                 setPayFrequency(e.target.value as PayFrequency);
                 markDirty();
               }}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             >
               {PAY_FREQUENCY_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -166,7 +290,7 @@ export function PayrollSettingsClient({
                 setPayCycleStartDay(parseInt(e.target.value, 10));
                 markDirty();
               }}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             >
               {DAY_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -196,7 +320,7 @@ export function PayrollSettingsClient({
       </section>
 
       {/* Default Work Hours Section */}
-      <section className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+      <section className="rounded-lg border border-border bg-background p-[var(--density-card-padding)]">
         <h2 className="text-base font-semibold text-foreground">
           Default Work Hours
         </h2>
@@ -216,7 +340,7 @@ export function PayrollSettingsClient({
                 setDefaultStartTime(e.target.value);
                 markDirty();
               }}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
 
@@ -231,7 +355,7 @@ export function PayrollSettingsClient({
                 setDefaultEndTime(e.target.value);
                 markDirty();
               }}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
 
@@ -249,7 +373,7 @@ export function PayrollSettingsClient({
                 setDefaultBreakMinutes(parseInt(e.target.value, 10) || 0);
                 markDirty();
               }}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
         </div>
@@ -270,7 +394,7 @@ export function PayrollSettingsClient({
       </section>
 
       {/* Payroll Provider Section */}
-      <section className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+      <section className="rounded-lg border border-border bg-background p-[var(--density-card-padding)]">
         <h2 className="text-base font-semibold text-foreground">
           Payroll Provider
         </h2>
@@ -290,7 +414,7 @@ export function PayrollSettingsClient({
               setPayrollProvider(e.target.value as PayrollProvider | "");
               markDirty();
             }}
-            className="mt-1 w-full max-w-xs rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1 w-full max-w-xs rounded-lg border border-border px-3 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           >
             <option value="">None (manual export)</option>
             <option value="xero">Xero</option>
@@ -298,15 +422,21 @@ export function PayrollSettingsClient({
           </select>
         </div>
 
-        {payrollProvider && (
-          <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-            <strong>
-              {payrollProvider === "xero" ? "Xero" : "KeyPay"} integration
-            </strong>{" "}
-            will be available in a future update. For now, you can approve
-            timesheets and export hours manually. The approved totals are ready
-            for manual entry into{" "}
-            {payrollProvider === "xero" ? "Xero" : "KeyPay"}.
+        {payrollProvider === "keypay" && (
+          <div className="mt-4">
+            <p className="text-sm text-muted-foreground">
+              Connect to KeyPay/Employment Hero to automatically push approved
+              timesheets. You can also export as CSV for manual upload.
+            </p>
+            <KeyPayIntegrationCard />
+          </div>
+        )}
+
+        {payrollProvider === "xero" && (
+          <div className="mt-4 rounded-lg border border-info/30 bg-info/10 px-4 py-3 text-sm text-info">
+            <strong>Xero integration</strong> will be available in a future
+            update. For now, you can approve timesheets and export hours
+            manually. The approved totals are ready for manual entry into Xero.
           </div>
         )}
       </section>
@@ -316,7 +446,7 @@ export function PayrollSettingsClient({
         <button
           onClick={handleSave}
           disabled={isPending || !isDirty}
-          className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:opacity-50"
+          className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary disabled:opacity-50"
         >
           {isPending ? "Saving…" : "Save Settings"}
         </button>

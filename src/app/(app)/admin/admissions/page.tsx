@@ -16,6 +16,8 @@
 // they're "done" states that don't need daily management.
 // ============================================================
 
+export const metadata = { title: "Admissions - WattleOS" };
+
 import type {
   WaitlistEntry,
   WaitlistStage,
@@ -94,21 +96,21 @@ export default async function AdmissionsPipelinePage() {
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/dashboard" className="hover:text-gray-700">
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/dashboard" className="hover:text-foreground">
           Dashboard
         </Link>
         <span>/</span>
-        <span className="text-gray-900">Admissions Pipeline</span>
+        <span className="text-foreground">Admissions Pipeline</span>
       </nav>
 
       {/* Page header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">
+          <h1 className="text-2xl font-semibold text-foreground">
             Admissions Pipeline
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Track families from first inquiry to enrolled student.
           </p>
         </div>
@@ -116,13 +118,21 @@ export default async function AdmissionsPipelinePage() {
         <div className="flex items-center gap-3">
           <Link
             href="/admin/admissions/tours"
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+            className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-muted"
           >
             Manage Tours
           </Link>
+          {context.permissions.includes(Permissions.MANAGE_TENANT_SETTINGS) && (
+            <Link
+              href="/admin/admissions/portal"
+              className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-muted"
+            >
+              Portal Settings
+            </Link>
+          )}
           <Link
             href="/admin/admissions/templates"
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+            className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-muted"
           >
             Email Templates
           </Link>
@@ -131,7 +141,7 @@ export default async function AdmissionsPipelinePage() {
           ) && (
             <Link
               href="/admin/admissions/analytics"
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+              className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-muted"
             >
               Analytics
             </Link>
@@ -141,23 +151,23 @@ export default async function AdmissionsPipelinePage() {
 
       {/* Terminal stage summary bar */}
       <div className="flex gap-4">
-        <div className="flex items-center gap-2 rounded-lg bg-green-50 px-4 py-2 text-sm">
-          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-green-700">
+        <div className="flex items-center gap-2 rounded-lg bg-success/10  px-4 py-2 text-sm">
+          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-success/15  text-xs font-bold text-success ">
             {terminalCounts.enrolled}
           </span>
-          <span className="font-medium text-green-700">Enrolled</span>
+          <span className="font-medium text-success ">Enrolled</span>
         </div>
-        <div className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm">
-          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-700">
+        <div className="flex items-center gap-2 rounded-lg bg-destructive/10  px-4 py-2 text-sm">
+          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-destructive/15  text-xs font-bold text-destructive ">
             {terminalCounts.declined}
           </span>
-          <span className="font-medium text-red-700">Declined</span>
+          <span className="font-medium text-destructive ">Declined</span>
         </div>
-        <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm">
-          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-600">
+        <div className="flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm">
+          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted-foreground/20 text-xs font-bold text-muted-foreground">
             {terminalCounts.withdrawn}
           </span>
-          <span className="font-medium text-gray-600">Withdrawn</span>
+          <span className="font-medium text-muted-foreground">Withdrawn</span>
         </div>
       </div>
 

@@ -18,7 +18,6 @@ import Link from "next/link";
 
 interface ContentLibraryLayoutProps {
   children: React.ReactNode;
-  params: Promise<{ tenant: string }>;
 }
 
 interface NavTab {
@@ -47,9 +46,7 @@ const ALL_TABS: NavTab[] = [
 
 export default async function ContentLibraryLayout({
   children,
-  params,
 }: ContentLibraryLayoutProps) {
-  const { tenant } = await params;
   const basePath = `/pedagogy/content-library`;
 
   // Fetch permissions to gate the Import tab

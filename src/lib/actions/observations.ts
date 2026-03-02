@@ -16,6 +16,7 @@ import type {
   User,
 } from '@/types/domain';
 import { logAudit, AuditActions } from '@/lib/utils/audit';
+import { trackPLGFeatureUse } from '@/lib/plg/champion-mechanic';
 
 // Local helper types for relation rows returned by Supabase selects.
 // (We keep them minimal and then map into canonical domain shapes.)
@@ -32,6 +33,12 @@ type ObsRow = {
   published_at: string | null;
   author_id: string;
 };
+
+// Raw join row shapes from observation_students / observation_outcomes selects.
+type RawObservationStudentRow = { observation_id: string; student: StudentPick | null };
+type RawObservationOutcomeRow = { observation_id: string; curriculum_node: OutcomePick | null };
+// Flat row from observation_students/outcomes filter (observation_id only).
+type RawObsIdRow = { observation_id: string };
 
 // Local "join row" shapes for mapping
 type ObservationStudentJoin = { student: StudentPick };
@@ -68,15 +75,16 @@ export async function createObservation(input: {
   if (input.studentIds.length > 0) {
     const studentInserts = input.studentIds.map((studentId) => ({
       tenant_id: context.tenant.id,
-      observation_id: (observation as any).id,
+      observation_id: observation.id,
       student_id: studentId,
     }));
 
     const { error: studentsError } = await supabase.from('observation_students').insert(studentInserts);
 
     if (studentsError) {
-      // Non-fatal: observation was created, students just failed to tag
-      console.error('Failed to tag students:', studentsError.message);
+      // Roll back: soft-delete the orphaned observation so no partial records persist.
+      await supabase.from('observations').update({ deleted_at: new Date().toISOString() }).eq('id', observation.id);
+      return failure(`Failed to tag students: ${studentsError.message}`, ErrorCodes.INTERNAL_ERROR);
     }
   }
 
@@ -84,14 +92,15 @@ export async function createObservation(input: {
   if (input.outcomeIds.length > 0) {
     const outcomeInserts = input.outcomeIds.map((nodeId) => ({
       tenant_id: context.tenant.id,
-      observation_id: (observation as any).id,
+      observation_id: observation.id,
       curriculum_node_id: nodeId,
     }));
 
     const { error: outcomesError } = await supabase.from('observation_outcomes').insert(outcomeInserts);
 
     if (outcomesError) {
-      console.error('Failed to tag outcomes:', outcomesError.message);
+      await supabase.from('observations').update({ deleted_at: new Date().toISOString() }).eq('id', observation.id);
+      return failure(`Failed to tag outcomes: ${outcomesError.message}`, ErrorCodes.INTERNAL_ERROR);
     }
   }
 
@@ -99,12 +108,15 @@ export async function createObservation(input: {
     context,
     action: AuditActions.OBSERVATION_CREATED,
     entityType: 'observation',
-    entityId: (observation as any).id,
+    entityId: observation.id,
     metadata: {
       student_count: input.studentIds.length,
       outcome_count: input.outcomeIds.length,
     },
   });
+
+  // Champion Mechanic: track observation usage for multi-user adoption detection
+  await trackPLGFeatureUse(context.tenant.id, context.user.id, 'observations');
 
   return success(observation as Observation);
 }
@@ -134,11 +146,13 @@ export async function updateObservation(
   if (existingError) return failure(existingError.message, ErrorCodes.INTERNAL_ERROR);
   if (!existing) return failure('Observation not found', ErrorCodes.NOT_FOUND);
 
-  if ((existing as any).status === 'published') {
+  const obs = existing as { id: string; author_id: string; status: string };
+
+  if (obs.status === 'published') {
     return failure('Published observations cannot be edited', ErrorCodes.VALIDATION_ERROR);
   }
 
-  if ((existing as any).author_id !== context.user.id) {
+  if (obs.author_id !== context.user.id) {
     return failure('Only the author can edit a draft', ErrorCodes.FORBIDDEN);
   }
 
@@ -259,11 +273,13 @@ export async function deleteObservation(
   if (existingError) return failure(existingError.message, ErrorCodes.INTERNAL_ERROR);
   if (!existing) return failure('Observation not found', ErrorCodes.NOT_FOUND);
 
-  if ((existing as any).status !== 'draft') {
+  const obs = existing as { author_id: string; status: string };
+
+  if (obs.status !== 'draft') {
     return failure('Only drafts can be deleted', ErrorCodes.VALIDATION_ERROR);
   }
 
-  if ((existing as any).author_id !== context.user.id) {
+  if (obs.author_id !== context.user.id) {
     return failure('Only the author can delete a draft', ErrorCodes.FORBIDDEN);
   }
 
@@ -338,7 +354,7 @@ export async function getObservationFeed(options?: {
       };
     }
 
-    const ids = (obsIds ?? []).map((r: any) => r.observation_id as string);
+    const ids = ((obsIds ?? []) as RawObsIdRow[]).map((r) => r.observation_id);
     if (ids.length === 0) {
       return { data: [], pagination: { total: 0, page, per_page: perPage, total_pages: 0 }, error: null };
     }
@@ -360,7 +376,7 @@ export async function getObservationFeed(options?: {
       };
     }
 
-    const ids = (obsIds ?? []).map((r: any) => r.observation_id as string);
+    const ids = ((obsIds ?? []) as RawObsIdRow[]).map((r) => r.observation_id);
     if (ids.length === 0) {
       return { data: [], pagination: { total: 0, page, per_page: perPage, total_pages: 0 }, error: null };
     }
@@ -422,10 +438,10 @@ export async function getObservationFeed(options?: {
   ]);
 
   const authorMap = new Map<string, AuthorRow>(
-    (authorsRes.data ?? []).map((a: any) => [
-      a.id as string,
+    ((authorsRes.data ?? []) as AuthorRow[]).map((a) => [
+      a.id,
       {
-        id: a.id as string,
+        id: a.id,
         first_name: a.first_name ?? null,
         last_name: a.last_name ?? null,
         avatar_url: a.avatar_url ?? null,
@@ -435,9 +451,9 @@ export async function getObservationFeed(options?: {
 
   // observation_students map: obsId -> [{ student }]
   const studentsByObs = new Map<string, ObservationStudentJoin[]>();
-  for (const row of (studentsRes.data ?? []) as any[]) {
-    const obsId = row.observation_id as string;
-    const student = row.student as StudentPick | null;
+  for (const row of (studentsRes.data ?? []) as RawObservationStudentRow[]) {
+    const obsId = row.observation_id;
+    const student = row.student;
     if (!student) continue;
 
     if (!studentsByObs.has(obsId)) studentsByObs.set(obsId, []);
@@ -446,9 +462,9 @@ export async function getObservationFeed(options?: {
 
   // observation_outcomes map: obsId -> [{ curriculum_node }]
   const outcomesByObs = new Map<string, ObservationOutcomeJoin[]>();
-  for (const row of (outcomesRes.data ?? []) as any[]) {
-    const obsId = row.observation_id as string;
-    const node = row.curriculum_node as OutcomePick | null;
+  for (const row of (outcomesRes.data ?? []) as RawObservationOutcomeRow[]) {
+    const obsId = row.observation_id;
+    const node = row.curriculum_node;
     if (!node) continue;
 
     if (!outcomesByObs.has(obsId)) outcomesByObs.set(obsId, []);
@@ -457,10 +473,10 @@ export async function getObservationFeed(options?: {
 
   // observation_media map: obsId -> ObservationMedia[]
   const mediaByObs = new Map<string, ObservationMedia[]>();
-  for (const row of (mediaRes.data ?? []) as any[]) {
+  for (const row of (mediaRes.data ?? []) as ObservationMedia[]) {
     const obsId = row.observation_id as string;
     if (!mediaByObs.has(obsId)) mediaByObs.set(obsId, []);
-    mediaByObs.get(obsId)!.push(row as ObservationMedia);
+    mediaByObs.get(obsId)!.push(row);
   }
   const resolvedMediaByObs = await resolveSignedUrlsForMap(mediaByObs);
 
@@ -529,7 +545,7 @@ export async function getObservation(
   ]);
 
   const author: AuthorRow =
-    (authorRes.data as any) ??
+    (authorRes.data as AuthorRow | null) ??
     ({
       id: obsRow.author_id,
       first_name: null,
@@ -537,15 +553,19 @@ export async function getObservation(
       avatar_url: null,
     } as AuthorRow);
 
-  const observation_students: ObservationStudentJoin[] = ((studentsRes.data ?? []) as any[])
-    .filter((r) => r.student)
-    .map((r) => ({ student: r.student as StudentPick }));
+  // Single-observation variant: join rows don't carry observation_id, just the nested relation.
+  type RawSingleStudentRow = { student: StudentPick | null };
+  type RawSingleOutcomeRow = { curriculum_node: OutcomePick | null };
 
-  const observation_outcomes: ObservationOutcomeJoin[] = ((outcomesRes.data ?? []) as any[])
-    .filter((r) => r.curriculum_node)
-    .map((r) => ({ curriculum_node: r.curriculum_node as OutcomePick }));
+  const observation_students: ObservationStudentJoin[] = ((studentsRes.data ?? []) as RawSingleStudentRow[])
+    .filter((r): r is RawSingleStudentRow & { student: StudentPick } => r.student !== null)
+    .map((r) => ({ student: r.student }));
 
-    const rawMedia: ObservationMedia[] = ((mediaRes.data ?? []) as any[]).map((m) => m as ObservationMedia);
+  const observation_outcomes: ObservationOutcomeJoin[] = ((outcomesRes.data ?? []) as RawSingleOutcomeRow[])
+    .filter((r): r is RawSingleOutcomeRow & { curriculum_node: OutcomePick } => r.curriculum_node !== null)
+    .map((r) => ({ curriculum_node: r.curriculum_node }));
+
+    const rawMedia: ObservationMedia[] = (mediaRes.data ?? []) as ObservationMedia[];
     const observation_media = await resolveSignedUrls(rawMedia);
   
     const feedItem: ObservationFeedItem = {
@@ -599,6 +619,18 @@ export async function addObservationMedia(input: {
     return failure(error?.message ?? 'Failed to add media', ErrorCodes.INTERNAL_ERROR);
   }
 
+  await logAudit({
+    context,
+    action: AuditActions.OBSERVATION_MEDIA_ADDED,
+    entityType: "observation_media",
+    entityId: data.id,
+    metadata: {
+      observation_id: input.observationId,
+      media_type: input.mediaType,
+      storage_provider: input.storageProvider,
+    },
+  });
+
   return success(data as ObservationMedia);
 }
 
@@ -608,7 +640,7 @@ export async function addObservationMedia(input: {
 export async function deleteObservationMedia(
   mediaId: string
 ): Promise<ActionResponse<{ success: boolean }>> {
-  await requirePermission(Permissions.CREATE_OBSERVATION);
+  const context = await requirePermission(Permissions.CREATE_OBSERVATION);
   const supabase = await createSupabaseServerClient();
 
   const { error } = await supabase
@@ -617,6 +649,13 @@ export async function deleteObservationMedia(
     .eq('id', mediaId);
 
   if (error) return failure(error.message, ErrorCodes.INTERNAL_ERROR);
+
+  await logAudit({
+    context,
+    action: AuditActions.OBSERVATION_MEDIA_DELETED,
+    entityType: "observation_media",
+    entityId: mediaId,
+  });
 
   return success({ success: true });
 }

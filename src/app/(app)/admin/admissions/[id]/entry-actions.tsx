@@ -184,19 +184,19 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5">
+    <div className="rounded-lg border border-border bg-card p-5">
       {/* Error / Success messages */}
       {error && (
-        <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mb-4 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
       {success && (
-        <div className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
+        <div className="mb-4 rounded-lg bg-success/10 px-4 py-3 text-sm text-success">
           {success}
           <button
             onClick={() => setSuccess(null)}
-            className="ml-2 text-green-500 hover:text-green-700"
+            className="ml-2 text-success hover:text-success"
           >
             ✕
           </button>
@@ -205,7 +205,7 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
 
       {/* Action buttons row */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-gray-500">Actions:</span>
+        <span className="text-sm font-medium text-muted-foreground">Actions:</span>
 
         {/* Stage-specific primary actions */}
         {allowed.includes("offered") &&
@@ -214,7 +214,7 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
               onClick={() =>
                 setActiveForm(activeForm === "offer" ? null : "offer")
               }
-              className="rounded-lg bg-orange-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-orange-700"
+              className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-background shadow-sm hover:bg-primary"
             >
               Make Offer
             </button>
@@ -224,7 +224,7 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
           <button
             onClick={() => handleTransition("accepted")}
             disabled={isSubmitting}
-            className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-green-700 disabled:opacity-50"
+            className="rounded-lg bg-success px-3 py-1.5 text-sm font-medium text-background shadow-sm hover:bg-success disabled:opacity-50"
           >
             Accept Offer
           </button>
@@ -235,7 +235,7 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
             onClick={() =>
               setActiveForm(activeForm === "decline" ? null : "decline")
             }
-            className="rounded-lg border border-red-300 bg-white px-3 py-1.5 text-sm font-medium text-red-700 shadow-sm hover:bg-red-50"
+            className="rounded-lg border border-destructive/30 bg-card px-3 py-1.5 text-sm font-medium text-destructive shadow-sm hover:bg-destructive/10"
           >
             Decline
           </button>
@@ -245,7 +245,7 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
           <button
             onClick={() => handleTransition("enrolled")}
             disabled={isSubmitting}
-            className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-green-700 disabled:opacity-50"
+            className="rounded-lg bg-success px-3 py-1.5 text-sm font-medium text-background shadow-sm hover:bg-success disabled:opacity-50"
           >
             Mark Enrolled
           </button>
@@ -267,7 +267,7 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
                 }
               }}
               disabled={isSubmitting}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
+              className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground shadow-sm hover:bg-muted disabled:opacity-50"
             >
               → {STAGE_LABELS[stage] ?? stage}
             </button>
@@ -276,7 +276,7 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
         {/* Edit details */}
         <button
           onClick={() => setActiveForm(activeForm === "edit" ? null : "edit")}
-          className="ml-auto rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+          className="ml-auto rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground shadow-sm hover:bg-muted"
         >
           Edit Details
         </button>
@@ -286,13 +286,13 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
 
       {/* Make Offer form */}
       {activeForm === "offer" && (
-        <div className="mt-4 rounded-lg border border-orange-200 bg-orange-50 p-4">
-          <h3 className="mb-3 text-sm font-semibold text-orange-800">
+        <div className="mt-4 rounded-lg border border-primary/30 bg-primary/10 p-4">
+          <h3 className="mb-3 text-sm font-semibold text-primary">
             Make Offer
           </h3>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">
+              <label className="mb-1 block text-xs font-medium text-foreground">
                 Program *
               </label>
               <input
@@ -300,57 +300,57 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
                 value={offerProgram}
                 onChange={(e) => setOfferProgram(e.target.value)}
                 placeholder="e.g., Primary 3-6"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">
+              <label className="mb-1 block text-xs font-medium text-foreground">
                 Start Date *
               </label>
               <input
                 type="date"
                 value={offerStartDate}
                 onChange={(e) => setOfferStartDate(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">
+              <label className="mb-1 block text-xs font-medium text-foreground">
                 Offer Expires{" "}
-                <span className="font-normal text-gray-400">(optional)</span>
+                <span className="font-normal text-muted-foreground">(optional)</span>
               </label>
               <input
                 type="datetime-local"
                 value={offerExpiry}
                 onChange={(e) => setOfferExpiry(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">
+              <label className="mb-1 block text-xs font-medium text-foreground">
                 Notes{" "}
-                <span className="font-normal text-gray-400">(optional)</span>
+                <span className="font-normal text-muted-foreground">(optional)</span>
               </label>
               <input
                 type="text"
                 value={offerNotes}
                 onChange={(e) => setOfferNotes(e.target.value)}
                 placeholder="Internal notes about this offer"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
           <div className="mt-3 flex justify-end gap-2">
             <button
               onClick={() => setActiveForm(null)}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted"
             >
               Cancel
             </button>
             <button
               onClick={handleMakeOffer}
               disabled={isSubmitting || !offerProgram.trim() || !offerStartDate}
-              className="rounded-lg bg-orange-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-orange-700 disabled:opacity-50"
+              className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-background shadow-sm hover:bg-primary disabled:opacity-50"
             >
               {isSubmitting ? "Sending…" : "Send Offer"}
             </button>
@@ -360,8 +360,8 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
 
       {/* Decline form */}
       {activeForm === "decline" && (
-        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
-          <h3 className="mb-3 text-sm font-semibold text-red-800">
+        <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 p-4">
+          <h3 className="mb-3 text-sm font-semibold text-destructive">
             Decline Offer
           </h3>
           <textarea
@@ -369,7 +369,7 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
             onChange={(e) => setTransitionNotes(e.target.value)}
             rows={2}
             placeholder="Reason for declining (optional)"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-destructive focus:outline-none focus:ring-1 focus:ring-destructive"
           />
           <div className="mt-3 flex justify-end gap-2">
             <button
@@ -377,14 +377,14 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
                 setActiveForm(null);
                 setTransitionNotes("");
               }}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted"
             >
               Cancel
             </button>
             <button
               onClick={() => handleTransition("declined")}
               disabled={isSubmitting}
-              className="rounded-lg bg-red-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-red-700 disabled:opacity-50"
+              className="rounded-lg bg-destructive px-4 py-1.5 text-sm font-medium text-background shadow-sm hover:bg-destructive disabled:opacity-50"
             >
               {isSubmitting ? "Declining…" : "Confirm Decline"}
             </button>
@@ -394,8 +394,8 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
 
       {/* Withdraw form */}
       {activeForm === "withdraw" && (
-        <div className="mt-4 rounded-lg border border-gray-300 bg-gray-50 p-4">
-          <h3 className="mb-3 text-sm font-semibold text-gray-800">
+        <div className="mt-4 rounded-lg border border-border bg-muted p-4">
+          <h3 className="mb-3 text-sm font-semibold text-foreground">
             Withdraw Entry
           </h3>
           <textarea
@@ -403,7 +403,7 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
             onChange={(e) => setTransitionNotes(e.target.value)}
             rows={2}
             placeholder="Reason for withdrawal (optional)"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           />
           <div className="mt-3 flex justify-end gap-2">
             <button
@@ -411,14 +411,14 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
                 setActiveForm(null);
                 setTransitionNotes("");
               }}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted"
             >
               Cancel
             </button>
             <button
               onClick={() => handleTransition("withdrawn")}
               disabled={isSubmitting}
-              className="rounded-lg bg-gray-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-gray-700 disabled:opacity-50"
+              className="rounded-lg bg-muted-foreground px-4 py-1.5 text-sm font-medium text-background shadow-sm hover:bg-muted-foreground disabled:opacity-50"
             >
               {isSubmitting ? "Withdrawing…" : "Confirm Withdraw"}
             </button>
@@ -428,13 +428,13 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
 
       {/* Edit details form */}
       {activeForm === "edit" && (
-        <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-          <h3 className="mb-3 text-sm font-semibold text-gray-800">
+        <div className="mt-4 rounded-lg border border-border bg-muted p-4">
+          <h3 className="mb-3 text-sm font-semibold text-foreground">
             Edit Details
           </h3>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">
+              <label className="mb-1 block text-xs font-medium text-foreground">
                 Priority (0 = standard, higher = more urgent)
               </label>
               <input
@@ -443,13 +443,13 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
                 max={99}
                 value={priority}
                 onChange={(e) => setPriority(parseInt(e.target.value, 10) || 0)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-xs font-medium text-gray-700">
+              <label className="mb-1 block text-xs font-medium text-foreground">
                 Admin Notes{" "}
-                <span className="font-normal text-gray-400">
+                <span className="font-normal text-muted-foreground">
                   (not visible to parents)
                 </span>
               </label>
@@ -458,21 +458,21 @@ export function EntryActions({ entry, initialAction }: EntryActionsProps) {
                 onChange={(e) => setAdminNotes(e.target.value)}
                 rows={3}
                 placeholder="Internal notes about this inquiry…"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
           <div className="mt-3 flex justify-end gap-2">
             <button
               onClick={() => setActiveForm(null)}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted"
             >
               Cancel
             </button>
             <button
               onClick={handleSaveDetails}
               disabled={isSubmitting}
-              className="rounded-lg bg-amber-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-amber-700 disabled:opacity-50"
+              className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-background shadow-sm hover:bg-primary disabled:opacity-50"
             >
               {isSubmitting ? "Saving…" : "Save Details"}
             </button>

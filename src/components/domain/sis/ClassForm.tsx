@@ -1,6 +1,7 @@
 // src/components/domain/sis/ClassForm.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type { CreateClassInput, UpdateClassInput } from "@/lib/actions/classes";
 import { createClass, updateClass } from "@/lib/actions/classes";
 import type { Class } from "@/types/domain";
@@ -76,37 +77,41 @@ export function ClassForm({ initialData }: ClassFormProps) {
         </h2>
 
         <div className="grid grid-cols-1 gap-[var(--density-md)] sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label htmlFor="className" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
-              Class Name <span className="text-destructive">*</span>
-            </label>
-            <input
-              id="className"
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Wattle Room, Banksia Environment"
-              className={INPUT_CLASS}
-            />
-            <p className="mt-1.5 text-xs font-medium text-form-helper-fg">
-              The name guides and parents will see.
-            </p>
-          </div>
+          <GlowTarget id="sis-input-class-name" category="input" label="Class name">
+            <div className="sm:col-span-2">
+              <label htmlFor="className" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
+                Class Name <span className="text-destructive">*</span>
+              </label>
+              <input
+                id="className"
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Wattle Room, Banksia Environment"
+                className={INPUT_CLASS}
+              />
+              <p className="mt-1.5 text-xs font-medium text-form-helper-fg">
+                The name guides and parents will see.
+              </p>
+            </div>
+          </GlowTarget>
 
-          <div>
-            <label htmlFor="room" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
-              Room / Location
-            </label>
-            <input
-              id="room"
-              type="text"
-              value={room}
-              onChange={(e) => setRoom(e.target.value)}
-              placeholder="e.g. Building A, Room 3"
-              className={INPUT_CLASS}
-            />
-          </div>
+          <GlowTarget id="sis-input-class-room" category="input" label="Room">
+            <div>
+              <label htmlFor="room" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
+                Room / Location
+              </label>
+              <input
+                id="room"
+                type="text"
+                value={room}
+                onChange={(e) => setRoom(e.target.value)}
+                placeholder="e.g. Building A, Room 3"
+                className={INPUT_CLASS}
+              />
+            </div>
+          </GlowTarget>
 
           <div>
             <label htmlFor="cycleLevel" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
@@ -139,7 +144,7 @@ export function ClassForm({ initialData }: ClassFormProps) {
                   }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md ring-0 transition duration-300 ease-spring ${
+                    className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-card shadow-md ring-0 transition duration-300 ease-spring ${
                       isActive ? "translate-x-5" : "translate-x-0"
                     }`}
                   />
@@ -160,13 +165,15 @@ export function ClassForm({ initialData }: ClassFormProps) {
         >
           Cancel
         </Link>
-        <button
-          type="submit"
-          disabled={isSaving || !name.trim()}
-          className="rounded-lg bg-primary px-8 h-[var(--density-button-height)] text-sm font-bold text-primary-foreground shadow-md hover:bg-primary-600 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSaving ? "Saving..." : isEditing ? "Save Changes" : "Create Class"}
-        </button>
+        <GlowTarget id="sis-btn-save-class" category="button" label="Save class">
+          <button
+            type="submit"
+            disabled={isSaving || !name.trim()}
+            className="rounded-lg bg-primary px-8 h-[var(--density-button-height)] text-sm font-bold text-primary-foreground shadow-md hover:bg-primary-600 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSaving ? "Saving..." : isEditing ? "Save Changes" : "Create Class"}
+          </button>
+        </GlowTarget>
       </div>
     </form>
   );

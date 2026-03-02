@@ -1,6 +1,7 @@
 // src/components/domain/billing/billing-dashboard-client.tsx
 "use client";
 
+import { GlowTarget, useGlowTargetRef } from "@/components/domain/glow/glow-registry";
 import {
   createFeeSchedule,
   createInvoice,
@@ -18,7 +19,7 @@ import {
   INVOICE_STATUS_CONFIG,
 } from "@/lib/constants/billing";
 import type { FeeSchedule, InvoiceWithDetails } from "@/types/domain";
-import { useState } from "react";
+import { type RefObject, useState } from "react";
 
 interface StudentWithGuardians {
   id: string;
@@ -137,6 +138,7 @@ export function BillingDashboardClient({
             </button>
           ))}
         </div>
+        <GlowTarget id="billing-btn-create-invoice" category="button" label={activeTab === "invoices" ? "Create new invoice" : "Create new fee schedule"}>
         <button
           onClick={() =>
             activeTab === "invoices"
@@ -147,6 +149,7 @@ export function BillingDashboardClient({
         >
           {activeTab === "invoices" ? "New Invoice" : "New Fee Schedule"}
         </button>
+        </GlowTarget>
       </div>
 
       {/* Invoices tab */}
@@ -264,6 +267,7 @@ function InvoiceRow({
   onRefresh: () => void;
 }) {
   const [acting, setActing] = useState(false);
+  const glowRef = useGlowTargetRef(`billing-row-invoice-${invoice.id}`, "row", `Invoice ${invoice.invoice_number}`) as RefObject<HTMLTableRowElement>;
   const statusConfig =
     INVOICE_STATUS_CONFIG[invoice.status as InvoiceStatus] ??
     INVOICE_STATUS_CONFIG.draft;
@@ -293,7 +297,7 @@ function InvoiceRow({
   }
 
   return (
-    <tr className="hover:bg-[var(--table-row-hover)] transition-colors">
+    <tr ref={glowRef} className="hover:bg-[var(--table-row-hover)] transition-colors">
       <td className="px-[var(--density-table-cell-x)] py-[var(--density-table-cell-y)]">
         <p className="text-[var(--text-sm)] font-medium text-[var(--foreground)]">
           {invoice.invoice_number}
@@ -313,7 +317,8 @@ function InvoiceRow({
       </td>
       <td className="px-[var(--density-table-cell-x)] py-[var(--density-table-cell-y)]">
         <span
-          className={`status-badge status-badge-plain px-2 py-0.5 text-[10px] ${statusConfig.bgColor} ${statusConfig.color}`}
+          className="status-badge status-badge-plain px-2 py-0.5 text-[10px]"
+          style={{ color: statusConfig.fgVar, background: statusConfig.bgVar }}
         >
           {statusConfig.label}
         </span>
@@ -321,6 +326,7 @@ function InvoiceRow({
       <td className="px-[var(--density-table-cell-x)] py-[var(--density-table-cell-y)] text-right">
         <div className="flex items-center justify-end gap-1">
           {invoice.status === "draft" && !invoice.stripe_invoice_id && (
+            <GlowTarget id={`billing-btn-sync-stripe`} category="button" label="Sync invoice to Stripe">
             <button
               onClick={() => handleAction("sync")}
               disabled={acting}
@@ -328,6 +334,7 @@ function InvoiceRow({
             >
               Sync to Stripe
             </button>
+            </GlowTarget>
           )}
           {invoice.status === "pending" && invoice.stripe_invoice_id && (
             <button
@@ -692,6 +699,7 @@ function CreateFeeForm({
       currency,
       frequency,
       description: description.trim() || undefined,
+      effective_until: null,
     });
     setIsSaving(false);
 

@@ -19,6 +19,8 @@ import type { TemplateContent } from "@/lib/reports/types";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "Template Builder - WattleOS" };
+
 interface PageProps {
   params: Promise<{ templateId: string }>;
 }
@@ -73,6 +75,7 @@ export default async function TemplateBuilderPage({ params }: PageProps) {
         templateName={template.name}
         cycleLevel={template.cycle_level}
         initialContent={content}
+        planTier={context.tenant.plan_tier as "free" | "pro" | "enterprise"}
       />
     </div>
   );

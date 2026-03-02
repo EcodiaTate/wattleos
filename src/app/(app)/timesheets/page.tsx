@@ -27,6 +27,8 @@ import type {
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "My Timesheet - WattleOS" };
+
 export default async function TimesheetsPage() {
   const context = await getTenantContext();
 
@@ -75,7 +77,7 @@ export default async function TimesheetsPage() {
         </div>
         <Link
           href="/timesheets/history"
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background"
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background"
         >
           <svg
             className="h-4 w-4"
@@ -96,9 +98,9 @@ export default async function TimesheetsPage() {
 
       {/* No pay period state */}
       {!payPeriod && (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+        <div className="rounded-lg border border-border bg-background p-12 text-center">
           <svg
-            className="mx-auto h-[var(--density-button-height)] w-12 text-gray-300"
+            className="mx-auto h-[var(--density-button-height)] w-12 text-muted-foreground"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1}
@@ -121,7 +123,7 @@ export default async function TimesheetsPage() {
           {isAdmin && (
             <Link
               href="/admin/settings/payroll"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary"
             >
               Payroll Settings
             </Link>

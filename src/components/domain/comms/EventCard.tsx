@@ -4,26 +4,12 @@
 // Clicking navigates to the detail page for RSVP actions.
 
 import type { SchoolEventWithDetails } from "@/lib/actions/comms/school-events";
+import { EVENT_TYPE_ICONS } from "@/lib/constants/communications";
 import Link from "next/link";
 
 interface EventCardProps {
   event: SchoolEventWithDetails;
-  tenantSlug: string;
 }
-
-const EVENT_TYPE_ICONS: Record<string, string> = {
-  general: "📋",
-  excursion: "🚌",
-  parent_meeting: "👥",
-  performance: "🎭",
-  sports_day: "⚽",
-  fundraiser: "💰",
-  professional_development: "📚",
-  public_holiday: "🏖️",
-  pupil_free_day: "🏠",
-  term_start: "🎒",
-  term_end: "🎉",
-};
 
 const EVENT_TYPE_LABELS: Record<string, string> = {
   general: "General",
@@ -39,7 +25,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   term_end: "Term End",
 };
 
-export function EventCard({ event, tenantSlug }: EventCardProps) {
+export function EventCard({ event }: EventCardProps) {
   const startDate = new Date(event.start_at);
   const isPast = startDate < new Date();
 
@@ -62,38 +48,38 @@ export function EventCard({ event, tenantSlug }: EventCardProps) {
       href={`/comms/events/${event.id}`}
       className={`block rounded-lg border transition-shadow hover:shadow-md ${
         isPast
-          ? "border-gray-200 bg-gray-50 opacity-75"
-          : "border-gray-200 bg-white"
+          ? "border-border bg-muted opacity-75"
+          : "border-border bg-card"
       }`}
     >
       <div className="p-5">
         {/* ── Date block + Type ────────────────────────── */}
         <div className="flex items-start gap-4">
-          <div className="flex flex-col items-center rounded-lg bg-amber-50 px-3 py-2 text-center">
-            <span className="text-xs font-medium uppercase text-amber-600">
+          <div className="flex flex-col items-center rounded-lg bg-primary/10 px-3 py-2 text-center">
+            <span className="text-xs font-medium uppercase text-primary">
               {month}
             </span>
-            <span className="text-2xl font-bold text-amber-700">{day}</span>
+            <span className="text-2xl font-bold text-primary">{day}</span>
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-base">
                 {EVENT_TYPE_ICONS[event.event_type] ?? "📋"}
               </span>
-              <span className="text-xs font-medium text-gray-500">
+              <span className="text-xs font-medium text-muted-foreground">
                 {EVENT_TYPE_LABELS[event.event_type] ?? event.event_type}
               </span>
             </div>
-            <h3 className="mt-1 truncate text-sm font-semibold text-gray-900">
+            <h3 className="mt-1 truncate text-sm font-semibold text-foreground">
               {event.title}
             </h3>
-            <p className="mt-0.5 text-xs text-gray-500">{time}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{time}</p>
           </div>
         </div>
 
         {/* ── Location ────────────────────────────────── */}
         {event.location && (
-          <div className="mt-3 flex items-center gap-1.5 text-xs text-gray-500">
+          <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
             <svg
               className="h-3.5 w-3.5"
               fill="none"
@@ -119,16 +105,16 @@ export function EventCard({ event, tenantSlug }: EventCardProps) {
         {/* ── RSVP summary ────────────────────────────── */}
         {event.rsvp_enabled && totalRsvps > 0 && (
           <div className="mt-3 flex items-center gap-3 text-xs">
-            <span className="text-emerald-600">
+            <span className="text-success">
               ✓ {event.rsvp_summary.going} going
             </span>
             {event.rsvp_summary.maybe > 0 && (
-              <span className="text-amber-600">
+              <span className="text-primary">
                 ? {event.rsvp_summary.maybe} maybe
               </span>
             )}
             {event.rsvp_summary.not_going > 0 && (
-              <span className="text-gray-400">
+              <span className="text-muted-foreground">
                 ✗ {event.rsvp_summary.not_going}
               </span>
             )}
@@ -137,7 +123,7 @@ export function EventCard({ event, tenantSlug }: EventCardProps) {
 
         {/* ── Scope badge ─────────────────────────────── */}
         <div className="mt-3">
-          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
             {event.scope === "school"
               ? "School-wide"
               : event.scope === "class"
@@ -147,7 +133,7 @@ export function EventCard({ event, tenantSlug }: EventCardProps) {
                   : "Program"}
           </span>
           {event.max_attendees && (
-            <span className="ml-2 text-xs text-gray-400">
+            <span className="ml-2 text-xs text-muted-foreground">
               Max {event.max_attendees} attendees
             </span>
           )}

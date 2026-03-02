@@ -23,6 +23,8 @@ interface EnrollPageProps {
   params: Promise<{ id: string }>;
 }
 
+export const metadata = { title: "Enroll Student - WattleOS" };
+
 export default async function EnrollStudentPage({ params }: EnrollPageProps) {
   const { id } = await params;
   const context = await getTenantContext();

@@ -9,8 +9,10 @@ import { getEvent, getEventRSVPs } from "@/lib/actions/comms/school-events";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const metadata = { title: "Event Detail - WattleOS" };
+
 interface EventDetailPageProps {
-  params: Promise<{ tenant: string; id: string }>;
+  params: Promise<{ id: string }>;
 }
 
 const EVENT_TYPE_LABELS: Record<string, string> = {
@@ -30,7 +32,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 export default async function EventDetailPage({
   params,
 }: EventDetailPageProps) {
-  const { tenant, id } = await params;
+  const { id } = await params;
 
   const result = await getEvent(id);
   if (result.error || !result.data) {
@@ -43,8 +45,8 @@ export default async function EventDetailPage({
     id: string;
     user: {
       id: string;
-      first_name: string;
-      last_name: string;
+      first_name: string | null;
+      last_name: string | null;
       avatar_url: string | null;
     };
     status: string;
@@ -97,7 +99,7 @@ export default async function EventDetailPage({
       {/* ── Back link ─────────────────────────────────── */}
       <Link
         href={`/comms/events`}
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         <svg
           className="h-4 w-4"
@@ -116,14 +118,14 @@ export default async function EventDetailPage({
       </Link>
 
       {/* ── Event Content ─────────────────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-white">
+      <div className="rounded-lg border border-border bg-card">
         <div className="p-6 space-y-4">
           {/* Type + Scope badges */}
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">
+            <span className="rounded-full bg-primary/15 px-3 py-1 text-xs font-medium text-primary">
               {EVENT_TYPE_LABELS[event.event_type] ?? event.event_type}
             </span>
-            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+            <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
               {event.scope === "school"
                 ? "School-wide"
                 : event.scope === "class"
@@ -133,19 +135,19 @@ export default async function EventDetailPage({
                     : "Program"}
             </span>
             {isPast && (
-              <span className="rounded-full bg-gray-200 px-3 py-1 text-xs font-medium text-gray-500">
+              <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
                 Past Event
               </span>
             )}
           </div>
 
           {/* Title */}
-          <h2 className="text-xl font-bold text-gray-900">{event.title}</h2>
+          <h2 className="text-xl font-bold text-foreground">{event.title}</h2>
 
           {/* Date/Time */}
-          <div className="flex items-center gap-2 text-sm text-gray-700">
+          <div className="flex items-center gap-2 text-sm text-foreground">
             <svg
-              className="h-5 w-5 text-gray-400"
+              className="h-5 w-5 text-muted-foreground"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
@@ -165,9 +167,9 @@ export default async function EventDetailPage({
 
           {/* Location */}
           {event.location && (
-            <div className="flex items-center gap-2 text-sm text-gray-700">
+            <div className="flex items-center gap-2 text-sm text-foreground">
               <svg
-                className="h-5 w-5 text-gray-400"
+                className="h-5 w-5 text-muted-foreground"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
@@ -190,7 +192,7 @@ export default async function EventDetailPage({
                   href={event.location_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-amber-600 hover:underline"
+                  className="text-primary hover:underline"
                 >
                   View Map
                 </a>
@@ -199,8 +201,8 @@ export default async function EventDetailPage({
           )}
 
           {/* Created by */}
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-xs font-medium text-amber-700">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/15 text-xs font-medium text-primary">
               {event.creator.first_name?.[0]}
               {event.creator.last_name?.[0]}
             </div>
@@ -209,8 +211,8 @@ export default async function EventDetailPage({
 
           {/* Description */}
           {event.description && (
-            <div className="border-t border-gray-100 pt-4">
-              <div className="prose prose-sm max-w-none text-gray-700">
+            <div className="border-t border-border pt-4">
+              <div className="prose prose-sm max-w-none text-foreground">
                 {event.description.split("\n").map((line, i) => (
                   <p key={i}>{line}</p>
                 ))}
@@ -220,35 +222,35 @@ export default async function EventDetailPage({
 
           {/* RSVP Summary */}
           {event.rsvp_enabled && (
-            <div className="flex items-center gap-4 rounded-lg bg-gray-50 p-4 text-sm">
+            <div className="flex items-center gap-4 rounded-lg bg-muted p-4 text-sm">
               <div className="text-center">
-                <p className="text-2xl font-bold text-emerald-600">
+                <p className="text-2xl font-bold text-success">
                   {event.rsvp_summary.going}
                 </p>
-                <p className="text-xs text-gray-500">Going</p>
+                <p className="text-xs text-muted-foreground">Going</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-amber-600">
+                <p className="text-2xl font-bold text-primary">
                   {event.rsvp_summary.maybe}
                 </p>
-                <p className="text-xs text-gray-500">Maybe</p>
+                <p className="text-xs text-muted-foreground">Maybe</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-gray-400">
+                <p className="text-2xl font-bold text-muted-foreground">
                   {event.rsvp_summary.not_going}
                 </p>
-                <p className="text-xs text-gray-500">Not Going</p>
+                <p className="text-xs text-muted-foreground">Not Going</p>
               </div>
               {event.rsvp_summary.total_guests > 0 && (
-                <div className="text-center border-l border-gray-200 pl-4">
-                  <p className="text-2xl font-bold text-gray-600">
+                <div className="text-center border-l border-border pl-4">
+                  <p className="text-2xl font-bold text-muted-foreground">
                     +{event.rsvp_summary.total_guests}
                   </p>
-                  <p className="text-xs text-gray-500">Guests</p>
+                  <p className="text-xs text-muted-foreground">Guests</p>
                 </div>
               )}
               {event.max_attendees && (
-                <div className="ml-auto text-xs text-gray-500">
+                <div className="ml-auto text-xs text-muted-foreground">
                   {event.rsvp_summary.going} / {event.max_attendees} capacity
                 </div>
               )}
@@ -258,8 +260,8 @@ export default async function EventDetailPage({
 
         {/* ── RSVP Widget ─────────────────────────────── */}
         {event.rsvp_enabled && (
-          <div className="border-t border-gray-200 px-6 py-4">
-            <h3 className="mb-3 text-sm font-semibold text-gray-900">
+          <div className="border-t border-border px-6 py-4">
+            <h3 className="mb-3 text-sm font-semibold text-foreground">
               Your RSVP
             </h3>
             <RSVPWidget
@@ -274,48 +276,48 @@ export default async function EventDetailPage({
         )}
 
         {/* ── Staff Actions ───────────────────────────── */}
-        <div className="border-t border-gray-200 px-6 py-4">
-          <EventActions eventId={event.id} tenantSlug={tenant} />
+        <div className="border-t border-border px-6 py-4">
+          <EventActions eventId={event.id} />
         </div>
       </div>
 
       {/* ── RSVP Detail List (Staff view) ─────────────── */}
       {event.rsvp_enabled && rsvps.length > 0 && (
-        <div className="rounded-lg border border-gray-200 bg-white">
-          <div className="border-b border-gray-200 px-6 py-4">
-            <h3 className="text-sm font-semibold text-gray-900">
+        <div className="rounded-lg border border-border bg-card">
+          <div className="border-b border-border px-6 py-4">
+            <h3 className="text-sm font-semibold text-foreground">
               RSVP Responses ({rsvps.length})
             </h3>
           </div>
 
           {/* Going */}
           {goingRsvps.length > 0 && (
-            <div className="border-b border-gray-100">
-              <div className="bg-emerald-50 px-6 py-2 text-xs font-medium text-emerald-700">
+            <div className="border-b border-border">
+              <div className="px-6 py-2 text-xs font-medium" style={{ backgroundColor: "var(--badge-success-bg)", color: "var(--badge-success-fg)" }}>
                 Going ({goingRsvps.length})
               </div>
-              <ul className="divide-y divide-gray-50">
+              <ul className="divide-y divide-border/50">
                 {goingRsvps.map((rsvp) => (
                   <li
                     key={rsvp.id}
                     className="flex items-center justify-between px-6 py-2.5"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-xs font-medium text-emerald-700">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium" style={{ backgroundColor: "var(--badge-success-bg)", color: "var(--badge-success-fg)" }}>
                         {rsvp.user.first_name?.[0]}
                         {rsvp.user.last_name?.[0]}
                       </div>
-                      <span className="text-sm text-gray-900">
+                      <span className="text-sm text-foreground">
                         {rsvp.user.first_name} {rsvp.user.last_name}
                       </span>
                       {rsvp.guests > 0 && (
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-muted-foreground">
                           +{rsvp.guests} guests
                         </span>
                       )}
                     </div>
                     {rsvp.notes && (
-                      <span className="text-xs text-gray-400 truncate max-w-48">
+                      <span className="text-xs text-muted-foreground truncate max-w-48">
                         {rsvp.notes}
                       </span>
                     )}
@@ -327,27 +329,27 @@ export default async function EventDetailPage({
 
           {/* Maybe */}
           {maybeRsvps.length > 0 && (
-            <div className="border-b border-gray-100">
-              <div className="bg-amber-50 px-6 py-2 text-xs font-medium text-amber-700">
+            <div className="border-b border-border">
+              <div className="bg-primary/10 px-6 py-2 text-xs font-medium text-primary">
                 Maybe ({maybeRsvps.length})
               </div>
-              <ul className="divide-y divide-gray-50">
+              <ul className="divide-y divide-border/50">
                 {maybeRsvps.map((rsvp) => (
                   <li
                     key={rsvp.id}
                     className="flex items-center justify-between px-6 py-2.5"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-100 text-xs font-medium text-amber-700">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-xs font-medium text-primary">
                         {rsvp.user.first_name?.[0]}
                         {rsvp.user.last_name?.[0]}
                       </div>
-                      <span className="text-sm text-gray-900">
+                      <span className="text-sm text-foreground">
                         {rsvp.user.first_name} {rsvp.user.last_name}
                       </span>
                     </div>
                     {rsvp.notes && (
-                      <span className="text-xs text-gray-400 truncate max-w-48">
+                      <span className="text-xs text-muted-foreground truncate max-w-48">
                         {rsvp.notes}
                       </span>
                     )}
@@ -360,26 +362,26 @@ export default async function EventDetailPage({
           {/* Not Going */}
           {notGoingRsvps.length > 0 && (
             <div>
-              <div className="bg-gray-50 px-6 py-2 text-xs font-medium text-gray-500">
+              <div className="bg-muted px-6 py-2 text-xs font-medium text-muted-foreground">
                 Not Going ({notGoingRsvps.length})
               </div>
-              <ul className="divide-y divide-gray-50">
+              <ul className="divide-y divide-border/50">
                 {notGoingRsvps.map((rsvp) => (
                   <li
                     key={rsvp.id}
                     className="flex items-center justify-between px-6 py-2.5"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-500">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
                         {rsvp.user.first_name?.[0]}
                         {rsvp.user.last_name?.[0]}
                       </div>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-muted-foreground">
                         {rsvp.user.first_name} {rsvp.user.last_name}
                       </span>
                     </div>
                     {rsvp.notes && (
-                      <span className="text-xs text-gray-400 truncate max-w-48">
+                      <span className="text-xs text-muted-foreground truncate max-w-48">
                         {rsvp.notes}
                       </span>
                     )}

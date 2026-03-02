@@ -53,7 +53,7 @@ const ACTIVITY_EVENTS: (keyof DocumentEventMap)[] = [
   "click",
 ];
 
-/** How often to check the idle timer (ms) — not too frequent to save CPU */
+/** How often to check the idle timer (ms) - not too frequent to save CPU */
 const CHECK_INTERVAL_MS = 10_000; // 10 seconds
 
 // ============================================================
@@ -127,7 +127,7 @@ export function SessionTimeout({
     warningTimerRef.current = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
-          // Time's up — log out
+          // Time's up - log out
           handleLogout();
           return 0;
         }
@@ -142,7 +142,7 @@ export function SessionTimeout({
       lastActivityRef.current = Date.now();
     };
 
-    // Attach listeners — use passive for performance on touch devices
+    // Attach listeners - use passive for performance on touch devices
     ACTIVITY_EVENTS.forEach((event) => {
       document.addEventListener(event, handler, { passive: true });
     });
@@ -210,9 +210,9 @@ export function SessionTimeout({
     >
       <div className="mx-4 w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-2xl">
         {/* Icon */}
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/15">
           <svg
-            className="h-7 w-7 text-amber-600"
+            className="h-7 w-7 text-primary"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}

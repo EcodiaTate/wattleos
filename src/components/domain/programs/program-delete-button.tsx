@@ -1,6 +1,7 @@
 // src/components/domain/programs/program-delete-button.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { deleteProgram } from "@/lib/actions/programs/programs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -36,12 +37,14 @@ export function ProgramDeleteButton({
 
   if (!confirming) {
     return (
+      <GlowTarget id="programs-btn-delete" category="button" label="Delete program">
       <button
         onClick={() => setConfirming(true)}
         className="rounded-lg border border-destructive/20 px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-medium text-destructive hover:bg-destructive/5 transition-[var(--transition-base)]"
       >
         Delete
       </button>
+      </GlowTarget>
     );
   }
 

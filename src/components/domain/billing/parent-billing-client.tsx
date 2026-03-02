@@ -1,6 +1,7 @@
 // src/components/domain/billing/parent-billing-client.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type { InvoiceStatus } from "@/lib/constants/billing";
 import { INVOICE_STATUS_CONFIG, formatCurrency } from "@/lib/constants/billing";
 import type { InvoiceWithDetails } from "@/types/domain";
@@ -120,6 +121,7 @@ function InvoiceCard({
     invoice.stripe_hosted_url;
 
   return (
+    <GlowTarget id={`billing-card-invoice-${invoice.id}`} category="card" label={`Invoice ${invoice.invoice_number}`}>
     <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-sm)] card-interactive">
       <button
         onClick={onToggle}
@@ -138,7 +140,8 @@ function InvoiceCard({
         </div>
         <div className="flex items-center gap-4">
           <span
-            className={`status-badge px-2.5 py-0.5 text-[10px] ${statusConfig.bgColor} ${statusConfig.color}`}
+            className="status-badge px-2.5 py-0.5 text-[10px]"
+            style={{ color: statusConfig.fgVar, background: statusConfig.bgVar }}
           >
             {statusConfig.label}
           </span>
@@ -210,6 +213,7 @@ function InvoiceCard({
 
           {isPayable && (
             <div className="mt-6">
+              <GlowTarget id={`billing-btn-pay-${invoice.id}`} category="button" label="Pay invoice">
               <a
                 href={invoice.stripe_hosted_url!}
                 target="_blank"
@@ -222,6 +226,7 @@ function InvoiceCard({
                   invoice.currency,
                 )}
               </a>
+              </GlowTarget>
             </div>
           )}
 
@@ -236,5 +241,6 @@ function InvoiceCard({
         </div>
       )}
     </div>
+    </GlowTarget>
   );
 }

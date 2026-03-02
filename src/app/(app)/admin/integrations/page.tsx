@@ -14,6 +14,8 @@ import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "Integrations - WattleOS" };
+
 export default async function IntegrationsPage() {
   const context = await getTenantContext();
 

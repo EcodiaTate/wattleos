@@ -41,8 +41,17 @@ function getRedis(): Redis | null {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   if (!url || !token) {
-    console.error(
-      "[rate-limit] UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN not set. Rate limiting disabled.",
+    // In production, missing rate-limit config is a security misconfiguration —
+    // all public endpoints would be unprotected. Throw to surface it immediately.
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "[rate-limit] UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN not set. " +
+          "Rate limiting is required in production. Configure Upstash credentials.",
+      );
+    }
+    // In development/test, log a warning and allow requests through.
+    console.warn(
+      "[rate-limit] UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN not set. Rate limiting disabled in dev.",
     );
     return null;
   }
@@ -54,14 +63,18 @@ function getRedis(): Redis | null {
 // ============================================================
 // Rate Limiter Tiers
 // ============================================================
-// Each tier uses a sliding window algorithm — requests are
+// Each tier uses a sliding window algorithm - requests are
 // counted within a rolling time window, providing smoother
 // rate limiting than fixed windows.
 //
 // Limiters are created lazily to avoid import-time side effects.
 // ============================================================
 
-type RateLimitTier = "public_write" | "public_read" | "auth_action";
+type RateLimitTier =
+  | "public_write"
+  | "public_read"
+  | "auth_action"
+  | "authenticated_llm";
 
 interface TierConfig {
   /** Max requests allowed in the window */
@@ -73,7 +86,7 @@ interface TierConfig {
 }
 
 const TIER_CONFIGS: Record<RateLimitTier, TierConfig> = {
-  // Inquiry form, enrollment application — creates DB rows
+  // Inquiry form, enrollment application - creates DB rows
   // 5 submissions per 15 minutes per IP is generous for real users
   public_write: {
     limit: 5,
@@ -81,7 +94,7 @@ const TIER_CONFIGS: Record<RateLimitTier, TierConfig> = {
     prefix: "rl:pub_write",
   },
 
-  // Token validation, tour slot viewing — read-only but prevents enumeration
+  // Token validation, tour slot viewing - read-only but prevents enumeration
   // 20 requests per 5 minutes per IP
   public_read: {
     limit: 20,
@@ -89,12 +102,22 @@ const TIER_CONFIGS: Record<RateLimitTier, TierConfig> = {
     prefix: "rl:pub_read",
   },
 
-  // Invitation acceptance — requires auth but token is in URL
+  // Invitation acceptance - requires auth but token is in URL
   // 10 attempts per 15 minutes per IP
   auth_action: {
     limit: 10,
     window: "15 m",
     prefix: "rl:auth_action",
+  },
+
+  // LLM streaming endpoints - keyed per user ID (not IP) so VPNs/shared IPs
+  // don't interfere. Prevents a rogue authenticated user from running up
+  // unbounded OpenAI/Anthropic API costs. 30 requests/min is ~1 chat msg
+  // every 2 seconds - more than enough for normal use, low enough to matter.
+  authenticated_llm: {
+    limit: 30,
+    window: "1 m",
+    prefix: "rl:auth_llm",
   },
 };
 
@@ -122,22 +145,30 @@ function getLimiter(tier: RateLimitTier): Ratelimit | null {
 // ============================================================
 // IP Resolution
 // ============================================================
-// WHY x-forwarded-for: On Vercel, the client IP is in this
-// header. We fall back to x-real-ip, then to "unknown".
-// "unknown" is safe — it means all unidentifiable traffic
-// shares one bucket, which is more restrictive, not less.
+// WHY x-real-ip first: On Vercel, x-real-ip is set by the
+// infrastructure and reflects the actual connection IP —
+// clients cannot forge it. x-forwarded-for is also set by
+// Vercel on the last hop, but could be spoofed if there's
+// an upstream proxy that passes client-supplied headers through.
+// "unknown" is safe - all unidentifiable traffic shares one
+// bucket, which is more restrictive, not less.
 // ============================================================
 
 async function getClientIp(): Promise<string> {
   const headerStore = await headers();
 
+  // x-real-ip is Vercel's authoritative client IP (not forgeable)
+  const realIp = headerStore.get("x-real-ip");
+  if (realIp) return realIp;
+
+  // Fall back to first hop of x-forwarded-for (still useful in other hosts)
   const forwarded = headerStore.get("x-forwarded-for");
   if (forwarded) {
     // x-forwarded-for can contain multiple IPs: "client, proxy1, proxy2"
     return forwarded.split(",")[0].trim();
   }
 
-  return headerStore.get("x-real-ip") ?? "unknown";
+  return "unknown";
 }
 
 // ============================================================

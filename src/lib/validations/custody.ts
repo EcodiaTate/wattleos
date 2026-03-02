@@ -1,7 +1,7 @@
 // src/lib/validations/custody.ts
 //
 // ============================================================
-// Zod Schemas — Custody Restrictions
+// Zod Schemas - Custody Restrictions
 // ============================================================
 // Tier 2: Authenticated but SAFETY-CRITICAL. Court orders,
 // no-contact restrictions. Wrong data here has real-world
@@ -74,7 +74,7 @@ export type CreateCustodyRestrictionInput = z.infer<
 // ────────────────────────────────────────────────────────────
 // Update Custody Restriction
 // ────────────────────────────────────────────────────────────
-// All fields optional — only provided fields are updated.
+// All fields optional - only provided fields are updated.
 // WHY .partial() is not used: We need .nullish() transforms
 // on optional string fields, which .partial() doesn't support.
 

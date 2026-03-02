@@ -29,56 +29,82 @@ export type FeeFrequency =
   | "annually"
   | "one_off";
 
+// CSS var references - use as inline styles:
+//   style={{ color: config.fgVar, background: config.bgVar }}
 export const INVOICE_STATUS_CONFIG: Record<
   InvoiceStatus,
-  { label: string; bgColor: string; color: string }
+  { label: string; fgVar: string; bgVar: string }
 > = {
-  draft: { label: "Draft", bgColor: "bg-muted", color: "text-gray-700" },
+  draft: {
+    label: "Draft",
+    fgVar: "var(--invoice-draft-fg)",
+    bgVar: "var(--invoice-draft-bg)",
+  },
   pending: {
     label: "Pending",
-    bgColor: "bg-yellow-100",
-    color: "text-yellow-700",
+    fgVar: "var(--invoice-pending-fg)",
+    bgVar: "var(--invoice-pending-bg)",
   },
-  sent: { label: "Sent", bgColor: "bg-blue-100", color: "text-blue-700" },
-  paid: { label: "Paid", bgColor: "bg-green-100", color: "text-green-700" },
+  sent: {
+    label: "Sent",
+    fgVar: "var(--invoice-sent-fg)",
+    bgVar: "var(--invoice-sent-bg)",
+  },
+  paid: {
+    label: "Paid",
+    fgVar: "var(--invoice-paid-fg)",
+    bgVar: "var(--invoice-paid-bg)",
+  },
   partially_paid: {
     label: "Partial",
-    bgColor: "bg-amber-100",
-    color: "text-amber-700",
+    fgVar: "var(--invoice-partial-fg)",
+    bgVar: "var(--invoice-partial-bg)",
   },
-  overdue: { label: "Overdue", bgColor: "bg-red-100", color: "text-red-700" },
-  void: { label: "Void", bgColor: "bg-muted", color: "text-muted-foreground" },
+  overdue: {
+    label: "Overdue",
+    fgVar: "var(--invoice-overdue-fg)",
+    bgVar: "var(--invoice-overdue-bg)",
+  },
+  void: {
+    label: "Void",
+    fgVar: "var(--invoice-void-fg)",
+    bgVar: "var(--invoice-void-bg)",
+  },
   refunded: {
     label: "Refunded",
-    bgColor: "bg-purple-100",
-    color: "text-purple-700",
+    fgVar: "var(--invoice-refunded-fg)",
+    bgVar: "var(--invoice-refunded-bg)",
   },
 };
 
 export const PAYMENT_STATUS_CONFIG: Record<
   PaymentStatus,
-  { label: string; bgColor: string; color: string }
+  { label: string; fgVar: string; bgVar: string }
 > = {
   succeeded: {
     label: "Paid",
-    bgColor: "bg-green-100",
-    color: "text-green-700",
+    fgVar: "var(--invoice-paid-fg)",
+    bgVar: "var(--invoice-paid-bg)",
   },
-  failed: { label: "Failed", bgColor: "bg-red-100", color: "text-red-700" },
+  failed: {
+    label: "Failed",
+    fgVar: "var(--invoice-overdue-fg)",
+    bgVar: "var(--invoice-overdue-bg)",
+  },
   pending: {
     label: "Pending",
-    bgColor: "bg-yellow-100",
-    color: "text-yellow-700",
+    fgVar: "var(--invoice-pending-fg)",
+    bgVar: "var(--invoice-pending-bg)",
   },
   refunded: {
     label: "Refunded",
-    bgColor: "bg-purple-100",
-    color: "text-purple-700",
+    fgVar: "var(--invoice-refunded-fg)",
+    bgVar: "var(--invoice-refunded-bg)",
   },
   partially_refunded: {
     label: "Partial Refund",
-    bgColor: "bg-purple-50",
-    color: "text-purple-600",
+    fgVar: "var(--invoice-partial-fg)",
+    bgVar: "var(--invoice-partial-bg)",
   },
 };
 

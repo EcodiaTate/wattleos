@@ -14,6 +14,8 @@ import { getMySettings } from "@/lib/actions/parent";
 import { getTenantContext } from "@/lib/auth/tenant-context";
 import Link from "next/link";
 
+export const metadata = { title: "My Settings - WattleOS" };
+
 export default async function ParentSettingsPage() {
   const context = await getTenantContext();
 
@@ -39,7 +41,7 @@ export default async function ParentSettingsPage() {
       </div>
 
       {settings.length === 0 ? (
-        <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+        <div className="rounded-lg border border-border bg-background p-8 text-center">
           <p className="text-sm text-muted-foreground">
             No children linked to your account.
           </p>
@@ -49,10 +51,10 @@ export default async function ParentSettingsPage() {
           {settings.map((guardianSetting) => (
             <div
               key={guardianSetting.guardianId}
-              className="rounded-lg borderborder-border bg-background"
+              className="rounded-lg border border-border bg-background"
             >
               {/* Child header */}
-              <div className="flex items-center gap-3 border-b border-gray-100 px-6 py-4">
+              <div className="flex items-center gap-3 border-b border-border px-6 py-4">
                 {guardianSetting.studentPhotoUrl ? (
                   <img
                     src={guardianSetting.studentPhotoUrl}
@@ -60,7 +62,7 @@ export default async function ParentSettingsPage() {
                     className="h-[var(--density-button-height)] w-10 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-[var(--density-button-height)] w-10 items-center justify-center rounded-full bg-amber-100 text-sm font-bold text-amber-700">
+                  <div className="flex h-[var(--density-button-height)] w-10 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
                     {guardianSetting.studentName[0]}
                   </div>
                 )}
@@ -128,8 +130,8 @@ export default async function ParentSettingsPage() {
                     <span
                       className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
                         guardianSetting.pickupAuthorized
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-success/15 text-success"
+                          : "bg-destructive/15 text-destructive"
                       }`}
                     >
                       {guardianSetting.pickupAuthorized

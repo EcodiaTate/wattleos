@@ -1,6 +1,7 @@
 // src/components/domain/sis/EnrollStudentForm.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { enrollStudent } from "@/lib/actions/enrollments";
 import { listStudents } from "@/lib/actions/students";
 import { calculateAge, formatStudentName } from "@/lib/utils";
@@ -56,6 +57,7 @@ export function EnrollStudentForm({ classId, className }: EnrollStudentFormProps
           Find Student
         </h2>
 
+        <GlowTarget id="sis-select-enroll-student" category="select" label="Student picker">
         <div className="flex gap-3">
           <input
             type="text"
@@ -90,7 +92,7 @@ export function EnrollStudentForm({ classId, className }: EnrollStudentFormProps
                       onClick={() => setSelectedStudent(s)}
                       className={`flex w-full items-center gap-4 px-5 py-4 text-left transition-all ${isSelected ? "bg-primary-50 ring-2 ring-inset ring-primary/40" : "hover:bg-muted/50"}`}
                     >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 text-sm font-black text-primary-700 uppercase">{s.first_name[0]}{s.last_name[0]}</div>
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 text-sm font-black text-primary uppercase">{s.first_name[0]}{s.last_name[0]}</div>
                       <div className="flex-1">
                         <p className={`text-sm font-bold ${isSelected ? 'text-primary-900' : 'text-foreground'}`}>{name}</p>
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">Age {calculateAge(s.dob)}</p>
@@ -103,6 +105,7 @@ export function EnrollStudentForm({ classId, className }: EnrollStudentFormProps
             )}
           </div>
         )}
+        </GlowTarget>
       </div>
 
       {selectedStudent && (
@@ -126,9 +129,11 @@ export function EnrollStudentForm({ classId, className }: EnrollStudentFormProps
 
       <div className="flex items-center justify-end gap-4 pt-4">
         <Link href={`/classes/${classId}`} className="rounded-lg border border-border bg-background px-6 h-[var(--density-button-height)] text-sm font-bold text-foreground shadow-sm hover:bg-muted active:scale-95 transition-all flex items-center">Cancel</Link>
-        <button onClick={handleEnroll} disabled={!selectedStudent || isEnrolling} className="rounded-lg bg-primary px-8 h-[var(--density-button-height)] text-sm font-bold text-primary-foreground shadow-md hover:bg-primary-600 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
-          {isEnrolling ? "Enrolling..." : "Enroll Student"}
-        </button>
+        <GlowTarget id="sis-btn-enroll-submit" category="button" label="Enroll student">
+          <button onClick={handleEnroll} disabled={!selectedStudent || isEnrolling} className="rounded-lg bg-primary px-8 h-[var(--density-button-height)] text-sm font-bold text-primary-foreground shadow-md hover:bg-primary-600 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+            {isEnrolling ? "Enrolling..." : "Enroll Student"}
+          </button>
+        </GlowTarget>
       </div>
     </div>
   );

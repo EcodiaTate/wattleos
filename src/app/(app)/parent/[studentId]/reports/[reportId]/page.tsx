@@ -16,6 +16,7 @@ import {
   getMyChildren,
   isGuardianOf,
 } from "@/lib/actions/parent";
+import type { ParentReportDetail } from "@/lib/actions/parent";
 import { getTenantContext } from "@/lib/auth/tenant-context";
 import type {
   ReportAutoData,
@@ -29,6 +30,8 @@ import { redirect } from "next/navigation";
 interface PageProps {
   params: Promise<{ studentId: string; reportId: string }>;
 }
+
+export const metadata = { title: "Report Viewer - WattleOS" };
 
 export default async function ReportViewerPage({ params }: PageProps) {
   const { studentId, reportId } = await params;
@@ -47,23 +50,14 @@ export default async function ReportViewerPage({ params }: PageProps) {
     redirect(`/parent/${studentId}/reports`);
   }
 
-  const report = reportResult.data;
+  const report: ParentReportDetail = reportResult.data;
 
-  // Parent view is published-only. If you ever allow other statuses here,
-  // switch this to a real field from the API response.
-  const reportStatus: string =
-    (report as any).status ??
-    ((report as any).publishedAt ? "published" : "published");
+  // Parent view is always published (action filters by status="published")
+  const reportStatus = "published";
+  // PDF path is not returned by getChildReport - parent view has no PDF download
+  const hasPdf = false;
 
-  // Parent report detail types vary (camel vs snake). Support both.
-  const pdfStoragePath =
-    (report as any).pdfStoragePath ??
-    (report as any).pdf_storage_path ??
-    (report as any).pdf_storage_path; // duplicate ok, explicit
-
-  const hasPdf = Boolean(pdfStoragePath);
-
-  const content: ReportContent = (report as any).content;
+  const content: ReportContent = report.content;
   const sections = content?.sections ?? [];
 
   return (
@@ -86,30 +80,26 @@ export default async function ReportViewerPage({ params }: PageProps) {
             Reports
           </Link>
           <span className="text-muted-foreground">/</span>
-          <span className="text-foreground">
-            {(report as any).term ?? "Report"}
-          </span>
+          <span className="text-foreground">{report.term ?? "Report"}</span>
         </div>
 
-        <div className="mt-4 rounded-lg borderborder-border bg-background px-6 py-5">
+        <div className="mt-4 rounded-lg border border-border bg-background px-6 py-5">
           <div className="flex items-start justify-between gap-[var(--density-card-padding)]">
             <div>
               <h1 className="text-xl font-bold text-foreground">
-                {(report as any).term ?? "Student Report"} - {displayName}{" "}
+                {report.term ?? "Student Report"} - {displayName}{" "}
                 {child.lastName}
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                {(report as any).templateName && (
-                  <span>{(report as any).templateName}</span>
-                )}
+                {report.templateName && <span>{report.templateName}</span>}
                 <span>&middot;</span>
-                <span>By {(report as any).authorName}</span>
-                {(report as any).publishedAt && (
+                <span>By {report.authorName}</span>
+                {report.publishedAt && (
                   <>
                     <span>&middot;</span>
                     <span>
                       Published{" "}
-                      {new Date((report as any).publishedAt).toLocaleDateString(
+                      {new Date(report.publishedAt).toLocaleDateString(
                         "en-AU",
                         {
                           day: "numeric",
@@ -157,7 +147,7 @@ export default async function ReportViewerPage({ params }: PageProps) {
       <div className="pb-8">
         <Link
           href={`/parent/${studentId}/reports`}
-          className="text-sm font-medium text-primary hover:text-amber-700"
+          className="text-sm font-medium text-primary hover:text-primary"
         >
           ← Back to reports
         </Link>
@@ -172,8 +162,8 @@ export default async function ReportViewerPage({ params }: PageProps) {
 
 function ReportSectionView({ section }: { section: ReportSectionContent }) {
   return (
-    <div className="rounded-lg borderborder-border bg-background">
-      <div className="border-b border-gray-100 px-6 py-4">
+    <div className="rounded-lg border border-border bg-background">
+      <div className="border-b border-border px-6 py-4">
         <h2 className="text-base font-semibold text-foreground">
           {section.title}
         </h2>
@@ -264,13 +254,13 @@ function AutoDataView({
               value: ms.notStarted,
               color: "text-muted-foreground",
             },
-            { label: "Presented", value: ms.presented, color: "text-blue-600" },
+            { label: "Presented", value: ms.presented, color: "text-info" },
             {
               label: "Practicing",
               value: ms.practicing,
               color: "text-primary",
             },
-            { label: "Mastered", value: ms.mastered, color: "text-green-600" },
+            { label: "Mastered", value: ms.mastered, color: "text-success" },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -302,9 +292,9 @@ function AutoDataView({
   if (type === "mastery_grid" && autoData.masteryGrid) {
     const statusColors: Record<string, string> = {
       not_started: "bg-muted text-muted-foreground",
-      presented: "bg-blue-100 text-blue-700",
-      practicing: "bg-amber-100 text-amber-700",
-      mastered: "bg-green-100 text-green-700",
+      presented: "bg-info/15 text-info",
+      practicing: "bg-primary/15 text-primary",
+      mastered: "bg-success/15 text-success",
     };
 
     return (
@@ -341,15 +331,15 @@ function AutoDataView({
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
           {[
             { label: "Total", value: att.totalDays },
-            { label: "Present", value: att.present, color: "text-green-700" },
-            { label: "Absent", value: att.absent, color: "text-red-700" },
-            { label: "Late", value: att.late, color: "text-amber-700" },
-            { label: "Excused", value: att.excused, color: "text-blue-700" },
+            { label: "Present", value: att.present, color: "text-success" },
+            { label: "Absent", value: att.absent, color: "text-destructive" },
+            { label: "Late", value: att.late, color: "text-primary" },
+            { label: "Excused", value: att.excused, color: "text-info" },
             { label: "Half Day", value: att.halfDay },
           ].map((stat) => (
             <div
               key={stat.label}
-              className="rounded-md border border-gray-100 bg-background p-2 text-center"
+              className="rounded-md border border-border bg-background p-2 text-center"
             >
               <p
                 className={`text-lg font-bold ${stat.color ?? "text-foreground"}`}
@@ -384,7 +374,7 @@ function AutoDataView({
           autoData.observationHighlights.map((obs) => (
             <div
               key={obs.id}
-              className="rounded-md border border-gray-100 bg-background p-3"
+              className="rounded-md border border-border bg-background p-3"
             >
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{formatDate(obs.createdAt)}</span>
@@ -398,7 +388,7 @@ function AutoDataView({
                   {obs.outcomes.map((outcome, i) => (
                     <span
                       key={i}
-                      className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700"
+                      className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary"
                     >
                       {outcome}
                     </span>

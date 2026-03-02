@@ -1,6 +1,7 @@
 // src/components/domain/curriculum-content/template-filter-bar.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
@@ -35,19 +36,23 @@ export function TemplateFilterBar({ frameworks, ageRanges, currentFilter }: any)
 
         <div className="min-w-[150px]">
           <label className="text-xs font-bold text-muted-foreground mb-1 block uppercase tracking-wider">Framework</label>
-          <select value={currentFilter.framework} onChange={(e) => updateFilter("framework", e.target.value)} className={selectCls}>
-            <option value="">All Systems</option>
-            {frameworks.map((f: string) => <option key={f} value={f}>{f}</option>)}
-          </select>
+          <GlowTarget id="content-filter-framework" category="select" label="Framework filter">
+            <select value={currentFilter.framework} onChange={(e) => updateFilter("framework", e.target.value)} className={selectCls}>
+              <option value="">All Systems</option>
+              {frameworks.map((f: string) => <option key={f} value={f}>{f}</option>)}
+            </select>
+          </GlowTarget>
         </div>
 
         <div className="min-w-[150px]">
           <label className="text-xs font-bold text-muted-foreground mb-1 block uppercase tracking-wider">Status</label>
-          <select value={currentFilter.compliance} onChange={(e) => updateFilter("compliance", e.target.value)} className={selectCls}>
-            <option value="">All Types</option>
-            <option value="true">Compliance</option>
-            <option value="false">Pedagogical</option>
-          </select>
+          <GlowTarget id="content-filter-level" category="select" label="Level filter">
+            <select value={currentFilter.compliance} onChange={(e) => updateFilter("compliance", e.target.value)} className={selectCls}>
+              <option value="">All Types</option>
+              <option value="true">Compliance</option>
+              <option value="false">Pedagogical</option>
+            </select>
+          </GlowTarget>
         </div>
       </div>
 

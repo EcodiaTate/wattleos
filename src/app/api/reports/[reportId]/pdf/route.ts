@@ -107,7 +107,8 @@ export async function GET(
     // Option B (API style): return JSON instead of redirect.
     // return NextResponse.json({ download_url: signed.signedUrl, filename });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to get PDF URL";
-    return NextResponse.json({ error: message }, { status: 500 });
+    // SECURITY: Log internally, return generic message.
+    console.error("[api/reports/pdf] Error:", err instanceof Error ? err.message : err);
+    return NextResponse.json({ error: "Failed to get PDF URL" }, { status: 500 });
   }
 }

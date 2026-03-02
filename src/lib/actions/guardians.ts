@@ -17,7 +17,8 @@
 // RLS enforces tenant isolation at the database level.
 // ============================================================
 
-import { getTenantContext } from "@/lib/auth/tenant-context";
+import { requirePermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ActionResponse, failure, success } from "@/types/api";
 import { Guardian, GuardianWithUser } from "@/types/domain";
@@ -68,6 +69,7 @@ export async function listGuardians(
   studentId: string,
 ): Promise<ActionResponse<GuardianWithUser[]>> {
   try {
+    await requirePermission(Permissions.VIEW_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
@@ -116,7 +118,7 @@ export async function createGuardian(
   input: CreateGuardianInput,
 ): Promise<ActionResponse<Guardian>> {
   try {
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     if (!input.student_id) {
@@ -212,7 +214,7 @@ export async function updateGuardian(
   input: UpdateGuardianInput,
 ): Promise<ActionResponse<Guardian>> {
   try {
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     const updateData: Record<string, unknown> = {};
@@ -281,7 +283,7 @@ export async function removeGuardian(
   guardianId: string,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     // Fetch before delete for audit trail

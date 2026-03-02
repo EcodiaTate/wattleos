@@ -45,7 +45,7 @@ import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
 // ============================================================
 
 const ALGORITHM = "aes-256-gcm";
-const IV_LENGTH = 12; // 96 bits — recommended for GCM
+const IV_LENGTH = 12; // 96 bits - recommended for GCM
 const AUTH_TAG_LENGTH = 16; // 128 bits
 const ENCRYPTED_PREFIX = "enc:v1:";
 
@@ -160,7 +160,7 @@ export function decryptField(value: string): string {
   // Null/empty passthrough
   if (!value) return value;
 
-  // Not encrypted — return as-is (handles legacy unencrypted data)
+  // Not encrypted - return as-is (handles legacy unencrypted data)
   if (!value.startsWith(ENCRYPTED_PREFIX)) return value;
 
   const key = getEncryptionKey();
@@ -178,7 +178,7 @@ export function decryptField(value: string): string {
 
     if (parts.length !== 3) {
       console.error(
-        "[encryption] Malformed encrypted value — expected 3 parts after prefix",
+        "[encryption] Malformed encrypted value - expected 3 parts after prefix",
       );
       return value;
     }

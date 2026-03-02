@@ -40,11 +40,11 @@ export function ForkTemplateButton({
       <button
         onClick={handleFork}
         disabled={isLoading}
-        className="rounded-md bg-purple-600 px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="rounded-md bg-info px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-info/90 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isLoading ? "Creating..." : "Use This Template"}
       </button>
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
   );
 }

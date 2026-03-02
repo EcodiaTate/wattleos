@@ -26,6 +26,8 @@ import { Permissions } from "@/lib/constants/permissions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "Attendance - WattleOS" };
+
 export default async function AttendancePage() {
   const context = await getTenantContext();
 
@@ -45,16 +47,33 @@ export default async function AttendancePage() {
             Take the daily roll for your class.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/attendance/kiosk"
+            className="touch-target flex items-center gap-1.5 rounded-[var(--radius-md)] border px-3 py-2 text-sm font-medium transition-colors hover:opacity-90"
+            style={{
+              borderColor: "var(--kiosk-late-arrival)",
+              background: "var(--kiosk-late-arrival-bg)",
+              color: "var(--foreground)",
+            }}
+          >
+            🚪 Kiosk
+          </Link>
+          <Link
+            href="/attendance/sign-in-out"
+            className="touch-target rounded-[var(--radius-md)] border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+          >
+            Sign-In/Out Log
+          </Link>
           <Link
             href="/attendance/history"
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-foreground hover:bg-background"
+            className="touch-target rounded-[var(--radius-md)] border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
           >
             History
           </Link>
           <Link
             href="/attendance/absences"
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-foreground hover:bg-background"
+            className="touch-target rounded-[var(--radius-md)] border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
           >
             Absences
           </Link>
@@ -62,9 +81,10 @@ export default async function AttendancePage() {
       </div>
 
       {classes.length === 0 ? (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+        <div className="rounded-lg border border-border bg-background p-12 text-center">
           <svg
-            className="mx-auto h-[var(--density-button-height)] w-12 text-gray-300"
+            className="mx-auto h-12 w-12"
+            style={{ color: "var(--empty-state-icon)" }}
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1}

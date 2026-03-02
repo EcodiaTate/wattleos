@@ -13,18 +13,17 @@ import {
   type AnnouncementPriority,
   type AnnouncementScope,
 } from "@/lib/actions/comms/announcements";
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 interface AnnouncementComposerProps {
-  tenantSlug: string;
   classes: Array<{ id: string; name: string }>;
   /** If provided, we're editing an existing announcement */
   existing?: Announcement;
 }
 
 export function AnnouncementComposer({
-  tenantSlug,
   classes,
   existing,
 }: AnnouncementComposerProps) {
@@ -79,10 +78,10 @@ export function AnnouncementComposer({
     label: string;
     color: string;
   }[] = [
-    { value: "low", label: "Low", color: "bg-blue-100 text-blue-700" },
-    { value: "normal", label: "Normal", color: "bg-gray-100 text-gray-700" },
-    { value: "high", label: "High", color: "bg-orange-100 text-orange-700" },
-    { value: "urgent", label: "Urgent", color: "bg-red-100 text-red-700" },
+    { value: "low", label: "Low", color: "bg-info/15 text-info" },
+    { value: "normal", label: "Normal", color: "bg-muted text-foreground" },
+    { value: "high", label: "High", color: "bg-primary/15 text-primary" },
+    { value: "urgent", label: "Urgent", color: "bg-destructive/15 text-destructive" },
   ];
 
   // ── Submit handler ─────────────────────────────────
@@ -151,7 +150,7 @@ export function AnnouncementComposer({
   return (
     <div className="space-y-6">
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
           {error}
         </div>
       )}
@@ -160,97 +159,105 @@ export function AnnouncementComposer({
       <div>
         <label
           htmlFor="title"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-foreground"
         >
           Title
         </label>
-        <input
-          id="title"
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g. Term 2 Start Date Update"
-          className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-        />
+        <GlowTarget id="comms-input-ann-title" category="input" label="Announcement title">
+          <input
+            id="title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g. Term 2 Start Date Update"
+            className="mt-1 block w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+        </GlowTarget>
       </div>
 
       {/* ── Body ──────────────────────────────────────── */}
       <div>
         <label
           htmlFor="body"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-foreground"
         >
           Content
         </label>
-        <textarea
-          id="body"
-          rows={8}
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Write your announcement here. Markdown is supported."
-          className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-        />
-        <p className="mt-1 text-xs text-gray-400">Markdown supported</p>
+        <GlowTarget id="comms-input-ann-body" category="input" label="Announcement body">
+          <textarea
+            id="body"
+            rows={8}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Write your announcement here. Markdown is supported."
+            className="mt-1 block w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+        </GlowTarget>
+        <p className="mt-1 text-xs text-muted-foreground">Markdown supported</p>
       </div>
 
       {/* ── Priority ──────────────────────────────────── */}
       <div>
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-foreground">
           Priority
         </label>
-        <div className="mt-2 flex gap-2">
-          {priorities.map((p) => (
-            <button
-              key={p.value}
-              type="button"
-              onClick={() => setPriority(p.value)}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                priority === p.value
-                  ? `${p.color} ring-2 ring-offset-1 ring-current`
-                  : "bg-gray-50 text-gray-500 hover:bg-gray-100"
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
+        <GlowTarget id="comms-select-ann-priority" category="select" label="Priority">
+          <div className="mt-2 flex gap-2">
+            {priorities.map((p) => (
+              <button
+                key={p.value}
+                type="button"
+                onClick={() => setPriority(p.value)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                  priority === p.value
+                    ? `${p.color} ring-2 ring-offset-1 ring-current`
+                    : "bg-muted text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </GlowTarget>
       </div>
 
       {/* ── Scope / Targeting ─────────────────────────── */}
-      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-4">
+      <div className="rounded-lg border border-border bg-muted p-4 space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-foreground">
             Audience
           </label>
-          <div className="mt-2 flex gap-2">
-            {(["school", "class", "program"] as AnnouncementScope[]).map(
-              (s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setScope(s)}
-                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                    scope === s
-                      ? "bg-amber-600 text-white"
-                      : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-100"
-                  }`}
-                >
-                  {s === "school"
-                    ? "Whole School"
-                    : s === "class"
-                      ? "Specific Class"
-                      : "Program"}
-                </button>
-              ),
-            )}
-          </div>
+          <GlowTarget id="comms-select-ann-scope" category="select" label="Audience scope">
+            <div className="mt-2 flex gap-2">
+              {(["school", "class", "program"] as AnnouncementScope[]).map(
+                (s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setScope(s)}
+                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                      scope === s
+                        ? "bg-primary text-background"
+                        : "bg-card text-muted-foreground border border-border hover:bg-muted"
+                    }`}
+                  >
+                    {s === "school"
+                      ? "Whole School"
+                      : s === "class"
+                        ? "Specific Class"
+                        : "Program"}
+                  </button>
+                ),
+              )}
+            </div>
+          </GlowTarget>
         </div>
 
         {scope === "class" && (
           <div>
             <label
               htmlFor="targetClass"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-foreground"
             >
               Target Class
             </label>
@@ -258,7 +265,7 @@ export function AnnouncementComposer({
               id="targetClass"
               value={targetClassId}
               onChange={(e) => setTargetClassId(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="mt-1 block w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="">Select a class...</option>
               {classes.map((c) => (
@@ -273,35 +280,37 @@ export function AnnouncementComposer({
 
       {/* ── Options ───────────────────────────────────── */}
       <div className="space-y-3">
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={requiresAck}
-            onChange={(e) => setRequiresAck(e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
-          />
-          <div>
-            <span className="text-sm font-medium text-gray-700">
-              Require acknowledgement
-            </span>
-            <p className="text-xs text-gray-500">
-              Parents must confirm they&apos;ve read this announcement
-            </p>
-          </div>
-        </label>
+        <GlowTarget id="comms-toggle-ann-ack" category="toggle" label="Require acknowledgement">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={requiresAck}
+              onChange={(e) => setRequiresAck(e.target.checked)}
+              className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+            />
+            <div>
+              <span className="text-sm font-medium text-foreground">
+                Require acknowledgement
+              </span>
+              <p className="text-xs text-muted-foreground">
+                Parents must confirm they&apos;ve read this announcement
+              </p>
+            </div>
+          </label>
+        </GlowTarget>
 
         <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={pinToTop}
             onChange={(e) => setPinToTop(e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+            className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
           />
           <div>
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-foreground">
               Pin to top
             </span>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Keep this announcement at the top of the feed
             </p>
           </div>
@@ -312,13 +321,13 @@ export function AnnouncementComposer({
             type="checkbox"
             checked={showScheduling}
             onChange={(e) => setShowScheduling(e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+            className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
           />
           <div>
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-foreground">
               Schedule for later
             </span>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Publish at a specific date and time
             </p>
           </div>
@@ -327,11 +336,11 @@ export function AnnouncementComposer({
 
       {/* ── Scheduling ────────────────────────────────── */}
       {showScheduling && (
-        <div className="grid grid-cols-2 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+        <div className="grid grid-cols-2 gap-4 rounded-lg border border-border bg-muted p-4">
           <div>
             <label
               htmlFor="scheduledFor"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-foreground"
             >
               Publish Date &amp; Time
             </label>
@@ -340,13 +349,13 @@ export function AnnouncementComposer({
               type="datetime-local"
               value={scheduledFor}
               onChange={(e) => setScheduledFor(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="mt-1 block w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
           <div>
             <label
               htmlFor="expiresAt"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-foreground"
             >
               Expires At (optional)
             </label>
@@ -355,45 +364,49 @@ export function AnnouncementComposer({
               type="datetime-local"
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="mt-1 block w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
         </div>
       )}
 
       {/* ── Actions ───────────────────────────────────── */}
-      <div className="flex items-center justify-end gap-3 border-t border-gray-200 pt-6">
+      <div className="flex items-center justify-end gap-3 border-t border-border pt-6">
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
         >
           Cancel
         </button>
-        <button
-          type="button"
-          onClick={() => handleSubmit(false)}
-          disabled={isPending}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-        >
-          {isPending ? "Saving..." : "Save as Draft"}
-        </button>
-        {!showScheduling && (
+        <GlowTarget id="comms-btn-ann-save-draft" category="button" label="Save draft">
           <button
             type="button"
-            onClick={() => handleSubmit(true)}
+            onClick={() => handleSubmit(false)}
             disabled={isPending}
-            className="rounded-lg bg-amber-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-amber-700 disabled:opacity-50"
+            className="rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
           >
-            {isPending ? "Publishing..." : "Publish Now"}
+            {isPending ? "Saving..." : "Save as Draft"}
           </button>
+        </GlowTarget>
+        {!showScheduling && (
+          <GlowTarget id="comms-btn-ann-publish" category="button" label="Publish announcement">
+            <button
+              type="button"
+              onClick={() => handleSubmit(true)}
+              disabled={isPending}
+              className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-background shadow-sm hover:bg-primary disabled:opacity-50"
+            >
+              {isPending ? "Publishing..." : "Publish Now"}
+            </button>
+          </GlowTarget>
         )}
         {showScheduling && (
           <button
             type="button"
             onClick={() => handleSubmit(false)}
             disabled={isPending || !scheduledFor}
-            className="rounded-lg bg-amber-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-amber-700 disabled:opacity-50"
+            className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-background shadow-sm hover:bg-primary disabled:opacity-50"
           >
             {isPending ? "Scheduling..." : "Schedule"}
           </button>

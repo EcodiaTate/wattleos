@@ -16,7 +16,8 @@
 
 "use server";
 
-import { getTenantContext } from "@/lib/auth/tenant-context";
+import { requirePermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ActionResponse, failure, success } from "@/types/api";
 
@@ -30,7 +31,7 @@ export async function getStudentMediaConsentMap(
   studentIds: string[],
 ): Promise<ActionResponse<Record<string, boolean>>> {
   try {
-    await getTenantContext();
+    await requirePermission(Permissions.VIEW_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     if (studentIds.length === 0) {

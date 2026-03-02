@@ -26,17 +26,16 @@ import {
 import Link from "next/link";
 
 interface CompliancePageProps {
-  params: Promise<{ tenant: string }>;
   searchParams: Promise<{
     template?: string;
   }>;
 }
 
+export const metadata = { title: "Compliance Report - WattleOS" };
+
 export default async function CompliancePage({
-  params,
   searchParams,
 }: CompliancePageProps) {
-  const { tenant } = await params;
   const sp = await searchParams;
 
   // Fetch compliance frameworks for the selector
@@ -130,8 +129,9 @@ export default async function CompliancePage({
             </div>
             <div className="h-2 rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                className="h-full rounded-full transition-all duration-500"
                 style={{
+                  backgroundColor: "var(--badge-success)",
                   width: `${
                     report.outcomes.length > 0
                       ? (report.outcomes_with_evidence /
@@ -150,7 +150,6 @@ export default async function CompliancePage({
               <ComplianceOutcomeSection
                 key={outcome.outcome_id}
                 outcome={outcome}
-                tenant={tenant}
               />
             ))}
           </div>
@@ -170,7 +169,7 @@ export default async function CompliancePage({
           </p>
 
           {complianceTemplates.length === 0 && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-4">
+            <p className="text-xs text-primary  mt-4">
               No compliance frameworks have been imported yet. Import EYLF or
               ACARA templates to enable compliance reporting.
             </p>
@@ -196,8 +195,8 @@ function SummaryCard({
 }) {
   const valueColors = {
     default: "text-foreground",
-    success: "text-emerald-600 dark:text-emerald-400",
-    warning: "text-amber-600 dark:text-amber-400",
+    success: "text-success",
+    warning: "text-primary",
   };
 
   return (
@@ -214,28 +213,26 @@ function SummaryCard({
 
 function ComplianceOutcomeSection({
   outcome,
-  tenant,
 }: {
   outcome: ComplianceReportItem;
-  tenant: string;
 }) {
   const hasEvidence = outcome.evidence_count > 0;
 
   return (
     <div
       className={`rounded-lg border overflow-hidden ${
-        hasEvidence ? "border-border" : "border-amber-200 dark:border-amber-800"
+        hasEvidence ? "border-border" : "border-primary/30 "
       }`}
     >
       {/* Outcome Header */}
       <div
         className={`flex items-center gap-3 px-4 py-3 ${
-          hasEvidence ? "bg-muted/30" : "bg-amber-50/50 dark:bg-amber-950/20"
+          hasEvidence ? "bg-muted/30" : "bg-primary/10/50 /20"
         }`}
       >
         <div
           className={`w-2 h-2 rounded-full shrink-0 ${
-            hasEvidence ? "bg-emerald-500" : "bg-amber-500"
+            hasEvidence ? "bg-success" : "bg-primary"
           }`}
         />
 
@@ -255,8 +252,8 @@ function ComplianceOutcomeSection({
         <span
           className={`text-xs font-medium shrink-0 ${
             hasEvidence
-              ? "text-emerald-600 dark:text-emerald-400"
-              : "text-amber-600 dark:text-amber-400"
+              ? "text-success"
+              : "text-primary"
           }`}
         >
           {outcome.evidence_count} evidence item
@@ -291,8 +288,8 @@ function EvidenceRow({ evidence }: { evidence: ComplianceEvidence }) {
         className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider shrink-0 mt-0.5
                     ${
                       isObservation
-                        ? "bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300"
-                        : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+                        ? "bg-info/15 text-info "
+                        : "bg-[var(--badge-success-bg)] text-[var(--badge-success-fg)]"
                     }`}
       >
         {evidence.type}

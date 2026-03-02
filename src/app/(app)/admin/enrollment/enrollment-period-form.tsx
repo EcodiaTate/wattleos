@@ -194,7 +194,7 @@ export function EnrollmentPeriodForm({ initialData }: EnrollmentPeriodFormProps)
             </label>
             <select
               value={periodType}
-              onChange={(e) => setPeriodType(e.target.value as any)}
+              onChange={(e) => setPeriodType(e.target.value as "new_enrollment" | "re_enrollment" | "mid_year")}
               className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="new_enrollment">New Enrollment</option>
@@ -348,7 +348,7 @@ export function EnrollmentPeriodForm({ initialData }: EnrollmentPeriodFormProps)
               <div className="col-span-2">
                 <select
                   value={cf.type}
-                  onChange={(e) => updateCustomField(index, { type: e.target.value as any })}
+                  onChange={(e) => updateCustomField(index, { type: e.target.value as CustomField["type"] })}
                   className="block w-full rounded border border-input bg-background px-2 py-1.5 text-xs focus:border-primary focus:outline-none"
                 >
                   <option value="text">Text</option>

@@ -5,6 +5,7 @@
 // so the page is shareable and back-button friendly.
 
 import { AnnouncementCard } from "@/components/domain/comms/AnnouncementCard";
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type {
   AnnouncementPriority,
   AnnouncementScope,
@@ -12,8 +13,9 @@ import type {
 import { listAnnouncements } from "@/lib/actions/comms/announcements";
 import Link from "next/link";
 
+export const metadata = { title: "Announcements - WattleOS" };
+
 interface AnnouncementsPageProps {
-  params: Promise<{ tenant: string }>;
   searchParams: Promise<{
     scope?: AnnouncementScope;
     priority?: AnnouncementPriority;
@@ -25,10 +27,8 @@ interface AnnouncementsPageProps {
 }
 
 export default async function AnnouncementsPage({
-  params,
   searchParams,
 }: AnnouncementsPageProps) {
-  const { tenant } = await params;
   const search = await searchParams;
 
   const page = parseInt(search.page ?? "1", 10);
@@ -85,14 +85,14 @@ export default async function AnnouncementsPage({
       {/* ── Header + Actions ──────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Announcements</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-lg font-semibold text-foreground">Announcements</h2>
+          <p className="text-sm text-muted-foreground">
             {result.pagination?.total ?? 0} total announcements
           </p>
         </div>
         <Link
           href={`/comms/announcements/new`}
-          className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-background shadow-sm hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
         >
           <svg
             className="h-4 w-4"
@@ -114,7 +114,7 @@ export default async function AnnouncementsPage({
       {/* ── Filters ───────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-3">
         {/* Scope filter */}
-        <div className="flex gap-1 rounded-lg border border-gray-200 bg-white p-1">
+        <div className="flex gap-1 rounded-lg border border-border bg-card p-1">
           {scopeOptions.map((opt) => {
             const isActive =
               (opt.value === "" && !search.scope) || search.scope === opt.value;
@@ -124,8 +124,8 @@ export default async function AnnouncementsPage({
                 href={buildFilterUrl("scope", opt.value)}
                 className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                   isActive
-                    ? "bg-amber-100 text-amber-800"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted-foreground hover:bg-muted"
                 }`}
               >
                 {opt.label}
@@ -135,7 +135,7 @@ export default async function AnnouncementsPage({
         </div>
 
         {/* Priority filter */}
-        <div className="flex gap-1 rounded-lg border border-gray-200 bg-white p-1">
+        <div className="flex gap-1 rounded-lg border border-border bg-card p-1">
           {priorityOptions.map((opt) => {
             const isActive =
               (opt.value === "" && !search.priority) ||
@@ -146,8 +146,8 @@ export default async function AnnouncementsPage({
                 href={buildFilterUrl("priority", opt.value)}
                 className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                   isActive
-                    ? "bg-amber-100 text-amber-800"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted-foreground hover:bg-muted"
                 }`}
               >
                 {opt.label}
@@ -165,8 +165,8 @@ export default async function AnnouncementsPage({
             )}
             className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
               search.drafts === "true"
-                ? "bg-gray-800 text-white"
-                : "border border-gray-300 text-gray-600 hover:bg-gray-100"
+                ? "bg-foreground text-background"
+                : "border border-border text-muted-foreground hover:bg-muted"
             }`}
           >
             Include Drafts
@@ -178,8 +178,8 @@ export default async function AnnouncementsPage({
             )}
             className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
               search.expired === "true"
-                ? "bg-gray-800 text-white"
-                : "border border-gray-300 text-gray-600 hover:bg-gray-100"
+                ? "bg-foreground text-background"
+                : "border border-border text-muted-foreground hover:bg-muted"
             }`}
           >
             Include Expired
@@ -191,8 +191,8 @@ export default async function AnnouncementsPage({
             )}
             className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
               search.pinned === "true"
-                ? "bg-gray-800 text-white"
-                : "border border-gray-300 text-gray-600 hover:bg-gray-100"
+                ? "bg-foreground text-background"
+                : "border border-border text-muted-foreground hover:bg-muted"
             }`}
           >
             Pinned Only
@@ -202,9 +202,9 @@ export default async function AnnouncementsPage({
 
       {/* ── Announcement List ─────────────────────────── */}
       {announcements.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-gray-200 p-12 text-center">
+        <div className="rounded-lg border-2 border-dashed border-border p-12 text-center">
           <svg
-            className="mx-auto h-12 w-12 text-gray-400"
+            className="mx-auto h-12 w-12 text-muted-foreground"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1}
@@ -216,16 +216,16 @@ export default async function AnnouncementsPage({
               d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 1 1 0-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 0 1-1.44-4.282m3.102.069a18.03 18.03 0 0 1-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 0 1 8.835 2.535M10.34 6.66a23.847 23.847 0 0 0 8.835-2.535m0 0A23.74 23.74 0 0 0 18.795 3m.38 1.125a23.91 23.91 0 0 1 1.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 0 0 1.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 0 1 0 3.46"
             />
           </svg>
-          <h3 className="mt-4 text-sm font-semibold text-gray-900">
+          <h3 className="mt-4 text-sm font-semibold text-foreground">
             No announcements found
           </h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Create your first announcement to share news with your school
             community.
           </p>
           <Link
             href={`/comms/announcements/new`}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-background hover:bg-primary"
           >
             Create Announcement
           </Link>
@@ -233,26 +233,31 @@ export default async function AnnouncementsPage({
       ) : (
         <div className="space-y-4">
           {announcements.map((announcement) => (
-            <AnnouncementCard
+            <GlowTarget
               key={announcement.id}
-              announcement={announcement}
-              tenantSlug={tenant}
-            />
+              id={`comms-card-ann-${announcement.id}`}
+              category="card"
+              label={announcement.title}
+            >
+              <AnnouncementCard
+                announcement={announcement}
+              />
+            </GlowTarget>
           ))}
         </div>
       )}
 
       {/* ── Pagination ────────────────────────────────── */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-          <p className="text-sm text-gray-500">
+        <div className="flex items-center justify-between border-t border-border pt-4">
+          <p className="text-sm text-muted-foreground">
             Page {page} of {totalPages}
           </p>
           <div className="flex gap-2">
             {page > 1 && (
               <Link
                 href={buildFilterUrl("page", String(page - 1))}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
               >
                 Previous
               </Link>
@@ -260,7 +265,7 @@ export default async function AnnouncementsPage({
             {page < totalPages && (
               <Link
                 href={buildFilterUrl("page", String(page + 1))}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
               >
                 Next
               </Link>

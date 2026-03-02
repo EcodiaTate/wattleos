@@ -18,6 +18,8 @@ import { Permissions } from "@/lib/constants/permissions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "New Report Template - WattleOS" };
+
 export default async function NewTemplatePage() {
   const context = await getTenantContext();
 

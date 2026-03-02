@@ -25,6 +25,7 @@
 
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { updateTenantDisplaySettings } from "@/lib/actions/display-settings";
 import {
   type ColorPreset,
@@ -238,36 +239,40 @@ export function AppearanceSettingsClient({
 
         {/* ── 3. Sidebar Style ── */}
         <SettingsCard title="Sidebar Style" description="Controls the visual weight and contrast of the navigation sidebar.">
-          <div className="grid grid-cols-1 gap-[var(--density-sm)] sm:grid-cols-3">
-            {SIDEBAR_STYLE_OPTIONS.map((opt) => (
-              <SidebarStyleCard
-                key={opt.value}
-                value={opt.value}
-                label={opt.label}
-                description={opt.description}
-                brandHue={brand.h}
-                brandSat={brand.s}
-                isSelected={settings.sidebarStyle === opt.value}
-                onSelect={() => updateSettings({ sidebarStyle: opt.value })}
-              />
-            ))}
-          </div>
+          <GlowTarget id="admin-select-sidebar-style" category="select" label="Sidebar style">
+            <div className="grid grid-cols-1 gap-[var(--density-sm)] sm:grid-cols-3">
+              {SIDEBAR_STYLE_OPTIONS.map((opt) => (
+                <SidebarStyleCard
+                  key={opt.value}
+                  value={opt.value}
+                  label={opt.label}
+                  description={opt.description}
+                  brandHue={brand.h}
+                  brandSat={brand.s}
+                  isSelected={settings.sidebarStyle === opt.value}
+                  onSelect={() => updateSettings({ sidebarStyle: opt.value })}
+                />
+              ))}
+            </div>
+          </GlowTarget>
         </SettingsCard>
 
         {/* ── 4. Layout Density ── */}
         <SettingsCard title="Layout Density" description="Controls spacing and sizing across the platform. Users can override this in their personal settings.">
-          <div className="grid grid-cols-1 gap-[var(--density-sm)] sm:grid-cols-3">
-            {DENSITY_OPTIONS.map((opt) => (
-              <DensityCard
-                key={opt.value}
-                value={opt.value}
-                label={opt.label}
-                description={opt.description}
-                isSelected={settings.defaultDensity === opt.value}
-                onSelect={() => updateSettings({ defaultDensity: opt.value })}
-              />
-            ))}
-          </div>
+          <GlowTarget id="admin-select-density" category="select" label="Layout density">
+            <div className="grid grid-cols-1 gap-[var(--density-sm)] sm:grid-cols-3">
+              {DENSITY_OPTIONS.map((opt) => (
+                <DensityCard
+                  key={opt.value}
+                  value={opt.value}
+                  label={opt.label}
+                  description={opt.description}
+                  isSelected={settings.defaultDensity === opt.value}
+                  onSelect={() => updateSettings({ defaultDensity: opt.value })}
+                />
+              ))}
+            </div>
+          </GlowTarget>
         </SettingsCard>
 
         {/* ── 5. Default Theme ── */}
@@ -293,14 +298,16 @@ export function AppearanceSettingsClient({
 
         {/* ── Save ── */}
         <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={isPending}
-            className="rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-90 disabled:opacity-50"
-          >
-            {isPending ? "Saving…" : "Save Appearance"}
-          </button>
+          <GlowTarget id="admin-btn-save-appearance" category="button" label="Save appearance">
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={isPending}
+              className="rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-90 disabled:opacity-50"
+            >
+              {isPending ? "Saving…" : "Save Appearance"}
+            </button>
+          </GlowTarget>
 
           {saveStatus === "saved" && (
             <span className="text-sm text-success animate-fade-in">
@@ -579,7 +586,7 @@ function ColorSection({
               max={360}
               value={hue}
               onChange={(e) => onChange(Number(e.target.value), saturation)}
-              className="w-full h-2 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-foreground/30 [&::-webkit-slider-thumb]:shadow-md"
+              className="w-full h-2 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-card [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-foreground/30 [&::-webkit-slider-thumb]:shadow-md"
               style={{
                 background: `linear-gradient(to right, hsl(0 ${saturation}% 50%), hsl(60 ${saturation}% 50%), hsl(120 ${saturation}% 50%), hsl(180 ${saturation}% 50%), hsl(240 ${saturation}% 50%), hsl(300 ${saturation}% 50%), hsl(360 ${saturation}% 50%))`,
               }}
@@ -598,7 +605,7 @@ function ColorSection({
               max={100}
               value={saturation}
               onChange={(e) => onChange(hue, Number(e.target.value))}
-              className="w-full h-2 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-foreground/30 [&::-webkit-slider-thumb]:shadow-md"
+              className="w-full h-2 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-card [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-foreground/30 [&::-webkit-slider-thumb]:shadow-md"
               style={{
                 background: `linear-gradient(to right, hsl(${hue} 10% 50%), hsl(${hue} 100% 50%))`,
               }}

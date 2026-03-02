@@ -1,9 +1,19 @@
 // src/app/(app)/classes/page.tsx
 import { listClasses } from "@/lib/actions/classes";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { redirect } from "next/navigation";
+
+export const metadata = { title: "Classes - WattleOS" };
 
 export default async function ClassesPage() {
+  const context = await getTenantContext();
+  if (!hasPermission(context, Permissions.VIEW_CLASSES)) {
+    redirect("/dashboard");
+  }
+
   const result = await listClasses();
 
   const classes = result.data ?? [];

@@ -101,7 +101,7 @@ export function MasteryPageClient({
         {selectedStudentId && (
           <Link
             href={`/pedagogy/portfolio/${selectedStudentId}`}
-            className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-foreground hover:bg-background"
+            className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-background"
           >
             <svg
               className="h-4 w-4"
@@ -133,7 +133,7 @@ export function MasteryPageClient({
           <select
             value={selectedInstanceId}
             onChange={(e) => setSelectedInstanceId(e.target.value)}
-            className="rounded-lg border border-gray-300 bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           >
             {instances.map((inst) => (
               <option key={inst.id} value={inst.id}>
@@ -145,7 +145,7 @@ export function MasteryPageClient({
 
         <Link
           href="/pedagogy/mastery/heatmap"
-          className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-foreground hover:bg-background"
+          className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-background"
         >
           <svg
             className="h-4 w-4"

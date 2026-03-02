@@ -78,7 +78,7 @@ export function InvitationActions({
       {/* Confirmation */}
       {confirmAction && (
         <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-muted-foreground">
             {confirmAction === "revoke" ? "Revoke?" : "Resend?"}
           </span>
           <button
@@ -88,14 +88,14 @@ export function InvitationActions({
               )
             }
             disabled={isPending}
-            className="rounded bg-amber-600 px-2 py-1 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+            className="rounded bg-primary px-2 py-1 text-xs font-medium text-background hover:bg-primary disabled:opacity-50"
           >
             {isPending ? "…" : "Yes"}
           </button>
           <button
             onClick={() => setConfirmAction(null)}
             disabled={isPending}
-            className="rounded bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-300"
+            className="rounded bg-muted px-2 py-1 text-xs font-medium text-foreground hover:bg-border"
           >
             No
           </button>
@@ -109,7 +109,7 @@ export function InvitationActions({
             <button
               onClick={() => setConfirmAction("resend")}
               disabled={isPending}
-              className="rounded bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 disabled:opacity-50"
+              className="rounded bg-info/15 px-2.5 py-1 text-xs font-medium text-info hover:bg-info/20 disabled:opacity-50"
             >
               {isExpired ? "Re-send" : "Resend"}
             </button>
@@ -118,7 +118,7 @@ export function InvitationActions({
             <button
               onClick={() => setConfirmAction("revoke")}
               disabled={isPending}
-              className="rounded bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-200 disabled:opacity-50"
+              className="rounded bg-destructive/15 px-2.5 py-1 text-xs font-medium text-destructive hover:bg-destructive/20 disabled:opacity-50"
             >
               Revoke
             </button>

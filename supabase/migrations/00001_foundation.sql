@@ -408,7 +408,9 @@ BEGIN
     'create_observation', 'publish_observation', 'view_all_observations',
     'manage_curriculum', 'manage_mastery', 'manage_reports',
     'view_students', 'view_medical_records',
-    'manage_attendance', 'send_class_messages'
+    'manage_attendance', 'view_attendance_reports',
+    'view_classes',
+    'send_class_messages'
   );
 
   -- Guide
@@ -418,7 +420,9 @@ BEGIN
   WHERE p.key IN (
     'create_observation', 'publish_observation',
     'view_students', 'view_medical_records',
-    'manage_attendance', 'manage_mastery', 'send_class_messages'
+    'manage_attendance',
+    'view_classes',
+    'manage_mastery', 'send_class_messages'
   );
 
   -- Assistant
@@ -426,7 +430,8 @@ BEGIN
   SELECT NEW.id, v_assistant_role_id, p.id
   FROM permissions p
   WHERE p.key IN (
-    'create_observation', 'view_students', 'manage_attendance'
+    'create_observation', 'view_students', 'manage_attendance',
+    'view_classes'
   );
 
   -- Parent gets no explicit permissions (uses is_guardian_of() in RLS)

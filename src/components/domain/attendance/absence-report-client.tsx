@@ -18,6 +18,7 @@
 import type { AbsenceReportRow } from "@/lib/actions/attendance";
 import { getAbsenceReport } from "@/lib/actions/attendance";
 import { ATTENDANCE_STATUS_CONFIG } from "@/lib/constants/attendance";
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -95,7 +96,8 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-wrap items-end gap-[var(--density-card-padding)] rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+      <div className="flex flex-wrap items-end gap-[var(--density-card-padding)] rounded-lg border border-border bg-background p-[var(--density-card-padding)]">
+        <GlowTarget id="att-select-class-filter" category="select" label="Class filter">
         <div className="min-w-[180px]">
           <label className="block text-xs font-medium text-foreground">
             Class
@@ -103,7 +105,7 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
           <select
             value={classId}
             onChange={(e) => setClassId(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           >
             <option value="">All classes</option>
             {classes.map((c) => (
@@ -113,7 +115,9 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
             ))}
           </select>
         </div>
+        </GlowTarget>
 
+        <GlowTarget id="att-input-date-start" category="input" label="Start date">
         <div>
           <label className="block text-xs font-medium text-foreground">
             From
@@ -122,10 +126,12 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="mt-1 block rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1 block rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           />
         </div>
+        </GlowTarget>
 
+        <GlowTarget id="att-input-date-end" category="input" label="End date">
         <div>
           <label className="block text-xs font-medium text-foreground">
             To
@@ -134,11 +140,13 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="mt-1 block rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="mt-1 block rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           />
         </div>
+        </GlowTarget>
 
-        <label className="flex cursor-pointer items-center gap-2 rounded-lg borderborder-border px-3 py-2">
+        <GlowTarget id="att-toggle-unexplained" category="toggle" label="Unexplained only">
+        <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2">
           <input
             type="checkbox"
             checked={unexplainedOnly}
@@ -147,13 +155,14 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
           />
           <span className="text-sm text-foreground">Unexplained only</span>
         </label>
+        </GlowTarget>
       </div>
 
       {/* Alert banner */}
       {unexplainedCount > 0 && unexplainedOnly && (
-        <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+        <div className="flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3">
           <svg
-            className="h-5 w-5 flex-shrink-0 text-red-500"
+            className="h-5 w-5 flex-shrink-0 text-destructive"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -163,7 +172,7 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
               clipRule="evenodd"
             />
           </svg>
-          <p className="text-sm font-medium text-red-700">
+          <p className="text-sm font-medium text-destructive">
             {unexplainedCount} unexplained absence
             {unexplainedCount !== 1 ? "s" : ""} require follow-up.
           </p>
@@ -172,16 +181,16 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
 
       {/* Loading */}
       {loading && (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-amber-600" />
+        <div className="rounded-lg border border-border bg-background p-12 text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-border border-t-amber-600" />
         </div>
       )}
 
       {/* Results */}
       {!loading && rows.length === 0 && (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+        <div className="rounded-lg border border-border bg-background p-12 text-center">
           <svg
-            className="mx-auto h-[var(--density-button-height)] w-10 text-green-400"
+            className="mx-auto h-[var(--density-button-height)] w-10 text-success"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}
@@ -205,7 +214,7 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
       )}
 
       {!loading && rows.length > 0 && (
-        <div className="overflow-hidden rounded-lg borderborder-border bg-background">
+        <div className="overflow-hidden rounded-lg border border-border bg-background">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-background">
               <tr>
@@ -237,9 +246,9 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
                     <td className="whitespace-nowrap px-4 py-3">
                       <Link
                         href={`/students/${row.student.id}`}
-                        className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-amber-700"
+                        className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
                       >
-                        <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-muted-foreground">
+                        <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
                           {row.student.photo_url ? (
                             <img
                               src={row.student.photo_url}
@@ -269,7 +278,7 @@ export function AbsenceReportClient({ classes }: AbsenceReportClientProps) {
                           {row.notes}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-red-600">
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive">
                           <svg
                             className="h-3 w-3"
                             fill="currentColor"

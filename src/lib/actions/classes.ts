@@ -11,10 +11,29 @@
 // Fix: createClass now calls getTenantContext() for tenant_id.
 // ============================================================
 
-import { getTenantContext } from "@/lib/auth/tenant-context";
+import { requirePermission } from "@/lib/auth/tenant-context";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { Permissions } from "@/lib/constants/permissions";
 import { ActionResponse, failure, success } from "@/types/api";
 import { Class, ClassWithCounts, EnrollmentWithStudent } from "@/types/domain";
+import { z } from "zod";
+
+// ============================================================
+// Validation Schemas
+// ============================================================
+
+const createClassSchema = z.object({
+  name: z.string().trim().min(1, "Class name is required").max(200, "Class name is too long"),
+  room: z.string().trim().max(100).optional().transform((v) => v || null),
+  cycle_level: z.string().trim().max(100).optional().transform((v) => v || null),
+});
+
+const updateClassSchema = z.object({
+  name: z.string().trim().min(1).max(200).optional(),
+  room: z.string().trim().max(100).optional().transform((v) => v || null),
+  cycle_level: z.string().trim().max(100).optional().transform((v) => v || null),
+  is_active: z.boolean().optional(),
+});
 
 // ============================================================
 // Input Types
@@ -41,6 +60,7 @@ export async function listClasses(): Promise<
   ActionResponse<ClassWithCounts[]>
 > {
   try {
+    await requirePermission(Permissions.VIEW_CLASSES);
     const supabase = await createSupabaseServerClient();
 
     const { data: classes, error } = await supabase
@@ -91,6 +111,7 @@ export async function getClass(
   classId: string,
 ): Promise<ActionResponse<Class>> {
   try {
+    await requirePermission(Permissions.VIEW_CLASSES);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
@@ -119,7 +140,20 @@ export async function getClassRoster(
   classId: string,
 ): Promise<ActionResponse<EnrollmentWithStudent[]>> {
   try {
+    await requirePermission(Permissions.VIEW_CLASSES);
     const supabase = await createSupabaseServerClient();
+
+    // Verify the class itself exists and isn't soft-deleted before returning its roster.
+    const { data: classCheck } = await supabase
+      .from("classes")
+      .select("id")
+      .eq("id", classId)
+      .is("deleted_at", null)
+      .maybeSingle();
+
+    if (!classCheck) {
+      return failure("Class not found", "NOT_FOUND");
+    }
 
     const { data, error } = await supabase
       .from("enrollments")
@@ -149,20 +183,21 @@ export async function createClass(
   input: CreateClassInput,
 ): Promise<ActionResponse<Class>> {
   try {
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_CLASSES);
     const supabase = await createSupabaseServerClient();
 
-    if (!input.name?.trim()) {
-      return failure("Class name is required", "VALIDATION_ERROR");
+    const parsed = createClassSchema.safeParse(input);
+    if (!parsed.success) {
+      return failure(parsed.error.issues[0].message, "VALIDATION_ERROR");
     }
 
     const { data, error } = await supabase
       .from("classes")
       .insert({
         tenant_id: context.tenant.id,
-        name: input.name.trim(),
-        room: input.room?.trim() || null,
-        cycle_level: input.cycle_level?.trim() || null,
+        name: parsed.data.name,
+        room: parsed.data.room,
+        cycle_level: parsed.data.cycle_level,
       })
       .select()
       .single();
@@ -188,6 +223,7 @@ export async function updateClass(
   input: UpdateClassInput,
 ): Promise<ActionResponse<Class>> {
   try {
+    await requirePermission(Permissions.MANAGE_CLASSES);
     const supabase = await createSupabaseServerClient();
 
     const updateData: Record<string, unknown> = {};
@@ -234,6 +270,7 @@ export async function deleteClass(
   classId: string,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
+    await requirePermission(Permissions.MANAGE_CLASSES);
     const supabase = await createSupabaseServerClient();
 
     // Check for active enrollments

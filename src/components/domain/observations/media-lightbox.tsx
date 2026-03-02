@@ -164,7 +164,7 @@ export function MediaLightbox({
             className="max-h-[85vh] max-w-[85vw] rounded-lg object-contain shadow-2xl"
           />
         ) : (
-          <div className="flex h-64 w-64 items-center justify-center rounded-lg bg-gray-800 text-muted-foreground">
+          <div className="flex h-64 w-64 items-center justify-center rounded-lg bg-foreground text-muted-foreground">
             <div className="text-center">
               <MediaTypeIcon type={current.media_type} />
               <p className="mt-2 text-sm">

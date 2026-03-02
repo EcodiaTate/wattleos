@@ -47,3 +47,14 @@ export {
   type CreatePickupAuthorizationInput,
   type UpdatePickupAuthorizationInput,
 } from "./pickup";
+
+export {
+  createMedicalPlanSchema,
+  updateMedicalPlanSchema,
+  createMedicationAuthorisationSchema,
+  recordMedicationAdministrationSchema,
+  type CreateMedicalPlanInput,
+  type UpdateMedicalPlanInput,
+  type CreateMedicationAuthorisationInput,
+  type RecordMedicationAdministrationInput,
+} from "./medication-admin";

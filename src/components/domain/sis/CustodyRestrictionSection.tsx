@@ -1,6 +1,7 @@
 // src/components/domain/sis/CustodyRestrictionSection.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type { CreateCustodyRestrictionInput, UpdateCustodyRestrictionInput } from "@/lib/actions/custody";
 import { createCustodyRestriction, deleteCustodyRestriction, updateCustodyRestriction } from "@/lib/actions/custody";
 import { RESTRICTION_TYPES } from "@/lib/constants";
@@ -128,7 +129,7 @@ export function CustodyRestrictionSection({ studentId, restrictions, canManage }
           Custody Restrictions
         </h2>
         {canManage && !showAddForm && !editingId && (
-          <button onClick={() => { setEditingId(null); resetForm(); setShowAddForm(true); }} className="text-sm font-bold text-destructive hover:underline">+ Add Record</button>
+          <GlowTarget id="sis-btn-add-restriction" category="button" label="Add custody restriction"><button onClick={() => { setEditingId(null); resetForm(); setShowAddForm(true); }} className="text-sm font-bold text-destructive hover:underline">+ Add Record</button></GlowTarget>
         )}
       </div>
       <div className="p-6">
@@ -138,7 +139,8 @@ export function CustodyRestrictionSection({ studentId, restrictions, canManage }
           <div className="space-y-4">
             {restrictions.map(r => (
               editingId === r.id ? <div key={r.id}>{renderForm("edit", r.id)}</div> : (
-                <div key={r.id} className="rounded-xl border border-destructive/20 bg-destructive/5 p-5 shadow-sm">
+                <GlowTarget key={r.id} id={`sis-row-restriction-${r.id}`} category="row" label={r.restricted_person_name}>
+                <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-5 shadow-sm">
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-3 mb-2">
@@ -161,6 +163,7 @@ export function CustodyRestrictionSection({ studentId, restrictions, canManage }
                     )}
                   </div>
                 </div>
+                </GlowTarget>
               )
             ))}
           </div>

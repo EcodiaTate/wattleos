@@ -1,7 +1,7 @@
 // src/lib/validations/admissions.ts
 //
 // ============================================================
-// Zod Schemas — Admissions / Waitlist Pipeline
+// Zod Schemas - Admissions / Waitlist Pipeline
 // ============================================================
 // Runtime validation for all admissions-related inputs.
 // Public endpoints (submitInquiry, bookTour) are the highest
@@ -12,18 +12,18 @@
 //   2. Export the schema AND the inferred TypeScript type
 //   3. In the action, call schema.safeParse(input)
 //   4. If it fails, return failure() with the first issue message
-//   5. If it passes, use parsed.data — it's fully typed and cleaned
+//   5. If it passes, use parsed.data - it's fully typed and cleaned
 //
 // WHY z.string().trim(): Zod can transform data during parsing.
 // .trim() strips whitespace BEFORE validation, so " " fails
 // a .min(1) check. Your current manual code does input.field?.trim()
-// in 20+ places — Zod handles it once in the schema.
+// in 20+ places - Zod handles it once in the schema.
 // ============================================================
 
 import { z } from "zod";
 
 // ────────────────────────────────────────────────────────────
-// Submit Inquiry (Public — no auth)
+// Submit Inquiry (Public - no auth)
 // ────────────────────────────────────────────────────────────
 
 export const submitInquirySchema = z.object({
@@ -113,10 +113,7 @@ export const submitInquirySchema = z.object({
     .transform((v) => v || null),
 
   // ── Additional info ─────────────────────────────────────
-  siblings_at_school: z
-    .boolean()
-    .optional()
-    .default(false),
+  siblings_at_school: z.boolean().optional().default(false),
 
   sibling_names: z
     .string()
@@ -140,15 +137,24 @@ export const submitInquirySchema = z.object({
     .transform((v) => v || null),
 
   // ── Tracking (set by the page, not the user) ────────────
-  source_url: z.string().url().max(2000).nullish().transform((v) => v || null),
-  source_campaign: z.string().max(200).nullish().transform((v) => v || null),
+  source_url: z
+    .string()
+    .url()
+    .max(2000)
+    .nullish()
+    .transform((v) => v || null),
+  source_campaign: z
+    .string()
+    .max(200)
+    .nullish()
+    .transform((v) => v || null),
 });
 
-// Inferred TypeScript type — use this instead of the manual interface
+// Inferred TypeScript type - use this instead of the manual interface
 export type SubmitInquiryInput = z.infer<typeof submitInquirySchema>;
 
 // ────────────────────────────────────────────────────────────
-// Book Tour (Public — no auth)
+// Book Tour (Public - no auth)
 // ────────────────────────────────────────────────────────────
 
 export const bookTourSchema = z.object({
@@ -156,9 +162,7 @@ export const bookTourSchema = z.object({
     .string("School identifier is required")
     .uuid("Invalid school identifier"),
 
-  tour_slot_id: z
-    .string("Tour slot is required")
-    .uuid("Invalid tour slot"),
+  tour_slot_id: z.string("Tour slot is required").uuid("Invalid tour slot"),
 
   parent_first_name: z
     .string()
@@ -166,11 +170,7 @@ export const bookTourSchema = z.object({
     .min(1, "First name is required")
     .max(100),
 
-  parent_last_name: z
-    .string()
-    .trim()
-    .min(1, "Last name is required")
-    .max(100),
+  parent_last_name: z.string().trim().min(1, "Last name is required").max(100),
 
   parent_email: z
     .string()
@@ -187,11 +187,7 @@ export const bookTourSchema = z.object({
     .nullish()
     .transform((v) => v || null),
 
-  child_name: z
-    .string()
-    .trim()
-    .min(1, "Child name is required")
-    .max(200),
+  child_name: z.string().trim().min(1, "Child name is required").max(200),
 
   child_age: z
     .string()

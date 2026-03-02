@@ -15,6 +15,7 @@
 
 "use client";
 
+import { GlowTarget, useGlowTargetRef } from "@/components/domain/glow/glow-registry";
 import { deleteTimeEntry, logTimeEntry } from "@/lib/actions/time-entries";
 import { submitTimesheet } from "@/lib/actions/timesheets";
 import {
@@ -32,7 +33,7 @@ import type {
   TimesheetStatus,
 } from "@/types/domain";
 import { useRouter } from "next/navigation";
-import { useCallback, useState, useTransition } from "react";
+import { type RefObject, useCallback, useState, useTransition } from "react";
 
 // ────────────────────────────────────────────────────────────
 // Types
@@ -343,10 +344,10 @@ export function TimesheetGridClient({
 
       {/* Period locked banner */}
       {isLocked && (
-        <div className="rounded-lg border border-orange-200 bg-orange-50 px-4 py-3">
+        <div className="rounded-lg border border-primary/30 bg-primary/10 px-4 py-3">
           <div className="flex items-center gap-2">
             <svg
-              className="h-5 w-5 text-orange-500"
+              className="h-5 w-5 text-primary"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
@@ -358,7 +359,7 @@ export function TimesheetGridClient({
                 d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
               />
             </svg>
-            <p className="text-sm font-medium text-orange-800">
+            <p className="text-sm font-medium text-primary">
               This pay period is locked. No further changes can be made.
             </p>
           </div>
@@ -366,7 +367,7 @@ export function TimesheetGridClient({
       )}
 
       {/* Period header card */}
-      <div className="rounded-lg borderborder-border bg-background px-6 py-4">
+      <div className="rounded-lg border border-border bg-background px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-foreground">
@@ -425,7 +426,7 @@ export function TimesheetGridClient({
       </div>
 
       {/* Time Entry Grid */}
-      <div className="overflow-x-auto rounded-lg borderborder-border bg-background">
+      <div className="overflow-x-auto rounded-lg border border-border bg-background">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-background">
             <tr>
@@ -503,12 +504,12 @@ export function TimesheetGridClient({
 
       {/* Actions bar */}
       {isEditable && (
-        <div className="flex items-center justify-between rounded-lg borderborder-border bg-background px-6 py-4">
+        <div className="flex items-center justify-between rounded-lg border border-border bg-background px-6 py-4">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={fillDefaults}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-background"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-background"
             >
               <svg
                 className="h-4 w-4"
@@ -532,11 +533,12 @@ export function TimesheetGridClient({
             )}
           </div>
 
+          <GlowTarget id="timesheets-btn-submit" category="button" label="Submit timesheet">
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? (
               <>
@@ -580,18 +582,19 @@ export function TimesheetGridClient({
               </>
             )}
           </button>
+          </GlowTarget>
         </div>
       )}
 
       {/* Error/Success feedback */}
       {submitError && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-          <p className="text-sm text-red-700">{submitError}</p>
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3">
+          <p className="text-sm text-destructive">{submitError}</p>
         </div>
       )}
       {submitSuccess && (
-        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3">
-          <p className="text-sm text-green-700">
+        <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3">
+          <p className="text-sm text-success">
             Timesheet submitted successfully! Your approver will review it
             shortly.
           </p>
@@ -618,18 +621,18 @@ function StatusBanner({
   // Map status to border/background colors for the banner
   const bannerStyles: Record<TimesheetStatus, string> = {
     draft: "border-border bg-background",
-    submitted: "border-blue-200 bg-blue-50",
-    approved: "border-green-200 bg-green-50",
-    rejected: "border-red-200 bg-red-50",
-    synced: "border-purple-200 bg-purple-50",
+    submitted: "border-info/30 bg-info/10",
+    approved: "border-success/30 bg-success/10",
+    rejected: "border-destructive/30 bg-destructive/10",
+    synced: "border-info/20 bg-info/10",
   };
 
   const textStyles: Record<TimesheetStatus, string> = {
     draft: "text-foreground",
-    submitted: "text-blue-700",
-    approved: "text-green-700",
-    rejected: "text-red-700",
-    synced: "text-purple-700",
+    submitted: "text-info",
+    approved: "text-success",
+    rejected: "text-destructive",
+    synced: "text-info",
   };
 
   const messages: Record<TimesheetStatus, string> = {
@@ -654,9 +657,9 @@ function StatusBanner({
         <p className={`text-sm ${textStyles[status]}`}>{messages[status]}</p>
       </div>
       {status === "rejected" && rejectionNotes && (
-        <div className="mt-2 rounded-md bg-red-100 px-3 py-2">
-          <p className="text-xs font-medium text-red-800">Reviewer notes:</p>
-          <p className="mt-0.5 text-sm text-red-700">{rejectionNotes}</p>
+        <div className="mt-2 rounded-md bg-destructive/15 px-3 py-2">
+          <p className="text-xs font-medium text-destructive">Reviewer notes:</p>
+          <p className="mt-0.5 text-sm text-destructive">{rejectionNotes}</p>
         </div>
       )}
     </div>
@@ -678,10 +681,12 @@ function DayRowComponent({
 }) {
   const typeConfig = TIME_ENTRY_TYPE_CONFIG[row.entryType];
   const isLeave = LEAVE_TYPES.includes(row.entryType);
+  const glowRef = useGlowTargetRef(`timesheets-row-${row.date}`, "row", `Timesheet row: ${row.dayLabel} ${row.dateLabel}`) as RefObject<HTMLTableRowElement>;
 
   return (
     <tr
-      className={`${row.isWeekend ? "bg-background/50" : ""} ${row.error ? "bg-red-50/30" : ""}`}
+      ref={glowRef}
+      className={`${row.isWeekend ? "bg-background/50" : ""} ${row.error ? "bg-destructive/10/30" : ""}`}
     >
       {/* Day label */}
       <td className="whitespace-nowrap px-4 py-2.5">
@@ -705,7 +710,7 @@ function DayRowComponent({
           onChange={(e) => onUpdate({ startTime: e.target.value })}
           onBlur={onBlurSave}
           disabled={!isEditable}
-          className="w-24 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
+          className="w-24 rounded-md border border-border px-2 py-1.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
         />
       </td>
 
@@ -717,7 +722,7 @@ function DayRowComponent({
           onChange={(e) => onUpdate({ endTime: e.target.value })}
           onBlur={onBlurSave}
           disabled={!isEditable}
-          className="w-24 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
+          className="w-24 rounded-md border border-border px-2 py-1.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
         />
       </td>
 
@@ -728,7 +733,7 @@ function DayRowComponent({
           onChange={(e) => onUpdate({ breakMinutes: Number(e.target.value) })}
           onBlur={onBlurSave}
           disabled={!isEditable}
-          className="w-20 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
+          className="w-20 rounded-md border border-border px-2 py-1.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
         >
           <option value={0}>0 min</option>
           <option value={15}>15 min</option>
@@ -755,7 +760,7 @@ function DayRowComponent({
             setTimeout(onBlurSave, 0);
           }}
           disabled={!isEditable}
-          className={`w-32 rounded-md border px-2 py-1.5 text-xs font-medium focus:border-ring focus:ring-1 focus:ring-ring disabled:opacity-60 ${typeConfig?.bgColor ?? "bg-background"} ${typeConfig?.color ?? "text-foreground"} border-gray-300`}
+          className={`w-32 rounded-md border px-2 py-1.5 text-xs font-medium focus:border-ring focus:ring-1 focus:ring-ring disabled:opacity-60 ${typeConfig?.bgColor ?? "bg-background"} ${typeConfig?.color ?? "text-foreground"} border-border`}
         >
           {TIME_ENTRY_TYPES.map((type) => (
             <option key={type} value={type}>
@@ -774,7 +779,7 @@ function DayRowComponent({
           onBlur={onBlurSave}
           disabled={!isEditable}
           placeholder={row.isWeekend ? "" : "Optional"}
-          className="w-full min-w-[100px] rounded-md border border-gray-300 px-2 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
+          className="w-full min-w-[100px] rounded-md border border-border px-2 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
         />
       </td>
 
@@ -804,7 +809,7 @@ function DayRowComponent({
           )}
           {!row.isSaving && row.entryId && !row.error && (
             <svg
-              className="h-4 w-4 text-green-500"
+              className="h-4 w-4 text-success"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={2}
@@ -818,7 +823,7 @@ function DayRowComponent({
             </svg>
           )}
           {row.error && (
-            <span className="text-xs text-red-500" title={row.error}>
+            <span className="text-xs text-destructive" title={row.error}>
               <svg
                 className="h-4 w-4"
                 fill="none"
@@ -838,7 +843,7 @@ function DayRowComponent({
             <button
               type="button"
               onClick={onClear}
-              className="rounded p-0.5 text-muted-foreground transition-colors hover:text-red-500"
+              className="rounded p-0.5 text-muted-foreground transition-colors hover:text-destructive"
               title="Clear entry"
             >
               <svg
@@ -872,10 +877,10 @@ function SummaryPill({
   variant: "primary" | "default" | "warning" | "info";
 }) {
   const styles: Record<typeof variant, string> = {
-    primary: "bg-amber-50 text-amber-700 border-amber-200",
+    primary: "bg-primary/10 text-primary border-primary/30",
     default: "bg-background text-foregroundborder-border",
-    warning: "bg-orange-50 text-orange-700 border-orange-200",
-    info: "bg-blue-50 text-blue-700 border-blue-200",
+    warning: "bg-primary/10 text-primary border-primary/30",
+    info: "bg-info/10 text-info border-info/30",
   };
 
   return (

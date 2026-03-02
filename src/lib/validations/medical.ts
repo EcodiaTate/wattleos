@@ -1,7 +1,7 @@
 // src/lib/validations/medical.ts
 //
 // ============================================================
-// Zod Schemas — Medical Conditions
+// Zod Schemas - Medical Conditions
 // ============================================================
 // Tier 2: Authenticated but HEALTH-CRITICAL. Allergies,
 // anaphylaxis plans, medication requirements. A severity

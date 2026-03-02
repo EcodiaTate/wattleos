@@ -13,42 +13,50 @@
 // Route: {school}.wattleos.au/inquiry
 // ============================================================
 
-import { resolvePublicTenant } from "@/lib/utils/resolve-public-tenant";
+import { resolvePublicTenant } from "@/lib/auth/public-tenant";
+import { getInquiryConfig } from "@/lib/actions/admissions/inquiry-config";
+import { PublicPageShell } from "@/components/public/PublicPageShell";
+import { DEFAULT_INQUIRY_CONFIG } from "@/types/domain";
 import { InquiryForm } from "./inquiry-form";
 
-export default async function InquiryPage() {
-  const tenant = await resolvePublicTenant();
+interface InquiryPageProps {
+  searchParams: Promise<{ tenant?: string }>;
+}
+
+export default async function InquiryPage({ searchParams }: InquiryPageProps) {
+  const params = await searchParams;
+  const tenant = await resolvePublicTenant(params.tenant);
 
   if (!tenant) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="max-w-md rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
-          <h1 className="text-xl font-semibold text-gray-900">
+      <div className="flex min-h-screen items-center justify-center bg-muted">
+        <div className="max-w-md rounded-lg border border-border bg-card p-8 text-center shadow-sm">
+          <h1 className="text-xl font-semibold text-foreground">
             School Not Found
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
-            We couldn't find the school associated with this URL. Please check
-            the link and try again.
+          <p className="mt-2 text-sm text-muted-foreground">
+            We couldn&apos;t find the school associated with this URL. Please
+            check the link and try again.
           </p>
         </div>
       </div>
     );
   }
 
+  const configResult = await getInquiryConfig(tenant.id);
+  const config = configResult.data ?? DEFAULT_INQUIRY_CONFIG;
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-2xl px-4 py-12">
-        {/* Header */}
+    <PublicPageShell tenant={tenant}>
+      <div className="mx-auto max-w-2xl px-4 py-10">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">{tenant.name}</h1>
-          <p className="mt-2 text-lg text-gray-600">
-            Express your interest in joining our school
+          <h1 className="text-3xl font-bold text-foreground">Enquire</h1>
+          <p className="mt-2 text-base text-muted-foreground">
+            Express your interest in joining {tenant.name}
           </p>
         </div>
-
-        {/* Form */}
-        <InquiryForm tenantId={tenant.id} schoolName={tenant.name} />
+        <InquiryForm tenantId={tenant.id} tenantSlug={tenant.slug} schoolName={tenant.name} config={config} />
       </div>
-    </div>
+    </PublicPageShell>
   );
 }

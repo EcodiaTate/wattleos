@@ -27,6 +27,8 @@ interface PageProps {
   searchParams: Promise<{ page?: string }>;
 }
 
+export const metadata = { title: "Child Portfolio - WattleOS" };
+
 export default async function ChildPortfolioPage({
   params,
   searchParams,
@@ -79,7 +81,7 @@ export default async function ChildPortfolioPage({
               className="h-[var(--density-button-height)] w-12 rounded-full object-cover"
             />
           ) : (
-            <div className="flex h-[var(--density-button-height)] w-12 items-center justify-center rounded-full bg-amber-100 text-lg font-bold text-amber-700">
+            <div className="flex h-[var(--density-button-height)] w-12 items-center justify-center rounded-full bg-primary/15 text-lg font-bold text-primary">
               {child.firstName[0]}
               {child.lastName[0]}
             </div>
@@ -97,7 +99,7 @@ export default async function ChildPortfolioPage({
         <div className="mt-4 flex gap-[var(--density-card-padding)] border-bborder-border">
           <Link
             href={`/parent/${studentId}`}
-            className="border-b-2 border-primary px-1 pb-3 text-sm font-medium text-amber-700"
+            className="border-b-2 border-primary px-1 pb-3 text-sm font-medium text-primary"
           >
             Portfolio
           </Link>
@@ -124,7 +126,7 @@ export default async function ChildPortfolioPage({
           </h2>
 
           {observations.length === 0 ? (
-            <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+            <div className="rounded-lg border border-border bg-background p-8 text-center">
               <p className="text-sm text-muted-foreground">
                 No published observations yet for this period.
               </p>
@@ -134,7 +136,7 @@ export default async function ChildPortfolioPage({
               {observations.map((obs) => (
                 <div
                   key={obs.id}
-                  className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]"
+                  className="rounded-lg border border-border bg-background p-[var(--density-card-padding)]"
                 >
                   {/* Media thumbnails */}
                   {obs.media.length > 0 && (
@@ -172,7 +174,7 @@ export default async function ChildPortfolioPage({
                       {obs.outcomes.map((o) => (
                         <span
                           key={o.nodeId}
-                          className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700"
+                          className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
                         >
                           {o.title}
                         </span>
@@ -216,7 +218,7 @@ export default async function ChildPortfolioPage({
                     {obsPagination.page > 1 && (
                       <Link
                         href={`/parent/${studentId}?page=${obsPagination.page - 1}`}
-                        className="rounded-md border border-gray-300 bg-background px-3 py-1 text-xs text-foreground hover:bg-background"
+                        className="rounded-md border border-border bg-background px-3 py-1 text-xs text-foreground hover:bg-background"
                       >
                         Previous
                       </Link>
@@ -224,7 +226,7 @@ export default async function ChildPortfolioPage({
                     {obsPagination.page < obsPagination.totalPages && (
                       <Link
                         href={`/parent/${studentId}?page=${obsPagination.page + 1}`}
-                        className="rounded-md border border-gray-300 bg-background px-3 py-1 text-xs text-foreground hover:bg-background"
+                        className="rounded-md border border-border bg-background px-3 py-1 text-xs text-foreground hover:bg-background"
                       >
                         Next
                       </Link>
@@ -243,7 +245,7 @@ export default async function ChildPortfolioPage({
           </h2>
 
           {masterySummaries.length === 0 ? (
-            <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] text-center">
+            <div className="rounded-lg border border-border bg-background p-[var(--density-card-padding)] text-center">
               <p className="text-sm text-muted-foreground">
                 No mastery data recorded yet.
               </p>
@@ -253,7 +255,7 @@ export default async function ChildPortfolioPage({
               {masterySummaries.map((ms) => (
                 <div
                   key={ms.instanceId}
-                  className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]"
+                  className="rounded-lg border border-border bg-background p-[var(--density-card-padding)]"
                 >
                   <p className="text-sm font-medium text-foreground">
                     {ms.instanceName}
@@ -275,7 +277,7 @@ export default async function ChildPortfolioPage({
                   {/* Breakdown */}
                   <div className="mt-3 grid grid-cols-4 gap-2">
                     <div className="text-center">
-                      <p className="text-sm font-bold text-green-600">
+                      <p className="text-sm font-bold text-success">
                         {ms.mastered}
                       </p>
                       <p className="text-[10px] text-muted-foreground">
@@ -291,7 +293,7 @@ export default async function ChildPortfolioPage({
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm font-bold text-blue-600">
+                      <p className="text-sm font-bold text-info">
                         {ms.presented}
                       </p>
                       <p className="text-[10px] text-muted-foreground">

@@ -22,7 +22,7 @@ export default function DashboardLoading() {
       {/* Quick action cards */}
       <SkeletonCardGrid count={3} columns="sm:grid-cols-2 lg:grid-cols-3" />
 
-      {/* Today at a Glance — KPI row */}
+      {/* Today at a Glance - KPI row */}
       <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm">
         <div className="mb-5 space-y-2">
           <Skeleton className="h-5 w-36" />

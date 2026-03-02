@@ -15,20 +15,25 @@
 // fields are exposed - no admin notes, no priority scores.
 // ============================================================
 
-import { resolvePublicTenant } from "@/lib/utils/resolve-public-tenant";
+import { resolvePublicTenant } from "@/lib/auth/public-tenant";
 import { StatusCheckerClient } from "./status-checker-client";
 
-export default async function InquiryStatusPage() {
-  const tenant = await resolvePublicTenant();
+interface InquiryStatusPageProps {
+  searchParams: Promise<{ tenant?: string }>;
+}
+
+export default async function InquiryStatusPage({ searchParams }: InquiryStatusPageProps) {
+  const params = await searchParams;
+  const tenant = await resolvePublicTenant(params.tenant);
 
   if (!tenant) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="max-w-md rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
-          <h1 className="text-xl font-semibold text-gray-900">
+      <div className="flex min-h-screen items-center justify-center bg-muted">
+        <div className="max-w-md rounded-lg border border-border bg-card p-8 text-center shadow-sm">
+          <h1 className="text-xl font-semibold text-foreground">
             School Not Found
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             We couldn't find the school associated with this URL.
           </p>
         </div>
@@ -37,12 +42,12 @@ export default async function InquiryStatusPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <div className="mx-auto max-w-lg px-4 py-12">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">{tenant.name}</h1>
-          <p className="mt-2 text-lg text-gray-600">
+          <h1 className="text-3xl font-bold text-foreground">{tenant.name}</h1>
+          <p className="mt-2 text-lg text-muted-foreground">
             Check the status of your inquiry
           </p>
         </div>

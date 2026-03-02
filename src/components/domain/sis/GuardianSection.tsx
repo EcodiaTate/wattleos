@@ -17,6 +17,7 @@
 
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type {
   CreateGuardianInput,
   UpdateGuardianInput,
@@ -331,16 +332,18 @@ export function GuardianSection({
       <div className="flex items-center justify-between border-b border-border bg-muted/20 px-6 py-4">
         <h2 className="text-lg font-bold text-foreground">Guardians</h2>
         {canManage && !showAddForm && !editingId && (
-          <button
-            onClick={() => {
-              setEditingId(null);
-              resetForm();
-              setShowAddForm(true);
-            }}
-            className="text-sm font-bold text-primary hover:underline"
-          >
-            + Add Guardian
-          </button>
+          <GlowTarget id="sis-btn-add-guardian" category="button" label="Add guardian">
+            <button
+              onClick={() => {
+                setEditingId(null);
+                resetForm();
+                setShowAddForm(true);
+              }}
+              className="text-sm font-bold text-primary hover:underline"
+            >
+              + Add Guardian
+            </button>
+          </GlowTarget>
         )}
       </div>
 
@@ -355,8 +358,8 @@ export function GuardianSection({
               editingId === g.id ? (
                 <div key={g.id}>{renderForm("edit", g.id)}</div>
               ) : (
+                <GlowTarget key={g.id} id={`sis-card-guardian-${g.id}`} category="card" label={guardianDisplayName(g)}>
                 <div
-                  key={g.id}
                   className="flex items-center justify-between rounded-xl border border-border/60 bg-background p-4 shadow-sm hover:border-primary-100 transition-all"
                 >
                   <div>
@@ -456,6 +459,7 @@ export function GuardianSection({
                     )}
                   </div>
                 </div>
+                </GlowTarget>
               ),
             )}
           </div>

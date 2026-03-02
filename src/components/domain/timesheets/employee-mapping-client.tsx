@@ -14,6 +14,7 @@
 
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import {
   createEmployeeMapping,
   removeEmployeeMapping,
@@ -157,8 +158,8 @@ export function EmployeeMappingClient({
         <div
           className={`rounded-lg border px-4 py-3 text-sm ${
             message.type === "success"
-              ? "border-green-200 bg-green-50 text-green-800"
-              : "border-red-200 bg-red-50 text-red-800"
+              ? "border-success/30 bg-success/10 text-success"
+              : "border-destructive/30 bg-destructive/10 text-destructive"
           }`}
         >
           {message.text}
@@ -175,7 +176,7 @@ export function EmployeeMappingClient({
         </p>
 
         {activeMappings.length === 0 ? (
-          <div className="mt-4 rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] text-center text-sm text-muted-foreground">
+          <div className="mt-4 rounded-lg border border-border bg-background p-[var(--density-card-padding)] text-center text-sm text-muted-foreground">
             No staff linked yet. Use the section below to map staff to their{" "}
             {providerLabel} employee IDs.
           </div>
@@ -185,13 +186,13 @@ export function EmployeeMappingClient({
               const isEditing = editingId === mapping.id;
 
               return (
+                <GlowTarget key={mapping.id} id={`timesheets-row-mapping-${mapping.user_id}`} category="row" label={`Employee mapping: ${mapping.user_name}`}>
                 <div
-                  key={mapping.id}
-                  className="flex items-center justify-between rounded-lg borderborder-border bg-background px-4 py-3"
+                  className="flex items-center justify-between rounded-lg border border-border bg-background px-4 py-3"
                 >
                   {isEditing ? (
                     <div className="flex flex-1 items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-xs font-medium text-green-700">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-success/15 text-xs font-medium text-success">
                         {mapping.user_name
                           .split(" ")
                           .map((n) => n[0])
@@ -205,19 +206,19 @@ export function EmployeeMappingClient({
                         value={editExternalId}
                         onChange={(e) => setEditExternalId(e.target.value)}
                         placeholder="External ID"
-                        className="w-40 rounded border border-gray-300 px-2 py-1 text-sm focus:border-ring focus:outline-none"
+                        className="w-40 rounded border border-border px-2 py-1 text-sm focus:border-ring focus:outline-none"
                       />
                       <input
                         type="text"
                         value={editExternalName}
                         onChange={(e) => setEditExternalName(e.target.value)}
                         placeholder="External name (optional)"
-                        className="w-48 rounded border border-gray-300 px-2 py-1 text-sm focus:border-ring focus:outline-none"
+                        className="w-48 rounded border border-border px-2 py-1 text-sm focus:border-ring focus:outline-none"
                       />
                       <button
                         onClick={() => handleUpdate(mapping.id)}
                         disabled={isPending}
-                        className="rounded bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
+                        className="rounded bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:bg-primary disabled:opacity-50"
                       >
                         Save
                       </button>
@@ -231,7 +232,7 @@ export function EmployeeMappingClient({
                   ) : (
                     <>
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-xs font-medium text-green-700">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-success/15 text-xs font-medium text-success">
                           {mapping.user_name
                             .split(" ")
                             .map((n) => n[0])
@@ -273,7 +274,7 @@ export function EmployeeMappingClient({
                           <button
                             onClick={() => handleDeactivate(mapping.id)}
                             disabled={isPending}
-                            className="text-xs text-red-500 hover:text-red-700"
+                            className="text-xs text-destructive hover:text-destructive"
                           >
                             Remove
                           </button>
@@ -282,6 +283,7 @@ export function EmployeeMappingClient({
                     </>
                   )}
                 </div>
+                </GlowTarget>
               );
             })}
           </div>
@@ -306,10 +308,10 @@ export function EmployeeMappingClient({
               return (
                 <div
                   key={user.id}
-                  className="flex items-center justify-between rounded-lg border border-dashed border-gray-300 bg-background/50 px-4 py-3"
+                  className="flex items-center justify-between rounded-lg border border-dashed border-border bg-background/50 px-4 py-3"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-muted-foreground">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
                       {user.first_name?.[0] ?? ""}
                       {user.last_name?.[0] ?? ""}
                     </div>
@@ -330,7 +332,7 @@ export function EmployeeMappingClient({
                         value={externalId}
                         onChange={(e) => setExternalId(e.target.value)}
                         placeholder={`${providerLabel} Employee ID`}
-                        className="w-40 rounded border border-gray-300 px-2 py-1 text-sm focus:border-ring focus:outline-none"
+                        className="w-40 rounded border border-border px-2 py-1 text-sm focus:border-ring focus:outline-none"
                         autoFocus
                       />
                       <input
@@ -338,12 +340,12 @@ export function EmployeeMappingClient({
                         value={externalName}
                         onChange={(e) => setExternalName(e.target.value)}
                         placeholder="Name in payroll (optional)"
-                        className="w-48 rounded border border-gray-300 px-2 py-1 text-sm focus:border-ring focus:outline-none"
+                        className="w-48 rounded border border-border px-2 py-1 text-sm focus:border-ring focus:outline-none"
                       />
                       <button
                         onClick={handleCreate}
                         disabled={isPending || !externalId.trim()}
-                        className="rounded bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
+                        className="rounded bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:bg-primary disabled:opacity-50"
                       >
                         Link
                       </button>
@@ -361,7 +363,7 @@ export function EmployeeMappingClient({
                   ) : (
                     <button
                       onClick={() => setAddingUserId(user.id)}
-                      className="rounded-lg border border-amber-300 px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-50"
+                      className="rounded-lg border border-primary/30 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
                     >
                       Link to {providerLabel}
                     </button>
@@ -384,10 +386,10 @@ export function EmployeeMappingClient({
             {inactiveMappings.map((mapping) => (
               <div
                 key={mapping.id}
-                className="flex items-center justify-between rounded-lg borderborder-border bg-background px-4 py-3 opacity-60"
+                className="flex items-center justify-between rounded-lg border border-border bg-background px-4 py-3 opacity-60"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-muted-foreground">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
                     {mapping.user_name
                       .split(" ")
                       .map((n) => n[0])
@@ -405,7 +407,7 @@ export function EmployeeMappingClient({
                 <button
                   onClick={() => handleReactivate(mapping.id)}
                   disabled={isPending}
-                  className="text-xs text-primary hover:text-amber-700"
+                  className="text-xs text-primary hover:text-primary"
                 >
                   Reactivate
                 </button>

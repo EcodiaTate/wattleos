@@ -6,7 +6,7 @@
 // The heart of Module 10. Manages the full lifecycle of
 // enrollment applications from submission through approval.
 //
-// The critical function is approveApplication() — a single
+// The critical function is approveApplication() - a single
 // server action that triggers a cascade creating the student
 // record, guardian links, medical conditions, emergency
 // contacts, custody restrictions, consent flags, and parent
@@ -35,14 +35,12 @@
 
 import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
-import {
-  submitEnrollmentApplicationSchema,
-  validate,
-} from "@/lib/validations";
+import { submitEnrollmentApplicationSchema, validate } from "@/lib/validations";
 import {
   createSupabaseAdminClient,
   createSupabaseServerClient,
 } from "@/lib/supabase/server";
+import { rateLimitOrFail } from "@/lib/utils/rate-limit";
 import { validatePagination } from "@/lib/utils";
 import {
   type ActionResponse,
@@ -228,10 +226,24 @@ export async function getApplicationDetails(
     }
 
     // Supabase nested selects sometimes come back as arrays depending on relationship config.
-    const enrollment_period = firstOrNull<Record<string, unknown>>(data.enrollment_period as Record<string, unknown> | Record<string, unknown>[]);
-    const reviewer = firstOrNull<Record<string, unknown>>(data.reviewer as Record<string, unknown> | Record<string, unknown>[]);
-    const existing_student = firstOrNull<Record<string, unknown>>(data.existing_student as Record<string, unknown> | Record<string, unknown>[]);
-    const requested_class = firstOrNull<Record<string, unknown>>(data.requested_class as Record<string, unknown> | Record<string, unknown>[]);
+    const enrollment_period = firstOrNull<Record<string, unknown>>(
+      data.enrollment_period as
+        | Record<string, unknown>
+        | Record<string, unknown>[],
+    );
+    const reviewer = firstOrNull<Record<string, unknown>>(
+      data.reviewer as Record<string, unknown> | Record<string, unknown>[],
+    );
+    const existing_student = firstOrNull<Record<string, unknown>>(
+      data.existing_student as
+        | Record<string, unknown>
+        | Record<string, unknown>[],
+    );
+    const requested_class = firstOrNull<Record<string, unknown>>(
+      data.requested_class as
+        | Record<string, unknown>
+        | Record<string, unknown>[],
+    );
 
     const documentsRaw = (data as Record<string, unknown>).documents;
     const documents = Array.isArray(documentsRaw)
@@ -280,6 +292,12 @@ export async function submitEnrollmentApplication(
   input: unknown,
 ): Promise<ActionResponse<EnrollmentApplication>> {
   try {
+    // Rate limit: unauthenticated parents can submit this form.
+    // public_write = 5 submissions per 15 minutes per IP.
+    const blocked =
+      await rateLimitOrFail<EnrollmentApplication>("public_write");
+    if (blocked) return blocked;
+
     // Zod validates all fields, trims strings, lowercases email,
     // checks date formats, enforces min guardians/contacts
     const parsed = validate(submitEnrollmentApplicationSchema, input);

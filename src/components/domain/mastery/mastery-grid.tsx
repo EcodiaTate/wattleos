@@ -1,8 +1,10 @@
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type { MasteryWithNode } from "@/lib/actions/mastery";
 import { updateMasteryStatus } from "@/lib/actions/mastery";
 import type { CurriculumTreeNode } from "@/lib/utils/curriculum-tree";
+import { useHaptics } from "@/lib/hooks/use-haptics";
 import {
   getNextMasteryStatus,
   MASTERY_STATUS_CONFIG,
@@ -41,6 +43,7 @@ export function MasteryGrid({
   canManage,
   summary,
 }: MasteryGridProps) {
+  const haptics = useHaptics();
   const [expandedAreas, setExpandedAreas] = useState<Set<string>>(() => {
     return new Set(tree.map((a) => a.id));
   });
@@ -65,23 +68,34 @@ export function MasteryGrid({
     return statusMap.get(nodeId) ?? "not_started";
   }
 
-  const toggleArea = useCallback((areaId: string) => {
-    setExpandedAreas((prev) => {
-      const next = new Set(prev);
-      if (next.has(areaId)) {
-        next.delete(areaId);
-      } else {
-        next.add(areaId);
-      }
-      return next;
-    });
-  }, []);
+  const toggleArea = useCallback(
+    (areaId: string) => {
+      haptics.impact("light");
+      setExpandedAreas((prev) => {
+        const next = new Set(prev);
+        if (next.has(areaId)) {
+          next.delete(areaId);
+        } else {
+          next.add(areaId);
+        }
+        return next;
+      });
+    },
+    [haptics],
+  );
 
   async function handleStatusClick(nodeId: string) {
     if (!canManage) return;
 
     const current = getStatus(nodeId);
     const next = getNextMasteryStatus(current);
+
+    // Mastered is the significant achievement - heavier feedback
+    if (next === "mastered") {
+      haptics.impact("heavy");
+    } else {
+      haptics.impact("medium");
+    }
 
     // Optimistic update
     setOptimisticStatuses((prev) => ({ ...prev, [nodeId]: next }));
@@ -93,6 +107,7 @@ export function MasteryGrid({
     });
 
     if (result.error) {
+      haptics.error();
       // Revert optimistic update
       setOptimisticStatuses((prev) => {
         const copy = { ...prev };
@@ -133,7 +148,7 @@ export function MasteryGrid({
   return (
     <div className="space-y-6">
       {/* Summary bar */}
-      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+      <div className="rounded-lg border border-border bg-background p-[var(--density-card-padding)]">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-foreground">
             Progress Overview
@@ -148,9 +163,10 @@ export function MasteryGrid({
           {summary.total > 0 && (
             <>
               <div
-                className="bg-green-400 transition-all"
+                className="transition-all"
                 style={{
                   width: `${(summary.mastered / summary.total) * 100}%`,
+                  background: "var(--mastery-mastered)",
                 }}
               />
               <div
@@ -160,9 +176,10 @@ export function MasteryGrid({
                 }}
               />
               <div
-                className="bg-blue-400 transition-all"
+                className="transition-all"
                 style={{
                   width: `${(summary.presented / summary.total) * 100}%`,
+                  background: "var(--mastery-presented)",
                 }}
               />
             </>
@@ -235,69 +252,75 @@ function AreaSection({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg borderborder-border bg-background">
+    <div className="overflow-hidden rounded-lg border border-border bg-background">
       {/* Area header */}
-      <button
-        onClick={onToggle}
-        className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-background"
+      <GlowTarget
+        id={`mastery-toggle-area-${area.id}`}
+        category="toggle"
+        label={area.title}
       >
-        <div className="flex items-center gap-3">
-          <svg
-            className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m8.25 4.5 7.5 7.5-7.5 7.5"
-            />
-          </svg>
-          <span className="inline-flex rounded bg-purple-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-purple-700">
-            Area
-          </span>
-          <span className="text-sm font-semibold text-foreground">
-            {area.title}
-          </span>
-        </div>
-
-        {/* Mini progress indicator */}
-        <div className="flex items-center gap-2">
-          <div className="flex h-2 w-24 overflow-hidden rounded-full bg-muted">
-            {outcomes.length > 0 && (
-              <>
-                <div
-                  className="bg-green-400"
-                  style={{
-                    width: `${(counts.mastered / outcomes.length) * 100}%`,
-                  }}
-                />
-                <div
-                  className="bg-primary"
-                  style={{
-                    width: `${(counts.practicing / outcomes.length) * 100}%`,
-                  }}
-                />
-                <div
-                  className="bg-blue-400"
-                  style={{
-                    width: `${(counts.presented / outcomes.length) * 100}%`,
-                  }}
-                />
-              </>
-            )}
+        <button
+          onClick={onToggle}
+          className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-background"
+        >
+          <div className="flex items-center gap-3">
+            <svg
+              className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m8.25 4.5 7.5 7.5-7.5 7.5"
+              />
+            </svg>
+            <span className="inline-flex rounded bg-info/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-info">
+              Area
+            </span>
+            <span className="text-sm font-semibold text-foreground">
+              {area.title}
+            </span>
           </div>
-          <span className="text-xs text-muted-foreground">
-            {counts.mastered}/{outcomes.length}
-          </span>
-        </div>
-      </button>
+
+          {/* Mini progress indicator */}
+          <div className="flex items-center gap-2">
+            <div className="flex h-2 w-24 overflow-hidden rounded-full bg-muted">
+              {outcomes.length > 0 && (
+                <>
+                  <div
+                    style={{
+                      width: `${(counts.mastered / outcomes.length) * 100}%`,
+                      background: "var(--mastery-mastered)",
+                    }}
+                  />
+                  <div
+                    className="bg-primary"
+                    style={{
+                      width: `${(counts.practicing / outcomes.length) * 100}%`,
+                    }}
+                  />
+                  <div
+                    style={{
+                      width: `${(counts.presented / outcomes.length) * 100}%`,
+                      background: "var(--mastery-presented)",
+                    }}
+                  />
+                </>
+              )}
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {counts.mastered}/{outcomes.length}
+            </span>
+          </div>
+        </button>
+      </GlowTarget>
 
       {/* Strands and outcomes */}
       {isExpanded && (
-        <div className="border-t border-gray-100">
+        <div className="border-t border-border">
           {area.children.map((strand) => (
             <StrandSection
               key={strand.id}
@@ -334,7 +357,7 @@ function StrandSection({
     <div>
       <div className="bg-background px-4 py-2 pl-10">
         <div className="flex items-center gap-2">
-          <span className="inline-flex rounded bg-blue-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-blue-700">
+          <span className="inline-flex rounded bg-info/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-info">
             Strand
           </span>
           <span className="text-xs font-semibold text-foreground">
@@ -420,7 +443,7 @@ function OutcomeRow({
               className="fixed inset-0 z-10"
               onClick={() => setShowPicker(false)}
             />
-            <div className="absolute right-0 top-full z-20 mt-1 w-40 rounded-lg borderborder-border bg-background py-1 shadow-lg">
+            <div className="absolute right-0 top-full z-20 mt-1 w-40 rounded-lg border border-border bg-background py-1 shadow-lg">
               {MASTERY_STATUS_ORDER.map((s) => {
                 const c = MASTERY_STATUS_CONFIG[s];
                 return (

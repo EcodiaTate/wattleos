@@ -12,6 +12,8 @@ interface PageProps {
   params: Promise<{ instanceId: string }>;
 }
 
+export const metadata = { title: "Curriculum Instance - WattleOS" };
+
 export default async function CurriculumInstancePage({ params }: PageProps) {
   const { instanceId } = await params;
   const context = await getTenantContext();
@@ -99,10 +101,10 @@ function StatBadge({
 }) {
   const colors: Record<string, string> = {
     gray: "bg-muted text-foreground",
-    purple: "bg-purple-100 text-purple-700",
-    blue: "bg-blue-100 text-blue-700",
-    green: "bg-green-100 text-green-700",
-    amber: "bg-amber-100 text-amber-700",
+    purple: "bg-info/15 text-info",
+    blue: "bg-info/15 text-info",
+    green: "bg-success/15 text-success",
+    amber: "bg-primary/15 text-primary",
   };
 
   return (

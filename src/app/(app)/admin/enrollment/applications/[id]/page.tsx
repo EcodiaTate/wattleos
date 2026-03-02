@@ -44,13 +44,13 @@ function formatDate(iso: string | null): string {
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    draft: "bg-gray-100 text-gray-600",
-    submitted: "bg-blue-100 text-blue-700",
-    under_review: "bg-purple-100 text-purple-700",
-    changes_requested: "bg-amber-100 text-amber-700",
-    approved: "bg-green-100 text-green-700",
-    rejected: "bg-red-100 text-red-700",
-    withdrawn: "bg-gray-100 text-gray-400",
+    draft: "bg-muted text-muted-foreground",
+    submitted: "bg-info/15 text-info",
+    under_review: "bg-info/15 text-info",
+    changes_requested: "bg-primary/15 text-primary",
+    approved: "bg-success/15 text-success",
+    rejected: "bg-destructive/15 text-destructive",
+    withdrawn: "bg-muted text-muted-foreground",
   };
 
   const labels: Record<string, string> = {
@@ -65,7 +65,7 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${styles[status] ?? "bg-gray-100 text-gray-600"}`}
+      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${styles[status] ?? "bg-muted text-muted-foreground"}`}
     >
       {labels[status] ?? status}
     </span>
@@ -74,14 +74,14 @@ function StatusBadge({ status }: { status: string }) {
 
 function SeverityBadge({ severity }: { severity: string }) {
   const styles: Record<string, string> = {
-    mild: "bg-yellow-100 text-yellow-800",
-    moderate: "bg-orange-100 text-orange-800",
-    severe: "bg-red-100 text-red-800",
-    life_threatening: "bg-red-200 text-red-900",
+    mild: "bg-warning/15 text-warning",
+    moderate: "bg-primary/15 text-primary",
+    severe: "bg-destructive/15 text-destructive",
+    life_threatening: "bg-destructive/20 text-destructive",
   };
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${styles[severity] ?? "bg-gray-100 text-gray-700"}`}
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${styles[severity] ?? "bg-muted text-foreground"}`}
     >
       {severity.replace(/_/g, " ")}
     </span>
@@ -96,9 +96,9 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white">
-      <div className="border-b border-gray-100 px-5 py-3">
-        <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
+    <div className="rounded-lg border border-border bg-card">
+      <div className="border-b border-border px-5 py-3">
+        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
       </div>
       <div className="px-5 py-4">{children}</div>
     </div>
@@ -114,8 +114,8 @@ function Field({
 }) {
   return (
     <div>
-      <dt className="text-xs font-medium text-gray-500">{label}</dt>
-      <dd className="mt-0.5 text-sm text-gray-900">{value || " - "}</dd>
+      <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 text-sm text-foreground">{value || " - "}</dd>
     </div>
   );
 }
@@ -158,17 +158,17 @@ export default async function ApplicationDetailPage({
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-foreground">
               {app.child_first_name} {app.child_last_name}
             </h1>
             <StatusBadge status={app.status} />
           </div>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Enrollment Application · Submitted {formatDate(app.submitted_at)} ·{" "}
             {app.submitted_by_email}
           </p>
           {app.enrollment_period && (
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-muted-foreground">
               Period: {app.enrollment_period.name} ({app.enrollment_period.year}
               )
             </p>
@@ -176,7 +176,7 @@ export default async function ApplicationDetailPage({
         </div>
         <Link
           href="/admin/enrollment/applications"
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
         >
           ← Back to Queue
         </Link>
@@ -184,33 +184,33 @@ export default async function ApplicationDetailPage({
 
       {/* Admin notes / rejection / change request banners */}
       {app.rejection_reason && (
-        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm">
-          <span className="font-medium text-red-800">Rejection Reason:</span>{" "}
-          <span className="text-red-700">{app.rejection_reason}</span>
+        <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm">
+          <span className="font-medium text-destructive">Rejection Reason:</span>{" "}
+          <span className="text-destructive">{app.rejection_reason}</span>
         </div>
       )}
       {app.change_request_notes && (
-        <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm">
-          <span className="font-medium text-amber-800">Changes Requested:</span>{" "}
-          <span className="text-amber-700">{app.change_request_notes}</span>
+        <div className="rounded-lg bg-primary/10 px-4 py-3 text-sm">
+          <span className="font-medium text-primary">Changes Requested:</span>{" "}
+          <span className="text-primary">{app.change_request_notes}</span>
         </div>
       )}
       {app.admin_notes && (
-        <div className="rounded-lg bg-gray-50 px-4 py-3 text-sm">
-          <span className="font-medium text-gray-700">Admin Notes:</span>{" "}
-          <span className="text-gray-600">{app.admin_notes}</span>
+        <div className="rounded-lg bg-muted px-4 py-3 text-sm">
+          <span className="font-medium text-foreground">Admin Notes:</span>{" "}
+          <span className="text-muted-foreground">{app.admin_notes}</span>
         </div>
       )}
 
       {/* Approval result banner */}
       {app.status === "approved" && app.created_student_id && (
-        <div className="rounded-lg bg-green-50 px-4 py-3 text-sm">
-          <span className="font-medium text-green-800">
+        <div className="rounded-lg bg-success/10 px-4 py-3 text-sm">
+          <span className="font-medium text-success">
             Approved and enrolled.
           </span>{" "}
           <Link
             href={`/students/${app.created_student_id}`}
-            className="font-medium text-green-700 underline hover:text-green-900"
+            className="font-medium text-success underline hover:text-success/80"
           >
             View student record →
           </Link>
@@ -258,24 +258,24 @@ export default async function ApplicationDetailPage({
       {/* ── Guardians ─────────────────────────────────────── */}
       <SectionCard title={`Guardians (${guardians.length})`}>
         {guardians.length === 0 ? (
-          <p className="text-sm text-gray-400">No guardians listed.</p>
+          <p className="text-sm text-muted-foreground">No guardians listed.</p>
         ) : (
           <div className="space-y-4">
             {guardians.map((g, i) => (
               <div
                 key={i}
-                className="rounded-lg border border-gray-100 bg-gray-50 p-4"
+                className="rounded-lg border border-border bg-muted p-4"
               >
                 <div className="mb-2 flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-foreground">
                     {g.first_name} {g.last_name}
                   </span>
                   {g.is_primary && (
-                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                    <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary">
                       Primary
                     </span>
                   )}
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-muted-foreground">
                     {g.relationship}
                   </span>
                 </div>
@@ -301,7 +301,7 @@ export default async function ApplicationDetailPage({
       {/* ── Medical Conditions ────────────────────────────── */}
       <SectionCard title={`Medical Conditions (${medicalConditions.length})`}>
         {medicalConditions.length === 0 ? (
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground">
             No medical conditions reported.
           </p>
         ) : (
@@ -309,14 +309,14 @@ export default async function ApplicationDetailPage({
             {medicalConditions.map((mc, i) => (
               <div
                 key={i}
-                className="rounded-lg border border-gray-100 bg-gray-50 p-4"
+                className="rounded-lg border border-border bg-muted p-4"
               >
                 <div className="mb-2 flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-foreground">
                     {mc.condition_name}
                   </span>
                   <SeverityBadge severity={mc.severity} />
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-muted-foreground">
                     ({mc.condition_type})
                   </span>
                 </div>
@@ -346,15 +346,15 @@ export default async function ApplicationDetailPage({
       {/* ── Emergency Contacts ────────────────────────────── */}
       <SectionCard title={`Emergency Contacts (${emergencyContacts.length})`}>
         {emergencyContacts.length === 0 ? (
-          <p className="text-sm text-gray-400">No emergency contacts listed.</p>
+          <p className="text-sm text-muted-foreground">No emergency contacts listed.</p>
         ) : (
           <div className="space-y-3">
             {emergencyContacts.map((ec, i) => (
               <div
                 key={i}
-                className="flex items-start gap-4 rounded-lg border border-gray-100 bg-gray-50 p-4"
+                className="flex items-start gap-4 rounded-lg border border-border bg-muted p-4"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-sm font-bold text-amber-700">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
                   {ec.priority_order}
                 </div>
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
@@ -379,13 +379,13 @@ export default async function ApplicationDetailPage({
             {custodyRestrictions.map((cr, i) => (
               <div
                 key={i}
-                className="rounded-lg border border-red-100 bg-red-50 p-4"
+                className="rounded-lg border border-destructive/20 bg-destructive/10 p-4"
               >
                 <div className="mb-2 flex items-center gap-2">
-                  <span className="text-sm font-medium text-red-900">
+                  <span className="text-sm font-medium text-destructive">
                     {cr.restricted_person_name}
                   </span>
-                  <span className="rounded-full bg-red-200 px-2 py-0.5 text-xs font-medium text-red-800">
+                  <span className="rounded-full bg-destructive/20 px-2 py-0.5 text-xs font-medium text-destructive">
                     {cr.restriction_type.replace(/_/g, " ")}
                   </span>
                 </div>

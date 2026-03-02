@@ -16,6 +16,7 @@
 
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { updateUserDisplayPreferences } from "@/lib/actions/display-settings";
 import {
   type DensityMode,
@@ -118,25 +119,27 @@ export function DisplayPreferencesClient({
           )}
         </p>
 
-        <div className="mt-4 flex flex-wrap gap-[var(--density-sm)]">
-          {/* "Use school default" option */}
-          <ThemeButton
-            label={`School Default (${tenantDefaultTheme})`}
-            isSelected={prefs.theme === null}
-            onClick={() => updateField("theme", null)}
-            icon={<SchoolIcon />}
-          />
-
-          {THEME_OPTIONS.map((option) => (
+        <GlowTarget id="settings-select-theme" category="select" label="Theme">
+          <div className="mt-4 flex flex-wrap gap-[var(--density-sm)]">
+            {/* "Use school default" option */}
             <ThemeButton
-              key={option.value}
-              label={option.label}
-              isSelected={prefs.theme === option.value}
-              onClick={() => updateField("theme", option.value)}
-              icon={<ThemeIcon mode={option.value} />}
+              label={`School Default (${tenantDefaultTheme})`}
+              isSelected={prefs.theme === null}
+              onClick={() => updateField("theme", null)}
+              icon={<SchoolIcon />}
             />
-          ))}
-        </div>
+
+            {THEME_OPTIONS.map((option) => (
+              <ThemeButton
+                key={option.value}
+                label={option.label}
+                isSelected={prefs.theme === option.value}
+                onClick={() => updateField("theme", option.value)}
+                icon={<ThemeIcon mode={option.value} />}
+              />
+            ))}
+          </div>
+        </GlowTarget>
       </section>
 
       {/* ---- Density ---- */}
@@ -154,25 +157,27 @@ export function DisplayPreferencesClient({
           )}
         </p>
 
-        <div className="mt-4 space-y-[var(--density-sm)]">
-          {/* School default option */}
-          <DensityOption
-            label={`School Default (${tenantDefaultDensity})`}
-            description="Use the default set by your school administrator"
-            isSelected={prefs.density === null}
-            onSelect={() => updateField("density", null)}
-          />
-
-          {DENSITY_OPTIONS.map((option) => (
+        <GlowTarget id="settings-select-density" category="select" label="Layout density">
+          <div className="mt-4 space-y-[var(--density-sm)]">
+            {/* School default option */}
             <DensityOption
-              key={option.value}
-              label={option.label}
-              description={option.description}
-              isSelected={prefs.density === option.value}
-              onSelect={() => updateField("density", option.value)}
+              label={`School Default (${tenantDefaultDensity})`}
+              description="Use the default set by your school administrator"
+              isSelected={prefs.density === null}
+              onSelect={() => updateField("density", null)}
             />
-          ))}
-        </div>
+
+            {DENSITY_OPTIONS.map((option) => (
+              <DensityOption
+                key={option.value}
+                label={option.label}
+                description={option.description}
+                isSelected={prefs.density === option.value}
+                onSelect={() => updateField("density", option.value)}
+              />
+            ))}
+          </div>
+        </GlowTarget>
       </section>
 
       {/* ---- Font Scale ---- */}
@@ -182,41 +187,43 @@ export function DisplayPreferencesClient({
           Scale all text up or down across the platform.
         </p>
 
-        <div className="mt-4 flex flex-wrap gap-[var(--density-sm)]">
-          {FONT_SCALE_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() =>
-                updateField(
-                  "fontScale",
-                  option.value === "base" ? null : option.value,
-                )
-              }
-              className={`
-                rounded-lg border px-4 py-2 transition-all
-                ${
-                  (prefs.fontScale ?? "base") === option.value
-                    ? "border-primary bg-primary/10 text-foreground font-semibold"
-                    : "border-border bg-card text-muted-foreground hover:border-primary/50"
+        <GlowTarget id="settings-select-font-scale" category="select" label="Font scale">
+          <div className="mt-4 flex flex-wrap gap-[var(--density-sm)]">
+            {FONT_SCALE_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() =>
+                  updateField(
+                    "fontScale",
+                    option.value === "base" ? null : option.value,
+                  )
                 }
-              `}
-              style={{
-                fontSize: `calc(var(--text-sm) * ${
-                  option.value === "sm"
-                    ? 0.9
-                    : option.value === "base"
-                      ? 1
-                      : option.value === "lg"
-                        ? 1.1
-                        : 1.2
-                })`,
-              }}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+                className={`
+                  rounded-lg border px-4 py-2 transition-all
+                  ${
+                    (prefs.fontScale ?? "base") === option.value
+                      ? "border-primary bg-primary/10 text-foreground font-semibold"
+                      : "border-border bg-card text-muted-foreground hover:border-primary/50"
+                  }
+                `}
+                style={{
+                  fontSize: `calc(var(--text-sm) * ${
+                    option.value === "sm"
+                      ? 0.9
+                      : option.value === "base"
+                        ? 1
+                        : option.value === "lg"
+                          ? 1.1
+                          : 1.2
+                  })`,
+                }}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </GlowTarget>
 
         {/* Preview text */}
         <div className="mt-4 rounded-md border border-border/50 bg-muted/30 p-3">
@@ -229,18 +236,20 @@ export function DisplayPreferencesClient({
 
       {/* ---- Save ---- */}
       <div className="flex items-center gap-[var(--density-card-padding)]">
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={isPending}
-          className={`
-            rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold
-            text-primary-foreground shadow-sm transition-all
-            hover:opacity-90 disabled:opacity-50
-          `}
-        >
-          {isPending ? "Saving…" : "Save Preferences"}
-        </button>
+        <GlowTarget id="settings-btn-save-prefs" category="button" label="Save preferences">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isPending}
+            className={`
+              rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold
+              text-primary-foreground shadow-sm transition-all
+              hover:opacity-90 disabled:opacity-50
+            `}
+          >
+            {isPending ? "Saving…" : "Save Preferences"}
+          </button>
+        </GlowTarget>
 
         {saveStatus === "saved" && (
           <span className="text-sm text-success animate-fade-in">

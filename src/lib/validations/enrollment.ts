@@ -1,7 +1,7 @@
 // src/lib/validations/enrollment.ts
 //
 // ============================================================
-// Zod Schemas — Enrollment (Module 10)
+// Zod Schemas - Enrollment (Module 10)
 // ============================================================
 // Tier 1: Both endpoints are PUBLIC (no auth required).
 // submitEnrollmentApplication: Parents fill a multi-step form.
@@ -118,7 +118,7 @@ export const applicationCustodyRestrictionSchema = z.object({
 });
 
 // ────────────────────────────────────────────────────────────
-// Submit Enrollment Application (Public — no auth)
+// Submit Enrollment Application (Public - no auth)
 // ────────────────────────────────────────────────────────────
 
 export const submitEnrollmentApplicationSchema = z.object({
@@ -250,7 +250,7 @@ export type SubmitEnrollmentApplicationInput = z.infer<
 >;
 
 // ────────────────────────────────────────────────────────────
-// Accept Invitation (Public — token-based auth)
+// Accept Invitation (Public - token-based auth)
 // ────────────────────────────────────────────────────────────
 // Simple: just validates the token is a non-empty string.
 // The action itself does all the DB verification.

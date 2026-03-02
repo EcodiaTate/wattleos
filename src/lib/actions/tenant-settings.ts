@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 // src/lib/actions/tenant-settings.ts
 //
@@ -22,15 +22,12 @@
 // columns. Different concerns, different validation, different
 // change frequency.
 //
-// All actions return ActionResponse<T> — never throw.
+// All actions return ActionResponse<T> - never throw.
 // ============================================================
 
 "use server";
 
-import {
-  getTenantContext,
-  requirePermission,
-} from "@/lib/auth/tenant-context";
+import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import {
   AUSTRALIAN_TIMEZONES,
@@ -65,7 +62,11 @@ export async function getTenantGeneralSettings(): Promise<
       .single();
 
     if (error) {
-      return failure(error.message, ErrorCodes.DATABASE_ERROR);
+      console.error(
+        "[tenant-settings] getTenantGeneralSettings:",
+        error.message,
+      );
+      return failure("Failed to load settings", ErrorCodes.DATABASE_ERROR);
     }
 
     return success({
@@ -146,7 +147,11 @@ export async function updateTenantGeneralSettings(
       .single();
 
     if (error) {
-      return failure(error.message, ErrorCodes.DATABASE_ERROR);
+      console.error(
+        "[tenant-settings] updateTenantGeneralSettings:",
+        error.message,
+      );
+      return failure("Failed to save settings", ErrorCodes.DATABASE_ERROR);
     }
 
     return success({
@@ -170,7 +175,7 @@ export async function updateTenantGeneralSettings(
 // Storage under tenant-logos/{tenant_id}/logo.{ext}, then writes
 // the public URL back to tenants.logo_url.
 //
-// WHY FormData: File uploads must go through FormData — you
+// WHY FormData: File uploads must go through FormData - you
 // can't JSON-serialize a File object in a server action call.
 // ============================================================
 
@@ -240,8 +245,12 @@ export async function uploadTenantLogo(
       });
 
     if (uploadError) {
+      console.error(
+        "[tenant-settings] uploadTenantLogo storage error:",
+        uploadError.message,
+      );
       return failure(
-        `Upload failed: ${uploadError.message}`,
+        "Upload failed. Please try again.",
         ErrorCodes.INTERNAL_ERROR,
       );
     }
@@ -260,8 +269,12 @@ export async function uploadTenantLogo(
       .eq("id", context.tenant.id);
 
     if (updateError) {
+      console.error(
+        "[tenant-settings] uploadTenantLogo URL save error:",
+        updateError.message,
+      );
       return failure(
-        `Logo uploaded but failed to save URL: ${updateError.message}`,
+        "Logo uploaded but failed to save. Please try again.",
         ErrorCodes.DATABASE_ERROR,
       );
     }
@@ -303,7 +316,8 @@ export async function deleteTenantLogo(): Promise<ActionResponse<null>> {
       .eq("id", context.tenant.id);
 
     if (error) {
-      return failure(error.message, ErrorCodes.DATABASE_ERROR);
+      console.error("[tenant-settings] deleteTenantLogo:", error.message);
+      return failure("Failed to remove logo", ErrorCodes.DATABASE_ERROR);
     }
 
     return success(null);

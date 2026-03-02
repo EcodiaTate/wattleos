@@ -164,11 +164,11 @@ export function TourManagementClient({
     <div className="space-y-6">
       {/* Error */}
       {error && (
-        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
           <button
             onClick={() => setError(null)}
-            className="ml-2 text-red-500 hover:text-red-700"
+            className="ml-2 text-destructive hover:text-destructive"
           >
             ✕
           </button>
@@ -179,7 +179,7 @@ export function TourManagementClient({
       <div>
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
-          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-700"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-background shadow-sm hover:bg-primary"
         >
           {showCreateForm ? "Cancel" : "+ New Tour Slot"}
         </button>
@@ -187,13 +187,13 @@ export function TourManagementClient({
 
       {/* Create slot form */}
       {showCreateForm && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-5">
-          <h3 className="mb-4 text-sm font-semibold text-amber-800">
+        <div className="rounded-lg border border-primary/30 bg-primary/10 p-5">
+          <h3 className="mb-4 text-sm font-semibold text-primary">
             Create Tour Slot
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">
+              <label className="mb-1 block text-xs font-medium text-foreground">
                 Date *
               </label>
               <input
@@ -201,33 +201,33 @@ export function TourManagementClient({
                 value={newDate}
                 onChange={(e) => setNewDate(e.target.value)}
                 min={today}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">
+              <label className="mb-1 block text-xs font-medium text-foreground">
                 Start Time *
               </label>
               <input
                 type="time"
                 value={newStartTime}
                 onChange={(e) => setNewStartTime(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">
+              <label className="mb-1 block text-xs font-medium text-foreground">
                 End Time *
               </label>
               <input
                 type="time"
                 value={newEndTime}
                 onChange={(e) => setNewEndTime(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">
+              <label className="mb-1 block text-xs font-medium text-foreground">
                 Max Families
               </label>
               <input
@@ -238,33 +238,33 @@ export function TourManagementClient({
                 onChange={(e) =>
                   setNewMaxFamilies(parseInt(e.target.value, 10) || 5)
                 }
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">
+              <label className="mb-1 block text-xs font-medium text-foreground">
                 Location{" "}
-                <span className="font-normal text-gray-400">(optional)</span>
+                <span className="font-normal text-muted-foreground">(optional)</span>
               </label>
               <input
                 type="text"
                 value={newLocation}
                 onChange={(e) => setNewLocation(e.target.value)}
                 placeholder="e.g., Main reception"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">
+              <label className="mb-1 block text-xs font-medium text-foreground">
                 Notes{" "}
-                <span className="font-normal text-gray-400">(optional)</span>
+                <span className="font-normal text-muted-foreground">(optional)</span>
               </label>
               <input
                 type="text"
                 value={newNotes}
                 onChange={(e) => setNewNotes(e.target.value)}
                 placeholder="Internal notes"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
@@ -274,7 +274,7 @@ export function TourManagementClient({
               disabled={
                 isSubmitting || !newDate || !newStartTime || !newEndTime
               }
-              className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-700 disabled:opacity-50"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-background shadow-sm hover:bg-primary disabled:opacity-50"
             >
               {isSubmitting ? "Creating…" : "Create Slot"}
             </button>
@@ -284,12 +284,12 @@ export function TourManagementClient({
 
       {/* Upcoming slots */}
       <div>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Upcoming Tours ({upcoming.length})
         </h2>
 
         {upcoming.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-gray-300 py-8 text-center text-sm text-gray-400">
+          <p className="rounded-lg border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
             No upcoming tour slots. Create one above.
           </p>
         ) : (
@@ -315,7 +315,7 @@ export function TourManagementClient({
       {/* Past slots */}
       {past.length > 0 && (
         <div>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Past Tours ({past.length})
           </h2>
           <div className="space-y-3 opacity-75">
@@ -365,7 +365,7 @@ function TourSlotCard({
   const isFull = spotsRemaining <= 0;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+    <div className="rounded-lg border border-border bg-card shadow-sm">
       {/* Header - always visible */}
       <button
         onClick={onToggle}
@@ -373,16 +373,16 @@ function TourSlotCard({
       >
         <div className="flex items-center gap-4">
           {/* Date block */}
-          <div className="flex flex-col items-center rounded-lg bg-gray-50 px-3 py-2">
-            <span className="text-xs font-medium uppercase text-gray-500">
+          <div className="flex flex-col items-center rounded-lg bg-muted px-3 py-2">
+            <span className="text-xs font-medium uppercase text-muted-foreground">
               {new Date(slot.date + "T00:00:00").toLocaleDateString("en-AU", {
                 weekday: "short",
               })}
             </span>
-            <span className="text-lg font-bold text-gray-900">
+            <span className="text-lg font-bold text-foreground">
               {new Date(slot.date + "T00:00:00").getDate()}
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground">
               {new Date(slot.date + "T00:00:00").toLocaleDateString("en-AU", {
                 month: "short",
               })}
@@ -391,14 +391,14 @@ function TourSlotCard({
 
           {/* Details */}
           <div>
-            <p className="text-sm font-semibold text-gray-900">
+            <p className="text-sm font-semibold text-foreground">
               {formatTime(slot.start_time)} – {formatTime(slot.end_time)}
             </p>
             {slot.location && (
-              <p className="text-xs text-gray-500">{slot.location}</p>
+              <p className="text-xs text-muted-foreground">{slot.location}</p>
             )}
             {slot.guide && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Guide: {slot.guide.first_name} {slot.guide.last_name}
               </p>
             )}
@@ -411,14 +411,14 @@ function TourSlotCard({
             <span
               className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
                 isFull
-                  ? "bg-red-100 text-red-700"
-                  : "bg-green-100 text-green-700"
+                  ? "bg-destructive/15 text-destructive"
+                  : "bg-success/15 text-success"
               }`}
             >
               {slot.booked_count}/{slot.max_families} booked
             </span>
             {slot.attended_count > 0 && (
-              <span className="inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-xs font-semibold text-teal-700">
+              <span className="inline-flex items-center rounded-full bg-success/15 px-2 py-0.5 text-xs font-semibold text-success">
                 {slot.attended_count} attended
               </span>
             )}
@@ -426,7 +426,7 @@ function TourSlotCard({
 
           {/* Chevron */}
           <svg
-            className={`h-5 w-5 text-gray-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+            className={`h-5 w-5 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`}
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}
@@ -443,15 +443,15 @@ function TourSlotCard({
 
       {/* Expanded - bookings list */}
       {isExpanded && (
-        <div className="border-t border-gray-100 px-5 pb-4 pt-3">
+        <div className="border-t border-border px-5 pb-4 pt-3">
           {slot.bookings.length === 0 ? (
-            <p className="py-4 text-center text-sm text-gray-400">
+            <p className="py-4 text-center text-sm text-muted-foreground">
               No bookings yet for this slot.
             </p>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 text-left text-xs font-medium uppercase text-gray-500">
+                <tr className="border-b border-border text-left text-xs font-medium uppercase text-muted-foreground">
                   <th className="pb-2 pr-4">Child</th>
                   <th className="pb-2 pr-4">Parent</th>
                   <th className="pb-2 pr-4">Email</th>
@@ -462,20 +462,20 @@ function TourSlotCard({
                 {slot.bookings.map((booking) => (
                   <tr
                     key={booking.entry_id}
-                    className="border-b border-gray-50"
+                    className="border-b border-border/50"
                   >
-                    <td className="py-2 pr-4 font-medium text-gray-900">
+                    <td className="py-2 pr-4 font-medium text-foreground">
                       <a
                         href={`/admin/admissions/${booking.entry_id}`}
-                        className="text-amber-700 hover:underline"
+                        className="text-primary hover:underline"
                       >
                         {booking.child_name}
                       </a>
                     </td>
-                    <td className="py-2 pr-4 text-gray-600">
+                    <td className="py-2 pr-4 text-muted-foreground">
                       {booking.parent_name}
                     </td>
-                    <td className="py-2 pr-4 text-gray-500">
+                    <td className="py-2 pr-4 text-muted-foreground">
                       {booking.parent_email}
                     </td>
                     <td className="py-2 text-center">
@@ -486,7 +486,7 @@ function TourSlotCard({
                               onRecordAttendance(booking.entry_id, true)
                             }
                             disabled={isSubmitting || isPending}
-                            className="rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 hover:bg-green-200 disabled:opacity-50"
+                            className="rounded bg-success/15 px-2 py-0.5 text-xs font-medium text-success hover:bg-success/20 disabled:opacity-50"
                             title="Mark as attended"
                           >
                             ✓
@@ -496,16 +496,16 @@ function TourSlotCard({
                               onRecordAttendance(booking.entry_id, false)
                             }
                             disabled={isSubmitting || isPending}
-                            className="rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 hover:bg-red-200 disabled:opacity-50"
+                            className="rounded bg-destructive/15 px-2 py-0.5 text-xs font-medium text-destructive hover:bg-destructive/20 disabled:opacity-50"
                             title="Mark as no-show"
                           >
                             ✗
                           </button>
                         </div>
                       ) : booking.tour_attended ? (
-                        <span className="text-green-600">✓ Yes</span>
+                        <span className="text-success">✓ Yes</span>
                       ) : (
-                        <span className="text-red-500">✗ No</span>
+                        <span className="text-destructive">✗ No</span>
                       )}
                     </td>
                   </tr>
@@ -517,14 +517,14 @@ function TourSlotCard({
           {/* Slot actions */}
           <div className="mt-3 flex justify-end gap-2">
             {slot.notes && (
-              <p className="mr-auto text-xs text-gray-400 italic">
+              <p className="mr-auto text-xs text-muted-foreground italic">
                 {slot.notes}
               </p>
             )}
             <button
               onClick={onDelete}
               disabled={isSubmitting}
-              className="rounded-lg border border-red-200 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+              className="rounded-lg border border-destructive/30 px-3 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
             >
               Delete Slot
             </button>

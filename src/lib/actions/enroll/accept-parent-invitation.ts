@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 // src/lib/actions/enroll/accept-parent-invitation.ts
 //
@@ -206,8 +206,14 @@ export async function acceptParentInvitation(
     );
 
     if (membershipError) {
+      // SECURITY: Don't expose raw DB error messages to clients - they can
+      // leak schema details. Log internally and return a generic message.
+      console.error(
+        "[acceptParentInvitation] Membership upsert failed:",
+        membershipError.message,
+      );
       return failure(
-        `Failed to create school membership: ${membershipError.message}`,
+        "Failed to create school membership. Please contact the school administrator.",
         ErrorCodes.CREATE_FAILED,
       );
     }
@@ -282,8 +288,13 @@ export async function acceptParentInvitation(
     );
 
     if (guardianError) {
+      // SECURITY: Don't expose raw DB error messages to clients.
+      console.error(
+        "[acceptParentInvitation] Guardian upsert failed:",
+        guardianError.message,
+      );
       return failure(
-        `Failed to link you to your child: ${guardianError.message}`,
+        "Failed to link you to your child. Please contact the school administrator.",
         ErrorCodes.CREATE_FAILED,
       );
     }

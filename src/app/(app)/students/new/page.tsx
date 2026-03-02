@@ -16,6 +16,8 @@ import { Permissions } from "@/lib/constants/permissions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "New Student - WattleOS" };
+
 export default async function CreateStudentPage() {
   const context = await getTenantContext();
 

@@ -19,8 +19,9 @@ import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import { LEAVE_TYPES } from "@/lib/constants/timesheets";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { AuditActions, logAudit } from "@/lib/utils/audit";
 import type { ActionResponse } from "@/types/api";
-import { failure, success } from "@/types/api";
+import { ErrorCodes, failure, success } from "@/types/api";
 import type {
   TimeEntry,
   TimeEntryType,
@@ -69,7 +70,7 @@ export async function submitTimesheet(
       .single();
 
     if (periodError || !period) {
-      return failure("Pay period not found", "NOT_FOUND");
+      return failure("Pay period not found", ErrorCodes.NOT_FOUND);
     }
 
     const typedPeriod = period as { id: string; status: string };
@@ -78,7 +79,7 @@ export async function submitTimesheet(
     if (typedPeriod.status === "processed") {
       return failure(
         "This pay period has already been processed",
-        "VALIDATION_ERROR",
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
@@ -91,7 +92,7 @@ export async function submitTimesheet(
       .is("deleted_at", null);
 
     if (entriesError) {
-      return failure(entriesError.message, "DB_ERROR");
+      return failure(entriesError.message, ErrorCodes.DATABASE_ERROR);
     }
 
     const typedEntries = (entries ?? []) as TimeEntry[];
@@ -99,7 +100,7 @@ export async function submitTimesheet(
     if (typedEntries.length === 0) {
       return failure(
         "No time entries found for this pay period. Log your hours first.",
-        "VALIDATION_ERROR",
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
@@ -143,7 +144,7 @@ export async function submitTimesheet(
     ) {
       return failure(
         `Timesheet is already '${typedExisting.status}' and cannot be resubmitted`,
-        "VALIDATION_ERROR",
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
@@ -187,14 +188,28 @@ export async function submitTimesheet(
     }
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    return success(data as Timesheet);
+    const submitted = data as Timesheet;
+
+    await logAudit({
+      context,
+      action: AuditActions.TIMESHEET_SUBMITTED,
+      entityType: "timesheets",
+      entityId: submitted.id,
+      metadata: {
+        pay_period_id: payPeriodId,
+        total_hours: submitted.total_hours,
+        entry_count: typedEntries.length,
+      },
+    });
+
+    return success(submitted);
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to submit timesheet";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -222,7 +237,7 @@ export async function getMyTimesheets(): Promise<
       .order("created_at", { ascending: false });
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
     const timesheets = ((data ?? []) as Array<Record<string, unknown>>).map(
@@ -239,7 +254,7 @@ export async function getMyTimesheets(): Promise<
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to get my timesheets";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -251,7 +266,7 @@ export async function listPendingTimesheets(params?: {
   payPeriodId?: string;
 }): Promise<
   ActionResponse<
-    Array<Timesheet & { user_name: string; pay_period_name: string }>
+    Array<Timesheet & { user: JoinedUser; pay_period_name: string }>
   >
 > {
   try {
@@ -278,7 +293,7 @@ export async function listPendingTimesheets(params?: {
     const { data, error } = await query;
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
     const timesheets = ((data ?? []) as Array<Record<string, unknown>>).map(
@@ -287,7 +302,7 @@ export async function listPendingTimesheets(params?: {
         const pp = row.pay_period as { name: string } | null;
         return {
           ...(row as unknown as Timesheet),
-          user_name: user ? `${user.first_name} ${user.last_name}` : "Unknown",
+          user: user ?? { id: "", first_name: "Unknown", last_name: "", avatar_url: null },
           pay_period_name: pp?.name ?? "Unknown Period",
         };
       },
@@ -297,7 +312,7 @@ export async function listPendingTimesheets(params?: {
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to list pending timesheets";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -329,7 +344,7 @@ export async function listTimesheetsForPeriod(
       .order("submitted_at", { ascending: true });
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
     const timesheets = ((data ?? []) as Array<Record<string, unknown>>).map(
@@ -349,7 +364,7 @@ export async function listTimesheetsForPeriod(
       err instanceof Error
         ? err.message
         : "Failed to list timesheets for period";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -379,7 +394,7 @@ export async function getTimesheetDetail(
       .single();
 
     if (error || !data) {
-      return failure("Timesheet not found", "NOT_FOUND");
+      return failure("Timesheet not found", ErrorCodes.NOT_FOUND);
     }
 
     const row = data as Record<string, unknown>;
@@ -394,7 +409,7 @@ export async function getTimesheetDetail(
     if (!isOwn && !isApprover) {
       return failure(
         "You do not have permission to view this timesheet",
-        "FORBIDDEN",
+        ErrorCodes.FORBIDDEN,
       );
     }
 
@@ -413,7 +428,7 @@ export async function getTimesheetDetail(
       .order("date", { ascending: true });
 
     if (entriesError) {
-      return failure(entriesError.message, "DB_ERROR");
+      return failure(entriesError.message, ErrorCodes.DATABASE_ERROR);
     }
 
     const user = row.user as JoinedUser;
@@ -448,7 +463,7 @@ export async function getTimesheetDetail(
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to get timesheet detail";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -472,7 +487,7 @@ export async function approveTimesheet(
       .single();
 
     if (fetchError || !existing) {
-      return failure("Timesheet not found", "NOT_FOUND");
+      return failure("Timesheet not found", ErrorCodes.NOT_FOUND);
     }
 
     const typedExisting = existing as {
@@ -484,7 +499,7 @@ export async function approveTimesheet(
     if (typedExisting.status !== "submitted") {
       return failure(
         `Cannot approve a timesheet in '${typedExisting.status}' status. Must be 'submitted'.`,
-        "VALIDATION_ERROR",
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
@@ -492,7 +507,7 @@ export async function approveTimesheet(
     if (typedExisting.user_id === context.user.id) {
       return failure(
         "You cannot approve your own timesheet",
-        "VALIDATION_ERROR",
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
@@ -508,14 +523,27 @@ export async function approveTimesheet(
       .single();
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    return success(data as Timesheet);
+    const approved = data as Timesheet;
+
+    await logAudit({
+      context,
+      action: AuditActions.TIMESHEET_APPROVED,
+      entityType: "timesheets",
+      entityId: approved.id,
+      metadata: {
+        approved_user_id: typedExisting.user_id,
+        total_hours: approved.total_hours,
+      },
+    });
+
+    return success(approved);
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to approve timesheet";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -532,7 +560,7 @@ export async function rejectTimesheet(
     const supabase = await createSupabaseServerClient();
 
     if (!notes.trim()) {
-      return failure("Rejection notes are required", "VALIDATION_ERROR");
+      return failure("Rejection notes are required", ErrorCodes.VALIDATION_ERROR);
     }
 
     const { data: existing, error: fetchError } = await supabase
@@ -543,7 +571,7 @@ export async function rejectTimesheet(
       .single();
 
     if (fetchError || !existing) {
-      return failure("Timesheet not found", "NOT_FOUND");
+      return failure("Timesheet not found", ErrorCodes.NOT_FOUND);
     }
 
     const typedExisting = existing as {
@@ -555,7 +583,7 @@ export async function rejectTimesheet(
     if (typedExisting.status !== "submitted") {
       return failure(
         `Cannot reject a timesheet in '${typedExisting.status}' status. Must be 'submitted'.`,
-        "VALIDATION_ERROR",
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
@@ -572,14 +600,27 @@ export async function rejectTimesheet(
       .single();
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    return success(data as Timesheet);
+    const rejected = data as Timesheet;
+
+    await logAudit({
+      context,
+      action: AuditActions.TIMESHEET_REJECTED,
+      entityType: "timesheets",
+      entityId: rejected.id,
+      metadata: {
+        rejected_user_id: typedExisting.user_id,
+        rejection_notes: notes.trim(),
+      },
+    });
+
+    return success(rejected);
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to reject timesheet";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -653,6 +694,6 @@ export async function batchApproveTimesheets(
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to batch approve timesheets";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }

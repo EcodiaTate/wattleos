@@ -15,13 +15,15 @@ import { listTemplatesFiltered } from "@/lib/actions/curriculum-content";
 import Link from "next/link";
 
 interface TemplateDetailPageProps {
-  params: Promise<{ tenant: string; templateId: string }>;
+  params: Promise<{ templateId: string }>;
 }
+
+export const metadata = { title: "Template Detail - WattleOS" };
 
 export default async function TemplateDetailPage({
   params,
 }: TemplateDetailPageProps) {
-  const { tenant, templateId } = await params;
+  const { templateId } = await params;
 
   // Fetch the template (using listTemplatesFiltered with a known ID approach)
   // We fetch all templates and filter - this is cached server-side and the list is small
@@ -120,7 +122,7 @@ export default async function TemplateDetailPage({
             " - "
           }
         />
-        <MetadataCard label="Version" value={template.version ?? " - "} />
+        <MetadataCard label="Version" value={String(template.version ?? " - ")} />
       </div>
 
       {/* Quick Actions */}
@@ -237,19 +239,22 @@ function ActionCard({
 }
 
 function FrameworkBadge({ framework }: { framework: string }) {
-  const colors: Record<string, string> = {
-    AMI: "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300",
-    AMS: "bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300",
-    EYLF: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
-    ACARA:
-      "bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300",
-    QCAA: "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300",
+  const varMap: Record<string, { bg: string; fg: string }> = {
+    AMI: { bg: "var(--primary-50)", fg: "var(--primary-700)" },
+    AMS: { bg: "var(--framework-ams-bg)", fg: "var(--framework-ams)" },
+    EYLF: { bg: "var(--framework-eylf-bg)", fg: "var(--framework-eylf)" },
+    ACARA: { bg: "var(--framework-acara-bg)", fg: "var(--framework-acara)" },
+    QCAA: { bg: "var(--framework-qcaa-bg)", fg: "var(--framework-qcaa)" },
   };
+
+  const colors = varMap[framework];
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                  ${colors[framework] ?? "bg-muted text-muted-foreground"}`}
+      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+      style={colors
+        ? { backgroundColor: colors.bg, color: colors.fg }
+        : { backgroundColor: "var(--muted)", color: "var(--muted-foreground)" }}
     >
       {framework}
     </span>
@@ -260,7 +265,7 @@ function ComplianceBadge() {
   return (
     <span
       className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium
-                     bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300"
+                     bg-primary/15 text-primary "
     >
       <svg
         className="w-3 h-3"
@@ -281,16 +286,17 @@ function ComplianceBadge() {
 }
 
 function FrameworkDot({ framework }: { framework: string }) {
-  const colorMap: Record<string, string> = {
-    AMI: "bg-amber-500",
-    AMS: "bg-blue-500",
-    EYLF: "bg-emerald-500",
-    ACARA: "bg-purple-500",
-    QCAA: "bg-rose-500",
+  const varMap: Record<string, string> = {
+    AMI: "var(--primary)",
+    AMS: "var(--framework-ams)",
+    EYLF: "var(--framework-eylf)",
+    ACARA: "var(--framework-acara)",
+    QCAA: "var(--framework-qcaa)",
   };
   return (
     <span
-      className={`w-2.5 h-2.5 rounded-full shrink-0 ${colorMap[framework] ?? "bg-gray-400"}`}
+      className="w-2.5 h-2.5 rounded-full shrink-0"
+      style={{ backgroundColor: varMap[framework] ?? "var(--muted-foreground)" }}
     />
   );
 }
@@ -316,7 +322,7 @@ function ChevronRight() {
 function CubeIcon() {
   return (
     <svg
-      className="w-5 h-5 text-amber-600 dark:text-amber-400"
+      className="w-5 h-5 text-primary "
       fill="none"
       viewBox="0 0 24 24"
       strokeWidth={1.5}
@@ -334,7 +340,7 @@ function CubeIcon() {
 function ShieldIcon() {
   return (
     <svg
-      className="w-5 h-5 text-orange-600 dark:text-orange-400"
+      className="w-5 h-5 text-primary "
       fill="none"
       viewBox="0 0 24 24"
       strokeWidth={1.5}
@@ -352,7 +358,8 @@ function ShieldIcon() {
 function MappingIcon() {
   return (
     <svg
-      className="w-5 h-5 text-emerald-600 dark:text-emerald-400"
+      className="w-5 h-5"
+      style={{ color: "var(--badge-success)" }}
       fill="none"
       viewBox="0 0 24 24"
       strokeWidth={1.5}

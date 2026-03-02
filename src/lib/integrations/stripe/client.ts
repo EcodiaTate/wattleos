@@ -6,7 +6,8 @@
 // Isolated integration module. Handles:
 // • Customer creation (parent → Stripe Customer)
 // • Invoice creation and finalization
-// • Checkout session for payment method setup
+// • Checkout session for payment method setup (card + BECS)
+// • BECS Direct Debit SetupIntent + PaymentIntent
 // • Refunds
 //
 // DEPENDENCY: npm install stripe
@@ -48,6 +49,24 @@ export interface CreateCheckoutInput {
   success_url: string;
   cancel_url: string;
   mode: "setup"; // For saving payment methods
+  payment_method_types?: string[];
+}
+
+export interface CreateBecsSetupIntentInput {
+  customer_id: string;
+  account_holder_name: string;
+  account_holder_email: string;
+  metadata?: Record<string, string>;
+}
+
+export interface CreateBecsPaymentIntentInput {
+  customer_id: string;
+  payment_method_id: string;
+  amount_cents: number;
+  currency?: string;
+  mandate_id: string;
+  metadata?: Record<string, string>;
+  idempotency_key?: string;
 }
 
 // ============================================================
@@ -149,7 +168,8 @@ export async function voidInvoice(
 // ============================================================
 // Creates a Stripe Checkout Session in 'setup' mode.
 // The parent is redirected to Stripe's hosted page to save
-// their card. No payment is taken - just card details stored.
+// their payment method. No payment is taken - details stored.
+// Supports card and au_becs_debit (BECS Direct Debit).
 // ============================================================
 
 export async function createSetupCheckout(
@@ -159,10 +179,89 @@ export async function createSetupCheckout(
   return stripe.checkout.sessions.create({
     customer: input.customer_id,
     mode: "setup",
-    payment_method_types: ["card"],
+    payment_method_types: (input.payment_method_types ?? [
+      "card",
+    ]) as Stripe.Checkout.SessionCreateParams.PaymentMethodType[],
     success_url: input.success_url,
     cancel_url: input.cancel_url,
   });
+}
+
+// ============================================================
+// BECS DIRECT DEBIT
+// ============================================================
+// Australian BECS Direct Debit via Stripe.
+// • createBecsSetupIntent  - collects bank details + mandate
+// • confirmBecsSetupIntent - confirms after mandate acceptance
+// • createBecsPayment      - charges via saved BECS method
+// • getPaymentMethod       - retrieves saved PM details
+// ============================================================
+
+export async function createBecsSetupIntent(
+  stripe: Stripe,
+  input: CreateBecsSetupIntentInput,
+): Promise<Stripe.SetupIntent> {
+  return stripe.setupIntents.create({
+    customer: input.customer_id,
+    payment_method_types: ["au_becs_debit"],
+    mandate_data: {
+      customer_acceptance: {
+        type: "online",
+        online: {
+          ip_address: "0.0.0.0", // Overridden by frontend
+          user_agent: "WattleOS",
+        },
+      },
+    },
+    metadata: {
+      account_holder_name: input.account_holder_name,
+      account_holder_email: input.account_holder_email,
+      ...(input.metadata ?? {}),
+    },
+  });
+}
+
+export async function createBecsPayment(
+  stripe: Stripe,
+  input: CreateBecsPaymentIntentInput,
+): Promise<Stripe.PaymentIntent> {
+  return stripe.paymentIntents.create(
+    {
+      customer: input.customer_id,
+      payment_method: input.payment_method_id,
+      amount: input.amount_cents,
+      currency: input.currency ?? "aud",
+      payment_method_types: ["au_becs_debit"],
+      mandate: input.mandate_id,
+      confirm: true,
+      metadata: input.metadata ?? {},
+    },
+    input.idempotency_key
+      ? { idempotencyKey: input.idempotency_key }
+      : undefined,
+  );
+}
+
+export async function getPaymentMethod(
+  stripe: Stripe,
+  paymentMethodId: string,
+): Promise<Stripe.PaymentMethod | null> {
+  try {
+    return await stripe.paymentMethods.retrieve(paymentMethodId);
+  } catch {
+    return null;
+  }
+}
+
+export async function getSetupIntent(
+  stripe: Stripe,
+  setupIntentId: string,
+): Promise<Stripe.SetupIntent | null> {
+  try {
+    return await stripe.setupIntents.retrieve(setupIntentId);
+  } catch {
+    return null;
+  }
 }
 
 // ============================================================

@@ -117,7 +117,7 @@ export function CurriculumTreeView({
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search outcomes..."
-            className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-[length:var(--text-sm)] focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="w-full rounded-lg border border-border py-2 pl-9 pr-3 text-[length:var(--text-sm)] focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
           />
           <svg
             className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground"
@@ -138,7 +138,7 @@ export function CurriculumTreeView({
                 setSearchQuery("");
                 setSearchResults(null);
               }}
-              className="absolute right-3 top-2.5 text-muted-foreground hover:text-gray-600"
+              className="absolute right-3 top-2.5 text-muted-foreground hover:text-muted-foreground"
             >
               <svg
                 className="h-4 w-4"
@@ -161,13 +161,13 @@ export function CurriculumTreeView({
         <div className="flex items-center gap-2">
           <button
             onClick={expandAll}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-[length:var(--text-xs)] font-medium text-foreground hover:bg-background"
+            className="rounded-md border border-border px-3 py-1.5 text-[length:var(--text-xs)] font-medium text-foreground hover:bg-background"
           >
             Expand All
           </button>
           <button
             onClick={collapseAll}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-[length:var(--text-xs)] font-medium text-foreground hover:bg-background"
+            className="rounded-md border border-border px-3 py-1.5 text-[length:var(--text-xs)] font-medium text-foreground hover:bg-background"
           >
             Collapse All
           </button>
@@ -192,7 +192,7 @@ export function CurriculumTreeView({
       )}
 
       {/* Tree */}
-      <div className="rounded-lg border border-gray-200 bg-background">
+      <div className="rounded-lg border border-border bg-background">
         {initialTree.length === 0 ? (
           <div className="p-8 text-center text-[length:var(--text-sm)] text-muted-foreground">
             This curriculum is empty. Add an area to get started.
@@ -299,13 +299,13 @@ function TreeNode({
       <div
         className={`group flex items-center gap-2 px-4 py-2.5 transition-colors hover:bg-background ${
           node.is_hidden ? "opacity-50" : ""
-        } ${isMatch ? "bg-amber-50" : ""}`}
+        } ${isMatch ? "bg-primary/10" : ""}`}
         style={{ paddingLeft: `${indent * 24 + 16}px` }}
       >
         {/* Expand/collapse toggle */}
         <button
           onClick={() => onToggleExpand(node.id)}
-          className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded text-muted-foreground hover:text-gray-600 ${
+          className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded text-muted-foreground hover:text-muted-foreground ${
             !hasChildren ? "invisible" : ""
           }`}
         >
@@ -346,7 +346,7 @@ function TreeNode({
               }
             }}
             autoFocus
-            className="min-w-0 flex-1 rounded border border-amber-300 px-2 py-0.5 text-[length:var(--text-sm)] focus:outline-none focus:ring-1 focus:ring-ring"
+            className="min-w-0 flex-1 rounded border border-primary/30 px-2 py-0.5 text-[length:var(--text-sm)] focus:outline-none focus:ring-1 focus:ring-ring"
           />
         ) : (
           <span
@@ -590,7 +590,7 @@ function AddNodeInline({
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-1 px-2 py-1.5 text-[length:var(--text-xs)] text-muted-foreground transition-colors hover:text-amber-600"
+        className="flex items-center gap-1 px-2 py-1.5 text-[length:var(--text-xs)] text-muted-foreground transition-colors hover:text-primary"
       >
         <svg
           className="h-3.5 w-3.5"
@@ -625,12 +625,12 @@ function AddNodeInline({
         }}
         placeholder={`New ${level}...`}
         autoFocus
-        className="min-w-0 flex-1 rounded border border-gray-300 px-2 py-1 text-[length:var(--text-xs)] focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+        className="min-w-0 flex-1 rounded border border-border px-2 py-1 text-[length:var(--text-xs)] focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
       />
       <button
         onClick={handleCreate}
         disabled={isLoading || !title.trim()}
-        className="rounded bg-amber-600 px-2 py-1 text-[length:var(--text-xs)] font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
+        className="rounded bg-primary px-2 py-1 text-[length:var(--text-xs)] font-medium text-primary-foreground hover:bg-primary disabled:opacity-50"
       >
         {isLoading ? "..." : "Add"}
       </button>
@@ -639,7 +639,7 @@ function AddNodeInline({
           setIsOpen(false);
           setTitle("");
         }}
-        className="rounded border border-gray-300 px-2 py-1 text-[length:var(--text-xs)] text-gray-600 hover:bg-background"
+        className="rounded border border-border px-2 py-1 text-[length:var(--text-xs)] text-muted-foreground hover:bg-background"
       >
         Cancel
       </button>
@@ -673,7 +673,7 @@ function ActionBtn({
       disabled={disabled}
       className={`rounded p-1 transition-colors disabled:opacity-50 ${
         danger
-          ? "text-muted-foreground hover:bg-red-50 hover:text-red-600"
+          ? "text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
           : "text-muted-foreground hover:bg-muted hover:text-foreground"
       }`}
     >

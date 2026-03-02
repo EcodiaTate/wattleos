@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">WattleOS</string>
+    <string name="title_activity_main">WattleOS</string>
+    <string name="package_name">au.wattleos.app</string>
+    <string name="custom_url_scheme">au.wattleos.app</string>
+</resources>

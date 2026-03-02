@@ -11,40 +11,40 @@ interface AcknowledgementTrackerProps {
 
 export function AcknowledgementTracker({ stats }: AcknowledgementTrackerProps) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-6 py-4">
+    <div className="rounded-lg border border-border bg-card">
+      <div className="border-b border-border px-6 py-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-gray-900">
+          <h3 className="text-sm font-semibold text-foreground">
             Acknowledgements
           </h3>
-          <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" style={{ backgroundColor: "var(--badge-success-bg)", color: "var(--badge-success-fg)" }}>
             {stats.total_acknowledged} confirmed
           </span>
         </div>
       </div>
 
       {stats.acknowledgers.length === 0 ? (
-        <div className="px-6 py-8 text-center text-sm text-gray-500">
+        <div className="px-6 py-8 text-center text-sm text-muted-foreground">
           No acknowledgements yet. Parents will appear here once they confirm
           they&apos;ve read this announcement.
         </div>
       ) : (
-        <ul className="divide-y divide-gray-100">
+        <ul className="divide-y divide-border">
           {stats.acknowledgers.map((person) => (
             <li
               key={person.id}
               className="flex items-center justify-between px-6 py-3"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-xs font-medium text-emerald-700">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium" style={{ backgroundColor: "var(--badge-success-bg)", color: "var(--badge-success-fg)" }}>
                   {person.first_name?.[0]}
                   {person.last_name?.[0]}
                 </div>
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-foreground">
                   {person.first_name} {person.last_name}
                 </span>
               </div>
-              <time className="text-xs text-gray-500">
+              <time className="text-xs text-muted-foreground">
                 {new Date(person.acknowledged_at).toLocaleDateString("en-AU", {
                   day: "numeric",
                   month: "short",

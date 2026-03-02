@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 // src/lib/actions/comms/messaging.ts
 //
@@ -22,6 +22,7 @@ import type { MessageThreadType } from "@/lib/constants/communications";
 import { Permissions } from "@/lib/constants/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ActionResponse, ErrorCodes, failure, success } from "@/types/api";
+import { logAudit, AuditActions } from "@/lib/utils/audit";
 import type {
   Class,
   Message,
@@ -79,86 +80,44 @@ export async function createClassBroadcast(
       );
     }
 
-    // 1. Create the thread
-    const { data: thread, error: threadError } = await supabase
-      .from("message_threads")
-      .insert({
-        tenant_id: context.tenant.id,
-        subject: input.subject.trim(),
-        thread_type: "class_broadcast" as MessageThreadType,
-        class_id: input.class_id,
-        created_by: context.user.id,
-      })
-      .select()
-      .single();
+    // Atomic: thread + message + recipients in a single PostgreSQL transaction
+    const { data: rpcResult, error: rpcError } = await supabase.rpc(
+      "create_class_broadcast",
+      {
+        p_tenant_id: context.tenant.id,
+        p_class_id: input.class_id,
+        p_subject: input.subject.trim(),
+        p_initial_message: input.initial_message.trim(),
+        p_created_by: context.user.id,
+      },
+    );
 
-    if (threadError || !thread) {
+    if (rpcError || !rpcResult) {
       return failure(
-        threadError?.message ?? "Failed to create thread",
+        rpcError?.message ?? "Failed to create broadcast",
         ErrorCodes.CREATE_FAILED,
       );
     }
 
-    const threadData = thread as MessageThread;
+    const result = rpcResult as {
+      id: string;
+      success: boolean;
+      recipient_count: number;
+    };
 
-    // 2. Send the initial message
-    const { error: msgError } = await supabase.from("messages").insert({
-      tenant_id: context.tenant.id,
-      thread_id: threadData.id,
-      sender_id: context.user.id,
-      content: input.initial_message.trim(),
-      sent_at: new Date().toISOString(),
-    });
+    // Fetch the full thread for the response
+    const { data: thread, error: fetchError } = await supabase
+      .from("message_threads")
+      .select("*")
+      .eq("id", result.id)
+      .single();
 
-    if (msgError) {
-      // Rollback thread creation
-      await supabase.from("message_threads").delete().eq("id", threadData.id);
-      return failure(msgError.message, ErrorCodes.CREATE_FAILED);
+    if (fetchError || !thread) {
+      // RPC succeeded (data is committed) but fetch failed - still a success
+      return success({ id: result.id } as MessageThread);
     }
 
-    // 3. Populate recipients: all guardians of enrolled students + sender
-    const { data: enrollments } = await supabase
-      .from("enrollments")
-      .select("student_id")
-      .eq("class_id", input.class_id)
-      .eq("status", "active")
-      .is("deleted_at", null);
-
-    const studentIds = (enrollments ?? []).map(
-      (e) => (e as { student_id: string }).student_id,
-    );
-
-    let guardianUserIds: string[] = [];
-    if (studentIds.length > 0) {
-      const { data: guardians } = await supabase
-        .from("guardians")
-        .select("user_id")
-        .in("student_id", studentIds)
-        .is("deleted_at", null);
-
-      guardianUserIds = [
-        ...new Set(
-          (guardians ?? []).map((g) => (g as { user_id: string }).user_id),
-        ),
-      ];
-    }
-
-    // Add the sender (guide) as a recipient too so they see it in their inbox
-    const allRecipientIds = [...new Set([context.user.id, ...guardianUserIds])];
-
-    if (allRecipientIds.length > 0) {
-      const recipientRows = allRecipientIds.map((userId) => ({
-        tenant_id: context.tenant.id,
-        thread_id: threadData.id,
-        user_id: userId,
-        // Sender's own receipt is pre-read
-        read_at: userId === context.user.id ? new Date().toISOString() : null,
-      }));
-
-      await supabase.from("message_recipients").insert(recipientRows);
-    }
-
-    return success(threadData);
+    return success(thread as MessageThread);
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to create broadcast";
@@ -536,9 +495,7 @@ export async function getInbox(
 // Marks the thread as read for the current user.
 // ============================================================
 
-export async function getThreadMessages(
-  threadId: string,
-): Promise<
+export async function getThreadMessages(threadId: string): Promise<
   ActionResponse<{
     thread: MessageThread;
     messages: MessageWithSender[];
@@ -745,7 +702,7 @@ export async function deleteThread(
   threadId: string,
 ): Promise<ActionResponse<{ deleted: boolean }>> {
   try {
-    await requirePermission(Permissions.SEND_CLASS_MESSAGES);
+    const context = await requirePermission(Permissions.SEND_CLASS_MESSAGES);
     const supabase = await createSupabaseServerClient();
 
     const { error } = await supabase
@@ -757,6 +714,13 @@ export async function deleteThread(
     if (error) {
       return failure(error.message, ErrorCodes.DELETE_FAILED);
     }
+
+    await logAudit({
+      context,
+      action: AuditActions.MESSAGE_THREAD_DELETED,
+      entityType: "message_thread",
+      entityId: threadId,
+    });
 
     return success({ deleted: true });
   } catch (err) {

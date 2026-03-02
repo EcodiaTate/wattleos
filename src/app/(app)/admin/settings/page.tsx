@@ -23,12 +23,13 @@ import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import { getTenantDisplaySettings } from "@/lib/actions/display-settings";
 import { getTenantGeneralSettings } from "@/lib/actions/tenant-settings";
-import type { TenantGeneralSettings } from "@/lib/constants/tenant-settings";
 import { AppearanceSettingsClient } from "@/components/domain/admin/appearance-settings-client";
 import { SchoolGeneralSettingsClient } from "@/components/domain/admin/school-general-settings-client";
 import { DEFAULT_DISPLAY_SETTINGS } from "@/types/display";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+
+export const metadata = { title: "School Settings - WattleOS" };
 
 export default async function SchoolSettingsPage() {
   const context = await getTenantContext();
@@ -72,8 +73,8 @@ export default async function SchoolSettingsPage() {
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Manage your school&apos;s profile, branding, and default appearance.
-          Appearance changes apply to all users — individuals can override
-          theme and density in their personal settings.
+          Appearance changes apply to all users - individuals can override theme
+          and density in their personal settings.
         </p>
       </div>
 

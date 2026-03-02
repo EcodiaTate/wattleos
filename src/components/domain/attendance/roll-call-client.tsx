@@ -11,7 +11,7 @@
 // 5. Taps "Save Roll" to persist
 //
 // Design priorities:
-// - Thumb-friendly on iPad (large tap targets)
+// - Thumb-friendly on iPad (large tap targets, haptic feedback)
 // - Medical alerts visible (⚠ badges on student rows)
 // - Quick: "Mark All Present" button for good days
 // - Optimistic: each tap saves immediately via markAttendance
@@ -35,6 +35,8 @@ import {
   ATTENDANCE_STATUS_CONFIG,
   type AttendanceStatusValue,
 } from "@/lib/constants/attendance";
+import { useHaptics } from "@/lib/hooks/use-haptics";
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type { AttendanceStatus } from "@/types/domain";
 import { useCallback, useEffect, useState, useTransition } from "react";
 
@@ -77,6 +79,7 @@ function formatDateDisplay(dateStr: string): string {
 // ============================================================
 
 export function RollCallClient({ classes }: RollCallClientProps) {
+  const haptics = useHaptics();
   const [selectedClassId, setSelectedClassId] = useState<string>(
     classes.length === 1 ? classes[0].id : "",
   );
@@ -130,6 +133,7 @@ export function RollCallClient({ classes }: RollCallClientProps) {
     // Toggle: if already this status, clear it
     const current = localStatuses[studentId];
     if (current === status) {
+      haptics.impact("light");
       setLocalStatuses((prev) => {
         const next = { ...prev };
         delete next[studentId];
@@ -137,6 +141,9 @@ export function RollCallClient({ classes }: RollCallClientProps) {
       });
       return;
     }
+
+    // Haptic feedback - medium for meaningful attendance action
+    haptics.impact("medium");
 
     // Optimistic update
     setLocalStatuses((prev) => ({ ...prev, [studentId]: status }));
@@ -157,6 +164,7 @@ export function RollCallClient({ classes }: RollCallClientProps) {
   // Mark All Present
   // ----------------------------------------------------------
   function handleMarkAllPresent() {
+    haptics.impact("medium");
     const newStatuses: Record<string, AttendanceStatusValue> = {
       ...localStatuses,
     };
@@ -189,6 +197,7 @@ export function RollCallClient({ classes }: RollCallClientProps) {
         });
       }
 
+      haptics.success();
       setSuccessMessage("All students marked present.");
       setTimeout(() => setSuccessMessage(null), 3000);
     });
@@ -198,6 +207,7 @@ export function RollCallClient({ classes }: RollCallClientProps) {
   // Save entire roll (marks unmarked as absent)
   // ----------------------------------------------------------
   function handleSaveRoll() {
+    haptics.impact("medium");
     startSaveAll(async () => {
       const records = rows.map((r) => ({
         studentId: r.student.id,
@@ -212,12 +222,15 @@ export function RollCallClient({ classes }: RollCallClientProps) {
       });
 
       if (result.data) {
+        haptics.success();
         setSuccessMessage(
           `Roll saved - ${result.data.marked} students recorded.`,
         );
         // Refresh to get updated records
         await loadAttendance();
         setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        haptics.error();
       }
     });
   }
@@ -244,52 +257,90 @@ export function RollCallClient({ classes }: RollCallClientProps) {
   return (
     <div className="space-y-4">
       {/* Controls bar */}
-      <div className="flex flex-wrap items-end gap-[var(--density-card-padding)] rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+      <div
+        className="flex flex-wrap items-end gap-[var(--density-card-padding)] rounded-[var(--radius)] border border-border p-[var(--density-card-padding)]"
+        style={{ background: "var(--card)" }}
+      >
         {/* Class selector */}
-        <div className="min-w-[200px] flex-1">
-          <label className="block text-xs font-medium text-foreground">
-            Class
-          </label>
-          <select
-            value={selectedClassId}
-            onChange={(e) => setSelectedClassId(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-          >
-            <option value="">Select a class...</option>
-            {classes.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-                {c.room ? ` - ${c.room}` : ""}
-                {c.cycleLevel ? ` (${c.cycleLevel})` : ""}
-              </option>
-            ))}
-          </select>
-        </div>
+        <GlowTarget
+          id="att-select-class"
+          category="select"
+          label="Class picker"
+        >
+          <div className="min-w-[200px] flex-1">
+            <label
+              className="block text-xs font-medium"
+              style={{ color: "var(--form-label-fg)" }}
+            >
+              Class
+            </label>
+            <select
+              value={selectedClassId}
+              onChange={(e) => {
+                haptics.selection();
+                setSelectedClassId(e.target.value);
+              }}
+              className="mt-1 block w-full rounded-[var(--radius-md)] border border-border bg-background px-[var(--density-input-padding-x)] py-[var(--density-input-padding-y)] text-sm text-foreground focus:border-[var(--input-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
+              style={{ height: "var(--density-input-height)" }}
+            >
+              <option value="">Select a class...</option>
+              {classes.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                  {c.room ? ` - ${c.room}` : ""}
+                  {c.cycleLevel ? ` (${c.cycleLevel})` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+        </GlowTarget>
 
         {/* Date picker */}
-        <div>
-          <label className="block text-xs font-medium text-foreground">
-            Date
-          </label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="mt-1 block rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-          />
-        </div>
+        <GlowTarget
+          id="att-input-date"
+          category="input"
+          label="Date selector"
+          context={{ value: date }}
+        >
+          <div>
+            <label
+              className="block text-xs font-medium"
+              style={{ color: "var(--form-label-fg)" }}
+            >
+              Date
+            </label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="mt-1 block rounded-[var(--radius-md)] border border-border bg-background px-[var(--density-input-padding-x)] py-[var(--density-input-padding-y)] text-sm text-foreground focus:border-[var(--input-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
+              style={{ height: "var(--density-input-height)" }}
+            />
+          </div>
+        </GlowTarget>
 
         {/* Quick actions */}
         {selectedClassId && rows.length > 0 && (
-          <div className="flex gap-2">
-            <button
-              onClick={handleMarkAllPresent}
-              disabled={saveAllPending}
-              className="rounded-lg bg-[var(--mastery-mastered)] px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-green-700 disabled:opacity-50"
-            >
-              Mark All Present
-            </button>
-          </div>
+          <GlowTarget
+            id="att-btn-mark-all"
+            category="button"
+            label="Mark All Present"
+          >
+            <div className="flex gap-2">
+              <button
+                onClick={handleMarkAllPresent}
+                disabled={saveAllPending}
+                className="active-push touch-target rounded-[var(--radius-md)] px-[var(--density-button-padding-x)] text-sm font-semibold transition-opacity disabled:opacity-50"
+                style={{
+                  height: "var(--density-button-height)",
+                  background: "var(--attendance-present)",
+                  color: "var(--attendance-present-fg)",
+                }}
+              >
+                Mark All Present
+              </button>
+            </div>
+          </GlowTarget>
         )}
       </div>
 
@@ -302,15 +353,31 @@ export function RollCallClient({ classes }: RollCallClientProps) {
 
       {/* Success message */}
       {successMessage && (
-        <div className="rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+        <div
+          className="rounded-[var(--radius)] px-4 py-3 text-sm font-medium animate-fade-in"
+          style={{
+            background: "var(--primary-50)",
+            color: "var(--attendance-present)",
+            border: "1px solid var(--attendance-present)",
+          }}
+        >
           {successMessage}
         </div>
       )}
 
       {/* Loading state */}
       {loading && (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-amber-600" />
+        <div
+          className="rounded-[var(--radius)] border border-border p-12 text-center"
+          style={{ background: "var(--card)" }}
+        >
+          <div
+            className="mx-auto h-8 w-8 animate-spin rounded-full border-2"
+            style={{
+              borderColor: "var(--border)",
+              borderTopColor: "var(--primary)",
+            }}
+          />
           <p className="mt-3 text-sm text-muted-foreground">
             Loading students...
           </p>
@@ -319,7 +386,10 @@ export function RollCallClient({ classes }: RollCallClientProps) {
 
       {/* No class selected */}
       {!selectedClassId && !loading && (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+        <div
+          className="rounded-[var(--radius)] border border-border p-12 text-center"
+          style={{ background: "var(--card)" }}
+        >
           <p className="text-sm text-muted-foreground">
             Select a class to begin the roll call.
           </p>
@@ -328,7 +398,10 @@ export function RollCallClient({ classes }: RollCallClientProps) {
 
       {/* Empty class */}
       {selectedClassId && !loading && rows.length === 0 && (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+        <div
+          className="rounded-[var(--radius)] border border-border p-12 text-center"
+          style={{ background: "var(--card)" }}
+        >
           <p className="text-sm font-medium text-foreground">
             No students enrolled
           </p>
@@ -342,50 +415,91 @@ export function RollCallClient({ classes }: RollCallClientProps) {
       {selectedClassId && !loading && rows.length > 0 && (
         <>
           {/* Summary bar */}
-          <div className="flex flex-wrap gap-3 rounded-lg borderborder-border bg-background px-4 py-3">
-            <SummaryPill label="Total" count={totalStudents} color="gray" />
-            <SummaryPill label="Present" count={presentCount} color="green" />
-            <SummaryPill label="Absent" count={absentCount} color="red" />
-            <SummaryPill label="Late" count={lateCount} color="amber" />
+          <div
+            className="flex flex-wrap gap-3 rounded-[var(--radius)] border border-border px-4 py-3"
+            style={{ background: "var(--card)" }}
+          >
+            <SummaryPill
+              label="Total"
+              count={totalStudents}
+              variant="neutral"
+            />
+            <SummaryPill
+              label="Present"
+              count={presentCount}
+              variant="present"
+            />
+            <SummaryPill label="Absent" count={absentCount} variant="absent" />
+            <SummaryPill label="Late" count={lateCount} variant="late" />
             {unmarked > 0 && (
-              <SummaryPill label="Unmarked" count={unmarked} color="gray" />
+              <SummaryPill
+                label="Unmarked"
+                count={unmarked}
+                variant="neutral"
+              />
             )}
           </div>
 
           {/* Student rows */}
-          <div className="divide-y divide-gray-100 rounded-lg borderborder-border bg-background">
+          <div
+            className="divide-y divide-border rounded-[var(--radius)] border border-border"
+            style={{ background: "var(--card)" }}
+          >
             {rows.map((row) => (
-              <StudentRow
+              <GlowTarget
                 key={row.student.id}
-                row={row}
-                currentStatus={localStatuses[row.student.id] ?? null}
-                notes={localNotes[row.student.id] ?? ""}
-                isSaving={saving[row.student.id] ?? false}
-                onMark={(status) => handleMark(row.student.id, status)}
-                onNotesChange={(notes) =>
-                  setLocalNotes((prev) => ({
-                    ...prev,
-                    [row.student.id]: notes,
-                  }))
-                }
-              />
+                id={`att-row-student-${row.student.id}`}
+                category="row"
+                label={`${row.student.preferred_name ?? row.student.first_name} ${row.student.last_name}`}
+                context={{
+                  status: localStatuses[row.student.id] ?? "unmarked",
+                }}
+              >
+                <StudentRow
+                  row={row}
+                  currentStatus={localStatuses[row.student.id] ?? null}
+                  notes={localNotes[row.student.id] ?? ""}
+                  isSaving={saving[row.student.id] ?? false}
+                  onMark={(status) => handleMark(row.student.id, status)}
+                  onNotesChange={(notes) =>
+                    setLocalNotes((prev) => ({
+                      ...prev,
+                      [row.student.id]: notes,
+                    }))
+                  }
+                />
+              </GlowTarget>
             ))}
           </div>
 
           {/* Save button */}
-          <div className="flex items-center justify-between rounded-lg borderborder-border bg-background px-4 py-3">
+          <div
+            className="flex items-center justify-between rounded-[var(--radius)] border border-border px-4 py-3"
+            style={{ background: "var(--card)" }}
+          >
             <p className="text-sm text-muted-foreground">
               {unmarked > 0
                 ? `${unmarked} student${unmarked !== 1 ? "s" : ""} unmarked - they'll be recorded as absent.`
                 : "All students marked."}
             </p>
-            <button
-              onClick={handleSaveRoll}
-              disabled={saveAllPending}
-              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:opacity-50"
+            <GlowTarget
+              id="att-btn-save-roll"
+              category="button"
+              label="Save Roll"
             >
-              {saveAllPending ? "Saving..." : "Save Roll"}
-            </button>
+              <button
+                onClick={handleSaveRoll}
+                disabled={saveAllPending}
+                className="active-push touch-target rounded-[var(--radius-md)] px-5 text-sm font-semibold shadow-sm disabled:opacity-50"
+                style={{
+                  height: "var(--density-button-height)",
+                  background: "var(--primary)",
+                  color: "var(--primary-foreground)",
+                }}
+              >
+                {saveAllPending ? "Saving..." : "Save Roll"}
+              </button>
+            </GlowTarget>
           </div>
         </>
       )}
@@ -414,6 +528,24 @@ const STATUS_ORDER: AttendanceStatusValue[] = [
   "half_day",
 ];
 
+// Maps status to the CSS variable tokens from the design system
+const STATUS_CSS: Record<AttendanceStatusValue, { bg: string; fg: string }> = {
+  present: {
+    bg: "var(--attendance-present)",
+    fg: "var(--attendance-present-fg)",
+  },
+  absent: { bg: "var(--attendance-absent)", fg: "var(--attendance-absent-fg)" },
+  late: { bg: "var(--attendance-late)", fg: "var(--attendance-late-fg)" },
+  excused: {
+    bg: "var(--attendance-excused)",
+    fg: "var(--attendance-excused-fg)",
+  },
+  half_day: {
+    bg: "var(--attendance-half-day)",
+    fg: "var(--attendance-half-day-fg)",
+  },
+};
+
 function StudentRow({
   row,
   currentStatus,
@@ -429,12 +561,18 @@ function StudentRow({
     <div className="px-4 py-3">
       <div className="flex items-center gap-3">
         {/* Avatar */}
-        <div className="flex h-[var(--density-button-height)] w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-medium text-muted-foreground">
+        <div
+          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+          style={{
+            background: "var(--muted)",
+            color: "var(--muted-foreground)",
+          }}
+        >
           {row.student.photo_url ? (
             <img
               src={row.student.photo_url}
               alt=""
-              className="h-[var(--density-button-height)] w-10 rounded-full object-cover"
+              className="h-10 w-10 rounded-full object-cover"
             />
           ) : (
             displayName.charAt(0).toUpperCase()
@@ -448,7 +586,10 @@ function StudentRow({
               {displayName} {row.student.last_name}
             </p>
             {isSaving && (
-              <div className="h-3 w-3 animate-spin rounded-full border border-gray-300 border-t-amber-600" />
+              <div
+                className="h-3 w-3 animate-spin rounded-full border border-border"
+                style={{ borderTopColor: "var(--primary)" }}
+              />
             )}
           </div>
 
@@ -458,11 +599,17 @@ function StudentRow({
               {row.medicalAlerts.map((alert, i) => (
                 <span
                   key={i}
-                  className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                    alert.severity === "life_threatening"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-orange-100 text-orange-800"
-                  }`}
+                  className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-semibold"
+                  style={{
+                    background:
+                      alert.severity === "life_threatening"
+                        ? "var(--medical-life-threatening)"
+                        : "var(--medical-moderate)",
+                    color:
+                      alert.severity === "life_threatening"
+                        ? "var(--medical-life-threatening-fg)"
+                        : "var(--medical-moderate-fg)",
+                  }}
                 >
                   <svg
                     className="h-2.5 w-2.5"
@@ -482,24 +629,34 @@ function StudentRow({
           )}
         </div>
 
-        {/* Status buttons */}
+        {/* Status buttons - large touch targets, haptic feedback via parent */}
         <div className="flex flex-shrink-0 gap-1.5">
           {STATUS_ORDER.map((status) => {
             const config = ATTENDANCE_STATUS_CONFIG[status];
             const isActive = currentStatus === status;
+            const css = STATUS_CSS[status];
 
             return (
               <button
                 key={status}
                 onClick={() => onMark(status)}
                 title={config.label}
-                className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition-all sm:h-auto sm:w-auto sm:px-2.5 sm:py-1.5 ${
+                className="active-push touch-target flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] text-sm font-medium transition-all sm:h-auto sm:w-auto sm:px-2.5 sm:py-1.5"
+                style={
                   isActive
-                    ? `${config.buttonBg} text-primary-foreground shadow-sm`
-                    : "borderborder-border bg-background text-muted-foreground hover:border-gray-300 hover:bg-background"
-                }`}
+                    ? {
+                        background: css.bg,
+                        color: css.fg,
+                        boxShadow: "var(--shadow-sm)",
+                      }
+                    : {
+                        background: "var(--muted)",
+                        color: "var(--muted-foreground)",
+                        border: "1px solid var(--border)",
+                      }
+                }
               >
-                {/* Icon on mobile, label on desktop */}
+                {/* Emoji icon on mobile, text label on desktop */}
                 <span className="sm:hidden">{config.icon}</span>
                 <span className="hidden text-xs sm:inline">{config.label}</span>
               </button>
@@ -510,11 +667,16 @@ function StudentRow({
           <button
             onClick={() => setShowNotes(!showNotes)}
             title="Add note"
-            className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm transition-colors sm:h-auto sm:w-auto sm:px-2 sm:py-1.5 ${
+            className="active-push touch-target flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] text-sm transition-colors sm:h-auto sm:w-auto sm:px-2 sm:py-1.5"
+            style={
               notes
-                ? "bg-blue-100 text-blue-600"
-                : "borderborder-border bg-background text-muted-foreground hover:border-gray-300 hover:text-muted-foreground"
-            }`}
+                ? { background: "var(--info)", color: "var(--info-foreground)" }
+                : {
+                    background: "var(--muted)",
+                    color: "var(--muted-foreground)",
+                    border: "1px solid var(--border)",
+                  }
+            }
           >
             <svg
               className="h-4 w-4"
@@ -541,7 +703,7 @@ function StudentRow({
             value={notes}
             onChange={(e) => onNotesChange(e.target.value)}
             placeholder="Add a note (e.g., 'Left early at 2pm')"
-            className="block w-full rounded-lg borderborder-border px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="selectable block w-full rounded-[var(--radius-md)] border border-border bg-background px-[var(--density-input-padding-x)] py-[var(--density-input-padding-y)] text-sm text-foreground placeholder:text-muted-foreground focus:border-[var(--input-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
           />
         </div>
       )}
@@ -556,22 +718,36 @@ function StudentRow({
 interface SummaryPillProps {
   label: string;
   count: number;
-  color: "gray" | "green" | "red" | "amber" | "blue" | "purple";
+  variant: "neutral" | "present" | "absent" | "late" | "excused" | "half_day";
 }
 
-const PILL_COLORS: Record<SummaryPillProps["color"], string> = {
-  gray: "bg-muted text-foreground",
-  green: "bg-green-100 text-green-700",
-  red: "bg-red-100 text-red-700",
-  amber: "bg-amber-100 text-amber-700",
-  blue: "bg-blue-100 text-blue-700",
-  purple: "bg-purple-100 text-purple-700",
+const PILL_CSS: Record<
+  SummaryPillProps["variant"],
+  { bg: string; fg: string }
+> = {
+  neutral: { bg: "var(--muted)", fg: "var(--muted-foreground)" },
+  present: {
+    bg: "var(--attendance-present)",
+    fg: "var(--attendance-present-fg)",
+  },
+  absent: { bg: "var(--attendance-absent)", fg: "var(--attendance-absent-fg)" },
+  late: { bg: "var(--attendance-late)", fg: "var(--attendance-late-fg)" },
+  excused: {
+    bg: "var(--attendance-excused)",
+    fg: "var(--attendance-excused-fg)",
+  },
+  half_day: {
+    bg: "var(--attendance-half-day)",
+    fg: "var(--attendance-half-day-fg)",
+  },
 };
 
-function SummaryPill({ label, count, color }: SummaryPillProps) {
+function SummaryPill({ label, count, variant }: SummaryPillProps) {
+  const css = PILL_CSS[variant];
   return (
     <div
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${PILL_COLORS[color]}`}
+      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+      style={{ background: css.bg, color: css.fg }}
     >
       <span>{label}</span>
       <span className="font-bold">{count}</span>

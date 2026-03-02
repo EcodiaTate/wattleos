@@ -302,7 +302,7 @@ export function MassInviteClient() {
           </div>
 
           <div className="rounded-lg bg-primary-50/30 border border-primary-100 p-4">
-            <p className="text-xs font-bold uppercase tracking-wider text-primary-700">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">
               Required columns:
             </p>
             <p className="mt-1 text-sm font-medium text-primary-900/70">

@@ -11,6 +11,8 @@
 import { ParentBillingClient } from "@/components/domain/billing/parent-billing-client";
 import { getParentInvoices } from "@/lib/actions/billing";
 
+export const metadata = { title: "Billing - WattleOS" };
+
 export default async function ParentBillingPage() {
   const result = await getParentInvoices();
   const invoices = result.data ?? [];

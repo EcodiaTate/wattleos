@@ -83,36 +83,36 @@ export function InviteAcceptClient({
 
   return (
     <div className="w-full max-w-md">
-      <div className="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
+      <div className="rounded-lg border border-border bg-card p-8 text-center shadow-sm">
         <div className="mb-4 text-4xl">🎓</div>
-        <h2 className="text-xl font-bold text-gray-900">
+        <h2 className="text-xl font-bold text-foreground">
           You&apos;re Invited!
         </h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-2 text-sm text-muted-foreground">
           <span className="font-medium">{schoolName}</span> has invited you to
           join WattleOS as a parent of{" "}
           <span className="font-medium">{studentName}</span>.
         </p>
 
-        <div className="mt-6 rounded-lg bg-gray-50 px-4 py-3 text-left">
+        <div className="mt-6 rounded-lg bg-muted px-4 py-3 text-left">
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-gray-500">School</dt>
-              <dd className="font-medium text-gray-900">{schoolName}</dd>
+              <dt className="text-muted-foreground">School</dt>
+              <dd className="font-medium text-foreground">{schoolName}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-gray-500">Student</dt>
-              <dd className="font-medium text-gray-900">{studentName}</dd>
+              <dt className="text-muted-foreground">Student</dt>
+              <dd className="font-medium text-foreground">{studentName}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-gray-500">Your Email</dt>
-              <dd className="font-medium text-gray-900">{email}</dd>
+              <dt className="text-muted-foreground">Your Email</dt>
+              <dd className="font-medium text-foreground">{email}</dd>
             </div>
           </dl>
         </div>
 
         {error && (
-          <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mt-4 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {error}
           </div>
         )}
@@ -120,7 +120,7 @@ export function InviteAcceptClient({
         <button
           onClick={handleAcceptWithGoogle}
           disabled={loading}
-          className="mt-6 flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
+          className="mt-6 flex w-full items-center justify-center gap-3 rounded-lg border border-border bg-card px-6 py-3 text-sm font-medium text-foreground shadow-sm hover:bg-muted disabled:opacity-50"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path
@@ -143,7 +143,7 @@ export function InviteAcceptClient({
           {loading ? "Redirecting…" : "Sign in with Google to Accept"}
         </button>
 
-        <p className="mt-4 text-xs text-gray-400">
+        <p className="mt-4 text-xs text-muted-foreground">
           By signing in, you&apos;ll create your WattleOS parent account and get
           access to {studentName}&apos;s portfolio, attendance, reports, and
           school communications.

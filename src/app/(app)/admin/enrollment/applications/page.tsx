@@ -58,12 +58,12 @@ type PagedResult<T> = {
 };
 
 function isPagedResult<T>(data: unknown): data is PagedResult<T> {
+  if (!data || typeof data !== "object") return false;
+  const d = data as Record<string, unknown>;
   return (
-    !!data &&
-    typeof data === "object" &&
-    Array.isArray((data as any).items) &&
-    typeof (data as any).total === "number" &&
-    typeof (data as any).total_pages === "number"
+    Array.isArray(d["items"]) &&
+    typeof d["total"] === "number" &&
+    typeof d["total_pages"] === "number"
   );
 }
 
@@ -216,7 +216,7 @@ export default async function ApplicationsPage({
                     <td className="px-4 py-3 text-right">
                       <Link
                         href={`/admin/enrollment/applications/${app.id}`}
-                        className="rounded-md bg-primary-50 px-3 py-1 text-xs font-bold text-primary-700 transition-all hover:bg-primary-100"
+                        className="rounded-md bg-primary-50 px-3 py-1 text-xs font-bold text-primary transition-all hover:bg-primary/15"
                       >
                         Review
                       </Link>

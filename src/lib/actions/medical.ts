@@ -8,7 +8,8 @@
 // children's records via is_guardian_of() check.
 // ============================================================
 
-import { getTenantContext } from "@/lib/auth/tenant-context";
+import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
 import {
   createMedicalConditionSchema,
   updateMedicalConditionSchema,
@@ -34,11 +35,13 @@ export async function listMedicalConditions(
   studentId: string,
 ): Promise<ActionResponse<MedicalCondition[]>> {
   try {
+    const context = await requirePermission(Permissions.VIEW_MEDICAL_RECORDS);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
       .from("medical_conditions")
       .select("*")
+      .eq("tenant_id", context.tenant.id)
       .eq("student_id", studentId)
       .is("deleted_at", null)
       .order("severity", { ascending: true });
@@ -64,6 +67,7 @@ export async function listCriticalMedicalConditions(): Promise<
   ActionResponse<MedicalCondition[]>
 > {
   try {
+    const context = await requirePermission(Permissions.VIEW_MEDICAL_RECORDS);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
@@ -71,6 +75,7 @@ export async function listCriticalMedicalConditions(): Promise<
       .select(
         "*, student:students(id, first_name, last_name, preferred_name, photo_url)",
       )
+      .eq("tenant_id", context.tenant.id)
       .in("severity", ["severe", "life_threatening"])
       .is("deleted_at", null)
       .order("severity", { ascending: true });
@@ -99,8 +104,18 @@ export async function createMedicalCondition(
     if (parsed.error) return parsed.error;
     const v = parsed.data;
 
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_MEDICAL_RECORDS);
     const supabase = await createSupabaseServerClient();
+
+    // Verify student belongs to this tenant
+    const { data: student } = await supabase
+      .from("students")
+      .select("id")
+      .eq("id", v.student_id)
+      .eq("tenant_id", context.tenant.id)
+      .is("deleted_at", null)
+      .single();
+    if (!student) return failure("Student not found", "NOT_FOUND");
 
     const { data, error } = await supabase
       .from("medical_conditions")
@@ -158,7 +173,7 @@ export async function updateMedicalCondition(
     if (parsed.error) return parsed.error;
     const v = parsed.data;
 
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_MEDICAL_RECORDS);
     const supabase = await createSupabaseServerClient();
 
     const updateData: Record<string, unknown> = {};
@@ -190,6 +205,7 @@ export async function updateMedicalCondition(
       .from("medical_conditions")
       .update(updateData)
       .eq("id", conditionId)
+      .eq("tenant_id", context.tenant.id)
       .is("deleted_at", null)
       .select()
       .single();
@@ -226,7 +242,7 @@ export async function deleteMedicalCondition(
   conditionId: string,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_MEDICAL_RECORDS);
     const supabase = await createSupabaseServerClient();
 
     // Fetch before delete for audit trail
@@ -234,6 +250,7 @@ export async function deleteMedicalCondition(
       .from("medical_conditions")
       .select("student_id, condition_name, severity")
       .eq("id", conditionId)
+      .eq("tenant_id", context.tenant.id)
       .is("deleted_at", null)
       .single();
 
@@ -241,6 +258,7 @@ export async function deleteMedicalCondition(
       .from("medical_conditions")
       .update({ deleted_at: new Date().toISOString() })
       .eq("id", conditionId)
+      .eq("tenant_id", context.tenant.id)
       .is("deleted_at", null);
 
     if (error) {

@@ -4,6 +4,8 @@ import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import { MasteryPageClient } from "./mastery-page-client";
 
+export const metadata = { title: "Mastery Tracking - WattleOS" };
+
 export default async function MasteryPage() {
   const context = await getTenantContext();
   const canManage = hasPermission(context, Permissions.MANAGE_MASTERY);
@@ -11,7 +13,7 @@ export default async function MasteryPage() {
 
   if (!canViewStudents) {
     return (
-      <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+      <div className="rounded-lg border border-border bg-background p-8 text-center">
         <p className="text-sm text-muted-foreground">
           You do not have permission to view student data.
         </p>
@@ -38,13 +40,13 @@ export default async function MasteryPage() {
             Track student progress across curriculum outcomes
           </p>
         </div>
-        <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+        <div className="rounded-lg border border-border bg-background p-8 text-center">
           <p className="text-sm text-muted-foreground">
             Set up a curriculum first before tracking mastery.
           </p>
           <a
             href="/pedagogy/curriculum"
-            className="mt-3 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700"
+            className="mt-3 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary"
           >
             Go to Curriculum
           </a>
@@ -64,13 +66,13 @@ export default async function MasteryPage() {
             Track student progress across curriculum outcomes
           </p>
         </div>
-        <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+        <div className="rounded-lg border border-border bg-background p-8 text-center">
           <p className="text-sm text-muted-foreground">
             Add students before tracking mastery.
           </p>
           <a
             href="/students"
-            className="mt-3 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700"
+            className="mt-3 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary"
           >
             Manage Students
           </a>

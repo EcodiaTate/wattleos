@@ -12,8 +12,11 @@
 // Tenant isolation is handled by RLS + JWT, not URL segments.
 // ============================================================
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { StudentSearchBar } from "@/components/domain/students/StudentSearchBar";
 import { listStudents } from "@/lib/actions/students";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
 import { ENROLLMENT_STATUSES } from "@/lib/constants";
 import {
   calculateAge,
@@ -23,6 +26,7 @@ import {
 } from "@/lib/utils";
 import { EnrollmentStatus } from "@/types/domain";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 interface StudentListPageProps {
   searchParams: Promise<{
@@ -33,9 +37,16 @@ interface StudentListPageProps {
   }>;
 }
 
+export const metadata = { title: "Students - WattleOS" };
+
 export default async function StudentListPage({
   searchParams,
 }: StudentListPageProps) {
+  const context = await getTenantContext();
+  if (!hasPermission(context, Permissions.VIEW_STUDENTS)) {
+    redirect("/dashboard");
+  }
+
   const search = await searchParams;
 
   const result = await listStudents({
@@ -74,12 +85,14 @@ export default async function StudentListPage({
             {pagination.total} student{pagination.total !== 1 ? "s" : ""} total
           </p>
         </div>
-        <Link
-          href="/students/new"
-          className="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-        >
-          + Add Student
-        </Link>
+        <GlowTarget id="stu-btn-new-student" category="button" label="Add student">
+          <Link
+            href="/students/new"
+            className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            + Add Student
+          </Link>
+        </GlowTarget>
       </div>
 
       {/* Search & Filters */}
@@ -92,8 +105,8 @@ export default async function StudentListPage({
             href="/students"
             className={`whitespace-nowrap rounded-full px-3 py-1 text-sm font-medium ${
               !search.status
-                ? "bg-indigo-100 text-indigo-700"
-                : "bg-muted text-muted-foreground hover:bg-gray-200"
+                ? "bg-primary/10 text-primary"
+                : "bg-muted text-muted-foreground hover:bg-muted"
             }`}
           >
             All
@@ -104,8 +117,8 @@ export default async function StudentListPage({
               href={`/students${buildQuery({ status: s.value, page: undefined })}`}
               className={`whitespace-nowrap rounded-full px-3 py-1 text-sm font-medium ${
                 search.status === s.value
-                  ? "bg-indigo-100 text-indigo-700"
-                  : "bg-muted text-muted-foreground hover:bg-gray-200"
+                  ? "bg-primary/10 text-primary"
+                  : "bg-muted text-muted-foreground hover:bg-muted"
               }`}
             >
               {s.label}
@@ -116,11 +129,11 @@ export default async function StudentListPage({
 
       {/* Student Table */}
       {result.error ? (
-        <div className="rounded-md bg-red-50 p-[var(--density-card-padding)]">
-          <p className="text-sm text-red-700">{result.error.message}</p>
+        <div className="rounded-md bg-destructive/10 p-[var(--density-card-padding)]">
+          <p className="text-sm text-destructive">{result.error.message}</p>
         </div>
       ) : students.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+        <div className="rounded-lg border-2 border-dashed border-border p-12 text-center">
           <p className="text-sm text-muted-foreground">
             {search.search || search.status
               ? "No students match your filters."
@@ -128,7 +141,7 @@ export default async function StudentListPage({
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg borderborder-border bg-background shadow-sm">
+        <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-background">
               <tr>
@@ -151,7 +164,8 @@ export default async function StudentListPage({
             </thead>
             <tbody className="divide-y divide-gray-200 bg-background">
               {students.map((student) => (
-                <tr key={student.id} className="hover:bg-background">
+                <GlowTarget key={student.id} id={`stu-card-${student.id}`} category="card" label={`${student.first_name} ${student.last_name}`}>
+                <tr className="hover:bg-background">
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center">
                       <div className="h-[var(--density-button-height)] w-10 flex-shrink-0">
@@ -162,7 +176,7 @@ export default async function StudentListPage({
                             alt=""
                           />
                         ) : (
-                          <div className="flex h-[var(--density-button-height)] w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-medium text-indigo-600">
+                          <div className="flex h-[var(--density-button-height)] w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
                             {student.first_name[0]}
                             {student.last_name[0]}
                           </div>
@@ -202,12 +216,13 @@ export default async function StudentListPage({
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                     <Link
                       href={`/students/${student.id}`}
-                      className="text-indigo-600 hover:text-indigo-900"
+                      className="text-info hover:text-info/80"
                     >
                       View
                     </Link>
                   </td>
                 </tr>
+                </GlowTarget>
               ))}
             </tbody>
           </table>
@@ -236,7 +251,7 @@ export default async function StudentListPage({
                 {pagination.page > 1 && (
                   <Link
                     href={`/students${buildQuery({ page: String(pagination.page - 1) })}`}
-                    className="rounded-md border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
+                    className="rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
                   >
                     Previous
                   </Link>
@@ -244,7 +259,7 @@ export default async function StudentListPage({
                 {pagination.page < pagination.total_pages && (
                   <Link
                     href={`/students${buildQuery({ page: String(pagination.page + 1) })}`}
-                    className="rounded-md border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
+                    className="rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
                   >
                     Next
                   </Link>

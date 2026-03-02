@@ -30,6 +30,7 @@ import {
   validate,
 } from "@/lib/validations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { rateLimitOrFail } from "@/lib/utils/rate-limit";
 import {
   ActionResponse,
   ErrorCodes,
@@ -174,6 +175,11 @@ export async function submitInquiry(
   input: unknown,
 ): Promise<ActionResponse<WaitlistEntry>> {
   try {
+    // Rate limit: prevent form spam and enumeration attacks.
+    // public_write = 5 submissions per 15 minutes per IP.
+    const blocked = await rateLimitOrFail<WaitlistEntry>("public_write");
+    if (blocked) return blocked;
+
     // Zod validates all required fields, trims strings, lowercases email, checks date format
     const parsed = validate(submitInquirySchema, input);
     if (parsed.error) return parsed.error;
@@ -230,7 +236,8 @@ export async function submitInquiry(
       .single();
 
     if (error) {
-      return failure(error.message, ErrorCodes.CREATE_FAILED);
+      console.error('[submitInquiry] insert error:', error.message);
+      return failure("Failed to submit inquiry. Please try again.", ErrorCodes.CREATE_FAILED);
     }
 
     const entry = data as WaitlistEntry;

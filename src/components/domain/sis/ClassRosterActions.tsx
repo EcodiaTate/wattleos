@@ -1,6 +1,7 @@
 // src/components/domain/sis/ClassRosterActions.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { withdrawStudent } from "@/lib/actions/enrollments";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -63,11 +64,13 @@ export function ClassRosterActions({
   }
 
   return (
-    <button
-      onClick={() => setShowConfirm(true)}
-      className="rounded-md border border-destructive/30 bg-background px-3 py-1 text-xs font-bold text-destructive hover:bg-destructive/5 transition-all active:scale-95"
-    >
-      Withdraw
-    </button>
+    <GlowTarget id="sis-btn-withdraw" category="button" label="Withdraw student">
+      <button
+        onClick={() => setShowConfirm(true)}
+        className="rounded-md border border-destructive/30 bg-background px-3 py-1 text-xs font-bold text-destructive hover:bg-destructive/5 transition-all active:scale-95"
+      >
+        Withdraw
+      </button>
+    </GlowTarget>
   );
 }

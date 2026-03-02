@@ -1,7 +1,8 @@
 // src/app/(app)/classes/[id]/page.tsx
 import { ClassRosterActions } from "@/components/domain/sis/ClassRosterActions";
 import { getClass, getClassRoster } from "@/lib/actions/classes";
-import { getTenantContext } from "@/lib/auth/tenant-context";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { redirect } from "next/navigation";
 import { Permissions } from "@/lib/constants/permissions";
 import { calculateAge, formatDate, formatStudentName } from "@/lib/utils";
 import Link from "next/link";
@@ -12,9 +13,15 @@ interface ClassDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
+export const metadata = { title: "Class Detail - WattleOS" };
+
 export default async function ClassDetailPage({ params }: ClassDetailPageProps) {
-  const { id } = await params;
   const context = await getTenantContext();
+  if (!hasPermission(context, Permissions.VIEW_CLASSES)) {
+    redirect("/dashboard");
+  }
+
+  const { id } = await params;
 
   const [classResult, rosterResult] = await Promise.all([
     getClass(id),
@@ -126,7 +133,7 @@ export default async function ClassDetailPage({ params }: ClassDetailPageProps) 
                 >
                   <div className="flex items-center gap-4">
                     <div 
-                      className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm"
+                      className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-background shadow-sm"
                       style={{ backgroundColor: `var(--avatar-${avatarIdx})` }}
                     >
                       {student.first_name[0]}{student.last_name[0]}

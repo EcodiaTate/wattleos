@@ -20,10 +20,10 @@ import {
   type CrossMappingWithDetails,
   type EnhancedCurriculumTemplate,
 } from "@/lib/actions/curriculum-content";
+import type { CrossMappingType } from "@/types/domain";
 import Link from "next/link";
 
 interface CrossMappingsPageProps {
-  params: Promise<{ tenant: string }>;
   searchParams: Promise<{
     source?: string;
     target?: string;
@@ -31,11 +31,11 @@ interface CrossMappingsPageProps {
   }>;
 }
 
+export const metadata = { title: "Cross-Mappings - WattleOS" };
+
 export default async function CrossMappingsPage({
-  params,
   searchParams,
 }: CrossMappingsPageProps) {
-  const { tenant } = await params;
   const sp = await searchParams;
 
   // Fetch all templates for the filter dropdowns
@@ -62,11 +62,11 @@ export default async function CrossMappingsPage({
     const filter: {
       source_template_id?: string;
       target_template_id?: string;
-      mapping_type?: string;
+      mapping_type?: CrossMappingType;
     } = {};
     if (sp.source) filter.source_template_id = sp.source;
     if (sp.target) filter.target_template_id = sp.target;
-    if (sp.type) filter.mapping_type = sp.type;
+    if (sp.type) filter.mapping_type = sp.type as CrossMappingType;
 
     const result = await listCrossMappings(filter);
     if (result.error) {
@@ -160,7 +160,6 @@ export default async function CrossMappingsPage({
                   <CrossMappingRow
                     key={mapping.id}
                     mapping={mapping}
-                    tenant={tenant}
                   />
                 ))}
               </div>
@@ -214,26 +213,24 @@ export default async function CrossMappingsPage({
 
 function CrossMappingRow({
   mapping,
-  tenant,
 }: {
   mapping: CrossMappingWithDetails;
-  tenant: string;
 }) {
   const typeColors: Record<string, string> = {
     aligned:
-      "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
+      "bg-[var(--badge-success-bg)] text-[var(--badge-success-fg)]",
     partially_aligned:
-      "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300",
+      "bg-primary/15 text-primary",
     prerequisite:
-      "bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300",
+      "bg-info/15 text-info",
     extends:
-      "bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300",
+      "bg-info/15 text-info",
   };
 
   const confidenceColors: Record<string, string> = {
-    verified: "text-emerald-600 dark:text-emerald-400",
-    suggested: "text-amber-600 dark:text-amber-400",
-    community: "text-blue-600 dark:text-blue-400",
+    verified: "text-success",
+    suggested: "text-primary",
+    community: "text-info",
   };
 
   return (
@@ -301,16 +298,17 @@ function CrossMappingRow({
 }
 
 function FrameworkDot({ framework }: { framework: string }) {
-  const colorMap: Record<string, string> = {
-    AMI: "bg-amber-500",
-    AMS: "bg-blue-500",
-    EYLF: "bg-emerald-500",
-    ACARA: "bg-purple-500",
-    QCAA: "bg-rose-500",
+  const varMap: Record<string, string> = {
+    AMI: "var(--primary)",
+    AMS: "var(--framework-ams)",
+    EYLF: "var(--framework-eylf)",
+    ACARA: "var(--framework-acara)",
+    QCAA: "var(--framework-qcaa)",
   };
   return (
     <span
-      className={`w-2 h-2 rounded-full shrink-0 ${colorMap[framework] ?? "bg-gray-400"}`}
+      className="w-2 h-2 rounded-full shrink-0"
+      style={{ backgroundColor: varMap[framework] ?? "var(--muted-foreground)" }}
     />
   );
 }

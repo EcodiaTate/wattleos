@@ -8,6 +8,7 @@ import {
   type KioskBookingRow,
   type KioskSessionData,
 } from "@/lib/actions/programs/session-bookings";
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { formatTime } from "@/lib/constants/programs";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -116,6 +117,7 @@ export function KioskClient({ initialSessions }: KioskClientProps) {
           </div>
         ) : (
           sessions.map((session) => (
+            <GlowTarget id={`programs-card-session-${session.session_id}`} category="card" label={`Session: ${session.program_name}`}>
             <div key={session.session_id} className="rounded-2xl bg-card shadow-md border border-border overflow-hidden">
               <div className="flex items-center justify-between bg-muted/50 px-6 py-4 border-b border-border">
                 <div>
@@ -140,8 +142,13 @@ export function KioskClient({ initialSessions }: KioskClientProps) {
                   const isComplete = !!booking.checked_out_at;
 
                   return (
-                    <button
+                    <GlowTarget
                       key={booking.booking_id}
+                      id={!booking.checked_in_at ? `programs-btn-checkin-${booking.booking_id}` : `programs-btn-checkout-${booking.booking_id}`}
+                      category="button"
+                      label={!booking.checked_in_at ? `Check in ${booking.student_first_name}` : `Check out ${booking.student_first_name}`}
+                    >
+                    <button
                       onClick={() => !isComplete && handleTap(booking)}
                       disabled={isLoading || isComplete}
                       className={`flex items-center gap-4 rounded-xl border-2 p-5 text-left transition-all touch-target-lg ${status.bgColor} ${status.borderColor} ${
@@ -151,9 +158,9 @@ export function KioskClient({ initialSessions }: KioskClientProps) {
                     >
                       {/* Avatar */}
                       {booking.student_photo_url ? (
-                        <img src={booking.student_photo_url} alt="" className="h-16 w-16 rounded-full object-cover ring-2 ring-background shadow-sm" />
+                        <img src={booking.student_photo_url} alt={`Photo of ${booking.student_first_name} ${booking.student_last_name}`} className="h-16 w-16 rounded-full object-cover ring-2 ring-background shadow-sm" />
                       ) : (
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 text-xl font-black text-primary-700 shadow-inner">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-xl font-black text-primary shadow-inner">
                           {booking.student_first_name[0]}{booking.student_last_name[0]}
                         </div>
                       )}
@@ -163,10 +170,10 @@ export function KioskClient({ initialSessions }: KioskClientProps) {
                           {booking.student_first_name} {booking.student_last_name}
                         </p>
                         <p className="text-sm font-medium text-muted-foreground">
-                          {isLoading ? "Processing..." : isComplete 
+                          {isLoading ? "Processing..." : isComplete
                             ? `Out at ${new Date(booking.checked_out_at!).toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" })}`
-                            : booking.checked_in_at 
-                              ? `In at ${new Date(booking.checked_in_at).toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" })}` 
+                            : booking.checked_in_at
+                              ? `In at ${new Date(booking.checked_in_at).toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" })}`
                               : "Tap to check in"}
                         </p>
                       </div>
@@ -180,15 +187,17 @@ export function KioskClient({ initialSessions }: KioskClientProps) {
                       )}
 
                       <div className="flex-shrink-0">
-                        <div className={`h-10 w-10 rounded-full flex items-center justify-center border-2 ${status.borderColor} ${status.dotColor} text-white font-bold text-xl`}>
+                        <div className={`h-10 w-10 rounded-full flex items-center justify-center border-2 ${status.borderColor} ${status.dotColor} text-background font-bold text-xl`}>
                           {(booking.checked_in_at || isComplete) ? "✓" : ""}
                         </div>
                       </div>
                     </button>
+                    </GlowTarget>
                   );
                 })}
               </div>
             </div>
+            </GlowTarget>
           ))
         )}
 

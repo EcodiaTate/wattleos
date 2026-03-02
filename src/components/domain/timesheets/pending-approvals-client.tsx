@@ -15,6 +15,7 @@
 
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import {
   approveTimesheet,
   getTimesheetDetail,
@@ -33,12 +34,14 @@ import { useState, useTransition } from "react";
 // Props
 // ============================================================
 
+type PendingTimesheetRow = Omit<TimesheetWithEntries, "time_entries">;
+
 interface PendingApprovalsClientProps {
   groupedByPeriod: Record<
     string,
     {
       period: PayPeriod | null;
-      timesheets: TimesheetWithEntries[];
+      timesheets: PendingTimesheetRow[];
     }
   >;
 }
@@ -232,8 +235,8 @@ export function PendingApprovalsClient({
         <div
           className={`rounded-lg border px-4 py-3 text-sm ${
             actionMessage.type === "success"
-              ? "border-green-200 bg-green-50 text-green-800"
-              : "border-red-200 bg-red-50 text-red-800"
+              ? "border-success/30 bg-success/10 text-success"
+              : "border-destructive/30 bg-destructive/10 text-destructive"
           }`}
         >
           {actionMessage.text}
@@ -241,7 +244,7 @@ export function PendingApprovalsClient({
       )}
 
       {/* Batch actions bar */}
-      <div className="flex items-center gap-[var(--density-card-padding)] rounded-lg borderborder-border bg-background px-4 py-3">
+      <div className="flex items-center gap-[var(--density-card-padding)] rounded-lg border border-border bg-background px-4 py-3">
         <label className="flex items-center gap-2 text-sm text-foreground">
           <input
             type="checkbox"
@@ -258,7 +261,7 @@ export function PendingApprovalsClient({
           <button
             onClick={handleBatchApprove}
             disabled={isPending}
-            className="rounded-lg bg-[var(--mastery-mastered)] px-4 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-green-700 disabled:opacity-50"
+            className="rounded-lg bg-[var(--mastery-mastered)] px-4 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-success disabled:opacity-50"
           >
             Approve Selected ({selectedIds.size})
           </button>
@@ -278,7 +281,7 @@ export function PendingApprovalsClient({
                 ? `${new Date(group.period.start_date + "T00:00:00").toLocaleDateString("en-AU", { day: "numeric", month: "short" })} – ${new Date(group.period.end_date + "T00:00:00").toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}`
                 : ""}
             </span>
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary">
               {group.timesheets.length} pending
             </span>
           </div>
@@ -289,9 +292,9 @@ export function PendingApprovalsClient({
             const isExpanded = expandedId === ts.id;
 
             return (
+              <GlowTarget key={ts.id} id={`timesheets-row-pending-${ts.id}`} category="row" label={`Pending timesheet: ${ts.user.first_name} ${ts.user.last_name}`}>
               <div
-                key={ts.id}
-                className="rounded-lg borderborder-border bg-background shadow-sm"
+                className="rounded-lg border border-border bg-background shadow-sm"
               >
                 {/* Card header */}
                 <div className="flex items-center gap-[var(--density-card-padding)] px-4 py-3">
@@ -307,7 +310,7 @@ export function PendingApprovalsClient({
                     className="flex flex-1 items-center gap-[var(--density-card-padding)] text-left"
                   >
                     {/* Avatar placeholder */}
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 text-sm font-medium text-amber-700">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-sm font-medium text-primary">
                       {ts.user.first_name?.[0] ?? ""}
                       {ts.user.last_name?.[0] ?? ""}
                     </div>
@@ -345,29 +348,33 @@ export function PendingApprovalsClient({
 
                   {/* Action buttons */}
                   <div className="flex items-center gap-2">
+                    <GlowTarget id={`timesheets-btn-approve-${ts.id}`} category="button" label={`Approve ${ts.user.first_name}'s timesheet`}>
                     <button
                       onClick={() => handleApprove(ts.id)}
                       disabled={isPending}
-                      className="rounded-lg bg-[var(--mastery-mastered)] px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-green-700 disabled:opacity-50"
+                      className="rounded-lg bg-[var(--mastery-mastered)] px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-success disabled:opacity-50"
                     >
                       Approve
                     </button>
+                    </GlowTarget>
+                    <GlowTarget id={`timesheets-btn-reject-${ts.id}`} category="button" label={`Reject ${ts.user.first_name}'s timesheet`}>
                     <button
                       onClick={() => {
                         setRejectingId(ts.id);
                         setRejectionNotes("");
                       }}
                       disabled={isPending}
-                      className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-50 disabled:opacity-50"
+                      className="rounded-lg border border-destructive/30 px-3 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
                     >
                       Reject
                     </button>
+                    </GlowTarget>
                   </div>
                 </div>
 
                 {/* Expanded detail */}
                 {isExpanded && (
-                  <div className="border-t border-gray-100 px-4 py-3">
+                  <div className="border-t border-border px-4 py-3">
                     {detail?.loading && (
                       <p className="text-sm text-muted-foreground">
                         Loading entries…
@@ -377,7 +384,7 @@ export function PendingApprovalsClient({
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
-                            <tr className="border-b border-gray-100 text-left text-xs font-medium uppercase text-muted-foreground">
+                            <tr className="border-b border-border text-left text-xs font-medium uppercase text-muted-foreground">
                               <th className="pb-2 pr-4">Date</th>
                               <th className="pb-2 pr-4">Start</th>
                               <th className="pb-2 pr-4">End</th>
@@ -401,7 +408,7 @@ export function PendingApprovalsClient({
                                 return (
                                   <tr
                                     key={entry.id}
-                                    className="border-b border-gray-50"
+                                    className="border-b border-border/50"
                                   >
                                     <td className="py-2 pr-4 font-medium text-foreground">
                                       {formatDate(entry.date)}
@@ -457,6 +464,7 @@ export function PendingApprovalsClient({
                   </div>
                 )}
               </div>
+              </GlowTarget>
             );
           })}
         </div>
@@ -477,7 +485,7 @@ export function PendingApprovalsClient({
               onChange={(e) => setRejectionNotes(e.target.value)}
               placeholder="Reason for rejection (required)…"
               rows={3}
-              className="mt-4 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="mt-4 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
               autoFocus
             />
             <div className="mt-4 flex justify-end gap-3">
@@ -486,14 +494,14 @@ export function PendingApprovalsClient({
                   setRejectingId(null);
                   setRejectionNotes("");
                 }}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
               >
                 Cancel
               </button>
               <button
                 onClick={handleReject}
                 disabled={!rejectionNotes.trim() || isPending}
-                className="rounded-lg bg-[var(--attendance-absent)] px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-red-700 disabled:opacity-50"
+                className="rounded-lg bg-[var(--attendance-absent)] px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-destructive disabled:opacity-50"
               >
                 Reject Timesheet
               </button>

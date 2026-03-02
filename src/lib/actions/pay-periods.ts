@@ -15,8 +15,9 @@
 import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { AuditActions, logAudit } from "@/lib/utils/audit";
 import type { ActionResponse } from "@/types/api";
-import { failure, success } from "@/types/api";
+import { ErrorCodes, failure, success } from "@/types/api";
 import type { PayFrequency, PayPeriod } from "@/types/domain";
 
 // ============================================================
@@ -47,14 +48,14 @@ export async function getCurrentPayPeriod(): Promise<
       .maybeSingle();
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
     return success((data as PayPeriod) ?? null);
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to get current pay period";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -90,7 +91,7 @@ export async function listPayPeriods(params?: {
     const { data, error, count } = await query;
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
     return success({
@@ -100,7 +101,7 @@ export async function listPayPeriods(params?: {
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to list pay periods";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -120,7 +121,7 @@ export async function createPayPeriod(input: {
 
     // Validate dates
     if (new Date(input.startDate) >= new Date(input.endDate)) {
-      return failure("Start date must be before end date", "VALIDATION_ERROR");
+      return failure("Start date must be before end date", ErrorCodes.VALIDATION_ERROR);
     }
 
     // Check for overlapping periods
@@ -136,7 +137,7 @@ export async function createPayPeriod(input: {
     if (overlap && overlap.length > 0) {
       return failure(
         "This period overlaps with an existing pay period",
-        "VALIDATION_ERROR",
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
@@ -154,14 +155,29 @@ export async function createPayPeriod(input: {
       .single();
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    return success(data as PayPeriod);
+    const created = data as PayPeriod;
+
+    await logAudit({
+      context,
+      action: AuditActions.PAY_PERIOD_CREATED,
+      entityType: "pay_periods",
+      entityId: created.id,
+      metadata: {
+        name: created.name,
+        start_date: created.start_date,
+        end_date: created.end_date,
+        frequency: created.frequency,
+      },
+    });
+
+    return success(created);
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to create pay period";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -184,7 +200,7 @@ export async function lockPayPeriod(
       .single();
 
     if (fetchError || !existing) {
-      return failure("Pay period not found", "NOT_FOUND");
+      return failure("Pay period not found", ErrorCodes.NOT_FOUND);
     }
 
     const period = existing as PayPeriod;
@@ -192,7 +208,7 @@ export async function lockPayPeriod(
     if (period.status !== "open") {
       return failure(
         `Cannot lock a period that is already '${period.status}'`,
-        "VALIDATION_ERROR",
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
@@ -208,14 +224,28 @@ export async function lockPayPeriod(
       .single();
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    return success(data as PayPeriod);
+    const locked = data as PayPeriod;
+
+    await logAudit({
+      context,
+      action: AuditActions.PAY_PERIOD_LOCKED,
+      entityType: "pay_periods",
+      entityId: locked.id,
+      metadata: {
+        period_name: locked.name,
+        start_date: locked.start_date,
+        end_date: locked.end_date,
+      },
+    });
+
+    return success(locked);
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to lock pay period";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -227,7 +257,7 @@ export async function markPayPeriodProcessed(
   payPeriodId: string,
 ): Promise<ActionResponse<PayPeriod>> {
   try {
-    await requirePermission(Permissions.MANAGE_INTEGRATIONS);
+    const context = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
@@ -240,20 +270,32 @@ export async function markPayPeriodProcessed(
       .single();
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
     if (!data) {
       return failure(
         "Pay period not found or not in locked status",
-        "VALIDATION_ERROR",
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
-    return success(data as PayPeriod);
+    const processed = data as PayPeriod;
+
+    await logAudit({
+      context,
+      action: AuditActions.PAY_PERIOD_PROCESSED,
+      entityType: "pay_periods",
+      entityId: processed.id,
+      metadata: {
+        period_name: processed.name,
+      },
+    });
+
+    return success(processed);
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to mark period as processed";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }

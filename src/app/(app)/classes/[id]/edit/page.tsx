@@ -17,6 +17,8 @@ interface EditClassPageProps {
   params: Promise<{ id: string }>;
 }
 
+export const metadata = { title: "Edit Class - WattleOS" };
+
 export default async function EditClassPage({ params }: EditClassPageProps) {
   const { id } = await params;
   const context = await getTenantContext();

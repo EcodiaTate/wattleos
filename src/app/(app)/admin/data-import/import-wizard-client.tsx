@@ -486,7 +486,7 @@ function StepIndicator({ currentStep }: { currentStep: ImportWizardStep }) {
                 isActive
                   ? "bg-primary text-primary-foreground"
                   : isCompleted
-                    ? "bg-primary-100 text-primary-700"
+                    ? "bg-primary/15 text-primary"
                     : "bg-muted text-muted-foreground"
               }`}
             >
@@ -503,7 +503,7 @@ function StepIndicator({ currentStep }: { currentStep: ImportWizardStep }) {
             </span>
             {i < steps.length - 1 && (
               <div
-                className={`h-px w-6 ${isCompleted ? "bg-primary-200" : "bg-border"}`}
+                className={`h-px w-6 ${isCompleted ? "bg-primary/20" : "bg-border"}`}
               />
             )}
           </div>

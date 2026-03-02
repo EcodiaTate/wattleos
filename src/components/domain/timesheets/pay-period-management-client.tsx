@@ -13,6 +13,7 @@
 
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import {
   createPayPeriod,
   lockPayPeriod,
@@ -192,8 +193,8 @@ export function PayPeriodManagementClient({
         <div
           className={`rounded-lg border px-4 py-3 text-sm ${
             message.type === "success"
-              ? "border-green-200 bg-green-50 text-green-800"
-              : "border-red-200 bg-red-50 text-red-800"
+              ? "border-success/30 bg-success/10 text-success"
+              : "border-destructive/30 bg-destructive/10 text-destructive"
           }`}
         >
           {message.text}
@@ -202,9 +203,10 @@ export function PayPeriodManagementClient({
 
       {/* Create button / form */}
       {canCreate && !showCreate && (
+        <GlowTarget id="timesheets-btn-create-period" category="button" label="Create new pay period">
         <button
           onClick={() => setShowCreate(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-amber-700"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary"
         >
           <svg
             className="h-4 w-4"
@@ -221,10 +223,11 @@ export function PayPeriodManagementClient({
           </svg>
           New Pay Period
         </button>
+        </GlowTarget>
       )}
 
       {showCreate && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-[var(--density-card-padding)]">
+        <div className="rounded-lg border border-primary/30 bg-primary/10/50 p-[var(--density-card-padding)]">
           <h3 className="text-sm font-semibold text-foreground">
             Create Pay Period
           </h3>
@@ -238,7 +241,7 @@ export function PayPeriodManagementClient({
                 onChange={(e) =>
                   setCreateFrequency(e.target.value as PayFrequency)
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
               >
                 {PAY_FREQUENCY_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -256,7 +259,7 @@ export function PayPeriodManagementClient({
                 value={createName}
                 onChange={(e) => setCreateName(e.target.value)}
                 placeholder="e.g. Week 7 - 17 Feb to 23 Feb 2026"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
             <div>
@@ -267,7 +270,7 @@ export function PayPeriodManagementClient({
                 type="date"
                 value={createStart}
                 onChange={(e) => handleStartChange(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
             <div>
@@ -281,7 +284,7 @@ export function PayPeriodManagementClient({
                   setCreateEnd(e.target.value);
                   setCreateName(generateName(createStart, e.target.value));
                 }}
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
           </div>
@@ -293,7 +296,7 @@ export function PayPeriodManagementClient({
                 setCreateStart("");
                 setCreateEnd("");
               }}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
+              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
             >
               Cancel
             </button>
@@ -302,7 +305,7 @@ export function PayPeriodManagementClient({
               disabled={
                 isPending || !createName.trim() || !createStart || !createEnd
               }
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary disabled:opacity-50"
             >
               Create Period
             </button>
@@ -312,9 +315,9 @@ export function PayPeriodManagementClient({
 
       {/* Periods list */}
       {periods.length === 0 ? (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+        <div className="rounded-lg border border-border bg-background p-12 text-center">
           <svg
-            className="mx-auto h-[var(--density-button-height)] w-12 text-gray-300"
+            className="mx-auto h-[var(--density-button-height)] w-12 text-muted-foreground"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1}
@@ -339,9 +342,9 @@ export function PayPeriodManagementClient({
             const statusConfig = PAY_PERIOD_STATUS_CONFIG[period.status];
 
             return (
+              <GlowTarget key={period.id} id={`timesheets-card-period-${period.id}`} category="card" label={`Pay period: ${period.name}`}>
               <div
-                key={period.id}
-                className="flex items-center justify-between rounded-lg borderborder-border bg-background px-5 py-4 shadow-sm"
+                className="flex items-center justify-between rounded-lg border border-border bg-background px-5 py-4 shadow-sm"
               >
                 <div className="flex items-center gap-[var(--density-card-padding)]">
                   {/* Status dot */}
@@ -374,7 +377,7 @@ export function PayPeriodManagementClient({
                     <button
                       onClick={() => handleLock(period.id)}
                       disabled={isPending}
-                      className="rounded-lg border border-amber-300 px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-50 disabled:opacity-50"
+                      className="rounded-lg border border-primary/30 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10 disabled:opacity-50"
                     >
                       Lock Period
                     </button>
@@ -385,14 +388,14 @@ export function PayPeriodManagementClient({
                       <button
                         onClick={() => handleSyncAll(period.id)}
                         disabled={isPending}
-                        className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-blue-700 disabled:opacity-50"
+                        className="rounded-lg bg-info px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-info disabled:opacity-50"
                       >
                         Sync All
                       </button>
                       <button
                         onClick={() => handleMarkProcessed(period.id)}
                         disabled={isPending}
-                        className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-background disabled:opacity-50"
+                        className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-background disabled:opacity-50"
                       >
                         Mark Processed
                       </button>
@@ -400,6 +403,7 @@ export function PayPeriodManagementClient({
                   )}
                 </div>
               </div>
+              </GlowTarget>
             );
           })}
         </div>

@@ -12,6 +12,7 @@ import {
   type RSVPStatus,
   type EventRSVP,
 } from "@/lib/actions/comms/school-events";
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 
 interface RSVPWidgetProps {
   eventId: string;
@@ -32,19 +33,19 @@ const RSVP_OPTIONS: {
     value: "going",
     label: "Going",
     icon: "✓",
-    activeClass: "bg-emerald-100 text-emerald-700 ring-emerald-300",
+    activeClass: "bg-[var(--badge-success-bg)] text-[var(--badge-success-fg)] ring-[var(--badge-success)]",
   },
   {
     value: "maybe",
     label: "Maybe",
     icon: "?",
-    activeClass: "bg-amber-100 text-amber-700 ring-amber-300",
+    activeClass: "bg-primary/15 text-primary ring-primary/30",
   },
   {
     value: "not_going",
     label: "Not Going",
     icon: "✗",
-    activeClass: "bg-gray-200 text-gray-700 ring-gray-300",
+    activeClass: "bg-muted text-foreground ring-border",
   },
 ];
 
@@ -88,7 +89,7 @@ export function RSVPWidget({
 
   if (!rsvpEnabled) {
     return (
-      <div className="rounded-lg bg-gray-50 p-4 text-sm text-gray-500">
+      <div className="rounded-lg bg-muted p-4 text-sm text-muted-foreground">
         RSVPs are not enabled for this event.
       </div>
     );
@@ -96,7 +97,7 @@ export function RSVPWidget({
 
   if (isPastDeadline) {
     return (
-      <div className="rounded-lg bg-gray-50 p-4 text-sm text-gray-500">
+      <div className="rounded-lg bg-muted p-4 text-sm text-muted-foreground">
         The RSVP deadline has passed.
         {selectedStatus && (
           <span className="ml-1 font-medium">
@@ -204,10 +205,10 @@ export function RSVPWidget({
 
   return (
     <div className="space-y-4">
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       {isFull && (
-        <p className="text-sm text-amber-600">
+        <p className="text-sm text-primary">
           This event has reached its capacity of {maxAttendees} attendees.
         </p>
       )}
@@ -219,31 +220,39 @@ export function RSVPWidget({
           const isDisabled =
             isPending || (opt.value === "going" && isFull && !isActive);
 
+          const glowId =
+            opt.value === "going"
+              ? "comms-btn-rsvp-yes"
+              : opt.value === "not_going"
+                ? "comms-btn-rsvp-no"
+                : "comms-btn-rsvp-maybe";
+
           return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => handleRespond(opt.value)}
-              disabled={isDisabled}
-              className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all ${
-                isActive
-                  ? `${opt.activeClass} ring-2`
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-              } disabled:cursor-not-allowed disabled:opacity-50`}
-            >
-              <span className="mr-1">{opt.icon}</span> {opt.label}
-            </button>
+            <GlowTarget key={opt.value} id={glowId} category="button" label={`RSVP ${opt.label}`}>
+              <button
+                type="button"
+                onClick={() => handleRespond(opt.value)}
+                disabled={isDisabled}
+                className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all ${
+                  isActive
+                    ? `${opt.activeClass} ring-2`
+                    : "bg-muted text-muted-foreground hover:bg-muted"
+                } disabled:cursor-not-allowed disabled:opacity-50`}
+              >
+                <span className="mr-1">{opt.icon}</span> {opt.label}
+              </button>
+            </GlowTarget>
           );
         })}
       </div>
 
       {/* ── Guests + Notes (shown when responded) ──── */}
       {selectedStatus && (
-        <div className="grid grid-cols-2 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+        <div className="grid grid-cols-2 gap-4 rounded-lg border border-border bg-muted p-4">
           <div>
             <label
               htmlFor="guests"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-foreground"
             >
               Additional Guests
             </label>
@@ -255,14 +264,14 @@ export function RSVPWidget({
               value={guests}
               onChange={(e) => setGuests(parseInt(e.target.value, 10) || 0)}
               onBlur={handleGuestsBlur}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="mt-1 block w-full rounded-lg border border-border px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
 
           <div>
             <label
               htmlFor="notes"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-foreground"
             >
               Notes (optional)
             </label>
@@ -273,7 +282,7 @@ export function RSVPWidget({
               onChange={(e) => setNotes(e.target.value)}
               onBlur={handleNotesBlur}
               placeholder="Dietary requirements, etc."
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="mt-1 block w-full rounded-lg border border-border px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
         </div>

@@ -18,16 +18,6 @@ export function formatStudentName(
 }
 
 /**
- * Format a full name from first + last.
- */
-export function formatFullName(
-  firstName: string | null | undefined,
-  lastName: string | null | undefined,
-): string {
-  return [firstName, lastName].filter(Boolean).join(" ") || "Unknown";
-}
-
-/**
  * Calculate age from date of birth.
  */
 export function calculateAge(dob: string | null): number | null {

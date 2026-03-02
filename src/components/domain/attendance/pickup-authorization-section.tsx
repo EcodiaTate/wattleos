@@ -123,7 +123,7 @@ export function PickupAuthorizationSection({
   }
 
   return (
-    <section className="rounded-lg borderborder-border bg-background shadow-sm">
+    <section className="rounded-lg border border-border bg-background shadow-sm">
       <div className="flex items-center justify-between border-bborder-border px-6 py-4">
         <h2 className="text-lg font-medium text-foreground">
           Pickup Authorizations
@@ -131,7 +131,7 @@ export function PickupAuthorizationSection({
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-amber-700"
+            className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary"
           >
             Add Person
           </button>
@@ -142,7 +142,7 @@ export function PickupAuthorizationSection({
         {/* Loading */}
         {loading && (
           <div className="flex items-center justify-center py-4">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-amber-600" />
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-amber-600" />
           </div>
         )}
 
@@ -163,7 +163,7 @@ export function PickupAuthorizationSection({
                 <div
                   key={auth.id}
                   className={`flex items-center justify-between rounded-md border p-3 ${
-                    valid ? "border-gray-100" : "border-gray-100 opacity-60"
+                    valid ? "border-border" : "border-border opacity-60"
                   }`}
                 >
                   <div>
@@ -172,11 +172,11 @@ export function PickupAuthorizationSection({
                         {auth.authorized_name}
                       </p>
                       {auth.is_permanent ? (
-                        <span className="rounded bg-green-50 px-1.5 py-0.5 text-[10px] font-medium text-green-700">
+                        <span className="rounded bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">
                           Permanent
                         </span>
                       ) : (
-                        <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+                        <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
                           Temporary
                         </span>
                       )}
@@ -203,7 +203,7 @@ export function PickupAuthorizationSection({
                   <button
                     onClick={() => handleDelete(auth.id, auth.authorized_name)}
                     disabled={isPending}
-                    className="flex-shrink-0 text-xs font-medium text-red-500 hover:text-red-700 disabled:opacity-50"
+                    className="flex-shrink-0 text-xs font-medium text-destructive hover:text-destructive disabled:opacity-50"
                   >
                     Remove
                   </button>
@@ -215,12 +215,12 @@ export function PickupAuthorizationSection({
 
         {/* Add form */}
         {showForm && (
-          <div className="mt-3 space-y-3 rounded-lg border border-amber-200 bg-amber-50/50 p-[var(--density-card-padding)]">
+          <div className="mt-3 space-y-3 rounded-lg border border-primary/30 bg-primary/10/50 p-[var(--density-card-padding)]">
             <h3 className="text-sm font-medium text-foreground">
               Add Authorized Person
             </h3>
 
-            {formError && <p className="text-xs text-red-600">{formError}</p>}
+            {formError && <p className="text-xs text-destructive">{formError}</p>}
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
@@ -232,7 +232,7 @@ export function PickupAuthorizationSection({
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   placeholder="e.g., Sarah Johnson"
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                  className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
 
@@ -245,7 +245,7 @@ export function PickupAuthorizationSection({
                   value={formRelationship}
                   onChange={(e) => setFormRelationship(e.target.value)}
                   placeholder="e.g., Grandmother, Nanny"
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                  className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
 
@@ -258,7 +258,7 @@ export function PickupAuthorizationSection({
                   value={formPhone}
                   onChange={(e) => setFormPhone(e.target.value)}
                   placeholder="e.g., 0412 345 678"
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                  className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
 
@@ -291,7 +291,7 @@ export function PickupAuthorizationSection({
                     type="date"
                     value={formValidFrom}
                     onChange={(e) => setFormValidFrom(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                    className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
                 <div>
@@ -302,7 +302,7 @@ export function PickupAuthorizationSection({
                     type="date"
                     value={formValidUntil}
                     onChange={(e) => setFormValidUntil(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                    className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
               </div>
@@ -312,14 +312,14 @@ export function PickupAuthorizationSection({
               <button
                 onClick={handleCreate}
                 disabled={isPending}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700 disabled:opacity-50"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary disabled:opacity-50"
               >
                 {isPending ? "Adding..." : "Add"}
               </button>
               <button
                 onClick={resetForm}
                 disabled={isPending}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-foreground hover:bg-background disabled:opacity-50"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-background disabled:opacity-50"
               >
                 Cancel
               </button>

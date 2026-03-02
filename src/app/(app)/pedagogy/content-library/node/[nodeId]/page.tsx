@@ -24,11 +24,13 @@ import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import Link from "next/link";
 
 interface NodeDetailPageProps {
-  params: Promise<{ tenant: string; nodeId: string }>;
+  params: Promise<{ nodeId: string }>;
 }
 
+export const metadata = { title: "Curriculum Node - WattleOS" };
+
 export default async function NodeDetailPage({ params }: NodeDetailPageProps) {
-  const { tenant, nodeId } = await params;
+  const { nodeId } = await params;
 
   // Fetch enriched node data
   const nodeResult = await getEnrichedNode(nodeId);
@@ -114,8 +116,8 @@ export default async function NodeDetailPage({ params }: NodeDetailPageProps) {
                     key={i}
                     href={`/pedagogy/content-library/materials?q=${encodeURIComponent(mat)}`}
                     className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
-                               bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300
-                               hover:bg-amber-200 dark:hover:bg-amber-950/60 transition-colors"
+                               bg-primary/15 text-primary /40 
+                               hover:bg-primary/20 transition-colors"
                   >
                     {mat}
                   </Link>
@@ -136,7 +138,7 @@ export default async function NodeDetailPage({ params }: NodeDetailPageProps) {
                   <span
                     key={i}
                     className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
-                               bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300"
+                               bg-info/15 text-info "
                   >
                     {aim}
                   </span>
@@ -156,8 +158,8 @@ export default async function NodeDetailPage({ params }: NodeDetailPageProps) {
                 {node.indirect_aims.map((aim, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
-                               bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+                    className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                    style={{ backgroundColor: "var(--badge-success-bg)", color: "var(--badge-success-fg)" }}
                   >
                     {aim}
                   </span>
@@ -224,18 +226,7 @@ export default async function NodeDetailPage({ params }: NodeDetailPageProps) {
                 Edit Enrichment
               </h2>
               <NodeEnrichmentEditor
-                nodeId={nodeId}
-                initialData={{
-                  code: node.code,
-                  description: node.description,
-                  materials: node.materials,
-                  direct_aims: node.direct_aims,
-                  indirect_aims: node.indirect_aims,
-                  age_range: node.age_range,
-                  prerequisites: node.prerequisites,
-                  assessment_criteria: node.assessment_criteria,
-                  content_url: node.content_url,
-                }}
+                node={node}
               />
             </div>
           )}
@@ -341,13 +332,13 @@ function CrossMappingItem({
 
   const typeColors: Record<string, string> = {
     aligned:
-      "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
+      "bg-[var(--badge-success-bg)] text-[var(--badge-success-fg)]",
     partially_aligned:
-      "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300",
+      "bg-primary/15 text-primary",
     prerequisite:
-      "bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300",
+      "bg-info/15 text-info",
     extends:
-      "bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300",
+      "bg-info/15 text-info",
   };
 
   return (
@@ -381,13 +372,13 @@ function CrossMappingItem({
 
 function LevelBadge({ level }: { level: string }) {
   const styles: Record<string, string> = {
-    area: "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300",
+    area: "bg-primary/15 text-primary",
     strand:
-      "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
+      "bg-[var(--badge-success-bg)] text-[var(--badge-success-fg)]",
     outcome:
-      "bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300",
+      "bg-info/15 text-info",
     activity:
-      "bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300",
+      "bg-info/15 text-info",
   };
 
   return (
@@ -401,16 +392,17 @@ function LevelBadge({ level }: { level: string }) {
 }
 
 function FrameworkDot({ framework }: { framework: string }) {
-  const colorMap: Record<string, string> = {
-    AMI: "bg-amber-500",
-    AMS: "bg-blue-500",
-    EYLF: "bg-emerald-500",
-    ACARA: "bg-purple-500",
-    QCAA: "bg-rose-500",
+  const varMap: Record<string, string> = {
+    AMI: "var(--primary)",
+    AMS: "var(--framework-ams)",
+    EYLF: "var(--framework-eylf)",
+    ACARA: "var(--framework-acara)",
+    QCAA: "var(--framework-qcaa)",
   };
   return (
     <span
-      className={`w-2 h-2 rounded-full shrink-0 mt-1 ${colorMap[framework] ?? "bg-gray-400"}`}
+      className="w-2 h-2 rounded-full shrink-0 mt-1"
+      style={{ backgroundColor: varMap[framework] ?? "var(--muted-foreground)" }}
     />
   );
 }

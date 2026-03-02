@@ -1,6 +1,7 @@
 // src/components/domain/reports/NewTemplateForm.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { createReportTemplate } from "@/lib/actions/reports";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -44,6 +45,7 @@ export function NewTemplateForm() {
         >
           Template Name <span className="text-destructive">*</span>
         </label>
+        <GlowTarget id="reports-input-template-name" category="input" label="Template name">
         <input
           id="name"
           type="text"
@@ -53,6 +55,7 @@ export function NewTemplateForm() {
           autoFocus
           className="block w-full rounded-lg border border-input bg-background px-4 h-[var(--density-input-height)] text-sm shadow-sm transition-all outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         />
+        </GlowTarget>
       </div>
 
       <div>
@@ -102,6 +105,7 @@ export function NewTemplateForm() {
         >
           Cancel
         </a>
+        <GlowTarget id="reports-btn-create-template" category="button" label="Create report template">
         <button
           type="submit"
           disabled={isLoading || !name.trim()}
@@ -109,6 +113,7 @@ export function NewTemplateForm() {
         >
           {isLoading ? "Creating..." : "Create & Customize"}
         </button>
+        </GlowTarget>
       </div>
     </form>
   );

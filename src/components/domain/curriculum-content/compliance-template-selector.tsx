@@ -1,6 +1,7 @@
 // src/components/domain/curriculum-content/compliance-template-selector.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type { EnhancedCurriculumTemplate } from "@/lib/actions/curriculum-content";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useTransition } from "react";
@@ -43,22 +44,24 @@ export function ComplianceTemplateSelector({
         >
           Compliance Framework
         </label>
-        <select
-          id="compliance-template"
-          value={currentTemplateId}
-          onChange={(e) => handleChange(e.target.value)}
-          className="w-full h-[var(--density-input-height)] rounded-lg border border-input bg-card px-[var(--density-input-padding-x)] text-sm
-                     focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-[var(--transition-fast)]"
-        >
-          <option value="">Select a compliance framework...</option>
-          {templates.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.framework ? `[${t.framework}] ` : ""}
-              {t.name}
-              {t.age_range ? ` (${t.age_range})` : ""}
-            </option>
-          ))}
-        </select>
+        <GlowTarget id="content-select-compliance-template" category="select" label="Compliance template">
+          <select
+            id="compliance-template"
+            value={currentTemplateId}
+            onChange={(e) => handleChange(e.target.value)}
+            className="w-full h-[var(--density-input-height)] rounded-lg border border-input bg-card px-[var(--density-input-padding-x)] text-sm
+                       focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-[var(--transition-fast)]"
+          >
+            <option value="">Select a compliance framework...</option>
+            {templates.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.framework ? `[${t.framework}] ` : ""}
+                {t.name}
+                {t.age_range ? ` (${t.age_range})` : ""}
+              </option>
+            ))}
+          </select>
+        </GlowTarget>
       </div>
 
       {isPending && (

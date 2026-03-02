@@ -19,6 +19,8 @@ interface PageProps {
   params: Promise<{ studentId: string }>;
 }
 
+export const metadata = { title: "Student Portfolio - WattleOS" };
+
 export default async function StudentPortfolioPage({ params }: PageProps) {
   const { studentId } = await params;
   const context = await getTenantContext();
@@ -82,7 +84,7 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
         {canViewStudents && (
           <Link
             href={`/pedagogy/mastery?student=${studentId}`}
-            className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-foreground hover:bg-background"
+            className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-background"
           >
             <svg
               className="h-4 w-4"
@@ -103,7 +105,7 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
       </div>
 
       {/* Student info card */}
-      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+      <div className="rounded-lg border border-border bg-background p-[var(--density-card-padding)]">
         <div className="flex items-center gap-[var(--density-card-padding)]">
           {student.photo_url ? (
             <img
@@ -112,7 +114,7 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
               className="h-16 w-16 rounded-full object-cover"
             />
           ) : (
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-xl font-bold text-amber-700">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-xl font-bold text-primary">
               {student.first_name.charAt(0)}
               {student.last_name.charAt(0)}
             </div>
@@ -134,7 +136,7 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
             <span
               className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                 student.enrollment_status === "active"
-                  ? "bg-green-100 text-green-700"
+                  ? "bg-success/15 text-success"
                   : "bg-muted text-muted-foreground"
               }`}
             >
@@ -157,7 +159,7 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
               return (
                 <div
                   key={instance.id}
-                  className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]"
+                  className="rounded-lg border border-border bg-background p-[var(--density-card-padding)]"
                 >
                   <div className="mb-2 flex items-center justify-between">
                     <h3 className="text-sm font-semibold text-foreground">
@@ -173,9 +175,10 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
                     {summary.total > 0 && (
                       <>
                         <div
-                          className="bg-green-400 transition-all"
+                          className="transition-all"
                           style={{
                             width: `${(summary.mastered / summary.total) * 100}%`,
+                            background: "var(--mastery-mastered)",
                           }}
                         />
                         <div
@@ -185,9 +188,10 @@ export default async function StudentPortfolioPage({ params }: PageProps) {
                           }}
                         />
                         <div
-                          className="bg-blue-400 transition-all"
+                          className="transition-all"
                           style={{
                             width: `${(summary.presented / summary.total) * 100}%`,
+                            background: "var(--mastery-presented)",
                           }}
                         />
                       </>

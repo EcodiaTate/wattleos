@@ -8,7 +8,8 @@
 // 'manage_safety_records' permission (enforced by RLS).
 // ============================================================
 
-import { getTenantContext } from "@/lib/auth/tenant-context";
+import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
 import {
   createCustodyRestrictionSchema,
   updateCustodyRestrictionSchema,
@@ -34,23 +35,18 @@ export async function listCustodyRestrictions(
   studentId: string,
 ): Promise<ActionResponse<CustodyRestriction[]>> {
   try {
+    const context = await requirePermission(Permissions.MANAGE_SAFETY_RECORDS);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
       .from("custody_restrictions")
       .select("*")
+      .eq("tenant_id", context.tenant.id)
       .eq("student_id", studentId)
       .is("deleted_at", null)
       .order("effective_date", { ascending: false });
 
     if (error) {
-      // RLS will deny access if user lacks 'manage_safety_records' permission
-      if (error.code === "42501" || error.message.includes("policy")) {
-        return failure(
-          "You do not have permission to view custody restrictions",
-          "FORBIDDEN",
-        );
-      }
       return failure(error.message, "DB_ERROR");
     }
 
@@ -76,8 +72,18 @@ export async function createCustodyRestriction(
     if (parsed.error) return parsed.error;
     const v = parsed.data;
 
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_SAFETY_RECORDS);
     const supabase = await createSupabaseServerClient();
+
+    // Verify student belongs to this tenant
+    const { data: student } = await supabase
+      .from("students")
+      .select("id")
+      .eq("id", v.student_id)
+      .eq("tenant_id", context.tenant.id)
+      .is("deleted_at", null)
+      .single();
+    if (!student) return failure("Student not found", "NOT_FOUND");
 
     const { data, error } = await supabase
       .from("custody_restrictions")
@@ -134,7 +140,7 @@ export async function updateCustodyRestriction(
     if (parsed.error) return parsed.error;
     const v = parsed.data;
 
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_SAFETY_RECORDS);
     const supabase = await createSupabaseServerClient();
 
     const updateData: Record<string, unknown> = {};
@@ -161,6 +167,7 @@ export async function updateCustodyRestriction(
       .from("custody_restrictions")
       .update(updateData)
       .eq("id", restrictionId)
+      .eq("tenant_id", context.tenant.id)
       .is("deleted_at", null)
       .select()
       .single();
@@ -199,7 +206,7 @@ export async function deleteCustodyRestriction(
   restrictionId: string,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_SAFETY_RECORDS);
     const supabase = await createSupabaseServerClient();
 
     // Fetch before delete for audit
@@ -207,6 +214,7 @@ export async function deleteCustodyRestriction(
       .from("custody_restrictions")
       .select("student_id, restricted_person_name")
       .eq("id", restrictionId)
+      .eq("tenant_id", context.tenant.id)
       .is("deleted_at", null)
       .single();
 
@@ -214,6 +222,7 @@ export async function deleteCustodyRestriction(
       .from("custody_restrictions")
       .update({ deleted_at: new Date().toISOString() })
       .eq("id", restrictionId)
+      .eq("tenant_id", context.tenant.id)
       .is("deleted_at", null);
 
     if (error) {

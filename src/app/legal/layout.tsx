@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     default: "Legal · WattleOS",
   },
   description:
-    "WattleOS legal documents — privacy policy, terms of service, and data processing agreement.",
+    "WattleOS legal documents - privacy policy, terms of service, and data processing agreement.",
 };
 
 // ────────────────────────────────────────────────────────────

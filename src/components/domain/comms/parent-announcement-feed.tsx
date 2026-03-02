@@ -35,26 +35,26 @@ const PRIORITY_CONFIG: Record<
 > = {
   low: {
     label: "Low",
-    color: "text-gray-600",
-    bgColor: "bg-gray-100",
+    color: "text-muted-foreground",
+    bgColor: "bg-muted",
     icon: "ℹ️",
   },
   normal: {
     label: "Normal",
-    color: "text-blue-700",
-    bgColor: "bg-blue-50",
+    color: "text-info",
+    bgColor: "bg-info/10",
     icon: "📢",
   },
   high: {
     label: "High",
-    color: "text-orange-700",
-    bgColor: "bg-orange-100",
+    color: "text-primary",
+    bgColor: "bg-primary/15",
     icon: "⚠️",
   },
   urgent: {
     label: "Urgent",
-    color: "text-red-700",
-    bgColor: "bg-red-100",
+    color: "text-destructive",
+    bgColor: "bg-destructive/15",
     icon: "🚨",
   },
 };
@@ -91,7 +91,7 @@ export function ParentAnnouncementFeed({
 
   if (announcements.length === 0) {
     return (
-      <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+      <div className="rounded-lg border-2 border-dashed border-border p-12 text-center">
         <p className="text-sm text-muted-foreground">
           No announcements from your school yet.
         </p>
@@ -113,9 +113,9 @@ export function ParentAnnouncementFeed({
             key={announcement.id}
             className={`rounded-lg border bg-background shadow-sm ${
               announcement.pin_to_top
-                ? "border-amber-300 ring-1 ring-amber-100"
+                ? "border-primary/30 ring-1 ring-primary/10"
                 : isUnacknowledged
-                  ? "border-amber-200 bg-amber-50/30"
+                  ? "border-primary/30 bg-primary/10/30"
                   : "border-border"
             }`}
           >
@@ -123,7 +123,7 @@ export function ParentAnnouncementFeed({
               {/* Badges */}
               <div className="flex items-center gap-2 flex-wrap">
                 {announcement.pin_to_top && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
                     📌 Pinned
                   </span>
                 )}
@@ -137,7 +137,7 @@ export function ParentAnnouncementFeed({
                 )}
                 {announcement.scope === "class" &&
                   announcement.target_class && (
-                    <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700">
+                    <span className="inline-flex items-center rounded-full bg-info/10 px-2 py-0.5 text-[10px] font-medium text-info">
                       📚 {announcement.target_class.name}
                     </span>
                   )}

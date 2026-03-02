@@ -15,6 +15,7 @@
 
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import {
   importJsonTemplate,
   type JsonTemplateImport,
@@ -199,6 +200,7 @@ export function JsonTemplateUploader() {
     <div className="space-y-4">
       {/* Drop Zone */}
       {(state.status === "idle" || state.status === "validating") && (
+        <GlowTarget id="content-btn-upload" category="button" label="Upload template">
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -233,6 +235,7 @@ export function JsonTemplateUploader() {
             or click to browse
           </p>
         </div>
+        </GlowTarget>
       )}
 
       {/* Validation Errors */}
@@ -375,11 +378,11 @@ export function JsonTemplateUploader() {
 
       {/* Success */}
       {state.status === "success" && state.importResult && (
-        <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/20 p-6 space-y-3">
+        <div className="rounded-lg border p-6 space-y-3" style={{ borderColor: "var(--badge-success)", backgroundColor: "var(--badge-success-bg)" }}>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: "var(--badge-success)" }}>
               <svg
-                className="w-4 h-4 text-white"
+                className="w-4 h-4 text-background"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={2.5}
@@ -392,12 +395,12 @@ export function JsonTemplateUploader() {
                 />
               </svg>
             </div>
-            <h3 className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
+            <h3 className="text-sm font-medium" style={{ color: "var(--badge-success-fg)" }}>
               Template imported successfully
             </h3>
           </div>
 
-          <div className="flex gap-4 text-xs text-emerald-700 dark:text-emerald-400">
+          <div className="flex gap-4 text-xs" style={{ color: "var(--badge-success-fg)" }}>
             <span>
               {state.importResult.nodes_created} nodes created
             </span>
@@ -415,7 +418,8 @@ export function JsonTemplateUploader() {
           <div className="flex gap-3">
             <a
               href={`/pedagogy/content-library/template/${state.importResult.template_id}`}
-              className="text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:underline"
+              className="text-xs font-medium hover:underline"
+              style={{ color: "var(--badge-success-fg)" }}
             >
               View Template →
             </a>

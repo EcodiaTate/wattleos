@@ -23,6 +23,8 @@ interface EditStudentPageProps {
   params: Promise<{ id: string }>;
 }
 
+export const metadata = { title: "Edit Student - WattleOS" };
+
 export default async function EditStudentPage({
   params,
 }: EditStudentPageProps) {

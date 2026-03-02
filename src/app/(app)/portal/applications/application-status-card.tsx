@@ -30,20 +30,20 @@ const STATUS_STYLES: Record<
   string,
   { label: string; bg: string; text: string }
 > = {
-  submitted: { label: "Submitted", bg: "bg-blue-50", text: "text-blue-700" },
+  submitted: { label: "Submitted", bg: "bg-info/10", text: "text-info" },
   under_review: {
     label: "Under Review",
-    bg: "bg-yellow-50",
-    text: "text-yellow-700",
+    bg: "bg-warning/10",
+    text: "text-warning",
   },
   changes_requested: {
     label: "Changes Requested",
-    bg: "bg-orange-50",
-    text: "text-orange-700",
+    bg: "bg-primary/10",
+    text: "text-primary",
   },
-  approved: { label: "Approved", bg: "bg-green-50", text: "text-green-700" },
-  rejected: { label: "Not Accepted", bg: "bg-red-50", text: "text-red-700" },
-  withdrawn: { label: "Withdrawn", bg: "bg-gray-50", text: "text-gray-500" },
+  approved: { label: "Approved", bg: "bg-success/10", text: "text-success" },
+  rejected: { label: "Not Accepted", bg: "bg-destructive/10", text: "text-destructive" },
+  withdrawn: { label: "Withdrawn", bg: "bg-muted", text: "text-muted-foreground" },
 };
 
 export function ApplicationStatusCard({
@@ -74,14 +74,14 @@ export function ApplicationStatusCard({
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5">
+    <div className="rounded-lg border border-border bg-card p-5">
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-base font-semibold text-gray-900">
+          <h3 className="text-base font-semibold text-foreground">
             {application.child_first_name} {application.child_last_name}
           </h3>
           {application.submitted_at && (
-            <p className="mt-0.5 text-xs text-gray-400">
+            <p className="mt-0.5 text-xs text-muted-foreground">
               Submitted{" "}
               {new Date(application.submitted_at).toLocaleDateString("en-AU", {
                 day: "numeric",
@@ -101,11 +101,11 @@ export function ApplicationStatusCard({
       {/* Change request notes */}
       {application.status === "changes_requested" &&
         application.change_request_notes && (
-          <div className="mt-3 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3">
-            <p className="text-xs font-medium text-orange-800">
+          <div className="mt-3 rounded-lg border border-primary/30 bg-primary/10 px-4 py-3">
+            <p className="text-xs font-medium text-primary">
               Changes Requested:
             </p>
-            <p className="mt-1 text-sm text-orange-700">
+            <p className="mt-1 text-sm text-primary">
               {application.change_request_notes}
             </p>
           </div>
@@ -113,9 +113,9 @@ export function ApplicationStatusCard({
 
       {/* Rejection reason */}
       {application.status === "rejected" && application.rejection_reason && (
-        <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-          <p className="text-xs font-medium text-red-800">Reason:</p>
-          <p className="mt-1 text-sm text-red-700">
+        <div className="mt-3 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3">
+          <p className="text-xs font-medium text-destructive">Reason:</p>
+          <p className="mt-1 text-sm text-destructive">
             {application.rejection_reason}
           </p>
         </div>
@@ -123,8 +123,8 @@ export function ApplicationStatusCard({
 
       {/* Approved message */}
       {application.status === "approved" && (
-        <div className="mt-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
-          <p className="text-sm text-green-700">
+        <div className="mt-3 rounded-lg border border-success/30 bg-success/10 px-4 py-3">
+          <p className="text-sm text-success">
             🎉 Enrollment approved! Check your email for an invitation to set up
             your parent portal access.
           </p>
@@ -136,7 +136,7 @@ export function ApplicationStatusCard({
         <div className="mt-3">
           <button
             onClick={() => setShowConfirm(true)}
-            className="text-xs font-medium text-gray-500 hover:text-red-600"
+            className="text-xs font-medium text-muted-foreground hover:text-destructive"
           >
             Withdraw Application
           </button>
@@ -144,20 +144,20 @@ export function ApplicationStatusCard({
       )}
 
       {canWithdraw && showConfirm && (
-        <div className="mt-3 flex items-center gap-2 rounded-lg bg-gray-50 p-3">
-          <p className="flex-1 text-xs text-gray-600">
+        <div className="mt-3 flex items-center gap-2 rounded-lg bg-muted p-3">
+          <p className="flex-1 text-xs text-muted-foreground">
             Are you sure? This cannot be undone.
           </p>
           <button
             onClick={() => setShowConfirm(false)}
-            className="rounded px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200"
+            className="rounded px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-muted"
           >
             Cancel
           </button>
           <button
             onClick={handleWithdraw}
             disabled={withdrawing}
-            className="rounded bg-red-600 px-3 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
+            className="rounded bg-destructive px-3 py-1 text-xs font-medium text-background hover:bg-destructive disabled:opacity-50"
           >
             {withdrawing ? "Withdrawing…" : "Confirm Withdraw"}
           </button>

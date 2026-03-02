@@ -109,7 +109,7 @@ export function TimesheetHistoryList({
         return (
           <div
             key={ts.id}
-            className="overflow-hidden rounded-lg borderborder-border bg-background transition-shadow hover:shadow-sm"
+            className="overflow-hidden rounded-lg border border-border bg-background transition-shadow hover:shadow-sm"
           >
             {/* Card header - clickable to expand */}
             <button
@@ -135,20 +135,20 @@ export function TimesheetHistoryList({
                 </div>
                 <div className="mt-1 flex items-center gap-[var(--density-card-padding)] text-xs text-muted-foreground">
                   <span>{formatHours(ts.total_hours)}h total</span>
-                  <span className="text-gray-300">|</span>
+                  <span className="text-muted-foreground">|</span>
                   <span>{formatHours(ts.regular_hours)}h regular</span>
                   {ts.overtime_hours > 0 && (
                     <>
-                      <span className="text-gray-300">|</span>
-                      <span className="text-orange-600">
+                      <span className="text-muted-foreground">|</span>
+                      <span className="text-primary">
                         {formatHours(ts.overtime_hours)}h overtime
                       </span>
                     </>
                   )}
                   {ts.leave_hours > 0 && (
                     <>
-                      <span className="text-gray-300">|</span>
-                      <span className="text-blue-600">
+                      <span className="text-muted-foreground">|</span>
+                      <span className="text-info">
                         {formatHours(ts.leave_hours)}h leave
                       </span>
                     </>
@@ -176,11 +176,11 @@ export function TimesheetHistoryList({
 
             {/* Rejection notes (always visible if rejected) */}
             {ts.status === "rejected" && ts.rejection_notes && (
-              <div className="border-t border-red-100 bg-red-50 px-6 py-3">
-                <p className="text-xs font-medium text-red-800">
+              <div className="border-t border-destructive/20 bg-destructive/10 px-6 py-3">
+                <p className="text-xs font-medium text-destructive">
                   Reviewer notes:
                 </p>
-                <p className="mt-0.5 text-sm text-red-700">
+                <p className="mt-0.5 text-sm text-destructive">
                   {ts.rejection_notes}
                 </p>
               </div>
@@ -188,7 +188,7 @@ export function TimesheetHistoryList({
 
             {/* Expanded detail */}
             {isExpanded && (
-              <div className="border-t border-gray-100 px-6 py-4">
+              <div className="border-t border-border px-6 py-4">
                 {isPending && !detail && (
                   <div className="flex items-center justify-center py-6">
                     <svg
@@ -217,7 +217,7 @@ export function TimesheetHistoryList({
                 )}
 
                 {detail?.error && (
-                  <p className="text-sm text-red-600">{detail.error}</p>
+                  <p className="text-sm text-destructive">{detail.error}</p>
                 )}
 
                 {detail?.data && detail.data.time_entries.length > 0 && (
@@ -302,7 +302,7 @@ export function TimesheetHistoryList({
 
                 {/* Submitted/approved timestamps */}
                 {detail?.data && (
-                  <div className="mt-4 flex flex-wrap gap-[var(--density-card-padding)] border-t border-gray-100 pt-3 text-xs text-muted-foreground">
+                  <div className="mt-4 flex flex-wrap gap-[var(--density-card-padding)] border-t border-border pt-3 text-xs text-muted-foreground">
                     {detail.data.submitted_at && (
                       <span>
                         Submitted:{" "}

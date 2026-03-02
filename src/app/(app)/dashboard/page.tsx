@@ -21,30 +21,35 @@ import type {
   ObservationStats,
   AdmissionsStats,
   TimesheetStats,
-  StudentStats,
 } from "@/lib/actions/dashboard";
 import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import Link from "next/link";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // ============================================================
 // Page
 // ============================================================
+// WHY streaming: getTenantContext() is cache-deduped and fast
+// (<5ms). getDashboardStats() involves multiple DB queries
+// (200–500ms). By moving stats into a child Suspense boundary,
+// the header and quick actions render immediately on every
+// request while stats stream in - users see something useful
+// 200–500ms sooner.
+// ============================================================
+
+export const metadata = { title: "Dashboard - WattleOS" };
 
 export default async function DashboardPage() {
   const context = await getTenantContext();
   const greeting = getTimeGreeting();
-
-  // Fetch all stats in one call (internally parallelized + permission-gated)
-  const statsResult = await getDashboardStats();
-  const stats = statsResult.data;
-
-  // Collect which quick actions this user can see
   const actions = buildQuickActions(context);
 
   return (
     <div className="space-y-[var(--density-section-gap)] animate-fade-in">
-      {/* ── Welcome Header ── */}
+      {/* ── Welcome Header - renders immediately ── */}
       <div className="animate-fade-in-down">
         <h1 className="text-2xl font-bold text-foreground">
           {greeting}
@@ -55,18 +60,45 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* ── Quick Actions ── */}
+      {/* ── Quick Actions - renders immediately ── */}
       {actions.length > 0 && (
         <section aria-label="Quick actions">
-          <div className="grid gap-[var(--density-card-padding)] sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-[var(--density-card-padding)] sm:grid-cols-2 lg:grid-cols-3 stagger-children">
             {actions.map((action) => (
-              <QuickActionCard key={action.href} {...action} />
+              <GlowTarget
+                key={action.href}
+                id={`dash-btn-quick-${action.href.replace(/^\//, "").replace(/\//g, "-")}`}
+                category="button"
+                label={action.title}
+              >
+                <QuickActionCard {...action} />
+              </GlowTarget>
             ))}
           </div>
         </section>
       )}
 
-      {/* ── Today at a Glance — Real Stats ── */}
+      {/* ── Stats - streams in while header is already visible ── */}
+      <Suspense fallback={<DashboardStatsSkeleton />}>
+        <DashboardStats
+          tenantTimezone={context.tenant.timezone ?? "Australia/Brisbane"}
+        />
+      </Suspense>
+    </div>
+  );
+}
+
+// ============================================================
+// Async stats component - suspends independently of the header
+// ============================================================
+
+async function DashboardStats({ tenantTimezone }: { tenantTimezone: string }) {
+  const statsResult = await getDashboardStats();
+  const stats = statsResult.data;
+
+  return (
+    <>
+      {/* ── Today at a Glance ── */}
       {stats && (
         <section aria-label="Today at a glance">
           <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm">
@@ -80,105 +112,149 @@ export default async function DashboardPage() {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
-                  timeZone:
-                    context.tenant.timezone ?? "Australia/Brisbane",
+                  timeZone: tenantTimezone,
                 }).format(new Date())}
               </p>
             </div>
 
-            {/* Top-level KPI row */}
-            <div className="grid gap-[var(--density-md)] sm:grid-cols-2 lg:grid-cols-4">
-              {/* Attendance KPI */}
+            <div className="grid gap-[var(--density-md)] sm:grid-cols-2 lg:grid-cols-4 stagger-children">
               {stats.attendance && (
-                <KpiCard
-                  label="Attendance"
-                  value={`${stats.attendance.attendanceRate}%`}
-                  sublabel={`${stats.attendance.present + stats.attendance.late + stats.attendance.halfDay} of ${stats.attendance.totalExpected} students`}
-                  href="/attendance"
-                  colorVar="--attendance-present"
-                  alert={
-                    !stats.attendance.rollComplete
-                      ? `${stats.attendance.unmarked} unmarked`
-                      : undefined
-                  }
-                />
+                <GlowTarget
+                  id="dash-card-kpi-attendance"
+                  category="card"
+                  label="Attendance KPI"
+                >
+                  <KpiCard
+                    label="Attendance"
+                    value={`${stats.attendance.attendanceRate}%`}
+                    sublabel={`${stats.attendance.present + stats.attendance.late + stats.attendance.halfDay} of ${stats.attendance.totalExpected} students`}
+                    href="/attendance"
+                    colorVar="--attendance-present"
+                    alert={
+                      !stats.attendance.rollComplete
+                        ? `${stats.attendance.unmarked} unmarked`
+                        : undefined
+                    }
+                  />
+                </GlowTarget>
               )}
-
-              {/* Observations KPI */}
               {stats.observations && (
-                <KpiCard
-                  label="Observations"
-                  value={String(stats.observations.thisWeekTotal)}
-                  sublabel={`this week (${stats.observations.thisWeekMine} mine)`}
-                  href="/pedagogy/observations"
-                  colorVar="--curriculum-area"
-                  trend={computeTrend(
-                    stats.observations.thisWeekTotal,
-                    stats.observations.lastWeekTotal,
-                  )}
-                />
+                <GlowTarget
+                  id="dash-card-kpi-observations"
+                  category="card"
+                  label="Observations KPI"
+                >
+                  <KpiCard
+                    label="Observations"
+                    value={String(stats.observations.thisWeekTotal)}
+                    sublabel={`this week (${stats.observations.thisWeekMine} mine)`}
+                    href="/pedagogy/observations"
+                    colorVar="--curriculum-area"
+                    trend={computeTrend(
+                      stats.observations.thisWeekTotal,
+                      stats.observations.lastWeekTotal,
+                    )}
+                  />
+                </GlowTarget>
               )}
-
-              {/* Students KPI */}
               {stats.students && (
-                <KpiCard
-                  label="Active Students"
-                  value={String(stats.students.totalActive)}
-                  sublabel={
-                    stats.students.enrolledThisMonth > 0
-                      ? `+${stats.students.enrolledThisMonth} this month`
-                      : "enrolled"
-                  }
-                  href="/students"
-                  colorVar="--curriculum-outcome"
-                />
+                <GlowTarget
+                  id="dash-card-kpi-students"
+                  category="card"
+                  label="Students KPI"
+                >
+                  <KpiCard
+                    label="Active Students"
+                    value={String(stats.students.totalActive)}
+                    sublabel={
+                      stats.students.enrolledThisMonth > 0
+                        ? `+${stats.students.enrolledThisMonth} this month`
+                        : "enrolled"
+                    }
+                    href="/students"
+                    colorVar="--curriculum-outcome"
+                  />
+                </GlowTarget>
               )}
-
-              {/* Mastery KPI */}
               {stats.mastery && (
-                <KpiCard
-                  label="Mastery Rate"
-                  value={`${stats.mastery.masteryRate}%`}
-                  sublabel={`${stats.mastery.newMasteriesThisWeek} new this week`}
-                  href="/pedagogy/mastery"
-                  colorVar="--mastery-mastered"
-                />
+                <GlowTarget
+                  id="dash-card-kpi-mastery"
+                  category="card"
+                  label="Mastery KPI"
+                >
+                  <KpiCard
+                    label="Mastery Rate"
+                    value={`${stats.mastery.masteryRate}%`}
+                    sublabel={`${stats.mastery.newMasteriesThisWeek} new this week`}
+                    href="/pedagogy/mastery"
+                    colorVar="--mastery-mastered"
+                  />
+                </GlowTarget>
               )}
             </div>
           </div>
         </section>
       )}
 
-      {/* ── Detailed Sections (permission-gated) ── */}
-      <div className="grid gap-[var(--density-section-gap)] lg:grid-cols-2">
-        {/* Attendance Detail */}
+      {/* ── Detailed Sections ── */}
+      <div className="grid gap-[var(--density-section-gap)] lg:grid-cols-2 stagger-children">
         {stats?.attendance && (
-          <AttendanceDetailCard attendance={stats.attendance} />
+          <GlowTarget
+            id="dash-card-attendance-detail"
+            category="card"
+            label="Attendance breakdown"
+          >
+            <AttendanceDetailCard attendance={stats.attendance} />
+          </GlowTarget>
         )}
-
-        {/* Observation Detail */}
         {stats?.observations && (
-          <ObservationDetailCard observations={stats.observations} />
+          <GlowTarget
+            id="dash-card-observations-detail"
+            category="card"
+            label="Observations this week"
+          >
+            <ObservationDetailCard observations={stats.observations} />
+          </GlowTarget>
         )}
-
-        {/* Mastery Breakdown */}
-        {stats?.mastery && <MasteryDetailCard mastery={stats.mastery} />}
-
-        {/* Billing Summary (admin only) */}
-        {stats?.billing && <BillingDetailCard billing={stats.billing} />}
-
-        {/* Admissions Pipeline */}
+        {stats?.mastery && (
+          <GlowTarget
+            id="dash-card-mastery-detail"
+            category="card"
+            label="Mastery overview"
+          >
+            <MasteryDetailCard mastery={stats.mastery} />
+          </GlowTarget>
+        )}
+        {stats?.billing && (
+          <GlowTarget
+            id="dash-card-billing-detail"
+            category="card"
+            label="Billing summary"
+          >
+            <BillingDetailCard billing={stats.billing} />
+          </GlowTarget>
+        )}
         {stats?.admissions && (
-          <AdmissionsDetailCard admissions={stats.admissions} />
+          <GlowTarget
+            id="dash-card-admissions-detail"
+            category="card"
+            label="Admissions pipeline"
+          >
+            <AdmissionsDetailCard admissions={stats.admissions} />
+          </GlowTarget>
         )}
-
-        {/* Timesheets Pending */}
         {stats?.timesheets && stats.timesheets.pendingApproval > 0 && (
-          <TimesheetAlertCard timesheets={stats.timesheets} />
+          <GlowTarget
+            id="dash-card-timesheets-detail"
+            category="card"
+            label="Timesheet approvals"
+          >
+            <TimesheetAlertCard timesheets={stats.timesheets} />
+          </GlowTarget>
         )}
       </div>
 
-      {/* ── Fallback for no-stats roles (e.g. newly created roles) ── */}
+      {/* ── Fallback for roles with no visible stats ── */}
       {stats &&
         !stats.attendance &&
         !stats.observations &&
@@ -199,7 +275,61 @@ export default async function DashboardPage() {
             </p>
           </section>
         )}
-    </div>
+    </>
+  );
+}
+
+// ============================================================
+// Stats skeleton - shown while DashboardStats suspends
+// ============================================================
+
+function DashboardStatsSkeleton() {
+  return (
+    <>
+      {/* KPI card row */}
+      <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm">
+        <div className="mb-5 space-y-2">
+          <Skeleton className="h-5 w-36" />
+          <Skeleton className="h-3 w-56" />
+        </div>
+        <div className="grid gap-[var(--density-md)] sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-lg p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-2 w-2 rounded-full" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Detail cards */}
+      <div className="grid gap-[var(--density-section-gap)] lg:grid-cols-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+            <Skeleton className="h-3 w-full rounded-full" />
+            <div className="grid grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, j) => (
+                <div key={j} className="space-y-1">
+                  <Skeleton className="h-7 w-12" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -207,11 +337,7 @@ export default async function DashboardPage() {
 // Detail Cards
 // ============================================================
 
-function AttendanceDetailCard({
-  attendance,
-}: {
-  attendance: AttendanceStats;
-}) {
+function AttendanceDetailCard({ attendance }: { attendance: AttendanceStats }) {
   return (
     <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm">
       <div className="mb-4 flex items-center justify-between">
@@ -292,42 +418,40 @@ function AttendanceDetailCard({
         <MiniStat
           label="Present"
           value={attendance.present}
-          colorClass="text-green-700 dark:text-green-400"
+          colorClass="text-success "
         />
         <MiniStat
           label="Late"
           value={attendance.late}
-          colorClass="text-amber-700 dark:text-amber-400"
+          colorClass="text-primary "
         />
         <MiniStat
           label="Half Day"
           value={attendance.halfDay}
-          colorClass="text-blue-700 dark:text-blue-400"
+          colorClass="text-info "
         />
         <MiniStat
           label="Excused"
           value={attendance.excused}
-          colorClass="text-sky-700 dark:text-sky-400"
+          colorClass="text-info"
         />
         <MiniStat
           label="Absent"
           value={attendance.absent}
-          colorClass="text-red-700 dark:text-red-400"
+          colorClass="text-destructive "
         />
         <MiniStat
           label="Unmarked"
           value={attendance.unmarked}
           colorClass={
-            attendance.unmarked > 0
-              ? "text-orange-600 dark:text-orange-400"
-              : "text-muted-foreground"
+            attendance.unmarked > 0 ? "text-primary " : "text-muted-foreground"
           }
         />
       </div>
 
       {/* Roll completion alert */}
       {!attendance.rollComplete && attendance.totalExpected > 0 && (
-        <div className="mt-4 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 dark:bg-amber-950/50 dark:text-amber-300">
+        <div className="mt-4 flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2 text-xs font-medium text-primary /50 ">
           <svg
             className="h-4 w-4 flex-shrink-0"
             fill="none"
@@ -400,12 +524,12 @@ function ObservationDetailCard({
         <MiniStat
           label="Published"
           value={observations.thisWeekPublished}
-          colorClass="text-green-700 dark:text-green-400"
+          colorClass="text-success "
         />
         <MiniStat
           label="Drafts"
           value={observations.thisWeekDrafts}
-          colorClass="text-amber-700 dark:text-amber-400"
+          colorClass="text-primary "
         />
       </div>
     </div>
@@ -490,7 +614,7 @@ function MasteryDetailCard({ mastery }: { mastery: MasteryStats }) {
       </div>
 
       {mastery.newMasteriesThisWeek > 0 && (
-        <p className="mt-3 text-xs text-green-700 dark:text-green-400">
+        <p className="mt-3 text-xs text-success ">
           {mastery.newMasteriesThisWeek} new mastery achievement
           {mastery.newMasteriesThisWeek !== 1 ? "s" : ""} this week
         </p>
@@ -531,14 +655,14 @@ function BillingDetailCard({ billing }: { billing: BillingStats }) {
           <p className="text-xs text-muted-foreground">Outstanding</p>
         </div>
         <div className="space-y-0.5">
-          <p className="text-2xl font-bold tabular-nums text-green-700 dark:text-green-400">
+          <p className="text-2xl font-bold tabular-nums text-success ">
             {formatCurrency(billing.collectedThisMonthCents)}
           </p>
           <p className="text-xs text-muted-foreground">Collected this month</p>
         </div>
         <div className="space-y-0.5">
           <p
-            className={`text-2xl font-bold tabular-nums ${billing.overdueCount > 0 ? "text-red-700 dark:text-red-400" : "text-foreground"}`}
+            className={`text-2xl font-bold tabular-nums ${billing.overdueCount > 0 ? "text-destructive " : "text-foreground"}`}
           >
             {billing.overdueCount}
           </p>
@@ -547,7 +671,7 @@ function BillingDetailCard({ billing }: { billing: BillingStats }) {
       </div>
 
       {billing.overdueCount > 0 && (
-        <div className="mt-4 flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-800 dark:bg-red-950/50 dark:text-red-300">
+        <div className="mt-4 flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive  ">
           <svg
             className="h-4 w-4 flex-shrink-0"
             fill="none"
@@ -564,7 +688,10 @@ function BillingDetailCard({ billing }: { billing: BillingStats }) {
           <span>
             {billing.overdueCount} invoice
             {billing.overdueCount !== 1 ? "s" : ""} overdue.{" "}
-            <Link href="/admin/billing" className="underline hover:no-underline">
+            <Link
+              href="/admin/billing"
+              className="underline hover:no-underline"
+            >
               Review now
             </Link>
           </span>
@@ -574,11 +701,7 @@ function BillingDetailCard({ billing }: { billing: BillingStats }) {
   );
 }
 
-function AdmissionsDetailCard({
-  admissions,
-}: {
-  admissions: AdmissionsStats;
-}) {
+function AdmissionsDetailCard({ admissions }: { admissions: AdmissionsStats }) {
   return (
     <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm">
       <div className="mb-4 flex items-center justify-between">
@@ -607,7 +730,7 @@ function AdmissionsDetailCard({
           <p className="text-xs text-muted-foreground">Upcoming tours</p>
         </div>
         <div className="space-y-0.5">
-          <p className="text-2xl font-bold tabular-nums text-green-700 dark:text-green-400">
+          <p className="text-2xl font-bold tabular-nums text-success ">
             {admissions.enrolledThisYear}
           </p>
           <p className="text-xs text-muted-foreground">Enrolled this year</p>
@@ -617,11 +740,7 @@ function AdmissionsDetailCard({
   );
 }
 
-function TimesheetAlertCard({
-  timesheets,
-}: {
-  timesheets: TimesheetStats;
-}) {
+function TimesheetAlertCard({ timesheets }: { timesheets: TimesheetStats }) {
   return (
     <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm">
       <div className="mb-4 flex items-center justify-between">
@@ -637,8 +756,8 @@ function TimesheetAlertCard({
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-950">
-          <span className="text-lg font-bold text-amber-700 dark:text-amber-400">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 ">
+          <span className="text-lg font-bold text-primary ">
             {timesheets.pendingApproval}
           </span>
         </div>
@@ -694,9 +813,7 @@ function KpiCard({
         />
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
       </div>
-      <p className="text-2xl font-bold tabular-nums text-foreground">
-        {value}
-      </p>
+      <p className="text-2xl font-bold tabular-nums text-foreground">{value}</p>
       <p className="mt-0.5 text-xs text-muted-foreground">{sublabel}</p>
       {trend && (
         <p
@@ -706,9 +823,7 @@ function KpiCard({
         </p>
       )}
       {alert && (
-        <p className="mt-1 text-xs font-medium text-amber-600 dark:text-amber-400">
-          {alert}
-        </p>
+        <p className="mt-1 text-xs font-medium text-primary ">{alert}</p>
       )}
     </Link>
   );
@@ -821,12 +936,10 @@ interface TrendInfo {
   isDown: boolean;
 }
 
-function computeTrend(
-  current: number,
-  previous: number,
-): TrendInfo | null {
+function computeTrend(current: number, previous: number): TrendInfo | null {
   if (previous === 0 && current === 0) return null;
-  if (previous === 0) return { label: `+${current}`, isUp: true, isDown: false };
+  if (previous === 0)
+    return { label: `+${current}`, isUp: true, isDown: false };
 
   const diff = current - previous;
   const pct = Math.round((Math.abs(diff) / previous) * 100);
@@ -836,12 +949,7 @@ function computeTrend(
   return { label: "0%", isUp: false, isDown: false };
 }
 
-function QuickActionCard({
-  title,
-  description,
-  href,
-  colorVar,
-}: QuickAction) {
+function QuickActionCard({ title, description, href, colorVar }: QuickAction) {
   return (
     <a
       href={href}

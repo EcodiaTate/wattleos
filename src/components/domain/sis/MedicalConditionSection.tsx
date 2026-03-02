@@ -1,6 +1,7 @@
 // src/components/domain/sis/MedicalConditionSection.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type { CreateMedicalConditionInput, UpdateMedicalConditionInput } from "@/lib/actions/medical";
 import { createMedicalCondition, deleteMedicalCondition, updateMedicalCondition } from "@/lib/actions/medical";
 import { MEDICAL_CONDITION_TYPES, MEDICAL_SEVERITIES } from "@/lib/constants";
@@ -88,7 +89,7 @@ export function MedicalConditionSection({ studentId, conditions, canManage }: Me
       <div className="flex items-center justify-between border-b border-border bg-muted/20 px-6 py-4">
         <h2 className="text-lg font-bold text-foreground">Medical Conditions</h2>
         {canManage && !showAddForm && !editingId && (
-          <button onClick={() => { setEditingId(null); resetForm(); setShowAddForm(true); }} className="text-sm font-bold text-primary hover:underline">+ Add Record</button>
+          <GlowTarget id="sis-btn-add-medical" category="button" label="Add medical condition"><button onClick={() => { setEditingId(null); resetForm(); setShowAddForm(true); }} className="text-sm font-bold text-primary hover:underline">+ Add Record</button></GlowTarget>
         )}
       </div>
       <div className="p-6">
@@ -98,7 +99,8 @@ export function MedicalConditionSection({ studentId, conditions, canManage }: Me
           <div className="space-y-4">
             {conditions.map(c => (
               editingId === c.id ? <div key={c.id}>{renderForm("edit", c.id)}</div> : (
-                <div key={c.id} className="rounded-xl border border-border/60 bg-background p-5 shadow-sm hover:border-primary-100 transition-all">
+                <GlowTarget key={c.id} id={`sis-card-medical-${c.id}`} category="card" label={c.condition_name}>
+                <div className="rounded-xl border border-border/60 bg-background p-5 shadow-sm hover:border-primary-100 transition-all">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
@@ -128,6 +130,7 @@ export function MedicalConditionSection({ studentId, conditions, canManage }: Me
                     )}
                   </div>
                 </div>
+                </GlowTarget>
               )
             ))}
           </div>

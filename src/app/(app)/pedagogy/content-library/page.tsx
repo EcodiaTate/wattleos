@@ -25,7 +25,6 @@ import { getTenantContext } from "@/lib/auth/tenant-context";
 import Link from "next/link";
 
 interface ContentLibraryPageProps {
-  params: Promise<{ tenant: string }>;
   searchParams: Promise<{
     framework?: string;
     age_range?: string;
@@ -35,11 +34,11 @@ interface ContentLibraryPageProps {
   }>;
 }
 
+export const metadata = { title: "Content Library - WattleOS" };
+
 export default async function ContentLibraryPage({
-  params,
   searchParams,
 }: ContentLibraryPageProps) {
-  const { tenant } = await params;
   const sp = await searchParams;
 
   // Check if user can import templates (for showing the import CTA)
@@ -137,7 +136,6 @@ export default async function ContentLibraryPage({
                   <TemplateCard
                     key={template.id}
                     template={template}
-                    tenant={tenant}
                   />
                 ))}
               </div>
@@ -233,19 +231,18 @@ function EmptyState({
 
 /** Color-coded dot for each framework family */
 function FrameworkBadge({ framework }: { framework: string }) {
-  const colorMap: Record<string, string> = {
-    AMI: "bg-amber-500",
-    AMS: "bg-blue-500",
-    EYLF: "bg-emerald-500",
-    ACARA: "bg-purple-500",
-    QCAA: "bg-rose-500",
+  const varMap: Record<string, string> = {
+    AMI: "var(--primary)",
+    AMS: "var(--framework-ams)",
+    EYLF: "var(--framework-eylf)",
+    ACARA: "var(--framework-acara)",
+    QCAA: "var(--framework-qcaa)",
   };
-
-  const color = colorMap[framework] ?? "bg-gray-400";
 
   return (
     <span
-      className={`inline-block w-2.5 h-2.5 rounded-full ${color}`}
+      className="inline-block w-2.5 h-2.5 rounded-full"
+      style={{ backgroundColor: varMap[framework] ?? "var(--muted-foreground)" }}
       aria-hidden="true"
     />
   );

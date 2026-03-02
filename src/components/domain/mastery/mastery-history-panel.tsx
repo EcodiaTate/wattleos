@@ -15,16 +15,16 @@ export function MasteryHistoryPanel({
 }: MasteryHistoryPanelProps) {
   if (history.length === 0) {
     return (
-      <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] text-center text-xs text-muted-foreground">
+      <div className="rounded-lg border border-border bg-background p-[var(--density-card-padding)] text-center text-xs text-muted-foreground">
         No mastery changes recorded yet.
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg borderborder-border bg-background">
+    <div className="rounded-lg border border-border bg-background">
       {showTitle && (
-        <div className="border-b border-gray-100 px-4 py-3">
+        <div className="border-b border-border px-4 py-3">
           <h3 className="text-sm font-semibold text-foreground">
             Recent Progress
           </h3>

@@ -15,10 +15,12 @@ import { Permissions } from "@/lib/constants/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "Billing - WattleOS" };
+
 export default async function BillingPage() {
   const context = await getTenantContext();
 
-  if (!hasPermission(context, Permissions.MANAGE_INTEGRATIONS)) {
+  if (!hasPermission(context, Permissions.MANAGE_BILLING)) {
     redirect("/dashboard");
   }
 

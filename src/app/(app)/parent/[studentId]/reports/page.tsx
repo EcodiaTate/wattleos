@@ -20,6 +20,8 @@ interface PageProps {
   params: Promise<{ studentId: string }>;
 }
 
+export const metadata = { title: "Child Reports - WattleOS" };
+
 export default async function ChildReportsPage({ params }: PageProps) {
   const { studentId } = await params;
   await getTenantContext();
@@ -70,7 +72,7 @@ export default async function ChildReportsPage({ params }: PageProps) {
           </Link>
           <Link
             href={`/parent/${studentId}/reports`}
-            className="border-b-2 border-primary px-1 pb-3 text-sm font-medium text-amber-700"
+            className="border-b-2 border-primary px-1 pb-3 text-sm font-medium text-primary"
           >
             Reports
           </Link>
@@ -79,7 +81,7 @@ export default async function ChildReportsPage({ params }: PageProps) {
 
       {/* Reports list */}
       {reports.length === 0 ? (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+        <div className="rounded-lg border border-border bg-background p-12 text-center">
           <p className="text-sm text-muted-foreground">
             No published reports yet. Reports will appear here once your
             child&apos;s teacher completes and publishes them.
@@ -91,7 +93,7 @@ export default async function ChildReportsPage({ params }: PageProps) {
             <Link
               key={report.id}
               href={`/parent/${studentId}/reports/${report.id}`}
-              className="block rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] transition-shadow hover:shadow-md"
+              className="block rounded-lg border border-border bg-background p-[var(--density-card-padding)] transition-shadow hover:shadow-md"
             >
               <div className="flex items-center justify-between">
                 <div>

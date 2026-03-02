@@ -1,5 +1,6 @@
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type { PortfolioTimelineItem } from "@/lib/actions/mastery";
 import { MASTERY_STATUS_CONFIG } from "@/lib/utils/mastery-status";
 import type { MasteryStatus } from "@/types/domain";
@@ -21,9 +22,9 @@ export function PortfolioTimeline({
 }: PortfolioTimelineProps) {
   if (items.length === 0) {
     return (
-      <div className="rounded-lg borderborder-border bg-background p-8 text-center">
+      <div className="rounded-lg border border-border bg-background p-8 text-center">
         <svg
-          className="mx-auto h-[var(--density-button-height)] w-12 text-gray-300"
+          className="mx-auto h-[var(--density-button-height)] w-12 text-muted-foreground"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={1}
@@ -67,17 +68,24 @@ export function PortfolioTimeline({
         <div key={dateLabel}>
           {/* Date header */}
           <div className="mb-3 flex items-center gap-3">
-            <div className="h-px flex-1 bg-gray-200" />
+            <div className="h-px flex-1 bg-muted" />
             <span className="text-xs font-medium text-muted-foreground">
               {dateLabel}
             </span>
-            <div className="h-px flex-1 bg-gray-200" />
+            <div className="h-px flex-1 bg-muted" />
           </div>
 
           {/* Items for this date */}
           <div className="space-y-3">
             {dateItems.map((item, idx) => (
-              <TimelineCard key={`${item.type}-${idx}`} item={item} />
+              <GlowTarget
+                key={`${item.type}-${idx}`}
+                id={`mastery-card-timeline-${item.observation_id ?? `${item.type}-${idx}`}`}
+                category="card"
+                label={item.type === "observation" ? (item.observation_content?.slice(0, 40) ?? "Observation") : (item.mastery_node_title ?? "Mastery change")}
+              >
+                <TimelineCard item={item} />
+              </GlowTarget>
             ))}
           </div>
         </div>
@@ -106,11 +114,11 @@ function ObservationCard({ item }: { item: PortfolioTimelineItem }) {
   });
 
   return (
-    <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)] transition-shadow hover:shadow-sm">
+    <div className="rounded-lg border border-border bg-background p-[var(--density-card-padding)] transition-shadow hover:shadow-sm">
       <div className="mb-2 flex items-start justify-between">
         <div className="flex items-center gap-2">
           {/* Observation icon */}
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-100">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15">
             <svg
               className="h-3.5 w-3.5 text-primary"
               fill="none"
@@ -155,7 +163,7 @@ function ObservationCard({ item }: { item: PortfolioTimelineItem }) {
           {item.observation_outcomes.map((outcome) => (
             <span
               key={outcome.id}
-              className="inline-flex rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-medium text-green-700"
+              className="inline-flex rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success"
             >
               {outcome.title}
             </span>
@@ -209,7 +217,7 @@ function MasteryChangeCard({ item }: { item: PortfolioTimelineItem }) {
     <div
       className={`rounded-lg border p-[var(--density-card-padding)] transition-shadow hover:shadow-sm ${
         isMilestone
-          ? "border-green-200 bg-green-50"
+          ? "border-success/30 bg-success/10"
           : "border-border bg-background"
       }`}
     >
@@ -218,12 +226,12 @@ function MasteryChangeCard({ item }: { item: PortfolioTimelineItem }) {
           {/* Status icon */}
           <div
             className={`flex h-7 w-7 items-center justify-center rounded-full ${
-              isMilestone ? "bg-green-200" : newConfig.bgColor
+              isMilestone ? "bg-success/20" : newConfig.bgColor
             }`}
           >
             {isMilestone ? (
               <svg
-                className="h-3.5 w-3.5 text-green-700"
+                className="h-3.5 w-3.5 text-success"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={2}
@@ -245,7 +253,7 @@ function MasteryChangeCard({ item }: { item: PortfolioTimelineItem }) {
           <div>
             <span
               className={`text-xs font-semibold ${
-                isMilestone ? "text-green-800" : "text-foreground"
+                isMilestone ? "text-success" : "text-foreground"
               }`}
             >
               {isMilestone ? "Mastery Achieved!" : "Progress Update"}

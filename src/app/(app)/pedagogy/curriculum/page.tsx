@@ -19,6 +19,8 @@ import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import Link from "next/link";
 
+export const metadata = { title: "Curriculum - WattleOS" };
+
 export default async function CurriculumPage() {
   const context = await getTenantContext();
   const canManage = hasPermission(context, Permissions.MANAGE_CURRICULUM);

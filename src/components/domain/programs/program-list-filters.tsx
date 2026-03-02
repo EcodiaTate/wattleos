@@ -1,6 +1,7 @@
 // src/components/domain/programs/program-list-filters.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { PROGRAM_TYPES } from "@/lib/constants/programs";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -28,6 +29,7 @@ export function ProgramListFilters({
 
   return (
     <div className="flex flex-wrap items-center gap-[var(--density-sm)]">
+      <GlowTarget id="programs-filter-type" category="select" label="Filter by program type">
       <select
         value={currentType ?? ""}
         onChange={(e) => updateFilter("type", e.target.value || undefined)}
@@ -38,7 +40,9 @@ export function ProgramListFilters({
           <option key={pt.value} value={pt.value}>{pt.label}</option>
         ))}
       </select>
+      </GlowTarget>
 
+      <GlowTarget id="programs-filter-status" category="select" label="Filter by status">
       <select
         value={currentActive === undefined ? "" : String(currentActive)}
         onChange={(e) => updateFilter("active", e.target.value || undefined)}
@@ -48,6 +52,7 @@ export function ProgramListFilters({
         <option value="true">Active Only</option>
         <option value="false">Inactive Only</option>
       </select>
+      </GlowTarget>
 
       {(currentType || currentActive !== undefined) && (
         <button

@@ -391,11 +391,11 @@ export function EnrollmentWizard({
     return (
       <div className="mx-auto max-w-lg py-16 text-center">
         <div className="mb-6 text-5xl">✓</div>
-        <h2 className="text-2xl font-bold text-gray-900">
+        <h2 className="text-2xl font-bold text-foreground">
           Application Submitted
         </h2>
-        <p className="mt-3 text-sm text-gray-600">{confirmationMessage}</p>
-        <p className="mt-6 text-xs text-gray-400">
+        <p className="mt-3 text-sm text-muted-foreground">{confirmationMessage}</p>
+        <p className="mt-6 text-xs text-muted-foreground">
           You can close this page. We&apos;ll email you at{" "}
           <span className="font-medium">{state.guardian_email}</span> with
           updates.
@@ -413,22 +413,22 @@ export function EnrollmentWizard({
     <div className="mx-auto max-w-2xl">
       {/* Welcome message */}
       {step === 0 && period?.welcome_message && (
-        <div className="mb-6 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <div className="mb-6 rounded-lg bg-primary/10 px-4 py-3 text-sm text-primary">
           {period.welcome_message}
         </div>
       )}
 
       {/* Progress */}
       <div className="mb-8">
-        <div className="mb-2 flex items-center justify-between text-xs text-gray-500">
+        <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
           <span>
             Step {step + 1} of {STEP_NAMES.length}
           </span>
           <span>{STEP_NAMES[step]}</span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+        <div className="h-2 overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-amber-500 transition-all duration-300"
+            className="h-full rounded-full bg-primary transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -436,20 +436,20 @@ export function EnrollmentWizard({
 
       {/* Error */}
       {error && (
-        <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mb-4 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
       {/* Steps */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-lg border border-border bg-card p-6">
         {/* ── Step 0: Your Details ────────────────────────── */}
         {step === 0 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               Your Details
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Tell us about yourself as the primary contact.
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -501,7 +501,7 @@ export function EnrollmentWizard({
         {/* ── Step 1: Child Information ───────────────────── */}
         {step === 1 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               Child Information
             </h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -562,7 +562,7 @@ export function EnrollmentWizard({
         {/* ── Step 2: Program Selection ───────────────────── */}
         {step === 2 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               Program Selection
             </h2>
             {periods.length > 1 && (
@@ -602,18 +602,18 @@ export function EnrollmentWizard({
 
             {/* Custom fields */}
             {period && period.custom_fields.length > 0 && (
-              <div className="space-y-3 border-t border-gray-100 pt-4">
-                <h3 className="text-sm font-medium text-gray-700">
+              <div className="space-y-3 border-t border-border pt-4">
+                <h3 className="text-sm font-medium text-foreground">
                   Additional Questions
                 </h3>
                 {period.custom_fields.map((cf) => (
                   <div key={cf.key}>
                     {cf.type === "textarea" ? (
                       <div>
-                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                        <label className="mb-1 block text-sm font-medium text-foreground">
                           {cf.label}{" "}
                           {cf.required && (
-                            <span className="text-red-500">*</span>
+                            <span className="text-destructive">*</span>
                           )}
                         </label>
                         <textarea
@@ -625,7 +625,7 @@ export function EnrollmentWizard({
                             })
                           }
                           rows={3}
-                          className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                          className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                       </div>
                     ) : cf.type === "checkbox" ? (
@@ -639,10 +639,10 @@ export function EnrollmentWizard({
                               [cf.key]: e.target.checked ? "true" : "false",
                             })
                           }
-                          className="h-4 w-4 rounded border-gray-300 text-amber-600"
+                          className="h-4 w-4 rounded border-border text-primary"
                         />
                         {cf.label}{" "}
-                        {cf.required && <span className="text-red-500">*</span>}
+                        {cf.required && <span className="text-destructive">*</span>}
                       </label>
                     ) : (
                       <Input
@@ -668,10 +668,10 @@ export function EnrollmentWizard({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-foreground">
                   Additional Guardians
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Add other parents or guardians (optional).
                 </p>
               </div>
@@ -693,23 +693,23 @@ export function EnrollmentWizard({
                     },
                   ])
                 }
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted"
               >
                 + Add Guardian
               </button>
             </div>
             {state.additional_guardians.length === 0 && (
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 No additional guardians. You can skip this step.
               </p>
             )}
             {state.additional_guardians.map((g, i) => (
               <div
                 key={i}
-                className="space-y-3 rounded-lg border border-gray-100 bg-gray-50 p-4"
+                className="space-y-3 rounded-lg border border-border bg-muted p-4"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-foreground">
                     Guardian {i + 2}
                   </span>
                   <button
@@ -720,7 +720,7 @@ export function EnrollmentWizard({
                         state.additional_guardians.filter((_, j) => j !== i),
                       )
                     }
-                    className="text-xs text-red-600 hover:text-red-700"
+                    className="text-xs text-destructive hover:text-destructive"
                   >
                     Remove
                   </button>
@@ -750,7 +750,7 @@ export function EnrollmentWizard({
                     value={g.email ?? ""}
                     onChange={(v) => {
                       const arr = [...state.additional_guardians];
-                      arr[i] = { ...arr[i], email: v || null };
+                      arr[i] = { ...arr[i], email: v ?? "" };
                       update("additional_guardians", arr);
                     }}
                   />
@@ -760,7 +760,7 @@ export function EnrollmentWizard({
                     value={g.phone ?? ""}
                     onChange={(v) => {
                       const arr = [...state.additional_guardians];
-                      arr[i] = { ...arr[i], phone: v || null };
+                      arr[i] = { ...arr[i], phone: v ?? "" };
                       update("additional_guardians", arr);
                     }}
                   />
@@ -778,7 +778,7 @@ export function EnrollmentWizard({
                         };
                         update("additional_guardians", arr);
                       }}
-                      className="h-4 w-4 rounded border-gray-300 text-amber-600"
+                      className="h-4 w-4 rounded border-border text-primary"
                     />
                     Authorized for pickup
                   </label>
@@ -794,7 +794,7 @@ export function EnrollmentWizard({
                         };
                         update("additional_guardians", arr);
                       }}
-                      className="h-4 w-4 rounded border-gray-300 text-amber-600"
+                      className="h-4 w-4 rounded border-border text-primary"
                     />
                     Emergency contact
                   </label>
@@ -809,10 +809,10 @@ export function EnrollmentWizard({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-foreground">
                   Medical Information
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   List any medical conditions, allergies, or special needs.
                 </p>
               </div>
@@ -833,23 +833,23 @@ export function EnrollmentWizard({
                     },
                   ])
                 }
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted"
               >
                 + Add Condition
               </button>
             </div>
             {state.medical_conditions.length === 0 && (
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 No medical conditions. You can skip this step if not applicable.
               </p>
             )}
             {state.medical_conditions.map((mc, i) => (
               <div
                 key={i}
-                className="space-y-3 rounded-lg border border-gray-100 bg-gray-50 p-4"
+                className="space-y-3 rounded-lg border border-border bg-muted p-4"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-foreground">
                     Condition {i + 1}
                   </span>
                   <button
@@ -860,7 +860,7 @@ export function EnrollmentWizard({
                         state.medical_conditions.filter((_, j) => j !== i),
                       )
                     }
-                    className="text-xs text-red-600 hover:text-red-700"
+                    className="text-xs text-destructive hover:text-destructive"
                   >
                     Remove
                   </button>
@@ -912,7 +912,7 @@ export function EnrollmentWizard({
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className="mb-1 block text-sm font-medium text-foreground">
                     Action Plan
                   </label>
                   <textarea
@@ -927,7 +927,7 @@ export function EnrollmentWizard({
                     }}
                     rows={2}
                     placeholder="What should the school do if this condition is triggered?"
-                    className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
                 <label className="flex items-center gap-2 text-sm">
@@ -942,7 +942,7 @@ export function EnrollmentWizard({
                       };
                       update("medical_conditions", arr);
                     }}
-                    className="h-4 w-4 rounded border-gray-300 text-amber-600"
+                    className="h-4 w-4 rounded border-border text-primary"
                   />
                   Requires medication at school
                 </label>
@@ -979,10 +979,10 @@ export function EnrollmentWizard({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-foreground">
                   Emergency Contacts
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   At least two emergency contacts are required.
                 </p>
               </div>
@@ -1001,7 +1001,7 @@ export function EnrollmentWizard({
                     },
                   ])
                 }
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted"
               >
                 + Add Contact
               </button>
@@ -1009,12 +1009,12 @@ export function EnrollmentWizard({
             {state.emergency_contacts.map((ec, i) => (
               <div
                 key={i}
-                className="space-y-3 rounded-lg border border-gray-100 bg-gray-50 p-4"
+                className="space-y-3 rounded-lg border border-border bg-muted p-4"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-foreground">
                     Contact {i + 1}{" "}
-                    {i < 2 && <span className="text-red-500">*</span>}
+                    {i < 2 && <span className="text-destructive">*</span>}
                   </span>
                   {i >= 2 && (
                     <button
@@ -1025,7 +1025,7 @@ export function EnrollmentWizard({
                           state.emergency_contacts.filter((_, j) => j !== i),
                         )
                       }
-                      className="text-xs text-red-600 hover:text-red-700"
+                      className="text-xs text-destructive hover:text-destructive"
                     >
                       Remove
                     </button>
@@ -1082,10 +1082,10 @@ export function EnrollmentWizard({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-foreground">
                   Custody & Safety
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Are there any custody restrictions or people who should not
                   have access to your child? Leave empty if not applicable.
                 </p>
@@ -1103,23 +1103,23 @@ export function EnrollmentWizard({
                     },
                   ])
                 }
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted"
               >
                 + Add Restriction
               </button>
             </div>
             {state.custody_restrictions.length === 0 && (
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 No restrictions. You can skip this step.
               </p>
             )}
             {state.custody_restrictions.map((cr, i) => (
               <div
                 key={i}
-                className="space-y-3 rounded-lg border border-red-100 bg-red-50 p-4"
+                className="space-y-3 rounded-lg border border-destructive/20 bg-destructive/10 p-4"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-red-900">
+                  <span className="text-sm font-medium text-destructive">
                     Restriction {i + 1}
                   </span>
                   <button
@@ -1130,7 +1130,7 @@ export function EnrollmentWizard({
                         state.custody_restrictions.filter((_, j) => j !== i),
                       )
                     }
-                    className="text-xs text-red-600 hover:text-red-700"
+                    className="text-xs text-destructive hover:text-destructive"
                   >
                     Remove
                   </button>
@@ -1187,16 +1187,16 @@ export function EnrollmentWizard({
         {/* ── Step 7: Documents ───────────────────────────── */}
         {step === 7 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
-            <p className="text-sm text-gray-500">
+            <h2 className="text-lg font-semibold text-foreground">Documents</h2>
+            <p className="text-sm text-muted-foreground">
               Upload any required documents for your application.
             </p>
             {period && period.required_documents.length > 0 ? (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">
+                <p className="text-sm font-medium text-foreground">
                   Required documents:
                 </p>
-                <ul className="list-inside list-disc space-y-1 text-sm text-gray-600">
+                <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
                   {period.required_documents.map((doc) => (
                     <li key={doc}>
                       {doc
@@ -1207,18 +1207,18 @@ export function EnrollmentWizard({
                 </ul>
               </div>
             ) : (
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 No specific documents are required for this enrollment period.
               </p>
             )}
-            <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-              <p className="text-sm text-gray-500">
+            <div className="rounded-lg border-2 border-dashed border-border bg-muted p-8 text-center">
+              <p className="text-sm text-muted-foreground">
                 Document upload will be available once Supabase Storage is
                 configured. For now, you can submit your application and email
                 documents to the school directly.
               </p>
             </div>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-muted-foreground">
               You can still proceed without uploading documents - the school may
               request them after reviewing your application.
             </p>
@@ -1228,72 +1228,72 @@ export function EnrollmentWizard({
         {/* ── Step 8: Consents ────────────────────────────── */}
         {step === 8 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Consents</h2>
+            <h2 className="text-lg font-semibold text-foreground">Consents</h2>
             <div className="space-y-4">
-              <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-4">
+              <label className="flex items-start gap-3 rounded-lg border border-border p-4">
                 <input
                   type="checkbox"
                   checked={state.media_consent}
                   onChange={(e) => update("media_consent", e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-amber-600"
+                  className="mt-0.5 h-4 w-4 rounded border-border text-primary"
                 />
                 <div>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-foreground">
                     Media Consent
                   </span>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     I consent to photos and videos of my child being used in
                     school communications, portfolios, and marketing materials.
                   </p>
                 </div>
               </label>
-              <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-4">
+              <label className="flex items-start gap-3 rounded-lg border border-border p-4">
                 <input
                   type="checkbox"
                   checked={state.directory_consent}
                   onChange={(e) =>
                     update("directory_consent", e.target.checked)
                   }
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-amber-600"
+                  className="mt-0.5 h-4 w-4 rounded border-border text-primary"
                 />
                 <div>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-foreground">
                     Family Directory
                   </span>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     I consent to our family's contact details being visible to
                     other families in the school directory.
                   </p>
                 </div>
               </label>
-              <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-4">
+              <label className="flex items-start gap-3 rounded-lg border border-border p-4">
                 <input
                   type="checkbox"
                   checked={state.terms_accepted}
                   onChange={(e) => update("terms_accepted", e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-amber-600"
+                  className="mt-0.5 h-4 w-4 rounded border-border text-primary"
                 />
                 <div>
-                  <span className="text-sm font-medium text-gray-900">
-                    Terms & Conditions <span className="text-red-500">*</span>
+                  <span className="text-sm font-medium text-foreground">
+                    Terms & Conditions <span className="text-destructive">*</span>
                   </span>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     I accept the school's terms and conditions of enrollment.
                   </p>
                 </div>
               </label>
-              <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-4">
+              <label className="flex items-start gap-3 rounded-lg border border-border p-4">
                 <input
                   type="checkbox"
                   checked={state.privacy_accepted}
                   onChange={(e) => update("privacy_accepted", e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-amber-600"
+                  className="mt-0.5 h-4 w-4 rounded border-border text-primary"
                 />
                 <div>
-                  <span className="text-sm font-medium text-gray-900">
-                    Privacy Policy <span className="text-red-500">*</span>
+                  <span className="text-sm font-medium text-foreground">
+                    Privacy Policy <span className="text-destructive">*</span>
                   </span>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     I have read and accept the school's privacy policy.
                   </p>
                 </div>
@@ -1305,10 +1305,10 @@ export function EnrollmentWizard({
         {/* ── Step 9: Review & Submit ─────────────────────── */}
         {step === 9 && (
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               Review & Submit
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Please review your application before submitting.
             </p>
 
@@ -1442,7 +1442,7 @@ export function EnrollmentWizard({
         {step > 0 ? (
           <button
             onClick={goBack}
-            className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
           >
             ← Back
           </button>
@@ -1453,7 +1453,7 @@ export function EnrollmentWizard({
         {step < 9 ? (
           <button
             onClick={goNext}
-            className="rounded-lg bg-amber-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-amber-700"
+            className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-background hover:bg-primary"
           >
             Next →
           </button>
@@ -1461,7 +1461,7 @@ export function EnrollmentWizard({
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="rounded-lg bg-green-600 px-8 py-2.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+            className="rounded-lg bg-success px-8 py-2.5 text-sm font-medium text-background hover:bg-success disabled:opacity-50"
           >
             {submitting ? "Submitting…" : "Submit Application"}
           </button>
@@ -1469,7 +1469,7 @@ export function EnrollmentWizard({
       </div>
 
       {/* Draft notice */}
-      <p className="mt-4 text-center text-xs text-gray-400">
+      <p className="mt-4 text-center text-xs text-muted-foreground">
         Your progress is saved automatically. You can close this page and return
         later.
       </p>
@@ -1494,7 +1494,7 @@ function Input({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-sm font-medium text-gray-700">
+      <label className="mb-1 block text-sm font-medium text-foreground">
         {label}
       </label>
       <input
@@ -1502,7 +1502,7 @@ function Input({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+        className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
       />
     </div>
   );
@@ -1521,13 +1521,13 @@ function Select({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-sm font-medium text-gray-700">
+      <label className="mb-1 block text-sm font-medium text-foreground">
         {label}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+        className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -1549,12 +1549,12 @@ function ReviewSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-gray-200 p-4">
+    <div className="rounded-lg border border-border p-4">
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
         <button
           onClick={onEdit}
-          className="text-xs font-medium text-amber-600 hover:text-amber-700"
+          className="text-xs font-medium text-primary hover:text-primary"
         >
           Edit
         </button>
@@ -1567,8 +1567,8 @@ function ReviewSection({
 function ReviewField({ label, value }: { label: string; value: string }) {
   return (
     <>
-      <dt className="text-xs text-gray-500">{label}</dt>
-      <dd className="text-sm text-gray-900">{value || " - "}</dd>
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="text-sm text-foreground">{value || " - "}</dd>
     </>
   );
 }

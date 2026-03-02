@@ -7,7 +7,7 @@
 // WHY a dedicated stats action: The dashboard was a placeholder
 // with zero real data. This fetches live counts from attendance,
 // observations, mastery, students, billing, timesheets, and
-// admissions — all in parallel, scoped by the user's permissions.
+// admissions - all in parallel, scoped by the user's permissions.
 //
 // Each stat section is fetched conditionally based on permission.
 // Queries that the user can't see are never executed, keeping

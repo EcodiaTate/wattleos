@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 // ============================================================
 // WattleOS V2 - Student Server Actions
@@ -18,7 +18,8 @@
 // and updateStudent(). All new fields are nullable.
 // ============================================================
 
-import { getTenantContext } from "@/lib/auth/tenant-context";
+import { requirePermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { validatePagination } from "@/lib/utils";
 import {
@@ -33,6 +34,8 @@ import type {
   EnrollmentStatus,
   IndigenousStatus,
   LanguageBackground,
+  ParentEducationLevel,
+  ParentOccupationGroup,
   ResidentialAddress,
   Student,
   StudentWithDetails,
@@ -62,6 +65,11 @@ export interface CreateStudentInput {
   country_of_birth?: string | null;
   home_language?: string | null;
   visa_subclass?: string | null;
+  // Compliance: ACARA ASC - SES fields
+  parent_education_level?: ParentEducationLevel | null;
+  parent_occupation_group?: ParentOccupationGroup | null;
+  // Compliance: CALD support
+  interpreter_required?: boolean;
   // Compliance: address
   residential_address?: ResidentialAddress | null;
   // Compliance: ISQ reporting
@@ -91,6 +99,11 @@ export interface UpdateStudentInput {
   country_of_birth?: string | null;
   home_language?: string | null;
   visa_subclass?: string | null;
+  // Compliance: ACARA ASC - SES fields
+  parent_education_level?: ParentEducationLevel | null;
+  parent_occupation_group?: ParentOccupationGroup | null;
+  // Compliance: CALD support
+  interpreter_required?: boolean;
   // Compliance: address
   residential_address?: ResidentialAddress | null;
   // Compliance: ISQ reporting
@@ -110,6 +123,44 @@ export interface ListStudentsParams {
 }
 
 // ============================================================
+// LIST ACTIVE STUDENTS (slim, for dropdowns)
+// ============================================================
+
+export async function listActiveStudents(): Promise<
+  ActionResponse<
+    Array<{
+      id: string;
+      first_name: string;
+      last_name: string;
+      preferred_name: string | null;
+    }>
+  >
+> {
+  try {
+    await requirePermission(Permissions.VIEW_STUDENTS);
+    const supabase = await createSupabaseServerClient();
+
+    const { data, error } = await supabase
+      .from("students")
+      .select("id, first_name, last_name, preferred_name")
+      .eq("enrollment_status", "active")
+      .is("deleted_at", null)
+      .order("last_name", { ascending: true })
+      .order("first_name", { ascending: true });
+
+    if (error) {
+      return failure(error.message, "DB_ERROR");
+    }
+
+    return success(data ?? []);
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to list active students";
+    return failure(message, "UNEXPECTED_ERROR");
+  }
+}
+
+// ============================================================
 // LIST STUDENTS
 // ============================================================
 
@@ -117,6 +168,7 @@ export async function listStudents(
   params: ListStudentsParams = {},
 ): Promise<PaginatedResponse<Student>> {
   try {
+    await requirePermission(Permissions.VIEW_STUDENTS);
     const supabase = await createSupabaseServerClient();
     const { page, perPage, offset } = validatePagination(
       params.page,
@@ -185,6 +237,7 @@ export async function getStudent(
   studentId: string,
 ): Promise<ActionResponse<StudentWithDetails>> {
   try {
+    await requirePermission(Permissions.VIEW_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     // Fetch student
@@ -273,7 +326,7 @@ export async function createStudent(
   input: CreateStudentInput,
 ): Promise<ActionResponse<Student>> {
   try {
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     // Validation
@@ -306,6 +359,11 @@ export async function createStudent(
         country_of_birth: input.country_of_birth?.trim() || null,
         home_language: input.home_language?.trim() || null,
         visa_subclass: input.visa_subclass?.trim() || null,
+        // Compliance: ACARA ASC - SES fields
+        parent_education_level: input.parent_education_level ?? null,
+        parent_occupation_group: input.parent_occupation_group ?? null,
+        // Compliance: CALD support
+        interpreter_required: input.interpreter_required ?? false,
         // Compliance: address
         residential_address: input.residential_address ?? null,
         // Compliance: ISQ reporting
@@ -347,7 +405,7 @@ export async function updateStudent(
   input: UpdateStudentInput,
 ): Promise<ActionResponse<Student>> {
   try {
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     // Build the update payload - only include fields that were provided
@@ -388,6 +446,13 @@ export async function updateStudent(
       updateData.home_language = input.home_language?.trim() || null;
     if (input.visa_subclass !== undefined)
       updateData.visa_subclass = input.visa_subclass?.trim() || null;
+    if (input.parent_education_level !== undefined)
+      updateData.parent_education_level = input.parent_education_level ?? null;
+    if (input.parent_occupation_group !== undefined)
+      updateData.parent_occupation_group =
+        input.parent_occupation_group ?? null;
+    if (input.interpreter_required !== undefined)
+      updateData.interpreter_required = input.interpreter_required;
 
     // Compliance: address
     if (input.residential_address !== undefined)
@@ -398,10 +463,8 @@ export async function updateStudent(
       updateData.religion = input.religion?.trim() || null;
 
     // Compliance: government identifiers
-    if (input.crn !== undefined)
-      updateData.crn = input.crn?.trim() || null;
-    if (input.usi !== undefined)
-      updateData.usi = input.usi?.trim() || null;
+    if (input.crn !== undefined) updateData.crn = input.crn?.trim() || null;
+    if (input.usi !== undefined) updateData.usi = input.usi?.trim() || null;
     if (input.medicare_number !== undefined)
       updateData.medicare_number = input.medicare_number?.trim() || null;
 
@@ -451,7 +514,7 @@ export async function deleteStudent(
   studentId: string,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     // Fetch name before delete for audit trail

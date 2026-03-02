@@ -19,6 +19,8 @@
 
 import { PickupAuthorizationSection } from "@/components/domain/attendance/pickup-authorization-section";
 import { getStudent } from "@/lib/actions/students";
+import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
 import {
   calculateAge,
   enrollmentStatusColor,
@@ -28,11 +30,13 @@ import {
 } from "@/lib/utils";
 import type { GuardianWithUser, ResidentialAddress } from "@/types/domain";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 interface StudentDetailPageProps {
   params: Promise<{ id: string }>;
 }
+
+export const metadata = { title: "Student Profile - WattleOS" };
 
 // ============================================================
 // Helper: resolve display name from guardian or linked user
@@ -94,11 +98,19 @@ function languageBackgroundLabel(bg: string): string {
 // ============================================================
 // Sub-component: single detail row for Demographics card
 // ============================================================
-function DetailRow({ label, value }: { label: string; value: string | null | undefined }) {
+function DetailRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | null | undefined;
+}) {
   if (!value) return null;
   return (
     <div className="flex items-baseline justify-between gap-4 py-1.5">
-      <dt className="text-xs font-medium text-muted-foreground whitespace-nowrap">{label}</dt>
+      <dt className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+        {label}
+      </dt>
       <dd className="text-sm text-foreground text-right">{value}</dd>
     </div>
   );
@@ -107,6 +119,11 @@ function DetailRow({ label, value }: { label: string; value: string | null | und
 export default async function StudentDetailPage({
   params,
 }: StudentDetailPageProps) {
+  const context = await getTenantContext();
+  if (!hasPermission(context, Permissions.VIEW_STUDENTS)) {
+    redirect("/dashboard");
+  }
+
   const { id } = await params;
   const result = await getStudent(id);
 
@@ -131,6 +148,10 @@ export default async function StudentDetailPage({
   const formattedAddress = formatAddress(student.residential_address);
   const languagesDisplay = student.languages?.join(", ") ?? null;
 
+  // Media consent: derived from guardians - true if any guardian has consented
+  const mediaConsentGranted = student.guardians.some((g) => g.media_consent);
+  const hasAnyGuardian = student.guardians.length > 0;
+
   // Determine if there's any demographics data to show
   const hasDemographics =
     student.nationality ||
@@ -141,6 +162,7 @@ export default async function StudentDetailPage({
     student.country_of_birth ||
     student.home_language ||
     student.visa_subclass ||
+    student.interpreter_required ||
     formattedAddress ||
     student.religion ||
     student.crn ||
@@ -160,11 +182,11 @@ export default async function StudentDetailPage({
 
       {/* Critical Medical Alert Banner */}
       {criticalConditions.length > 0 && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-[var(--density-card-padding)]">
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-[var(--density-card-padding)]">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg
-                className="h-5 w-5 text-red-400"
+                className="h-5 w-5 text-destructive/70"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -176,10 +198,10 @@ export default async function StudentDetailPage({
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">
+              <h3 className="text-sm font-medium text-destructive">
                 Medical Alert
               </h3>
-              <div className="mt-1 text-sm text-red-700">
+              <div className="mt-1 text-sm text-destructive">
                 {criticalConditions.map((c) => (
                   <p key={c.id}>
                     <strong>{c.condition_name}</strong> (
@@ -208,7 +230,7 @@ export default async function StudentDetailPage({
                   alt={displayName}
                 />
               ) : (
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-100 text-2xl font-semibold text-indigo-600">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-2xl font-semibold text-primary">
                   {student.first_name[0]}
                   {student.last_name[0]}
                 </div>
@@ -240,6 +262,28 @@ export default async function StudentDetailPage({
                 )}
                 {student.gender && <span>Gender: {student.gender}</span>}
               </div>
+              {/* CALD & Media Consent badges - surfaced for staff at point-of-view */}
+              {(student.interpreter_required || hasAnyGuardian) && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {student.interpreter_required && (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-warning/30 bg-warning/10 px-2.5 py-0.5 text-xs font-medium text-warning">
+                      Interpreter required
+                    </span>
+                  )}
+                  {hasAnyGuardian && (
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+                        mediaConsentGranted
+                          ? "border-success/30 bg-success/10 text-success"
+                          : "border-muted text-muted-foreground"
+                      }`}
+                    >
+                      Media consent:{" "}
+                      {mediaConsentGranted ? "Granted" : "Not granted"}
+                    </span>
+                  )}
+                </div>
+              )}
               {student.notes && (
                 <p className="mt-3 text-sm text-muted-foreground">
                   {student.notes}
@@ -251,7 +295,7 @@ export default async function StudentDetailPage({
             <div className="flex flex-shrink-0 gap-2">
               <Link
                 href={`/students/${id}/edit`}
-                className="rounded-md border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-background"
+                className="rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-background"
               >
                 Edit
               </Link>
@@ -278,28 +322,73 @@ export default async function StudentDetailPage({
               <dl className="divide-y divide-gray-100">
                 {/* Background */}
                 <DetailRow label="Nationality" value={student.nationality} />
-                <DetailRow label="Country of Birth" value={student.country_of_birth} />
+                <DetailRow
+                  label="Country of Birth"
+                  value={student.country_of_birth}
+                />
                 <DetailRow label="Languages Spoken" value={languagesDisplay} />
-                <DetailRow label="Home Language" value={student.home_language} />
+                <DetailRow
+                  label="Home Language"
+                  value={student.home_language}
+                />
+                <DetailRow
+                  label="Interpreter Required"
+                  value={
+                    student.interpreter_required
+                      ? "Yes - arrange interpreter for family interactions"
+                      : null
+                  }
+                />
                 <DetailRow
                   label="Indigenous Status"
-                  value={student.indigenous_status ? indigenousStatusLabel(student.indigenous_status) : null}
+                  value={
+                    student.indigenous_status
+                      ? indigenousStatusLabel(student.indigenous_status)
+                      : null
+                  }
                 />
                 <DetailRow
                   label="Language Background"
-                  value={student.language_background ? languageBackgroundLabel(student.language_background) : null}
+                  value={
+                    student.language_background
+                      ? languageBackgroundLabel(student.language_background)
+                      : null
+                  }
                 />
                 <DetailRow label="Religion" value={student.religion} />
-                <DetailRow label="Previous School" value={student.previous_school} />
-                <DetailRow label="Visa Subclass" value={student.visa_subclass} />
+                <div className="flex items-baseline justify-between gap-4 py-1.5">
+                  <dt className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                    Previous School
+                  </dt>
+                  <dd className="text-sm text-foreground text-right">
+                    {student.previous_school ?? "—"}{" "}
+                    <Link
+                      href={`/students/${id}/previous-schools`}
+                      className="text-xs hover:underline"
+                      style={{ color: "var(--primary)" }}
+                    >
+                      View records
+                    </Link>
+                  </dd>
+                </div>
+                <DetailRow
+                  label="Visa Subclass"
+                  value={student.visa_subclass}
+                />
 
                 {/* Address */}
-                <DetailRow label="Residential Address" value={formattedAddress} />
+                <DetailRow
+                  label="Residential Address"
+                  value={formattedAddress}
+                />
 
                 {/* Government identifiers */}
                 <DetailRow label="CRN" value={student.crn} />
                 <DetailRow label="USI" value={student.usi} />
-                <DetailRow label="Medicare Number" value={student.medicare_number} />
+                <DetailRow
+                  label="Medicare Number"
+                  value={student.medicare_number}
+                />
               </dl>
             )}
           </div>
@@ -320,7 +409,7 @@ export default async function StudentDetailPage({
                 {student.enrollments.map((enrollment) => (
                   <div
                     key={enrollment.id}
-                    className="flex items-center justify-between rounded-md border border-gray-100 p-3"
+                    className="flex items-center justify-between rounded-md border border-border p-3"
                   >
                     <div>
                       <p className="text-sm font-medium text-foreground">
@@ -362,23 +451,23 @@ export default async function StudentDetailPage({
                 {student.guardians.map((guardian) => (
                   <div
                     key={guardian.id}
-                    className="flex items-center justify-between rounded-md border border-gray-100 p-3"
+                    className="flex items-center justify-between rounded-md border border-border p-3"
                   >
                     <div>
                       <p className="text-sm font-medium text-foreground">
                         {guardianDisplayName(guardian)}
                         {guardian.is_primary && (
-                          <span className="ml-2 text-xs font-normal text-indigo-600">
+                          <span className="ml-2 text-xs font-normal text-info">
                             Primary
                           </span>
                         )}
                         {/* Account status */}
                         {guardian.user_id ? (
-                          <span className="ml-2 text-xs font-normal text-green-600">
+                          <span className="ml-2 text-xs font-normal text-success">
                             ✓ Account linked
                           </span>
                         ) : (
-                          <span className="ml-2 text-xs font-normal text-amber-600">
+                          <span className="ml-2 text-xs font-normal text-primary">
                             Invited
                           </span>
                         )}
@@ -392,12 +481,12 @@ export default async function StudentDetailPage({
                     </div>
                     <div className="flex gap-1">
                       {guardian.pickup_authorized && (
-                        <span className="rounded bg-green-50 px-1.5 py-0.5 text-xs text-green-700">
+                        <span className="rounded bg-success/10 px-1.5 py-0.5 text-xs text-success">
                           Pickup
                         </span>
                       )}
                       {guardian.media_consent && (
-                        <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-700">
+                        <span className="rounded bg-info/10 px-1.5 py-0.5 text-xs text-info">
                           Media
                         </span>
                       )}
@@ -426,7 +515,7 @@ export default async function StudentDetailPage({
                 {student.medical_conditions.map((condition) => (
                   <div
                     key={condition.id}
-                    className="rounded-md border border-gray-100 p-3"
+                    className="rounded-md border border-border p-3"
                   >
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-foreground">
@@ -444,7 +533,7 @@ export default async function StudentDetailPage({
                       </p>
                     )}
                     {condition.requires_medication && (
-                      <p className="mt-1 text-xs text-amber-700">
+                      <p className="mt-1 text-xs text-primary">
                         Medication: {condition.medication_name}
                         {condition.medication_location &&
                           ` (${condition.medication_location})`}
@@ -484,11 +573,11 @@ export default async function StudentDetailPage({
                 {student.emergency_contacts.map((contact, index) => (
                   <div
                     key={contact.id}
-                    className="flex items-center justify-between rounded-md border border-gray-100 p-3"
+                    className="flex items-center justify-between rounded-md border border-border p-3"
                   >
                     <div>
                       <p className="text-sm font-medium text-foreground">
-                        <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-xs text-muted-foreground">
+                        <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground">
                           {index + 1}
                         </span>
                         {contact.name}
@@ -511,9 +600,9 @@ export default async function StudentDetailPage({
 
         {/* Custody Restrictions */}
         {student.custody_restrictions.length > 0 && (
-          <section className="rounded-lg border-2 border-red-200 bg-background shadow-sm lg:col-span-2">
-            <div className="border-b border-red-200 bg-red-50 px-6 py-4">
-              <h2 className="text-lg font-medium text-red-900">
+          <section className="rounded-lg border-2 border-destructive/30 bg-background shadow-sm lg:col-span-2">
+            <div className="border-b border-destructive/30 bg-destructive/10 px-6 py-4">
+              <h2 className="text-lg font-medium text-destructive">
                 Custody Restrictions
               </h2>
             </div>
@@ -522,28 +611,28 @@ export default async function StudentDetailPage({
                 {student.custody_restrictions.map((restriction) => (
                   <div
                     key={restriction.id}
-                    className="rounded-md border border-red-100 bg-red-50/50 p-3"
+                    className="rounded-md border border-destructive/20 bg-destructive/10/50 p-3"
                   >
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-red-900">
+                      <p className="text-sm font-medium text-destructive">
                         {restriction.restricted_person_name}
                       </p>
-                      <span className="inline-flex rounded-full border border-red-200 bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+                      <span className="inline-flex rounded-full border border-destructive/30 bg-destructive/15 px-2 py-0.5 text-xs font-medium text-destructive">
                         {restriction.restriction_type.replace(/_/g, " ")}
                       </span>
                     </div>
                     {restriction.court_order_reference && (
-                      <p className="mt-1 text-xs text-red-700">
+                      <p className="mt-1 text-xs text-destructive">
                         Court order: {restriction.court_order_reference}
                       </p>
                     )}
-                    <p className="mt-1 text-xs text-red-600">
+                    <p className="mt-1 text-xs text-destructive">
                       Effective: {formatDate(restriction.effective_date)}
                       {restriction.expiry_date &&
                         ` - Expires: ${formatDate(restriction.expiry_date)}`}
                     </p>
                     {restriction.notes && (
-                      <p className="mt-1 text-xs text-red-600">
+                      <p className="mt-1 text-xs text-destructive">
                         {restriction.notes}
                       </p>
                     )}

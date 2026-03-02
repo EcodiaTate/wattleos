@@ -1,6 +1,7 @@
 // src/components/domain/programs/utilization-report-client.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import {
   getProgramUtilization,
   type UtilizationReportRow,
@@ -45,9 +46,12 @@ export function UtilizationReportClient() {
     <div className="space-y-[var(--density-section-gap)]">
       <div className="flex flex-wrap items-center gap-[var(--density-md)] bg-card p-[var(--density-md)] rounded-xl border border-border shadow-sm">
         <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">From</label>
+        <GlowTarget id="programs-select-report-period" category="select" label="Report date range">
         <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className={inputCls} />
+        </GlowTarget>
         <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">To</label>
         <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className={inputCls} />
+        <GlowTarget id="programs-btn-export-report" category="button" label="Refresh utilization report">
         <button
           onClick={fetchData}
           disabled={loading}
@@ -55,6 +59,7 @@ export function UtilizationReportClient() {
         >
           {loading ? "Loading..." : "Refresh Report"}
         </button>
+        </GlowTarget>
       </div>
 
       {error && (

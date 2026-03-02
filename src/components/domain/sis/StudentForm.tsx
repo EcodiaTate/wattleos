@@ -15,6 +15,7 @@
 
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type { CreateStudentInput, UpdateStudentInput } from "@/lib/actions/students";
 import { createStudent, updateStudent } from "@/lib/actions/students";
 import { ENROLLMENT_STATUSES } from "@/lib/constants";
@@ -113,6 +114,11 @@ export function StudentForm({
   const [addrPostcode, setAddrPostcode] = useState(initialAddr?.postcode ?? "");
   const [addrCountry, setAddrCountry] = useState(initialAddr?.country ?? "Australia");
 
+  // ── CALD support ──────────────────────────────────────────
+  const [interpreterRequired, setInterpreterRequired] = useState(
+    initialData?.interpreter_required ?? false,
+  );
+
   // ── ISQ reporting ─────────────────────────────────────────
   const [religion, setReligion] = useState(initialData?.religion ?? "");
 
@@ -172,6 +178,8 @@ export function StudentForm({
       country_of_birth: countryOfBirth.trim() || null,
       home_language: homeLanguage.trim() || null,
       visa_subclass: visaSubclass.trim() || null,
+      // CALD
+      interpreter_required: interpreterRequired,
       // Address
       residential_address: buildAddress(),
       // ISQ
@@ -210,34 +218,38 @@ export function StudentForm({
           Basic Information
         </h2>
         <div className="grid grid-cols-1 gap-[var(--density-md)] sm:grid-cols-2">
-          <div>
-            <label htmlFor="firstName" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
-              First Name *
-            </label>
-            <input
-              id="firstName"
-              type="text"
-              required
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder="Charlotte"
-              className={INPUT_CLASS}
-            />
-          </div>
-          <div>
-            <label htmlFor="lastName" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
-              Last Name *
-            </label>
-            <input
-              id="lastName"
-              type="text"
-              required
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="Mason"
-              className={INPUT_CLASS}
-            />
-          </div>
+          <GlowTarget id="sis-input-first-name" category="input" label="First name">
+            <div>
+              <label htmlFor="firstName" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
+                First Name *
+              </label>
+              <input
+                id="firstName"
+                type="text"
+                required
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="Charlotte"
+                className={INPUT_CLASS}
+              />
+            </div>
+          </GlowTarget>
+          <GlowTarget id="sis-input-last-name" category="input" label="Last name">
+            <div>
+              <label htmlFor="lastName" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
+                Last Name *
+              </label>
+              <input
+                id="lastName"
+                type="text"
+                required
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Mason"
+                className={INPUT_CLASS}
+              />
+            </div>
+          </GlowTarget>
           <div>
             <label htmlFor="preferredName" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
               Preferred Name
@@ -254,19 +266,21 @@ export function StudentForm({
               Used for day-to-day interactions.
             </p>
           </div>
-          <div>
-            <label htmlFor="dob" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
-              Date of Birth
-            </label>
-            <input
-              id="dob"
-              type="date"
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
-              max={new Date().toISOString().split("T")[0]}
-              className={INPUT_CLASS}
-            />
-          </div>
+          <GlowTarget id="sis-input-dob" category="input" label="Date of birth">
+            <div>
+              <label htmlFor="dob" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
+                Date of Birth
+              </label>
+              <input
+                id="dob"
+                type="date"
+                value={dob}
+                onChange={(e) => setDob(e.target.value)}
+                max={new Date().toISOString().split("T")[0]}
+                className={INPUT_CLASS}
+              />
+            </div>
+          </GlowTarget>
           <div>
             <label htmlFor="gender" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
               Gender Identity
@@ -384,6 +398,28 @@ export function StudentForm({
               placeholder="Sunshine Montessori"
               className={INPUT_CLASS}
             />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-form-label-fg mb-2">
+              CALD Support
+            </label>
+            <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-background p-3 hover:bg-muted/50 transition-colors">
+              <input
+                id="interpreterRequired"
+                type="checkbox"
+                checked={interpreterRequired}
+                onChange={(e) => setInterpreterRequired(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-input accent-primary"
+              />
+              <span>
+                <span className="block text-sm font-medium text-foreground">
+                  Interpreter required
+                </span>
+                <span className="block text-xs text-muted-foreground mt-0.5">
+                  An interpreter should be arranged for key interactions with this family (enrolment meetings, formal reports, incidents).
+                </span>
+              </span>
+            </label>
           </div>
           <div>
             <label htmlFor="religion" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
@@ -644,13 +680,15 @@ export function StudentForm({
         >
           Cancel
         </Link>
-        <button
-          type="submit"
-          disabled={isSaving || !firstName.trim() || !lastName.trim()}
-          className="rounded-lg bg-primary px-8 h-[var(--density-button-height)] text-sm font-bold text-primary-foreground shadow-md hover:bg-primary-600 transition-all active:scale-95 disabled:opacity-50"
-        >
-          {isSaving ? "Saving..." : isEditing ? "Save Changes" : "Create Student"}
-        </button>
+        <GlowTarget id="sis-btn-save-student" category="button" label="Save student">
+          <button
+            type="submit"
+            disabled={isSaving || !firstName.trim() || !lastName.trim()}
+            className="rounded-lg bg-primary px-8 h-[var(--density-button-height)] text-sm font-bold text-primary-foreground shadow-md hover:bg-primary-600 transition-all active:scale-95 disabled:opacity-50"
+          >
+            {isSaving ? "Saving..." : isEditing ? "Save Changes" : "Create Student"}
+          </button>
+        </GlowTarget>
       </div>
     </form>
   );

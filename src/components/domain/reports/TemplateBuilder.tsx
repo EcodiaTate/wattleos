@@ -1,7 +1,11 @@
 // src/components/domain/reports/TemplateBuilder.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
+import { UpsellNudge } from "@/components/plg/UpsellNudge";
+import { UpgradeModal } from "@/components/plg/UpgradeModal";
 import { updateReportTemplate } from "@/lib/actions/reports";
+import { isSectionTypePaid } from "@/lib/plg/plan-gating";
 import type {
   TemplateContent,
   TemplateSection,
@@ -9,6 +13,7 @@ import type {
   TemplateSectionType,
 } from "@/lib/reports/types";
 import { SECTION_TYPE_CATALOG } from "@/lib/reports/types";
+import type { PlanTier } from "@/types/domain";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
@@ -17,6 +22,8 @@ interface TemplateBuilderProps {
   templateName: string;
   cycleLevel: string | null;
   initialContent: TemplateContent;
+  /** Plan tier of the current tenant - controls upsell visibility */
+  planTier?: PlanTier;
 }
 
 export function TemplateBuilder({
@@ -24,6 +31,7 @@ export function TemplateBuilder({
   templateName,
   cycleLevel,
   initialContent,
+  planTier = "pro",
 }: TemplateBuilderProps) {
   const [sections, setSections] = useState<TemplateSection[]>(
     initialContent?.sections ?? [],
@@ -36,7 +44,9 @@ export function TemplateBuilder({
   );
   const [saveError, setSaveError] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const router = useRouter();
+  const isFree = planTier === "free";
 
   const markDirty = useCallback(() => {
     setHasChanges(true);
@@ -142,139 +152,185 @@ export function TemplateBuilder({
   });
 
   return (
-    <div className="space-y-[var(--density-section-gap)]">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between rounded-lg border border-border bg-card px-5 py-3 shadow-sm">
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground font-medium">
-            {sections.length} section{sections.length !== 1 ? "s" : ""}
-          </span>
-          {hasChanges && (
-            <span className="status-badge bg-warning/10 text-warning-foreground status-badge-plain">
-              Unsaved changes
-            </span>
-          )}
-          {saveStatus === "saved" && !hasChanges && (
-            <span className="status-badge bg-success/10 text-success-foreground status-badge-plain">
-              Saved
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowCatalog(!showCatalog)}
-            className="rounded-md border border-border bg-background px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-medium text-foreground transition-all hover:bg-muted active:scale-95"
-          >
-            + Add Section
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isSaving || !hasChanges}
-            className="rounded-md bg-primary px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary-600 disabled:opacity-50 active:scale-95"
-          >
-            {isSaving ? "Saving..." : "Save Template"}
-          </button>
-        </div>
-      </div>
-
-      {/* Error */}
-      {saveError && (
-        <div className="animate-slide-down rounded-lg bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive font-medium">
-          {saveError}
-        </div>
-      )}
-
-      {/* Section catalog */}
-      {showCatalog && (
-        <div className="animate-fade-in-down rounded-lg border border-primary-100 bg-primary-50/30 p-[var(--density-card-padding)]">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-foreground">
-              Add a Section
-            </h3>
-            <button
-              onClick={() => setShowCatalog(false)}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Close
-            </button>
+    <>
+      <GlowTarget
+        id="reports-section-template-builder"
+        category="section"
+        label="Template builder"
+      >
+        <div className="space-y-[var(--density-section-gap)]">
+          {/* Toolbar */}
+          <div className="flex items-center justify-between rounded-lg border border-border bg-card px-5 py-3 shadow-sm">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground font-medium">
+                {sections.length} section{sections.length !== 1 ? "s" : ""}
+              </span>
+              {hasChanges && (
+                <span className="status-badge bg-warning/10 text-warning-foreground status-badge-plain">
+                  Unsaved changes
+                </span>
+              )}
+              {saveStatus === "saved" && !hasChanges && (
+                <span className="status-badge bg-success/10 text-success-foreground status-badge-plain">
+                  Saved
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowCatalog(!showCatalog)}
+                className="rounded-md border border-border bg-background px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-medium text-foreground transition-all hover:bg-muted active:scale-95"
+              >
+                + Add Section
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isSaving || !hasChanges}
+                className="rounded-md bg-primary px-[var(--density-button-padding-x)] h-[var(--density-button-height)] text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary-600 disabled:opacity-50 active:scale-95"
+              >
+                {isSaving ? "Saving..." : "Save Template"}
+              </button>
+            </div>
           </div>
-          {availableSections.length === 0 ? (
-            <p className="text-sm text-muted-foreground italic">
-              All single-use section types are already in the template.
-            </p>
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {availableSections.map((info) => (
+
+          {/* Error */}
+          {saveError && (
+            <div className="animate-slide-down rounded-lg bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive font-medium">
+              {saveError}
+            </div>
+          )}
+
+          {/* Section catalog */}
+          {showCatalog && (
+            <div className="animate-fade-in-down rounded-lg border border-primary-100 bg-primary-50/30 p-[var(--density-card-padding)]">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Add a Section
+                </h3>
                 <button
-                  key={info.type}
-                  onClick={() => addSection(info.type)}
-                  className="card-interactive rounded-lg border border-border bg-card p-4 text-left"
+                  onClick={() => setShowCatalog(false)}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <div className="flex items-center gap-2">
-                    <SectionIcon
-                      type={info.type}
-                      className="h-4 w-4 text-primary"
-                    />
-                    <span className="text-sm font-bold text-foreground">
-                      {info.label}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
-                    {info.description}
-                  </p>
-                  <div className="mt-3 flex gap-1.5">
-                    {info.isAutoPopulated && (
-                      <span className="status-badge bg-info/10 text-info-foreground status-badge-plain px-1.5 py-0">
-                        Auto
-                      </span>
-                    )}
-                    {info.isEditable && (
-                      <span className="status-badge bg-success/10 text-success-foreground status-badge-plain px-1.5 py-0">
-                        Editable
-                      </span>
-                    )}
-                  </div>
+                  Close
                 </button>
+              </div>
+              {availableSections.length === 0 ? (
+                <p className="text-sm text-muted-foreground italic">
+                  All single-use section types are already in the template.
+                </p>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {availableSections.map((info) => {
+                    const isPaidSection = isSectionTypePaid(info.type);
+                    const locked = isFree && isPaidSection;
+                    return (
+                      <button
+                        key={info.type}
+                        onClick={() =>
+                          locked
+                            ? setShowUpgradeModal(true)
+                            : addSection(info.type)
+                        }
+                        className="card-interactive rounded-lg border border-border bg-card p-4 text-left relative"
+                        style={locked ? { opacity: 0.75 } : undefined}
+                      >
+                        {locked && (
+                          <span
+                            className="absolute top-2 right-2 text-xs px-1.5 py-0.5 rounded font-semibold"
+                            style={{
+                              backgroundColor:
+                                "color-mix(in srgb, var(--color-warning, #d97706) 15%, transparent)",
+                              color: "var(--color-warning, #d97706)",
+                            }}
+                          >
+                            Pro
+                          </span>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <SectionIcon
+                            type={info.type}
+                            className="h-4 w-4 text-primary"
+                          />
+                          <span className="text-sm font-bold text-foreground">
+                            {info.label}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                          {info.description}
+                        </p>
+                        <div className="mt-3 flex gap-1.5">
+                          {info.isAutoPopulated && (
+                            <span className="status-badge bg-info/10 text-info-foreground status-badge-plain px-1.5 py-0">
+                              Auto
+                            </span>
+                          )}
+                          {info.isEditable && (
+                            <span className="status-badge bg-success/10 text-success-foreground status-badge-plain px-1.5 py-0">
+                              Editable
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Section list */}
+          {sections.length === 0 ? (
+            <div className="rounded-lg border-2 border-dashed border-border p-12 text-center bg-muted/20">
+              <p className="text-sm text-muted-foreground font-medium">
+                No sections yet. Click &ldquo;Add Section&rdquo; to start
+                building your template.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {sections.map((section, index) => (
+                <SectionCard
+                  key={section.id}
+                  section={section}
+                  index={index}
+                  totalSections={sections.length}
+                  isExpanded={expandedSection === section.id}
+                  onToggleExpand={() =>
+                    setExpandedSection(
+                      expandedSection === section.id ? null : section.id,
+                    )
+                  }
+                  onMoveUp={() => moveSection(section.id, "up")}
+                  onMoveDown={() => moveSection(section.id, "down")}
+                  onRemove={() => removeSection(section.id)}
+                  onUpdateTitle={(title) =>
+                    updateSectionTitle(section.id, title)
+                  }
+                  onUpdateConfig={(config) =>
+                    updateSectionConfig(section.id, config)
+                  }
+                />
               ))}
             </div>
           )}
-        </div>
-      )}
-
-      {/* Section list */}
-      {sections.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-border p-12 text-center bg-muted/20">
-          <p className="text-sm text-muted-foreground font-medium">
-            No sections yet. Click &ldquo;Add Section&rdquo; to start building
-            your template.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {sections.map((section, index) => (
-            <SectionCard
-              key={section.id}
-              section={section}
-              index={index}
-              totalSections={sections.length}
-              isExpanded={expandedSection === section.id}
-              onToggleExpand={() =>
-                setExpandedSection(
-                  expandedSection === section.id ? null : section.id,
-                )
-              }
-              onMoveUp={() => moveSection(section.id, "up")}
-              onMoveDown={() => moveSection(section.id, "down")}
-              onRemove={() => removeSection(section.id)}
-              onUpdateTitle={(title) => updateSectionTitle(section.id, title)}
-              onUpdateConfig={(config) =>
-                updateSectionConfig(section.id, config)
-              }
+          {/* Free-tier upsell nudge - shown after section list */}
+          {isFree && sections.length > 0 && (
+            <UpsellNudge
+              feature="report_mastery_summary_section"
+              variant="inline"
+              onCtaClick={() => setShowUpgradeModal(true)}
             />
-          ))}
+          )}
         </div>
-      )}
-    </div>
+      </GlowTarget>
+
+      {/* Upgrade modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        trigger="template_builder"
+      />
+    </>
   );
 }
 
@@ -308,7 +364,9 @@ function SectionCard({
   return (
     <div
       className={`rounded-lg border bg-card transition-all ${
-        isExpanded ? "border-primary-400 shadow-md ring-1 ring-primary-400/20" : "border-border shadow-sm hover:border-primary-200"
+        isExpanded
+          ? "border-primary-400 shadow-md ring-1 ring-primary-400/20"
+          : "border-border shadow-sm hover:border-primary-200"
       }`}
     >
       <div className="flex items-center gap-3 px-4 py-3">
@@ -319,8 +377,18 @@ function SectionCard({
             className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted disabled:opacity-30 touch-target h-6 w-6 flex items-center justify-center"
             aria-label="Move section up"
           >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2.5}
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m4.5 15.75 7.5-7.5 7.5 7.5"
+              />
             </svg>
           </button>
           <button
@@ -329,8 +397,18 @@ function SectionCard({
             className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted disabled:opacity-30 touch-target h-6 w-6 flex items-center justify-center"
             aria-label="Move section down"
           >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2.5}
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m19.5 8.25-7.5 7.5-7.5-7.5"
+              />
             </svg>
           </button>
         </div>
@@ -379,7 +457,11 @@ function SectionCard({
             strokeWidth={2}
             stroke="currentColor"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m19.5 8.25-7.5 7.5-7.5-7.5"
+            />
           </svg>
         </button>
 
@@ -388,8 +470,18 @@ function SectionCard({
           className="rounded-full p-1.5 text-muted-foreground transition-all hover:bg-destructive/10 hover:text-destructive touch-target"
           aria-label="Remove section"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18 18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
@@ -573,8 +665,8 @@ function SectionConfigPanel({
       {section.type === "student_info" && (
         <div className="rounded-lg bg-info/5 border border-info/10 p-4">
           <p className="text-xs font-medium text-info-foreground leading-relaxed">
-            This section automatically shows the student&apos;s name, class, date
-            of birth, and photo. No configuration needed.
+            This section automatically shows the student&apos;s name, class,
+            date of birth, and photo. No configuration needed.
           </p>
         </div>
       )}

@@ -152,8 +152,8 @@ export function ThreadViewClient({
                       <div
                         className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
                           isOwn
-                            ? "bg-amber-200 text-amber-800"
-                            : "bg-gray-200 text-muted-foreground"
+                            ? "bg-primary/20 text-primary"
+                            : "bg-muted text-muted-foreground"
                         }`}
                       >
                         {msg.sender.avatar_url ? (
@@ -198,7 +198,7 @@ export function ThreadViewClient({
       </div>
 
       {/* Recipients bar */}
-      <div className="border-t border-gray-100 px-6 py-2">
+      <div className="border-t border-border px-6 py-2">
         <div className="flex items-center gap-1 overflow-x-auto">
           <span className="flex-shrink-0 text-[10px] font-medium text-muted-foreground">
             To:
@@ -222,8 +222,8 @@ export function ThreadViewClient({
       {/* Reply input */}
       <div className="border-t border-border px-4 py-3">
         {error && (
-          <div className="mb-2 rounded-md bg-red-50 px-3 py-2">
-            <p className="text-xs text-red-700">{error}</p>
+          <div className="mb-2 rounded-md bg-destructive/10 px-3 py-2">
+            <p className="text-xs text-destructive">{error}</p>
           </div>
         )}
         <div className="flex items-end gap-3">
@@ -233,7 +233,7 @@ export function ThreadViewClient({
             onKeyDown={handleKeyDown}
             rows={1}
             placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
-            className="flex-1 resize-none rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            className="flex-1 resize-none rounded-xl border border-border px-4 py-2.5 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             style={{ maxHeight: "120px" }}
             onInput={(e) => {
               const target = e.target as HTMLTextAreaElement;
@@ -244,7 +244,7 @@ export function ThreadViewClient({
           <button
             onClick={handleSend}
             disabled={isSending || !replyContent.trim()}
-            className="flex-shrink-0 rounded-xl bg-primary p-2.5 text-primary-foreground shadow-sm transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex-shrink-0 rounded-xl bg-primary p-2.5 text-primary-foreground shadow-sm transition-colors hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             <svg
               className="h-5 w-5"

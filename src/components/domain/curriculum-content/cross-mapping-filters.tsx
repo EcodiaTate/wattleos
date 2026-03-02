@@ -1,6 +1,7 @@
 // src/components/domain/curriculum-content/cross-mapping-filters.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import type { EnhancedCurriculumTemplate } from "@/lib/actions/curriculum-content";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useTransition } from "react";
@@ -63,11 +64,13 @@ export function CrossMappingFilters({
       <div className="flex flex-wrap items-end gap-[var(--density-md)]">
         <div className="min-w-[220px] flex-1">
           <label htmlFor="mapping-source" className="text-xs font-bold text-muted-foreground mb-1 block uppercase tracking-wider">Source Framework</label>
-          <select id="mapping-source" value={currentSource} onChange={(e) => updateParam("source", e.target.value)} className={selectCls}>
-            <option value="">Select source...</option>
-            {pedagogical.length > 0 && <optgroup label="Pedagogical">{pedagogical.map((t) => <option key={t.id} value={t.id}>[{t.framework}] {t.name}</option>)}</optgroup>}
-            {compliance.length > 0 && <optgroup label="Compliance">{compliance.map((t) => <option key={t.id} value={t.id}>[{t.framework}] {t.name}</option>)}</optgroup>}
-          </select>
+          <GlowTarget id="content-filter-source-framework" category="select" label="Source framework">
+            <select id="mapping-source" value={currentSource} onChange={(e) => updateParam("source", e.target.value)} className={selectCls}>
+              <option value="">Select source...</option>
+              {pedagogical.length > 0 && <optgroup label="Pedagogical">{pedagogical.map((t) => <option key={t.id} value={t.id}>[{t.framework}] {t.name}</option>)}</optgroup>}
+              {compliance.length > 0 && <optgroup label="Compliance">{compliance.map((t) => <option key={t.id} value={t.id}>[{t.framework}] {t.name}</option>)}</optgroup>}
+            </select>
+          </GlowTarget>
         </div>
 
         <div className="flex items-center justify-center h-[var(--density-input-height)] px-2 text-primary font-bold">
@@ -78,11 +81,13 @@ export function CrossMappingFilters({
 
         <div className="min-w-[220px] flex-1">
           <label htmlFor="mapping-target" className="text-xs font-bold text-muted-foreground mb-1 block uppercase tracking-wider">Target Framework</label>
-          <select id="mapping-target" value={currentTarget} onChange={(e) => updateParam("target", e.target.value)} className={selectCls}>
-            <option value="">Select target...</option>
-            {compliance.length > 0 && <optgroup label="Compliance">{compliance.map((t) => <option key={t.id} value={t.id}>[{t.framework}] {t.name}</option>)}</optgroup>}
-            {pedagogical.length > 0 && <optgroup label="Pedagogical">{pedagogical.map((t) => <option key={t.id} value={t.id}>[{t.framework}] {t.name}</option>)}</optgroup>}
-          </select>
+          <GlowTarget id="content-filter-target-framework" category="select" label="Target framework">
+            <select id="mapping-target" value={currentTarget} onChange={(e) => updateParam("target", e.target.value)} className={selectCls}>
+              <option value="">Select target...</option>
+              {compliance.length > 0 && <optgroup label="Compliance">{compliance.map((t) => <option key={t.id} value={t.id}>[{t.framework}] {t.name}</option>)}</optgroup>}
+              {pedagogical.length > 0 && <optgroup label="Pedagogical">{pedagogical.map((t) => <option key={t.id} value={t.id}>[{t.framework}] {t.name}</option>)}</optgroup>}
+            </select>
+          </GlowTarget>
         </div>
 
         <div className="min-w-[160px]">
@@ -93,14 +98,14 @@ export function CrossMappingFilters({
         </div>
 
         {hasFilters && (
-          <button onClick={clearAll} className="h-[var(--density-input-height)] px-3 text-sm font-bold text-primary hover:text-primary-700 transition-[var(--transition-fast)]">
+          <button onClick={clearAll} className="h-[var(--density-input-height)] px-3 text-sm font-bold text-primary hover:text-primary transition-[var(--transition-fast)]">
             Clear
           </button>
         )}
       </div>
 
       {isPending && (
-        <div className="h-1 bg-primary-100 rounded-full overflow-hidden">
+        <div className="h-1 bg-primary/15 rounded-full overflow-hidden">
           <div className="h-full bg-primary animate-pulse w-1/2" />
         </div>
       )}

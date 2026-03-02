@@ -13,7 +13,8 @@
 
 "use server";
 
-import { getTenantContext } from "@/lib/auth/tenant-context";
+import { requirePermission } from "@/lib/auth/tenant-context";
+import { Permissions } from "@/lib/constants/permissions";
 import {
   createPickupAuthorizationSchema,
   updatePickupAuthorizationSchema,
@@ -39,7 +40,7 @@ export async function listPickupAuthorizations(
   studentId: string,
 ): Promise<ActionResponse<PickupAuthorization[]>> {
   try {
-    await getTenantContext();
+    await requirePermission(Permissions.VIEW_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
@@ -76,7 +77,7 @@ export async function createPickupAuthorization(
     if (parsed.error) return parsed.error;
     const v = parsed.data;
 
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
@@ -135,7 +136,7 @@ export async function updatePickupAuthorization(
     if (parsed.error) return parsed.error;
     const v = parsed.data;
 
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     const updates: Record<string, unknown> = {};
@@ -193,7 +194,7 @@ export async function deletePickupAuthorization(
   id: string,
 ): Promise<ActionResponse<{ success: boolean }>> {
   try {
-    const context = await getTenantContext();
+    const context = await requirePermission(Permissions.MANAGE_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     // Fetch before delete for audit trail

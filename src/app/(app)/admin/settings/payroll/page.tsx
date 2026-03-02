@@ -23,6 +23,8 @@ import type { PayrollSettings } from "@/types/domain";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "Payroll Settings - WattleOS" };
+
 export default async function PayrollSettingsPage() {
   const context = await getTenantContext();
 
@@ -56,7 +58,7 @@ export default async function PayrollSettingsPage() {
       <div className="flex flex-wrap gap-3">
         <Link
           href="/admin/timesheets"
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-background"
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-background"
         >
           <svg
             className="h-4 w-4"
@@ -75,7 +77,7 @@ export default async function PayrollSettingsPage() {
         </Link>
         <Link
           href="/admin/timesheets/periods"
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-background"
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-background"
         >
           <svg
             className="h-4 w-4"
@@ -94,7 +96,7 @@ export default async function PayrollSettingsPage() {
         </Link>
         <Link
           href="/admin/settings/payroll/employees"
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-background"
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-background"
         >
           <svg
             className="h-4 w-4"
@@ -117,7 +119,7 @@ export default async function PayrollSettingsPage() {
       {settings ? (
         <PayrollSettingsClient settings={settings} />
       ) : (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-[var(--density-card-padding)] text-sm text-red-800">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-[var(--density-card-padding)] text-sm text-destructive">
           Failed to load payroll settings. Please try refreshing the page.
         </div>
       )}

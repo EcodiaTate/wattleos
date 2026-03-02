@@ -1,9 +1,9 @@
 // src/app/(public)/error.tsx
 //
 // Error boundary for public-facing pages (enrollment, inquiry,
-// tours, invitations). These have no sidebar — full-width layout.
+// tours, invitations). These have no sidebar - full-width layout.
 // WHY separate: Public pages have different recovery actions
-// (no "go to dashboard" — the user isn't logged in).
+// (no "go to dashboard" - the user isn't logged in).
 
 "use client";
 
@@ -23,9 +23,9 @@ export default function PublicError({
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
-        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100">
+        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary/15">
           <svg
-            className="h-7 w-7 text-amber-600"
+            className="h-7 w-7 text-primary"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}

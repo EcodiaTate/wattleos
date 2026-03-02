@@ -9,35 +9,33 @@ import Link from "next/link";
 
 interface AnnouncementCardProps {
   announcement: AnnouncementWithDetails;
-  tenantSlug: string;
 }
 
-const PRIORITY_STYLES: Record<
-  string,
-  { bg: string; text: string; dot: string; label: string }
-> = {
+// Maps priority to design-system CSS variable tokens
+type PriorityStyle = { bg: string; text: string; dot: string; label: string };
+const PRIORITY_STYLES: Record<string, PriorityStyle> = {
   urgent: {
-    bg: "bg-red-50",
-    text: "text-red-700",
-    dot: "bg-red-500",
+    bg: "var(--destructive)",
+    text: "var(--destructive-foreground)",
+    dot: "var(--destructive)",
     label: "Urgent",
   },
   high: {
-    bg: "bg-orange-50",
-    text: "text-orange-700",
-    dot: "bg-orange-500",
+    bg: "var(--medical-severe)",
+    text: "var(--medical-severe-fg)",
+    dot: "var(--medical-severe)",
     label: "High",
   },
   normal: {
-    bg: "bg-gray-50",
-    text: "text-gray-600",
-    dot: "bg-gray-400",
+    bg: "var(--muted)",
+    text: "var(--muted-foreground)",
+    dot: "var(--muted-foreground)",
     label: "Normal",
   },
   low: {
-    bg: "bg-blue-50",
-    text: "text-blue-600",
-    dot: "bg-blue-400",
+    bg: "var(--info)",
+    text: "var(--info-foreground)",
+    dot: "var(--info)",
     label: "Low",
   },
 };
@@ -50,7 +48,6 @@ const SCOPE_LABELS: Record<string, string> = {
 
 export function AnnouncementCard({
   announcement,
-  tenantSlug,
 }: AnnouncementCardProps) {
   const priority =
     PRIORITY_STYLES[announcement.priority] ?? PRIORITY_STYLES.normal;
@@ -83,36 +80,49 @@ export function AnnouncementCard({
   return (
     <Link
       href={`/comms/announcements/${announcement.id}`}
-      className={`block rounded-lg border transition-shadow hover:shadow-md ${
-        announcement.priority === "urgent"
-          ? "border-red-200 bg-red-50/30"
-          : "border-gray-200 bg-white"
-      }`}
+      className="card-interactive block rounded-[var(--radius)] border"
+      style={{
+        borderColor: announcement.priority === "urgent"
+          ? "var(--destructive)"
+          : "var(--border)",
+        background: announcement.priority === "urgent"
+          ? "hsl(from var(--destructive) h s l / 0.05)"
+          : "var(--card)",
+      }}
     >
       <div className="p-5">
         {/* ── Top row: badges ─────────────────────────── */}
         <div className="mb-3 flex flex-wrap items-center gap-2">
           {/* Priority badge */}
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${priority.bg} ${priority.text}`}
+            className="status-badge"
+            style={{
+              "--badge-bg": priority.bg,
+              "--badge-fg": priority.text,
+            } as React.CSSProperties}
           >
-            <span className={`h-1.5 w-1.5 rounded-full ${priority.dot}`} />
             {priority.label}
           </span>
 
           {/* Scope badge */}
-          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+          <span
+            className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+            style={{ background: "var(--muted)", color: "var(--muted-foreground)" }}
+          >
             {SCOPE_LABELS[announcement.scope] ?? announcement.scope}
             {announcement.target_class && (
-              <span className="ml-1 text-gray-400">
+              <span className="ml-1 opacity-60">
                 · {announcement.target_class.name}
               </span>
             )}
           </span>
 
-          {/* Status badges */}
+          {/* Pinned */}
           {announcement.pin_to_top && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+            <span
+              className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium"
+              style={{ background: "var(--primary-100)", color: "var(--primary-700)" }}
+            >
               <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.795-2.168C3.747 12.218 2 9.766 2 6.998 2 4.233 4.018 2 6.5 2c1.397 0 2.673.671 3.5 1.752C10.827 2.671 12.103 2 13.5 2 15.982 2 18 4.233 18 6.998c0 2.768-1.747 5.22-3.672 7.054a22.044 22.044 0 01-3.957 2.85l-.019.01-.005.003h-.002a.723.723 0 01-.692 0l-.003-.002z" />
               </svg>
@@ -121,42 +131,57 @@ export function AnnouncementCard({
           )}
 
           {isDraft && !isScheduled && (
-            <span className="rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+            <span
+              className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+              style={{ background: "var(--observation-draft)", color: "var(--observation-draft-fg)" }}
+            >
               Draft
             </span>
           )}
 
           {isScheduled && (
-            <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-700">
+            <span
+              className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+              style={{ background: "var(--enrollment-inquiry)", color: "var(--enrollment-inquiry-fg)" }}
+            >
               Scheduled · {scheduledDate}
             </span>
           )}
 
           {isExpired && (
-            <span className="rounded-full bg-gray-200 px-2.5 py-0.5 text-xs font-medium text-gray-500">
+            <span
+              className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+              style={{ background: "var(--muted)", color: "var(--muted-foreground)" }}
+            >
               Expired
             </span>
           )}
 
           {announcement.requires_acknowledgement && (
-            <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+            <span
+              className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+              style={{ background: "var(--success)", color: "var(--success-foreground)" }}
+            >
               Requires Ack · {announcement.acknowledgement_count}
             </span>
           )}
         </div>
 
         {/* ── Title + Body Preview ────────────────────── */}
-        <h3 className="text-base font-semibold text-gray-900">
+        <h3 className="text-base font-semibold text-foreground">
           {announcement.title}
         </h3>
-        <p className="mt-1 line-clamp-2 text-sm text-gray-600">
+        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
           {announcement.body}
         </p>
 
         {/* ── Footer: author + date ───────────────────── */}
-        <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+        <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-xs font-medium text-amber-700">
+            <div
+              className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold"
+              style={{ background: "var(--primary-100)", color: "var(--primary-700)" }}
+            >
               {announcement.author.first_name?.[0]}
               {announcement.author.last_name?.[0]}
             </div>
@@ -170,7 +195,7 @@ export function AnnouncementCard({
 
         {/* ── Attachments indicator ───────────────────── */}
         {announcement.attachment_urls.length > 0 && (
-          <div className="mt-3 flex items-center gap-1.5 text-xs text-gray-500">
+          <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
             <svg
               className="h-3.5 w-3.5"
               fill="none"

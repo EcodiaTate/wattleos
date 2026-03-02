@@ -60,8 +60,32 @@ export const SUPPORTED_COUNTRIES = [
 ] as const;
 
 export const SUPPORTED_CURRENCIES = [
-  { value: "AUD", label: "AUD — Australian Dollar" },
-  { value: "NZD", label: "NZD — New Zealand Dollar" },
-  { value: "USD", label: "USD — US Dollar" },
-  { value: "GBP", label: "GBP — British Pound" },
+  { value: "AUD", label: "AUD - Australian Dollar" },
+  { value: "NZD", label: "NZD - New Zealand Dollar" },
+  { value: "USD", label: "USD - US Dollar" },
+  { value: "GBP", label: "GBP - British Pound" },
 ] as const;
+
+// ============================================================
+// Compliance Settings (Module C)
+// ============================================================
+// Stored in tenants.settings JSONB under the "compliance" key.
+// ============================================================
+
+export interface ComplianceSettings {
+  /** Children per ECT required (e.g. 60 = 1 ECT per 60 children). */
+  ect_children_per_educator: number;
+  /** Minimum percentage of staff that must hold Diploma or higher. */
+  qualification_target_pct: number;
+  /** Days before expiry to flag items as "expiring soon". */
+  expiry_warning_days: number;
+  /** User ID of the supervisor who receives expiry alerts. */
+  nominated_supervisor_id: string | null;
+}
+
+export const DEFAULT_COMPLIANCE_SETTINGS: ComplianceSettings = {
+  ect_children_per_educator: 60,
+  qualification_target_pct: 50,
+  expiry_warning_days: 60,
+  nominated_supervisor_id: null,
+};

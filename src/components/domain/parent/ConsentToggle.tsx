@@ -9,6 +9,7 @@
 
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { updateConsent } from "@/lib/actions/parent";
 import { useState, useTransition } from "react";
 
@@ -52,28 +53,30 @@ export function ConsentToggle({
   }
 
   return (
-    <div className="flex items-start gap-3">
-      {/* Toggle switch */}
-      <button
-        role="switch"
-        aria-checked={isEnabled}
-        onClick={handleToggle}
-        disabled={isPending}
-        className={`relative mt-0.5 flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
-          isEnabled ? "bg-primary" : "bg-gray-200"
-        } ${isPending ? "opacity-60" : ""}`}
-      >
-        <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-background shadow transition-transform ${
-            isEnabled ? "translate-x-6" : "translate-x-1"
-          }`}
-        />
-      </button>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-foreground">{label}</p>
-        <p className="text-xs text-muted-foreground">{description}</p>
-        {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+    <GlowTarget id="parent-toggle-consent" category="toggle" label="Consent toggle">
+      <div className="flex items-start gap-3">
+        {/* Toggle switch */}
+        <button
+          role="switch"
+          aria-checked={isEnabled}
+          onClick={handleToggle}
+          disabled={isPending}
+          className={`relative mt-0.5 flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
+            isEnabled ? "bg-primary" : "bg-muted"
+          } ${isPending ? "opacity-60" : ""}`}
+        >
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-background shadow transition-transform ${
+              isEnabled ? "translate-x-6" : "translate-x-1"
+            }`}
+          />
+        </button>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-foreground">{label}</p>
+          <p className="text-xs text-muted-foreground">{description}</p>
+          {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+        </div>
       </div>
-    </div>
+    </GlowTarget>
   );
 }

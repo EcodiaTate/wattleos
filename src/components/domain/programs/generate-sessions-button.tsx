@@ -1,6 +1,7 @@
 // src/components/domain/programs/generate-sessions-button.tsx
 "use client";
 
+import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { generateSessions } from "@/lib/actions/programs/programs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -52,6 +53,7 @@ export function GenerateSessionsButton({
           <option value={8}>8 weeks</option>
           <option value={12}>12 weeks (term)</option>
         </select>
+        <GlowTarget id="programs-btn-generate" category="button" label="Generate sessions">
         <button
           onClick={handleGenerate}
           disabled={loading}
@@ -59,6 +61,7 @@ export function GenerateSessionsButton({
         >
           {loading ? "Generating..." : "Generate"}
         </button>
+        </GlowTarget>
       </div>
 
       {error && <p className="text-xs text-destructive font-medium">{error}</p>}

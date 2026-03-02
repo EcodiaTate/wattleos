@@ -6,6 +6,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 
+export const metadata = { title: "New Class - WattleOS" };
+
 export default async function CreateClassPage() {
   const context = await getTenantContext();
 

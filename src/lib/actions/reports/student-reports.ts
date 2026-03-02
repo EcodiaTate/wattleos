@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 // src/lib/actions/reports/student-reports.ts
 //
@@ -24,9 +24,7 @@
 
 "use server";
 
-import {
-  createSupabaseServerClient,
-} from "@/lib/supabase/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import {
@@ -56,7 +54,6 @@ import type {
 } from "@/lib/reports/types";
 import { validateTemplateContent } from "@/lib/reports/types";
 import { logAudit, AuditActions } from "@/lib/utils/audit";
-
 
 // ============================================================
 // Input Types
@@ -126,14 +123,14 @@ export interface ReportCompletionStats {
 // ============================================================
 
 export async function listStudentReports(
-  params: ListReportsParams = {}
+  params: ListReportsParams = {},
 ): Promise<PaginatedResponse<ReportWithDetails>> {
   try {
     await requirePermission(Permissions.MANAGE_REPORTS);
     const supabase = await createSupabaseServerClient();
     const { page, perPage, offset } = validatePagination(
       params.page,
-      params.per_page
+      params.per_page,
     );
 
     // Build count query
@@ -146,7 +143,7 @@ export async function listStudentReports(
     let dataQuery = supabase
       .from("student_reports")
       .select(
-        "*, student:students(id, first_name, last_name, preferred_name, photo_url), author:users!student_reports_author_id_fkey(id, first_name, last_name), template:report_templates(name)"
+        "*, student:students(id, first_name, last_name, preferred_name, photo_url), author:users!student_reports_author_id_fkey(id, first_name, last_name), template:report_templates(name)",
       )
       .is("deleted_at", null)
       .order("updated_at", { ascending: false })
@@ -188,7 +185,10 @@ export async function listStudentReports(
         Student,
         "id" | "first_name" | "last_name" | "preferred_name" | "photo_url"
       >;
-      const author = row.author as Pick<User, "id" | "first_name" | "last_name">;
+      const author = row.author as Pick<
+        User,
+        "id" | "first_name" | "last_name"
+      >;
       const template = row.template as { name: string } | null;
 
       return {
@@ -222,7 +222,7 @@ export async function listStudentReports(
 // ============================================================
 
 export async function getStudentReport(
-  reportId: string
+  reportId: string,
 ): Promise<ActionResponse<ReportWithDetails>> {
   try {
     await getTenantContext();
@@ -231,7 +231,7 @@ export async function getStudentReport(
     const { data, error } = await supabase
       .from("student_reports")
       .select(
-        "*, student:students(id, first_name, last_name, preferred_name, photo_url), author:users!student_reports_author_id_fkey(id, first_name, last_name), template:report_templates(name)"
+        "*, student:students(id, first_name, last_name, preferred_name, photo_url), author:users!student_reports_author_id_fkey(id, first_name, last_name), template:report_templates(name)",
       )
       .eq("id", reportId)
       .is("deleted_at", null)
@@ -279,7 +279,7 @@ export async function getStudentReport(
 // ============================================================
 
 export async function generateStudentReport(
-  input: GenerateReportInput
+  input: GenerateReportInput,
 ): Promise<ActionResponse<StudentReport>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_REPORTS);
@@ -303,7 +303,7 @@ export async function generateStudentReport(
     if (!validateTemplateContent(templateContent)) {
       return failure(
         "Template has invalid content structure",
-        ErrorCodes.VALIDATION_ERROR
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
@@ -319,7 +319,7 @@ export async function generateStudentReport(
     if (existingCount && existingCount > 0) {
       return failure(
         "A report already exists for this student, template, and term",
-        ErrorCodes.ALREADY_EXISTS
+        ErrorCodes.ALREADY_EXISTS,
       );
     }
 
@@ -329,7 +329,7 @@ export async function generateStudentReport(
       input.studentId,
       input.periodStart,
       input.periodEnd,
-      templateContent
+      templateContent,
     );
 
     // 4. Build report content
@@ -337,7 +337,7 @@ export async function generateStudentReport(
       version: 1,
       templateSnapshot: templateContent,
       sections: templateContent.sections.map((section) =>
-        buildReportSection(section, autoData)
+        buildReportSection(section, autoData),
       ),
       reportingPeriod: {
         startDate: input.periodStart,
@@ -394,7 +394,7 @@ export async function generateStudentReport(
 // ============================================================
 
 export async function bulkGenerateReports(
-  input: BulkGenerateReportsInput
+  input: BulkGenerateReportsInput,
 ): Promise<
   ActionResponse<{ generated: number; skipped: number; errors: string[] }>
 > {
@@ -437,7 +437,7 @@ export async function bulkGenerateReports(
 
 export async function updateReportContent(
   reportId: string,
-  input: UpdateReportContentInput
+  input: UpdateReportContentInput,
 ): Promise<ActionResponse<StudentReport>> {
   try {
     await requirePermission(Permissions.MANAGE_REPORTS);
@@ -463,7 +463,7 @@ export async function updateReportContent(
     if (status === "approved" || status === "published") {
       return failure(
         'Cannot edit an approved or published report. Change status to "review" first.',
-        ErrorCodes.VALIDATION_ERROR
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
@@ -472,14 +472,14 @@ export async function updateReportContent(
     if (!content?.sections) {
       return failure(
         "Report has invalid content structure",
-        ErrorCodes.VALIDATION_ERROR
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
     // Apply section updates
     const updatedSections = content.sections.map((section) => {
       const update = input.sections.find(
-        (s) => s.templateSectionId === section.templateSectionId
+        (s) => s.templateSectionId === section.templateSectionId,
       );
       if (!update) return section;
 
@@ -518,11 +518,7 @@ export async function updateReportContent(
   }
 }
 
-
-const VALID_TRANSITIONS: Record<
-  ReportStatus,
-  readonly ReportStatus[]
-> = {
+const VALID_TRANSITIONS: Record<ReportStatus, readonly ReportStatus[]> = {
   draft: ["review"],
   review: ["draft", "approved"],
   approved: ["review", "published"],
@@ -530,7 +526,7 @@ const VALID_TRANSITIONS: Record<
 } as const;
 export async function updateReportStatus(
   reportId: string,
-  newStatus: ReportStatus
+  newStatus: ReportStatus,
 ): Promise<ActionResponse<StudentReport>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_REPORTS);
@@ -549,8 +545,8 @@ export async function updateReportStatus(
 
     const report = existing as StudentReport;
 
-    // ✅ hard cast to the workflow union (cannot narrow away "published")
-    const currentStatus = (report as any).status as ReportStatus;
+    // Cast through unknown to widen the Supabase-inferred literal to the full ReportStatus union.
+    const currentStatus = report.status as unknown as ReportStatus;
 
     const validNext = VALID_TRANSITIONS[currentStatus] ?? [];
 
@@ -559,7 +555,7 @@ export async function updateReportStatus(
         `Cannot transition from "${currentStatus}" to "${newStatus}". Valid transitions: ${
           validNext.join(", ") || "none"
         }`,
-        ErrorCodes.INVALID_STATUS_TRANSITION
+        ErrorCodes.INVALID_STATUS_TRANSITION,
       );
     }
 
@@ -567,7 +563,7 @@ export async function updateReportStatus(
 
     if (newStatus === "published") {
       updateData.published_at = new Date().toISOString();
-    } else if (currentStatus === "published" && newStatus !== "published") {
+    } else if (currentStatus === "published") {
       updateData.published_at = null;
     }
 
@@ -583,13 +579,14 @@ export async function updateReportStatus(
     }
 
     // WHY audit: Report status transitions are a compliance checkpoint.
-    // Publishing makes reports visible to parents — schools need to know
+    // Publishing makes reports visible to parents - schools need to know
     // who approved and who published each report.
     await logAudit({
       context,
-      action: newStatus === "published"
-        ? AuditActions.REPORT_PUBLISHED
-        : AuditActions.REPORT_CREATED, // Re-use for generic status changes
+      action:
+        newStatus === "published"
+          ? AuditActions.REPORT_PUBLISHED
+          : AuditActions.REPORT_CREATED, // Re-use for generic status changes
       entityType: "student_report",
       entityId: reportId,
       metadata: {
@@ -612,7 +609,7 @@ export async function updateReportStatus(
 // ============================================================
 
 export async function deleteStudentReport(
-  reportId: string
+  reportId: string,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     await requirePermission(Permissions.MANAGE_REPORTS);
@@ -625,14 +622,14 @@ export async function deleteStudentReport(
       .eq("id", reportId)
       .is("deleted_at", null)
       .single();
-      const existingStatus = String(
-        (existing as Record<string, unknown> | null)?.status ?? "",
-      );
-  
-      if (existingStatus === "published") {
+    const existingStatus = String(
+      (existing as Record<string, unknown> | null)?.status ?? "",
+    );
+
+    if (existingStatus === "published") {
       return failure(
         "Cannot delete a published report. Unpublish it first.",
-        ErrorCodes.VALIDATION_ERROR
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
@@ -662,7 +659,7 @@ export async function deleteStudentReport(
 // ============================================================
 
 export async function getReportCompletionStats(
-  reportContent: Record<string, unknown>
+  reportContent: Record<string, unknown>,
 ): Promise<ReportCompletionStats> {
   const content = reportContent as unknown as ReportContent;
 
@@ -687,11 +684,11 @@ export async function getReportCompletionStats(
   const completedSections = content.sections.filter((s) => s.completed).length;
 
   const editableSections = content.sections.filter((s) =>
-    editableTypes.has(s.type)
+    editableTypes.has(s.type),
   ).length;
 
   const completedEditable = content.sections.filter(
-    (s) => editableTypes.has(s.type) && s.completed
+    (s) => editableTypes.has(s.type) && s.completed,
   ).length;
 
   return {
@@ -705,7 +702,6 @@ export async function getReportCompletionStats(
         : 100,
   };
 }
-
 
 // ============================================================
 // GET DISTINCT TERMS
@@ -732,7 +728,7 @@ export async function getReportTerms(): Promise<ActionResponse<string[]>> {
       ...new Set(
         ((data ?? []) as Array<{ term: string | null }>)
           .map((r) => r.term)
-          .filter((t): t is string => t !== null)
+          .filter((t): t is string => t !== null),
       ),
     ];
 
@@ -763,6 +759,19 @@ type CurriculumNodeRow = {
   parent_id: string | null;
 };
 
+// Raw Supabase row from student_mastery with curriculum_node join.
+type RawMasteryRow = {
+  curriculum_node_id: string;
+  status: MasteryStatus;
+  curriculum_node: CurriculumNodeRow | CurriculumNodeRow[] | null;
+};
+
+// Raw Supabase row from observation_outcomes with curriculum_node join.
+type RawOutcomeLinkRow = {
+  observation_id: string;
+  curriculum_node: CurriculumNodeRow | CurriculumNodeRow[] | null;
+};
+
 function toSingleCurriculumNode(v: unknown): CurriculumNodeRow | null {
   if (!v) return null;
   if (Array.isArray(v)) return (v[0] ?? null) as CurriculumNodeRow | null;
@@ -772,7 +781,7 @@ function toSingleCurriculumNode(v: unknown): CurriculumNodeRow | null {
 function getCurriculumNodeTitle(v: unknown): string | null {
   if (!v) return null;
   if (Array.isArray(v)) return (v[0]?.title as string) ?? null;
-  return ((v as any).title as string) ?? null;
+  return (v as CurriculumNodeRow).title ?? null;
 }
 
 async function aggregateStudentData(
@@ -780,7 +789,7 @@ async function aggregateStudentData(
   studentId: string,
   periodStart: string,
   periodEnd: string,
-  templateContent: TemplateContent
+  templateContent: TemplateContent,
 ): Promise<AggregatedStudentData> {
   // Determine which data types we actually need
   const sectionTypes = new Set(templateContent.sections.map((s) => s.type));
@@ -798,7 +807,7 @@ async function aggregateStudentData(
     const { data: student } = await supabase
       .from("students")
       .select(
-        "id, first_name, last_name, preferred_name, dob, photo_url, enrollment_status"
+        "id, first_name, last_name, preferred_name, dob, photo_url, enrollment_status",
       )
       .eq("id", studentId)
       .single();
@@ -839,17 +848,17 @@ async function aggregateStudentData(
     const { data: masteryRows } = await supabase
       .from("student_mastery")
       .select(
-        "curriculum_node_id, status, curriculum_node:curriculum_nodes(id, title, level, parent_id)"
+        "curriculum_node_id, status, curriculum_node:curriculum_nodes(id, title, level, parent_id)",
       )
       .eq("student_id", studentId)
       .is("deleted_at", null);
 
     if (masteryRows && masteryRows.length > 0) {
       // Normalise curriculum_node which Supabase may return as [] instead of object|null
-      const rows = (masteryRows as Array<Record<string, unknown>>).map((r) => ({
-        curriculum_node_id: r.curriculum_node_id as string,
-        status: r.status as MasteryStatus,
-        curriculum_node: toSingleCurriculumNode((r as any).curriculum_node),
+      const rows = (masteryRows as RawMasteryRow[]).map((r) => ({
+        curriculum_node_id: r.curriculum_node_id,
+        status: r.status,
+        curriculum_node: toSingleCurriculumNode(r.curriculum_node),
       }));
 
       // Grid data
@@ -917,7 +926,7 @@ async function aggregateStudentData(
   if (sectionTypes.has("observation_highlights")) {
     // Get max count from template config
     const obsSection = templateContent.sections.find(
-      (s) => s.type === "observation_highlights"
+      (s) => s.type === "observation_highlights",
     );
     const maxObs = obsSection?.config?.maxObservations ?? 5;
 
@@ -928,14 +937,14 @@ async function aggregateStudentData(
       .eq("student_id", studentId);
 
     const obsIds = ((obsLinks ?? []) as Array<{ observation_id: string }>).map(
-      (r) => r.observation_id
+      (r) => r.observation_id,
     );
 
     if (obsIds.length > 0) {
       const { data: observations } = await supabase
         .from("observations")
         .select(
-          "id, content, created_at, author_id, author:users!observations_author_id_fkey(first_name, last_name)"
+          "id, content, created_at, author_id, author:users!observations_author_id_fkey(first_name, last_name)",
         )
         .in("id", obsIds)
         .eq("status", "published")
@@ -948,7 +957,7 @@ async function aggregateStudentData(
       if (observations) {
         // Get outcome titles for each observation
         const observationIds = (observations as Array<{ id: string }>).map(
-          (o) => o.id
+          (o) => o.id,
         );
 
         const { data: outcomeLinks } = await supabase
@@ -957,11 +966,9 @@ async function aggregateStudentData(
           .in("observation_id", observationIds);
 
         const outcomeMap = new Map<string, string[]>();
-        for (const link of (outcomeLinks ?? []) as Array<
-          Record<string, unknown>
-        >) {
-          const obsId = link.observation_id as string;
-          const title = getCurriculumNodeTitle((link as any).curriculum_node);
+        for (const link of (outcomeLinks ?? []) as RawOutcomeLinkRow[]) {
+          const obsId = link.observation_id;
+          const title = getCurriculumNodeTitle(link.curriculum_node);
 
           if (!outcomeMap.has(obsId)) outcomeMap.set(obsId, []);
           if (title) outcomeMap.get(obsId)!.push(title);
@@ -974,19 +981,22 @@ async function aggregateStudentData(
           .in("observation_id", observationIds);
 
         const mediaCountMap = new Map<string, number>();
-        for (const m of (mediaCounts ?? []) as Array<{ observation_id: string }>) {
+        for (const m of (mediaCounts ?? []) as Array<{
+          observation_id: string;
+        }>) {
           mediaCountMap.set(
             m.observation_id,
-            (mediaCountMap.get(m.observation_id) ?? 0) + 1
+            (mediaCountMap.get(m.observation_id) ?? 0) + 1,
           );
         }
 
         result.observationHighlights = (
           observations as Array<Record<string, unknown>>
         ).map((obs) => {
-          const author = obs.author as
-            | { first_name: string | null; last_name: string | null }
-            | null;
+          const author = obs.author as {
+            first_name: string | null;
+            last_name: string | null;
+          } | null;
           const authorName = author
             ? [author.first_name, author.last_name].filter(Boolean).join(" ")
             : "Unknown";
@@ -1013,7 +1023,7 @@ async function aggregateStudentData(
 
 function buildReportSection(
   templateSection: TemplateSection,
-  data: AggregatedStudentData
+  data: AggregatedStudentData,
 ): ReportSectionContent {
   const section: ReportSectionContent = {
     templateSectionId: templateSection.id,
@@ -1036,7 +1046,7 @@ function buildReportSection(
       if (data.masteryGrid) {
         // Filter by curriculum area if configured
         let grid = data.masteryGrid;
-        const areaFilter = (templateSection as any).config?.curriculumAreaFilter;
+        const areaFilter = templateSection.config?.curriculumAreaFilter;
         if (areaFilter && areaFilter !== "all") {
           grid = grid.filter((item) => item.parentTitle === areaFilter);
         }
@@ -1061,7 +1071,9 @@ function buildReportSection(
 
     case "observation_highlights":
       if (data.observationHighlights) {
-        section.autoData = { observationHighlights: data.observationHighlights };
+        section.autoData = {
+          observationHighlights: data.observationHighlights,
+        };
         // Semi-auto: teacher should review/curate, so not marked complete
         section.completed = false;
       }

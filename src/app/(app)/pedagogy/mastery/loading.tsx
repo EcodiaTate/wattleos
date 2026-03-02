@@ -13,7 +13,7 @@ export default function MasteryLoading() {
         <Skeleton className="h-10 w-40 rounded-lg" />
       </div>
 
-      {/* Mastery grid skeleton — area columns with outcome rows */}
+      {/* Mastery grid skeleton - area columns with outcome rows */}
       <div className="rounded-xl border border-border bg-card p-[var(--density-card-padding)] shadow-sm">
         {/* Area headers */}
         <div className="flex gap-3 mb-4">

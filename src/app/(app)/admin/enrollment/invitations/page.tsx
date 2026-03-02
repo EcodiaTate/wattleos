@@ -49,22 +49,22 @@ function StatusBadge({
 
   if (isExpired) {
     return (
-      <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-500">
+      <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
         Expired
       </span>
     );
   }
 
   const styles: Record<string, string> = {
-    pending: "bg-blue-100 text-blue-700",
-    accepted: "bg-green-100 text-green-700",
-    expired: "bg-gray-100 text-gray-500",
-    revoked: "bg-red-100 text-red-700",
+    pending: "bg-info/15 text-info",
+    accepted: "bg-success/15 text-success",
+    expired: "bg-muted text-muted-foreground",
+    revoked: "bg-destructive/15 text-destructive",
   };
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${styles[status] ?? "bg-gray-100 text-gray-600"}`}
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${styles[status] ?? "bg-muted text-muted-foreground"}`}
     >
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
@@ -140,16 +140,16 @@ export default async function InvitationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-foreground">
             Parent Invitations
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Track and manage parent account invitations.
           </p>
         </div>
         <Link
           href="/admin/enrollment"
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
         >
           ← Enrollment Periods
         </Link>
@@ -157,34 +157,34 @@ export default async function InvitationsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
-          <p className="text-2xl font-bold text-blue-600">{pendingCount}</p>
-          <p className="text-xs font-medium text-gray-500">Pending</p>
+        <div className="rounded-lg border border-border bg-card px-4 py-3">
+          <p className="text-2xl font-bold text-info">{pendingCount}</p>
+          <p className="text-xs font-medium text-muted-foreground">Pending</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
-          <p className="text-2xl font-bold text-green-600">{acceptedCount}</p>
-          <p className="text-xs font-medium text-gray-500">Accepted</p>
+        <div className="rounded-lg border border-border bg-card px-4 py-3">
+          <p className="text-2xl font-bold text-success">{acceptedCount}</p>
+          <p className="text-xs font-medium text-muted-foreground">Accepted</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
-          <p className="text-2xl font-bold text-gray-400">{expiredCount}</p>
-          <p className="text-xs font-medium text-gray-500">Expired</p>
+        <div className="rounded-lg border border-border bg-card px-4 py-3">
+          <p className="text-2xl font-bold text-muted-foreground">{expiredCount}</p>
+          <p className="text-xs font-medium text-muted-foreground">Expired</p>
         </div>
       </div>
 
       {/* Error */}
       {errorMessage && (
-        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {errorMessage}
         </div>
       )}
 
       {/* Empty state */}
       {!errorMessage && invitations.length === 0 && (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
-          <p className="text-sm font-medium text-gray-900">
+        <div className="rounded-lg border border-border bg-card p-12 text-center">
+          <p className="text-sm font-medium text-foreground">
             No invitations sent yet
           </p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Invitations are automatically generated when you approve an
             enrollment application.
           </p>
@@ -193,37 +193,37 @@ export default async function InvitationsPage() {
 
       {/* Invitations table */}
       {invitations.length > 0 && (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div className="overflow-hidden rounded-lg border border-border bg-card">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-muted">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Parent Email
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Student
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Sent
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Expires
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {invitations.map((inv) => (
-                <tr key={inv.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm text-gray-900">
+                <tr key={inv.id} className="hover:bg-muted">
+                  <td className="px-4 py-3 text-sm text-foreground">
                     {inv.email}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
+                  <td className="px-4 py-3 text-sm text-muted-foreground">
                     {inv.student
                       ? `${inv.student.first_name} ${inv.student.last_name}`
                       : inv.student_id}
@@ -234,10 +234,10 @@ export default async function InvitationsPage() {
                       expiresAt={inv.expires_at}
                     />
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
+                  <td className="px-4 py-3 text-sm text-muted-foreground">
                     {formatDate(inv.created_at)}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
+                  <td className="px-4 py-3 text-sm text-muted-foreground">
                     {formatDate(inv.expires_at)}
                   </td>
                   <td className="px-4 py-3 text-right">

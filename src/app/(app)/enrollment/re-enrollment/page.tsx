@@ -56,7 +56,7 @@ export default async function ReEnrollmentDashboard({
   const { data: periods } = await supabase
     .from("enrollment_periods")
     .select("id, name, year")
-    .eq("tenant_id", ctx.tenantId)
+    .eq("tenant_id", ctx.tenant.id)
     .eq("period_type", "re_enrollment")
     .is("deleted_at", null)
     .order("year", { ascending: false })
@@ -70,22 +70,22 @@ export default async function ReEnrollmentDashboard({
       <div>
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-foreground">
               Re-enrollment Dashboard
             </h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Track re-enrollment status by class.
             </p>
           </div>
           <Link
             href="/admin/enrollment/new"
-            className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-background hover:bg-primary"
           >
             Create Re-enrollment Period
           </Link>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white px-6 py-12 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="rounded-lg border border-border bg-card px-6 py-12 text-center">
+          <p className="text-sm text-muted-foreground">
             No re-enrollment periods found. Create one to get started.
           </p>
         </div>
@@ -99,7 +99,7 @@ export default async function ReEnrollmentDashboard({
     .select(
       "id, status, child_first_name, child_last_name, submitted_by_email, requested_program, existing_student_id, submitted_at",
     )
-    .eq("tenant_id", ctx.tenantId)
+    .eq("tenant_id", ctx.tenant.id)
     .eq("enrollment_period_id", selectedPeriodId)
     .is("deleted_at", null)
     .order("child_last_name", { ascending: true });
@@ -126,16 +126,16 @@ export default async function ReEnrollmentDashboard({
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-foreground">
             Re-enrollment Dashboard
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Track re-enrollment status for returning families.
           </p>
         </div>
         <Link
           href="/admin/enrollment"
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
         >
           ← All Periods
         </Link>
@@ -151,8 +151,8 @@ export default async function ReEnrollmentDashboard({
                 href={`/admin/enrollment/re-enrollment?period=${p.id}`}
                 className={`rounded-lg px-4 py-2 text-sm font-medium ${
                   p.id === selectedPeriodId
-                    ? "bg-amber-600 text-white"
-                    : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    ? "bg-primary text-background"
+                    : "border border-border text-foreground hover:bg-muted"
                 }`}
               >
                 {p.name} ({p.year})
@@ -182,14 +182,14 @@ export default async function ReEnrollmentDashboard({
       {/* Progress bar */}
       <div className="mb-6">
         <div className="mb-1 flex items-center justify-between text-sm">
-          <span className="text-gray-600">
+          <span className="text-muted-foreground">
             Overall confirmation: {confirmed.length} / {totalApps}
           </span>
-          <span className="font-medium text-gray-900">{confirmedPct}%</span>
+          <span className="font-medium text-foreground">{confirmedPct}%</span>
         </div>
-        <div className="h-3 overflow-hidden rounded-full bg-gray-200">
+        <div className="h-3 overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-green-500 transition-all"
+            className="h-full rounded-full bg-success transition-all"
             style={{ width: `${confirmedPct}%` }}
           />
         </div>
@@ -201,7 +201,7 @@ export default async function ReEnrollmentDashboard({
           title="Not Yet Responded"
           description="Invitations sent but no submission received."
           apps={notResponded}
-          badgeColor="bg-gray-100 text-gray-600"
+          badgeColor="bg-muted text-muted-foreground"
         />
       )}
 
@@ -210,7 +210,7 @@ export default async function ReEnrollmentDashboard({
           title="Pending Review"
           description="Parents have submitted - awaiting admin review."
           apps={pending}
-          badgeColor="bg-blue-50 text-blue-700"
+          badgeColor="bg-info/10 text-info"
         />
       )}
 
@@ -219,7 +219,7 @@ export default async function ReEnrollmentDashboard({
           title="Changes Requested"
           description="Sent back to parents for updates."
           apps={changesRequested}
-          badgeColor="bg-orange-50 text-orange-700"
+          badgeColor="bg-primary/10 text-primary"
         />
       )}
 
@@ -228,7 +228,7 @@ export default async function ReEnrollmentDashboard({
           title="Confirmed"
           description="Approved for next year."
           apps={confirmed}
-          badgeColor="bg-green-50 text-green-700"
+          badgeColor="bg-success/10 text-success"
         />
       )}
 
@@ -237,7 +237,7 @@ export default async function ReEnrollmentDashboard({
           title="Leaving / Declined"
           description="Withdrawn or not accepted."
           apps={withdrawn}
-          badgeColor="bg-red-50 text-red-600"
+          badgeColor="bg-destructive/10 text-destructive"
         />
       )}
     </div>
@@ -256,11 +256,11 @@ function StatCard({
   color: string;
 }) {
   const colorMap: Record<string, string> = {
-    green: "border-green-200 bg-green-50 text-green-700",
-    blue: "border-blue-200 bg-blue-50 text-blue-700",
-    orange: "border-orange-200 bg-orange-50 text-orange-700",
-    gray: "border-gray-200 bg-gray-50 text-gray-600",
-    red: "border-red-200 bg-red-50 text-red-600",
+    green: "border-success/30 bg-success/10 text-success",
+    blue: "border-info/30 bg-info/10 text-info",
+    orange: "border-primary/30 bg-primary/10 text-primary",
+    gray: "border-border bg-muted text-muted-foreground",
+    red: "border-destructive/30 bg-destructive/10 text-destructive",
   };
 
   return (
@@ -287,40 +287,40 @@ function StatusGroup({
   return (
     <div className="mb-6">
       <div className="mb-3">
-        <h2 className="text-base font-semibold text-gray-900">{title}</h2>
-        <p className="text-xs text-gray-500">{description}</p>
+        <h2 className="text-base font-semibold text-foreground">{title}</h2>
+        <p className="text-xs text-muted-foreground">{description}</p>
       </div>
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-muted">
             <tr>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">
+              <th className="px-4 py-2 text-left font-medium text-muted-foreground">
                 Student
               </th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">
+              <th className="px-4 py-2 text-left font-medium text-muted-foreground">
                 Parent Email
               </th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">
+              <th className="px-4 py-2 text-left font-medium text-muted-foreground">
                 Program
               </th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">
+              <th className="px-4 py-2 text-left font-medium text-muted-foreground">
                 Status
               </th>
-              <th className="px-4 py-2 text-right font-medium text-gray-500">
+              <th className="px-4 py-2 text-right font-medium text-muted-foreground">
                 Action
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {apps.map((app) => (
-              <tr key={app.id} className="hover:bg-gray-50">
-                <td className="px-4 py-2.5 font-medium text-gray-900">
+              <tr key={app.id} className="hover:bg-muted">
+                <td className="px-4 py-2.5 font-medium text-foreground">
                   {app.child_first_name} {app.child_last_name}
                 </td>
-                <td className="px-4 py-2.5 text-gray-600">
+                <td className="px-4 py-2.5 text-muted-foreground">
                   {app.submitted_by_email}
                 </td>
-                <td className="px-4 py-2.5 text-gray-600">
+                <td className="px-4 py-2.5 text-muted-foreground">
                   {app.requested_program
                     ? app.requested_program.replace(/_/g, " ")
                     : " - "}
@@ -336,12 +336,12 @@ function StatusGroup({
                   {app.status !== "draft" ? (
                     <Link
                       href={`/admin/enrollment/applications/${app.id}`}
-                      className="text-xs font-medium text-amber-600 hover:text-amber-700"
+                      className="text-xs font-medium text-primary hover:text-primary"
                     >
                       Review →
                     </Link>
                   ) : (
-                    <span className="text-xs text-gray-400">Awaiting</span>
+                    <span className="text-xs text-muted-foreground">Awaiting</span>
                   )}
                 </td>
               </tr>

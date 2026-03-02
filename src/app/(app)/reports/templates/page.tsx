@@ -15,6 +15,8 @@ import { Permissions } from "@/lib/constants/permissions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "Report Templates - WattleOS" };
+
 export default async function TemplatesPage() {
   const context = await getTenantContext();
 
@@ -51,7 +53,7 @@ export default async function TemplatesPage() {
         </div>
         <Link
           href="/reports/templates/new"
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-amber-700"
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary"
         >
           New Template
         </Link>
@@ -59,8 +61,8 @@ export default async function TemplatesPage() {
 
       {/* Active templates */}
       {activeTemplates.length === 0 && inactiveTemplates.length === 0 ? (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
-          <div className="mx-auto mb-4 flex h-[var(--density-button-height)] w-12 items-center justify-center rounded-full bg-amber-50">
+        <div className="rounded-lg border border-border bg-background p-12 text-center">
+          <div className="mx-auto mb-4 flex h-[var(--density-button-height)] w-12 items-center justify-center rounded-full bg-primary/10">
             <svg
               className="h-6 w-6 text-primary"
               fill="none"
@@ -84,7 +86,7 @@ export default async function TemplatesPage() {
           </p>
           <Link
             href="/reports/templates/new"
-            className="mt-4 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-amber-700"
+            className="mt-4 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary"
           >
             Create Template
           </Link>
@@ -136,7 +138,7 @@ function TemplateCard({ template }: { template: TemplateWithStats }) {
         <div className="min-w-0 flex-1">
           <Link
             href={`/reports/templates/${template.id}`}
-            className="text-sm font-semibold text-foreground hover:text-amber-700"
+            className="text-sm font-semibold text-foreground hover:text-primary"
           >
             {template.name}
           </Link>
@@ -146,7 +148,7 @@ function TemplateCard({ template }: { template: TemplateWithStats }) {
             </span>
           )}
           {!template.is_active && (
-            <span className="ml-2 inline-flex rounded-full bg-red-50 px-2 py-0.5 text-xs text-red-600">
+            <span className="ml-2 inline-flex rounded-full bg-destructive/10 px-2 py-0.5 text-xs text-destructive">
               Inactive
             </span>
           )}
@@ -171,7 +173,7 @@ function TemplateCard({ template }: { template: TemplateWithStats }) {
       <div className="mt-4">
         <Link
           href={`/reports/templates/${template.id}`}
-          className="text-xs font-medium text-primary hover:text-amber-700"
+          className="text-xs font-medium text-primary hover:text-primary"
         >
           Edit Template →
         </Link>

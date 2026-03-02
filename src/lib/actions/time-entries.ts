@@ -18,8 +18,9 @@
 import { requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { AuditActions, logAudit } from "@/lib/utils/audit";
 import type { ActionResponse } from "@/types/api";
-import { failure, success } from "@/types/api";
+import { ErrorCodes, failure, success } from "@/types/api";
 import type { TimeEntry, TimeEntryType } from "@/types/domain";
 
 // ============================================================
@@ -62,12 +63,12 @@ export async function logTimeEntry(
 
     // Validate times
     if (input.startTime >= input.endTime) {
-      return failure("End time must be after start time", "VALIDATION_ERROR");
+      return failure("End time must be after start time", ErrorCodes.VALIDATION_ERROR);
     }
 
     const breakMinutes = input.breakMinutes ?? 30;
     if (breakMinutes < 0) {
-      return failure("Break minutes cannot be negative", "VALIDATION_ERROR");
+      return failure("Break minutes cannot be negative", ErrorCodes.VALIDATION_ERROR);
     }
 
     // Check if the date falls in a locked/processed period
@@ -84,7 +85,7 @@ export async function logTimeEntry(
     if (lockedPeriod) {
       return failure(
         "Cannot edit time entries for a locked or processed pay period",
-        "VALIDATION_ERROR",
+        ErrorCodes.VALIDATION_ERROR,
       );
     }
 
@@ -154,14 +155,28 @@ export async function logTimeEntry(
     }
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    return success(data as TimeEntry);
+    const logged = data as TimeEntry;
+
+    await logAudit({
+      context,
+      action: AuditActions.TIME_ENTRY_LOGGED,
+      entityType: "time_entries",
+      entityId: logged.id,
+      metadata: {
+        date: logged.date,
+        entry_type: logged.entry_type,
+        total_hours: logged.total_hours,
+      },
+    });
+
+    return success(logged);
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to log time entry";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -205,7 +220,7 @@ export async function getMyTimeEntries(params?: {
     const { data, error } = await query;
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
     // Flatten the class join
@@ -234,7 +249,7 @@ export async function getMyTimeEntries(params?: {
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to get time entries";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -264,7 +279,7 @@ export async function getTimeEntriesForUser(params: {
       .order("date", { ascending: true });
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
 
     const entries: TimeEntryWithMeta[] = (
@@ -292,7 +307,7 @@ export async function getTimeEntriesForUser(params: {
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to get time entries";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }
 
@@ -316,17 +331,19 @@ export async function deleteTimeEntry(
       .single();
 
     if (fetchError || !entry) {
-      return failure("Time entry not found", "NOT_FOUND");
+      return failure("Time entry not found", ErrorCodes.NOT_FOUND);
     }
 
     const typedEntry = entry as {
       id: string;
       user_id: string;
+      date: string;
+      entry_type: string;
       pay_period_id: string | null;
     };
 
     if (typedEntry.user_id !== context.user.id) {
-      return failure("You can only delete your own time entries", "FORBIDDEN");
+      return failure("You can only delete your own time entries", ErrorCodes.FORBIDDEN);
     }
 
     // Check if linked to a locked period
@@ -340,7 +357,7 @@ export async function deleteTimeEntry(
       if (period && (period as { status: string }).status !== "open") {
         return failure(
           "Cannot delete entries in a locked or processed pay period",
-          "VALIDATION_ERROR",
+          ErrorCodes.VALIDATION_ERROR,
         );
       }
     }
@@ -351,13 +368,24 @@ export async function deleteTimeEntry(
       .eq("id", entryId);
 
     if (error) {
-      return failure(error.message, "DB_ERROR");
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
     }
+
+    await logAudit({
+      context,
+      action: AuditActions.TIME_ENTRY_DELETED,
+      entityType: "time_entries",
+      entityId: entryId,
+      metadata: {
+        date: typedEntry.date,
+        entry_type: typedEntry.entry_type,
+      },
+    });
 
     return success({ deleted: true });
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to delete time entry";
-    return failure(message, "UNEXPECTED_ERROR");
+    return failure(message, ErrorCodes.INTERNAL_ERROR);
   }
 }

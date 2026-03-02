@@ -11,7 +11,7 @@ import type { CSSProperties } from "react";
 export const metadata: Metadata = {
   title: "Data Processing Agreement",
   description:
-    "WattleOS Data Processing Agreement — how Ecodia processes school data as a data processor.",
+    "WattleOS Data Processing Agreement - how Ecodia processes school data as a data processor.",
 };
 
 // ────────────────────────────────────────────────────────────
@@ -165,7 +165,7 @@ export default function DataProcessingPage() {
       <p style={body}>
         For the purposes of this DPA, the <strong>School</strong> is the Data
         Controller. The School determines the purposes and means of processing
-        personal information — it decides what student and staff data is entered
+        personal information - it decides what student and staff data is entered
         into WattleOS and how the platform is used. <strong>Ecodia</strong> is
         the Data Processor. Ecodia processes personal information solely on
         behalf of the School, in accordance with the School&apos;s instructions,
@@ -476,7 +476,7 @@ export default function DataProcessingPage() {
           Stripe billing, payment card details and billing metadata are
           processed by Stripe, Inc. (USA). Stripe is PCI-DSS Level 1 certified.
           Importantly, Stripe never receives student records, educational data,
-          or sensitive personal information — only billing contact names, email
+          or sensitive personal information - only billing contact names, email
           addresses, and payment details.
         </li>
         <li style={listItem}>
@@ -605,7 +605,7 @@ export default function DataProcessingPage() {
         ensuring it is prominently displayed to relevant staff during attendance
         and classroom operations. Custody restrictions are enforced through
         dedicated database fields and audit-logged for accountability. Access to
-        sensitive fields is governed by specific permissions — not all staff
+        sensitive fields is governed by specific permissions - not all staff
         roles can view medical or custody data.
       </p>
 

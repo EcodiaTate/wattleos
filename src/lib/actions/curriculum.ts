@@ -13,6 +13,26 @@ import type {
   CurriculumLevel,
 } from '@/types/domain';
 
+// Raw row shapes for tables whose generated types aren't precise enough.
+type RawCurriculumTemplate = { description: string | null };
+type RawCurriculumInstance = { id: string };
+type RawTemplateNode = {
+  id: string;
+  level: string;
+  parent_id: string | null;
+  title: string;
+  description: string | null;
+  sequence_order: number;
+};
+type RawCurriculumNode = {
+  id: string;
+  instance_id: string;
+  parent_id: string | null;
+  is_hidden: boolean;
+  source_template_node_id: string | null;
+  sequence_order: number;
+};
+
 // ============================================================
 // READ: List available curriculum templates (global)
 // ============================================================
@@ -98,7 +118,7 @@ export async function forkCurriculumTemplate(
       tenant_id: context.tenant.id,
       source_template_id: templateId,
       name,
-      description: description ?? (template as { description?: string | null }).description ?? null,
+      description: description ?? (template as RawCurriculumTemplate).description ?? null,
     })
     .select()
     .single();
@@ -121,18 +141,20 @@ export async function forkCurriculumTemplate(
   // 4) Copy nodes (parents before children) and build an ID map
   const idMap = new Map<string, string>(); // template_node_id → new_node_id
 
+  const rawNodes = templateNodes as RawTemplateNode[];
   const levelOrder: Record<string, number> = { area: 0, strand: 1, outcome: 2, activity: 3 };
-  const sortedNodes = [...templateNodes].sort(
-    (a: any, b: any) => levelOrder[a.level] - levelOrder[b.level]
+  const sortedNodes = [...rawNodes].sort(
+    (a, b) => levelOrder[a.level] - levelOrder[b.level]
   );
+  const instanceId = (instance as RawCurriculumInstance).id;
 
   for (const level of ['area', 'strand', 'outcome', 'activity'] as const) {
-    const nodesAtLevel = sortedNodes.filter((n: any) => n.level === level);
+    const nodesAtLevel = sortedNodes.filter((n) => n.level === level);
     if (nodesAtLevel.length === 0) continue;
 
-    const inserts = nodesAtLevel.map((node: any) => ({
+    const inserts = nodesAtLevel.map((node) => ({
       tenant_id: context.tenant.id,
-      instance_id: (instance as any).id,
+      instance_id: instanceId,
       parent_id: node.parent_id ? idMap.get(node.parent_id) ?? null : null,
       source_template_node_id: node.id,
       level: node.level,
@@ -151,7 +173,7 @@ export async function forkCurriculumTemplate(
       return failure(insertError?.message ?? `Failed to insert ${level} nodes`, ErrorCodes.INTERNAL_ERROR);
     }
 
-    for (const inserted of insertedNodes as any[]) {
+    for (const inserted of insertedNodes as RawCurriculumNode[]) {
       if (inserted.source_template_node_id) {
         idMap.set(inserted.source_template_node_id, inserted.id);
       }
@@ -270,7 +292,7 @@ export async function toggleNodeVisibility(
 
   const { data, error } = await supabase
     .from('curriculum_nodes')
-    .update({ is_hidden: !(current as any).is_hidden })
+    .update({ is_hidden: !(current as RawCurriculumNode).is_hidden })
     .eq('id', nodeId)
     .select()
     .single();
@@ -301,15 +323,16 @@ export async function reorderCurriculumNode(
   if (!node) return failure('Node not found', ErrorCodes.NOT_FOUND);
 
   // Get siblings
+  const rawNode = node as RawCurriculumNode;
   let siblingsQuery = supabase
     .from('curriculum_nodes')
     .select('id, sequence_order')
-    .eq('instance_id', (node as any).instance_id)
+    .eq('instance_id', rawNode.instance_id)
     .is('deleted_at', null)
     .order('sequence_order', { ascending: true });
 
-  siblingsQuery = (node as any).parent_id
-    ? siblingsQuery.eq('parent_id', (node as any).parent_id)
+  siblingsQuery = rawNode.parent_id
+    ? siblingsQuery.eq('parent_id', rawNode.parent_id)
     : siblingsQuery.is('parent_id', null);
 
   const { data: siblings, error: sibError } = await siblingsQuery;

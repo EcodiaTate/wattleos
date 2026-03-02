@@ -13,6 +13,7 @@
 // ============================================================
 
 import { PendingApprovalsClient } from "@/components/domain/timesheets/pending-approvals-client";
+import { CSVExportClient } from "@/components/domain/timesheets/csv-export-client";
 import { listPayPeriods } from "@/lib/actions/pay-periods";
 import { listPendingTimesheets } from "@/lib/actions/timesheets";
 import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
@@ -21,8 +22,9 @@ import type { PayPeriod } from "@/types/domain";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-type PendingResult = Awaited<ReturnType<typeof listPendingTimesheets>>;
-type PendingTimesheet = NonNullable<PendingResult["data"]>[number];
+type PendingTimesheet = NonNullable<
+  Awaited<ReturnType<typeof listPendingTimesheets>>["data"]
+>[number];
 
 export default async function AdminTimesheetsPage() {
   const context = await getTenantContext();
@@ -39,14 +41,9 @@ export default async function AdminTimesheetsPage() {
   const pendingTimesheets: PendingTimesheet[] = pendingResult.data ?? [];
   const recentPeriods: PayPeriod[] = periodsResult.data?.periods ?? [];
 
+  type GroupedPeriod = { period: PayPeriod | null; timesheets: PendingTimesheet[] };
   // Group timesheets by pay period for display
-  const groupedByPeriod: Record<
-    string,
-    {
-      period: PayPeriod | null;
-      timesheets: PendingTimesheet[];
-    }
-  > = {};
+  const groupedByPeriod: Record<string, GroupedPeriod> = {};
 
   for (const ts of pendingTimesheets) {
     const periodId = ts.pay_period_id;
@@ -87,7 +84,7 @@ export default async function AdminTimesheetsPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/admin/timesheets/periods"
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background"
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background"
           >
             <svg
               className="h-4 w-4"
@@ -108,7 +105,7 @@ export default async function AdminTimesheetsPage() {
           {canManageIntegrations && (
             <Link
               href="/admin/settings/payroll"
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background"
             >
               <svg
                 className="h-4 w-4"
@@ -136,14 +133,14 @@ export default async function AdminTimesheetsPage() {
 
       {/* Summary stats */}
       <div className="grid grid-cols-1 gap-[var(--density-card-padding)] sm:grid-cols-3">
-        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+        <div className="rounded-lg border border-border bg-background p-[var(--density-card-padding)]">
           <p className="text-sm text-muted-foreground">Pending Approval</p>
           <p className="mt-1 text-2xl font-bold text-primary">
             {pendingTimesheets.length}
           </p>
         </div>
 
-        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+        <div className="rounded-lg border border-border bg-background p-[var(--density-card-padding)]">
           <p className="text-sm text-muted-foreground">Total Hours (Pending)</p>
           <p className="mt-1 text-2xl font-bold text-foreground">
             {pendingTimesheets
@@ -152,7 +149,7 @@ export default async function AdminTimesheetsPage() {
           </p>
         </div>
 
-        <div className="rounded-lg borderborder-border bg-background p-[var(--density-card-padding)]">
+        <div className="rounded-lg border border-border bg-background p-[var(--density-card-padding)]">
           <p className="text-sm text-muted-foreground">
             Pay Periods With Submissions
           </p>
@@ -162,11 +159,37 @@ export default async function AdminTimesheetsPage() {
         </div>
       </div>
 
+      {/* Export section - if there are approved timesheets */}
+      {Object.keys(groupedByPeriod).length > 0 && (
+        <div className="rounded-lg border border-border bg-background p-[var(--density-card-padding)]">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-medium text-foreground">
+                Timesheet Export
+              </h3>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Export approved timesheets as CSV for KeyPay or manual upload
+              </p>
+            </div>
+            {Object.keys(groupedByPeriod).length > 0 && (
+              <CSVExportClient
+                payPeriodId={Object.keys(groupedByPeriod)[0]}
+                payPeriodName={
+                  groupedByPeriod[Object.keys(groupedByPeriod)[0]]?.period?.name ||
+                  "Current Period"
+                }
+                pendingApprovals={pendingTimesheets.length}
+              />
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Pending timesheets */}
       {pendingTimesheets.length === 0 ? (
-        <div className="rounded-lg borderborder-border bg-background p-12 text-center">
+        <div className="rounded-lg border border-border bg-background p-12 text-center">
           <svg
-            className="mx-auto h-[var(--density-button-height)] w-12 text-gray-300"
+            className="mx-auto h-[var(--density-button-height)] w-12 text-muted-foreground"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1}
@@ -186,7 +209,7 @@ export default async function AdminTimesheetsPage() {
           </p>
         </div>
       ) : (
-        <PendingApprovalsClient groupedByPeriod={groupedByPeriod as any} />
+        <PendingApprovalsClient groupedByPeriod={groupedByPeriod} />
       )}
     </div>
   );
