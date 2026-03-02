@@ -3,7 +3,7 @@
 
 import { GlowTarget } from "@/components/domain/glow/glow-registry";
 import { bulkGenerateReports } from "@/lib/actions/reports";
-import { listStudents } from "@/lib/actions/students";
+import { listStudents } from "@/lib/actions/sis";
 import type { Student } from "@/types/domain";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

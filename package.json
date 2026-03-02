@@ -21,6 +21,7 @@
     "cap:build:android": "npx cap sync android && npx cap open android",
     "cap:dev:ios": "CAPACITOR_SERVER_URL=http://192.168.1.X:3001 npx cap sync ios && npx cap open ios",
     "cap:dev:android": "CAPACITOR_SERVER_URL=http://192.168.1.X:3001 npx cap sync android && npx cap open android",
+    "cap:prod": "npm run build && npx cap sync",
     "postinstall": "node scripts/patch-next-devtools.mjs"
   },
   "dependencies": {
