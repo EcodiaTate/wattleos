@@ -543,7 +543,7 @@ export async function getDailyCareLog(
     );
 
     // Assemble the full log
-    const { students, ...logRest } = log as Record<string, unknown> & {
+    const { students, ...logRest } = log as unknown as Record<string, unknown> & {
       students: Record<string, unknown>;
     };
 
