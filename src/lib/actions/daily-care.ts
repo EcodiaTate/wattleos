@@ -411,7 +411,7 @@ export async function getOrCreateDailyLog(
       context,
       action: AuditActions.DAILY_CARE_LOG_CREATED,
       entityType: "daily_care_log",
-      entityId: (newLog as Record<string, unknown>).id as string,
+      entityId: (newLog as unknown as Record<string, unknown>).id as string,
       metadata: { student_id: studentId, log_date: logDate },
     });
 
