@@ -8,65 +8,78 @@ import { z } from "zod";
 
 // ── Session ──────────────────────────────────────────────────
 
-export const createInterviewSessionSchema = z
-  .object({
-    title: z
-      .string()
-      .trim()
-      .min(1, "Title is required")
-      .max(200, "Title is too long"),
+const interviewSessionBaseSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(1, "Title is required")
+    .max(200, "Title is too long"),
 
-    description: z.string().trim().max(1000).optional(),
+  description: z.string().trim().max(1000).optional(),
 
-    sessionStartDate: z
-      .string()
-      .date("Please enter a valid start date (YYYY-MM-DD)"),
+  sessionStartDate: z
+    .string()
+    .date("Please enter a valid start date (YYYY-MM-DD)"),
 
-    sessionEndDate: z
-      .string()
-      .date("Please enter a valid end date (YYYY-MM-DD)"),
+  sessionEndDate: z
+    .string()
+    .date("Please enter a valid end date (YYYY-MM-DD)"),
 
-    bookingOpenAt: z
-      .string()
-      .datetime({ message: "Invalid booking open time" })
-      .nullish()
-      .transform((v) => v || null),
+  bookingOpenAt: z
+    .string()
+    .datetime({ message: "Invalid booking open time" })
+    .nullish()
+    .transform((v) => v || null),
 
-    bookingCloseAt: z
-      .string()
-      .datetime({ message: "Invalid booking close time" })
-      .nullish()
-      .transform((v) => v || null),
+  bookingCloseAt: z
+    .string()
+    .datetime({ message: "Invalid booking close time" })
+    .nullish()
+    .transform((v) => v || null),
 
-    slotDurationMins: z
-      .number()
-      .int()
-      .min(5, "Minimum slot duration is 5 minutes")
-      .max(120, "Maximum slot duration is 120 minutes")
-      .default(15),
+  slotDurationMins: z
+    .number()
+    .int()
+    .min(5, "Minimum slot duration is 5 minutes")
+    .max(120, "Maximum slot duration is 120 minutes")
+    .default(15),
 
-    allowCancellation: z.boolean().default(true),
+  allowCancellation: z.boolean().default(true),
 
-    cancellationCutoffHours: z
-      .number()
-      .int()
-      .min(0)
-      .max(168, "Cutoff cannot exceed 7 days")
-      .default(24),
+  cancellationCutoffHours: z
+    .number()
+    .int()
+    .min(0)
+    .max(168, "Cutoff cannot exceed 7 days")
+    .default(24),
 
-    notes: z.string().trim().max(2000).optional(),
-  })
-  .refine((d) => d.sessionEndDate >= d.sessionStartDate, {
+  notes: z.string().trim().max(2000).optional(),
+});
+
+export const createInterviewSessionSchema = interviewSessionBaseSchema.refine(
+  (d) => d.sessionEndDate >= d.sessionStartDate,
+  {
     message: "End date must be on or after start date",
     path: ["sessionEndDate"],
-  });
+  },
+);
 
 export type CreateInterviewSessionInput = z.infer<
   typeof createInterviewSessionSchema
 >;
 
-export const updateInterviewSessionSchema =
-  createInterviewSessionSchema.partial();
+export const updateInterviewSessionSchema = interviewSessionBaseSchema
+  .partial()
+  .refine(
+    (d) =>
+      d.sessionStartDate === undefined ||
+      d.sessionEndDate === undefined ||
+      d.sessionEndDate >= d.sessionStartDate,
+    {
+      message: "End date must be on or after start date",
+      path: ["sessionEndDate"],
+    },
+  );
 
 export type UpdateInterviewSessionInput = z.infer<
   typeof updateInterviewSessionSchema
