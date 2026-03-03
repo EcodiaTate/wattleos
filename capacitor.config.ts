@@ -25,8 +25,9 @@ const config: CapacitorConfig = {
     allowNavigation: [
       "*.wattleos.au",
       "*.supabase.co",
-      "accounts.google.com", // OAuth
-      "*.stripe.com", // Billing portal
+      "accounts.google.com",  // Google OAuth
+      "appleid.apple.com",    // Apple Sign-In
+      "*.stripe.com",         // Billing portal
     ],
   },
 

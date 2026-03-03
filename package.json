@@ -25,6 +25,7 @@
     "postinstall": "node scripts/patch-next-devtools.mjs"
   },
   "dependencies": {
+    "@capacitor-community/apple-sign-in": "^7.1.0",
     "@capacitor/action-sheet": "^8.0.1",
     "@capacitor/android": "^8.1.0",
     "@capacitor/app": "^8.0.1",

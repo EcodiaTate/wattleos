@@ -60,6 +60,19 @@ export async function initAppLifecycle(options: {
         try {
           const url = new URL(event.url);
 
+          // OAuth callback via custom scheme: au.ecodia.wattleos://auth/callback?code=...
+          // Fired after SFSafariViewController (iOS) or Chrome Custom Tab (Android) closes.
+          // URL parsing: host="auth", pathname="/callback" — check both.
+          // Route to the server-side /auth/callback handler which exchanges the code.
+          if (
+            url.protocol === "au.ecodia.wattleos:" &&
+            url.host === "auth" &&
+            url.pathname === "/callback"
+          ) {
+            options.navigate("/auth/callback" + url.search + url.hash);
+            return;
+          }
+
           // Only handle wattleos.au URLs
           if (url.hostname.endsWith("wattleos.au")) {
             const path = url.pathname + url.search;
