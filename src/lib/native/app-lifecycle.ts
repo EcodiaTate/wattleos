@@ -11,7 +11,6 @@
 
 import { App, type URLOpenListenerEvent } from "@capacitor/app";
 import { SplashScreen } from "@capacitor/splash-screen";
-import { StatusBar, Style } from "@capacitor/status-bar";
 import { isNative, isPluginAvailable, getPlatform } from "./platform";
 
 /**
@@ -144,27 +143,13 @@ export async function hideSplashScreen(): Promise<void> {
 
 /**
  * Configure the status bar appearance.
- * Call after theme is determined (light/dark mode).
+ * No-op — @capacitor/status-bar removed due to Cap 8 build conflict.
+ * Status bar style is handled via Info.plist / capacitor.config.ts static config.
  */
-export async function configureStatusBar(options: {
+export async function configureStatusBar(_options: {
   isDarkMode: boolean;
 }): Promise<void> {
-  if (!isNative() || !isPluginAvailable("StatusBar")) return;
-
-  try {
-    // Light background → dark text (and vice versa)
-    await StatusBar.setStyle({
-      style: options.isDarkMode ? Style.Dark : Style.Light,
-    });
-
-    if (getPlatform() === "android") {
-      await StatusBar.setBackgroundColor({
-        color: options.isDarkMode ? "#1C1917" : "#FFFBF5", // Warm dark / warm cream
-      });
-    }
-  } catch {
-    // Silent
-  }
+  // intentionally empty
 }
 
 /**
