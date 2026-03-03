@@ -174,7 +174,7 @@ export async function getDailyCareLogDashboard(): Promise<
 
     const logListItems: DailyCareLogListItem[] = (logs ?? []).map(
       (row: Record<string, unknown>) => {
-        const { students, ...rest } = row as Record<string, unknown> & {
+        const { students, ...rest } = row as unknown as Record<string, unknown> & {
           students: Record<string, unknown>;
         };
         const logId = rest.id as string;
@@ -222,8 +222,8 @@ export async function getDailyCareLogDashboard(): Promise<
         .in("id", activeSleeperStudentIds);
 
       for (const s of sleepStudents ?? []) {
-        sleepStudentMap[(s as Record<string, unknown>).id as string] =
-          s as Record<string, unknown>;
+        sleepStudentMap[(s as unknown as Record<string, unknown>).id as string] =
+          s as unknown as Record<string, unknown>;
       }
     }
 
@@ -287,8 +287,8 @@ export async function getDailyCareLogDashboard(): Promise<
         .in("id", sunscreenStudentIds);
 
       for (const s of ssStudents ?? []) {
-        sunscreenStudentMap[(s as Record<string, unknown>).id as string] =
-          s as Record<string, unknown>;
+        sunscreenStudentMap[(s as unknown as Record<string, unknown>).id as string] =
+          s as unknown as Record<string, unknown>;
       }
     }
 
@@ -509,7 +509,7 @@ export async function getDailyCareLog(
     }
 
     // Fetch created_by user info
-    const createdById = (log as Record<string, unknown>).created_by as string;
+    const createdById = (log as unknown as Record<string, unknown>).created_by as string;
     let createdByUser: Record<string, unknown> | null = null;
     if (createdById) {
       const { data: cUser } = await supabase
@@ -517,7 +517,7 @@ export async function getDailyCareLog(
         .select("id, first_name, last_name")
         .eq("id", createdById)
         .maybeSingle();
-      createdByUser = cUser as Record<string, unknown> | null;
+      createdByUser = cUser as unknown as Record<string, unknown> | null;
     }
 
     // Assemble entries with recorder + sleep checks
@@ -600,7 +600,7 @@ export async function getDailyCareLogByStudentDate(
     }
 
     // Reuse getDailyCareLog for the full hydrated response
-    const logId = (log as Record<string, unknown>).id as string;
+    const logId = (log as unknown as Record<string, unknown>).id as string;
     return getDailyCareLog(logId);
   } catch (err) {
     return failure(
@@ -700,7 +700,7 @@ export async function listDailyCareLogs(
 
     const items: DailyCareLogListItem[] = (logs ?? []).map(
       (row: Record<string, unknown>) => {
-        const { students, ...rest } = row as Record<string, unknown> & {
+        const { students, ...rest } = row as unknown as Record<string, unknown> & {
           students: Record<string, unknown>;
         };
         const logId = rest.id as string;
@@ -796,7 +796,7 @@ export async function addCareEntry(
       context,
       action: AuditActions.DAILY_CARE_ENTRY_CREATED,
       entityType: "daily_care_entry",
-      entityId: (entry as Record<string, unknown>).id as string,
+      entityId: (entry as unknown as Record<string, unknown>).id as string,
       metadata: {
         log_id: log.id,
         student_id: v.student_id,
@@ -850,7 +850,7 @@ export async function updateCareEntry(
       return failure("Care entry not found", ErrorCodes.NOT_FOUND);
     }
 
-    const existingEntry = existing as Record<string, unknown>;
+    const existingEntry = existing as unknown as Record<string, unknown>;
 
     // Build update object from provided fields only
     const updateData: Record<string, unknown> = {};
@@ -967,9 +967,9 @@ export async function deleteCareEntry(
       entityType: "daily_care_entry",
       entityId: entryId,
       metadata: {
-        log_id: (existing as Record<string, unknown>).log_id,
-        student_id: (existing as Record<string, unknown>).student_id,
-        entry_type: (existing as Record<string, unknown>).entry_type,
+        log_id: (existing as unknown as Record<string, unknown>).log_id,
+        student_id: (existing as unknown as Record<string, unknown>).student_id,
+        entry_type: (existing as unknown as Record<string, unknown>).entry_type,
       },
     });
 
@@ -1017,7 +1017,7 @@ export async function recordSleepCheck(
     if (!sleepEntry) {
       return failure("Sleep entry not found", ErrorCodes.NOT_FOUND);
     }
-    if ((sleepEntry as Record<string, unknown>).entry_type !== "sleep_start") {
+    if ((sleepEntry as unknown as Record<string, unknown>).entry_type !== "sleep_start") {
       return failure(
         "Sleep checks can only be recorded for sleep_start entries",
         ErrorCodes.VALIDATION_ERROR,
@@ -1054,13 +1054,13 @@ export async function recordSleepCheck(
       context,
       action: AuditActions.DAILY_CARE_SLEEP_CHECK_RECORDED,
       entityType: "daily_care_sleep_check",
-      entityId: (check as Record<string, unknown>).id as string,
+      entityId: (check as unknown as Record<string, unknown>).id as string,
       metadata: {
         entry_id: v.entry_id,
         position: v.position,
         breathing_normal: v.breathing_normal,
         skin_colour_normal: v.skin_colour_normal,
-        student_id: (sleepEntry as Record<string, unknown>).student_id,
+        student_id: (sleepEntry as unknown as Record<string, unknown>).student_id,
       },
     });
 
@@ -1167,7 +1167,7 @@ export async function getActiveSleepers(): Promise<
       return failure(entryError.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    const allSleepEntries = (sleepEntries ?? []) as Array<
+    const allSleepEntries = (sleepEntries ?? []) as unknown as Array<
       Record<string, unknown>
     >;
     const starts = allSleepEntries.filter(
@@ -1302,7 +1302,7 @@ export async function getSunscreenDue(): Promise<
       return failure(entryError.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    const rawEntries = (sunscreenEntries ?? []) as Array<
+    const rawEntries = (sunscreenEntries ?? []) as unknown as Array<
       Record<string, unknown>
     >;
 
@@ -1431,8 +1431,8 @@ export async function shareDailyCareLog(
       entityType: "daily_care_log",
       entityId: v.log_id,
       metadata: {
-        student_id: (existing as Record<string, unknown>).student_id,
-        log_date: (existing as Record<string, unknown>).log_date,
+        student_id: (existing as unknown as Record<string, unknown>).student_id,
+        log_date: (existing as unknown as Record<string, unknown>).log_date,
       },
     });
 
@@ -1569,7 +1569,7 @@ export async function getChildCareHistory(
 
     const items: DailyCareLogListItem[] = (logs ?? []).map(
       (row: Record<string, unknown>) => {
-        const { students, ...rest } = row as Record<string, unknown> & {
+        const { students, ...rest } = row as unknown as Record<string, unknown> & {
           students: Record<string, unknown>;
         };
         const logId = rest.id as string;
@@ -1623,7 +1623,7 @@ export async function getChildCareLogForDate(
     }
 
     // Reuse getDailyCareLog for the full hydrated response
-    const logId = (log as Record<string, unknown>).id as string;
+    const logId = (log as unknown as Record<string, unknown>).id as string;
     return getDailyCareLog(logId);
   } catch (err) {
     return failure(
