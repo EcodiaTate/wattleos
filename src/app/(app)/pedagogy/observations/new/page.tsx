@@ -19,7 +19,7 @@ import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import { redirect } from "next/navigation";
 import type { ActivePeriodOption } from "@/components/domain/sensitive-periods/observation-period-tagger";
-import type { StudentSensitivePeriodWithDetails } from "@/types/domain";
+import type { CurriculumInstance, Student, StudentSensitivePeriodWithDetails } from "@/types/domain";
 
 export const metadata = { title: "New Observation - WattleOS" };
 
@@ -39,8 +39,8 @@ export default async function NewObservationPage() {
       listActiveSensitivePeriods(),
     ]);
 
-  const students = studentsResult.data ?? [];
-  const instances = instancesResult.data ?? [];
+  const students: Student[] = studentsResult.data ?? [];
+  const instances: CurriculumInstance[] = instancesResult.data ?? [];
 
   // Build ActivePeriodOption list - one entry per active period with student name
   const activePeriods: ActivePeriodOption[] = (
