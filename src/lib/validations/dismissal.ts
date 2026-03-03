@@ -258,9 +258,7 @@ export const setDismissalMethodSchema = z
 
     day_of_week: z.enum(daysOfWeek).default("default"),
 
-    dismissal_method: z.enum(dismissalMethods, {
-      required_error: "Dismissal method is required",
-    }),
+    dismissal_method: z.enum(dismissalMethods),
 
     bus_route_id: z
       .string()
@@ -291,9 +289,7 @@ export const confirmDismissalSchema = z.object({
 
   dismissal_date: z.string().date("Invalid date"),
 
-  actual_method: z.enum(dismissalMethods, {
-    required_error: "Dismissal method is required",
-  }),
+  actual_method: z.enum(dismissalMethods),
 
   bus_route_id: z
     .string()
@@ -329,9 +325,7 @@ export const flagExceptionSchema = z.object({
 
   dismissal_date: z.string().date("Invalid date"),
 
-  exception_reason: z.enum(exceptionReasons, {
-    required_error: "Exception reason is required",
-  }),
+  exception_reason: z.enum(exceptionReasons),
 
   exception_notes: z
     .string()

@@ -103,13 +103,13 @@ export async function getVolunteerDashboard(): Promise<
     supabase
       .from("volunteers")
       .select("*")
-      .eq("tenant_id", ctx.tenantId)
+      .eq("tenant_id", ctx.tenant.id)
       .eq("status", "active")
       .order("last_name"),
     supabase
       .from("volunteer_assignments")
       .select(`*, volunteer:volunteers(*)`)
-      .eq("tenant_id", ctx.tenantId)
+      .eq("tenant_id", ctx.tenant.id)
       .gte("event_date", today)
       .in("status", ["invited", "confirmed"])
       .order("event_date"),
@@ -169,7 +169,7 @@ export async function listVolunteers(
   let query = supabase
     .from("volunteers")
     .select("*")
-    .eq("tenant_id", ctx.tenantId)
+    .eq("tenant_id", ctx.tenant.id)
     .order("last_name")
     .order("first_name");
 
@@ -210,13 +210,13 @@ export async function getVolunteer(id: string): Promise<
       .from("volunteers")
       .select("*")
       .eq("id", id)
-      .eq("tenant_id", ctx.tenantId)
+      .eq("tenant_id", ctx.tenant.id)
       .single(),
     supabase
       .from("volunteer_assignments")
       .select(`*, volunteer:volunteers(*)`)
       .eq("volunteer_id", id)
-      .eq("tenant_id", ctx.tenantId)
+      .eq("tenant_id", ctx.tenant.id)
       .order("event_date", { ascending: false }),
   ]);
 
@@ -252,7 +252,7 @@ export async function createVolunteer(
   const { data, error } = await supabase
     .from("volunteers")
     .insert({
-      tenant_id: ctx.tenantId,
+      tenant_id: ctx.tenant.id,
       created_by: ctx.user.id,
       updated_by: ctx.user.id,
       ...parsed.data,
@@ -294,7 +294,7 @@ export async function updateVolunteer(
       updated_by: ctx.user.id,
     })
     .eq("id", id)
-    .eq("tenant_id", ctx.tenantId)
+    .eq("tenant_id", ctx.tenant.id)
     .select()
     .single();
 
@@ -321,7 +321,7 @@ export async function deactivateVolunteer(
     .from("volunteers")
     .update({ status: "inactive", updated_by: ctx.user.id })
     .eq("id", id)
-    .eq("tenant_id", ctx.tenantId);
+    .eq("tenant_id", ctx.tenant.id);
 
   if (error) return failure("DATABASE_ERROR", error.message);
 
@@ -352,7 +352,7 @@ export async function listAssignments(
   let query = supabase
     .from("volunteer_assignments")
     .select(`*, volunteer:volunteers(*)`)
-    .eq("tenant_id", ctx.tenantId)
+    .eq("tenant_id", ctx.tenant.id)
     .order("event_date", { ascending: false });
 
   if (parsed.data.volunteer_id) {
@@ -400,7 +400,7 @@ export async function createAssignment(
     .from("volunteers")
     .select("id, status, wwcc_number, wwcc_expiry_date")
     .eq("id", parsed.data.volunteer_id)
-    .eq("tenant_id", ctx.tenantId)
+    .eq("tenant_id", ctx.tenant.id)
     .single();
 
   if (volError || !vol) {
@@ -416,7 +416,7 @@ export async function createAssignment(
   const { data, error } = await supabase
     .from("volunteer_assignments")
     .insert({
-      tenant_id: ctx.tenantId,
+      tenant_id: ctx.tenant.id,
       created_by: ctx.user.id,
       updated_by: ctx.user.id,
       ...parsed.data,
@@ -458,7 +458,7 @@ export async function updateAssignment(
     .from("volunteer_assignments")
     .update({ ...parsed.data, updated_by: ctx.user.id })
     .eq("id", id)
-    .eq("tenant_id", ctx.tenantId)
+    .eq("tenant_id", ctx.tenant.id)
     .select()
     .single();
 
@@ -485,7 +485,7 @@ export async function cancelAssignment(
     .from("volunteer_assignments")
     .delete()
     .eq("id", id)
-    .eq("tenant_id", ctx.tenantId);
+    .eq("tenant_id", ctx.tenant.id);
 
   if (error) return failure("DATABASE_ERROR", error.message);
 

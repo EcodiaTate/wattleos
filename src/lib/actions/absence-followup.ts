@@ -15,7 +15,7 @@
 //   pending/notified → dismissed (staff decision)
 // ============================================================
 
-import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
+import { requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import {
   createSupabaseAdminClient,
@@ -61,8 +61,7 @@ import {
 export async function getAbsenceFollowupConfig(): Promise<
   ActionResponse<AbsenceFollowupConfig>
 > {
-  const ctx = await getTenantContext();
-  requirePermission(ctx, Permissions.VIEW_ABSENCE_FOLLOWUP);
+  const ctx = await requirePermission(Permissions.VIEW_ABSENCE_FOLLOWUP);
 
   const db = await createSupabaseServerClient();
 
@@ -103,8 +102,7 @@ export async function getAbsenceFollowupConfig(): Promise<
 export async function updateAbsenceFollowupConfig(
   input: UpdateAbsenceFollowupConfigInput,
 ): Promise<ActionResponse<AbsenceFollowupConfig>> {
-  const ctx = await getTenantContext();
-  requirePermission(ctx, Permissions.MANAGE_ABSENCE_FOLLOWUP);
+  const ctx = await requirePermission(Permissions.MANAGE_ABSENCE_FOLLOWUP);
 
   const parsed = UpdateAbsenceFollowupConfigSchema.safeParse(input);
   if (!parsed.success) {
@@ -163,8 +161,7 @@ export async function updateAbsenceFollowupConfig(
 export async function getAbsenceFollowupDashboard(
   date?: string,
 ): Promise<ActionResponse<AbsenceFollowupDashboardData>> {
-  const ctx = await getTenantContext();
-  requirePermission(ctx, Permissions.VIEW_ABSENCE_FOLLOWUP);
+  const ctx = await requirePermission(Permissions.VIEW_ABSENCE_FOLLOWUP);
 
   const targetDate = date ?? new Date().toISOString().split("T")[0];
   const db = await createSupabaseServerClient();
@@ -241,8 +238,7 @@ export async function getAbsenceFollowupDashboard(
 export async function generateDailyAlerts(input?: {
   date?: string;
 }): Promise<ActionResponse<{ generated: number; date: string }>> {
-  const ctx = await getTenantContext();
-  requirePermission(ctx, Permissions.MANAGE_ABSENCE_FOLLOWUP);
+  const ctx = await requirePermission(Permissions.MANAGE_ABSENCE_FOLLOWUP);
 
   const parsed = GenerateAlertsSchema.safeParse(input ?? {});
   if (!parsed.success) {
@@ -323,8 +319,7 @@ export async function generateDailyAlerts(input?: {
 export async function recordExplanation(
   input: RecordExplanationInput,
 ): Promise<ActionResponse<AbsenceFollowupAlert>> {
-  const ctx = await getTenantContext();
-  requirePermission(ctx, Permissions.MANAGE_ABSENCE_FOLLOWUP);
+  const ctx = await requirePermission(Permissions.MANAGE_ABSENCE_FOLLOWUP);
 
   const parsed = RecordExplanationSchema.safeParse(input);
   if (!parsed.success) {
@@ -388,8 +383,7 @@ export async function recordExplanation(
 export async function sendGuardianNotification(
   input: SendNotificationInput,
 ): Promise<ActionResponse<{ sent: number; failed: number }>> {
-  const ctx = await getTenantContext();
-  requirePermission(ctx, Permissions.MANAGE_ABSENCE_FOLLOWUP);
+  const ctx = await requirePermission(Permissions.MANAGE_ABSENCE_FOLLOWUP);
 
   const parsed = SendNotificationSchema.safeParse(input);
   if (!parsed.success) {
@@ -574,8 +568,7 @@ export async function dismissAlert(input: {
   alert_id: string;
   reason?: string;
 }): Promise<ActionResponse<AbsenceFollowupAlert>> {
-  const ctx = await getTenantContext();
-  requirePermission(ctx, Permissions.MANAGE_ABSENCE_FOLLOWUP);
+  const ctx = await requirePermission(Permissions.MANAGE_ABSENCE_FOLLOWUP);
 
   const parsed = DismissAlertSchema.safeParse(input);
   if (!parsed.success) {
@@ -621,17 +614,17 @@ export async function dismissAlert(input: {
 export async function getAlertHistory(
   filterInput?: ListAlertsFilterInput,
 ): Promise<PaginatedResponse<AbsenceFollowupAlertWithStudent>> {
-  const ctx = await getTenantContext();
-  requirePermission(ctx, Permissions.VIEW_ABSENCE_FOLLOWUP);
+  const ctx = await requirePermission(Permissions.VIEW_ABSENCE_FOLLOWUP);
 
   const parsed = ListAlertsFilterSchema.safeParse(filterInput ?? {});
   if (!parsed.success) {
     return {
-      data: null,
+      data: [],
       error: {
         message: parsed.error.issues[0].message,
         code: ErrorCodes.VALIDATION_ERROR,
       },
+      pagination: { total: 0, page: 1, per_page: 20, total_pages: 0 },
     };
   }
 
@@ -659,8 +652,9 @@ export async function getAlertHistory(
 
   if (error) {
     return {
-      data: null,
+      data: [],
       error: { message: error.message, code: ErrorCodes.DATABASE_ERROR },
+      pagination: { total: 0, page: 1, per_page: limit, total_pages: 0 },
     };
   }
 
@@ -693,8 +687,8 @@ export async function getAlertHistory(
     pagination: {
       total: count ?? 0,
       page,
-      limit,
-      totalPages: Math.ceil((count ?? 0) / limit),
+      per_page: limit,
+      total_pages: Math.ceil((count ?? 0) / limit),
     },
   };
 }
@@ -706,8 +700,7 @@ export async function getAlertHistory(
 export async function getAlertDetail(
   alertId: string,
 ): Promise<ActionResponse<AbsenceFollowupAlertDetail>> {
-  const ctx = await getTenantContext();
-  requirePermission(ctx, Permissions.VIEW_ABSENCE_FOLLOWUP);
+  const ctx = await requirePermission(Permissions.VIEW_ABSENCE_FOLLOWUP);
 
   const db = await createSupabaseServerClient();
 
@@ -766,8 +759,7 @@ export async function getAlertDetail(
 export async function exportAlertHistory(
   filterInput?: ListAlertsFilterInput,
 ): Promise<ActionResponse<{ csv: string; filename: string }>> {
-  const ctx = await getTenantContext();
-  requirePermission(ctx, Permissions.MANAGE_ABSENCE_FOLLOWUP);
+  const ctx = await requirePermission(Permissions.MANAGE_ABSENCE_FOLLOWUP);
 
   const historyResult = await getAlertHistory({
     ...(filterInput ?? {}),

@@ -52,7 +52,7 @@ export const SendSmsSchema = z.object({
     .default("general"),
   student_id: z.string().uuid().nullish(),
   guardian_id: z.string().uuid().nullish(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type SendSmsInput = z.infer<typeof SendSmsSchema>;
@@ -78,7 +78,7 @@ export const BroadcastSmsSchema = z.object({
   message_type: z
     .enum(["general", "absence_alert", "emergency", "reminder", "broadcast"])
     .default("broadcast"),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type BroadcastSmsInput = z.infer<typeof BroadcastSmsSchema>;

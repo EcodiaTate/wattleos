@@ -44,6 +44,7 @@ import {
   type ActionResponse,
   ErrorCodes,
   failure,
+  paginated,
   PaginatedResponse,
   success,
 } from "@/types/api";
@@ -823,13 +824,12 @@ export async function listDismissalHistory(
     const { data: records, error, count } = await query;
     if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
 
-    return success({
-      data: (records ?? []) as DismissalRecordWithStudent[],
-      total: count ?? 0,
-      page: d.page,
-      per_page: d.per_page,
-      total_pages: Math.ceil((count ?? 0) / d.per_page),
-    });
+    return success(paginated(
+      (records ?? []) as DismissalRecordWithStudent[],
+      count ?? 0,
+      d.page,
+      d.per_page,
+    ));
   } catch (err) {
     return failure(
       err instanceof Error ? err.message : "Failed to load dismissal history",

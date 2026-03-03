@@ -65,7 +65,7 @@ export async function listWebhookEvents(
     const { data, count, error } = await query;
 
     if (error) {
-      return failure({ code: "DB_ERROR", message: error.message });
+      return failure(error.message, "DB_ERROR");
     }
 
     return success({
@@ -74,7 +74,7 @@ export async function listWebhookEvents(
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    return failure({ code: "INTERNAL_ERROR", message });
+    return failure(message, "INTERNAL_ERROR");
   }
 }
 
@@ -100,7 +100,7 @@ export async function getWebhookDashboardStats(): Promise<
       .gte("created_at", sevenDaysAgo);
 
     if (statusErr) {
-      return failure({ code: "DB_ERROR", message: statusErr.message });
+      return failure(statusErr.message, "DB_ERROR");
     }
 
     const counts = {
@@ -129,7 +129,7 @@ export async function getWebhookDashboardStats(): Promise<
       .gte("created_at", sevenDaysAgo);
 
     if (providerErr) {
-      return failure({ code: "DB_ERROR", message: providerErr.message });
+      return failure(providerErr.message, "DB_ERROR");
     }
 
     const providerStats: Record<
@@ -154,7 +154,7 @@ export async function getWebhookDashboardStats(): Promise<
       .order("created_at", { ascending: true });
 
     if (dailyErr) {
-      return failure({ code: "DB_ERROR", message: dailyErr.message });
+      return failure(dailyErr.message, "DB_ERROR");
     }
 
     // Group by date
@@ -186,7 +186,7 @@ export async function getWebhookDashboardStats(): Promise<
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    return failure({ code: "INTERNAL_ERROR", message });
+    return failure(message, "INTERNAL_ERROR");
   }
 }
 
@@ -212,10 +212,7 @@ export async function retryWebhookEvent(
       .maybeSingle();
 
     if (fetchErr || !event) {
-      return failure({
-        code: "NOT_FOUND",
-        message: "Webhook event not found",
-      });
+      return failure("Webhook event not found", "NOT_FOUND");
     }
 
     // Reset to pending so the retry processor picks it up immediately
@@ -228,7 +225,7 @@ export async function retryWebhookEvent(
       .eq("id", webhookEventId);
 
     if (resetErr) {
-      return failure({ code: "DB_ERROR", message: resetErr.message });
+      return failure(resetErr.message, "DB_ERROR");
     }
 
     // For immediate retry, dispatch inline (don't wait for cron)
@@ -277,6 +274,6 @@ export async function retryWebhookEvent(
     return success({ success: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    return failure({ code: "INTERNAL_ERROR", message });
+    return failure(message, "INTERNAL_ERROR");
   }
 }
