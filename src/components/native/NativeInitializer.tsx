@@ -34,6 +34,7 @@ import {
   syncQueuedObservations,
   initObservationSync,
 } from "@/lib/native/observation-sync";
+import { openInAppBrowser } from "@/lib/native/utilities";
 
 export function NativeInitializer() {
   const router = useRouter();
@@ -46,6 +47,25 @@ export function NativeInitializer() {
     initialized.current = true;
 
     let cleanups: Array<() => void> = [];
+
+    // Intercept target="_blank" / window.open calls so they use the
+    // in-app browser (SFSafariViewController / Chrome Custom Tab) instead
+    // of handing off to Safari/Chrome externally.
+    function interceptExternalLinks(e: MouseEvent) {
+      const anchor = (e.target as Element | null)?.closest("a");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href) return;
+      // Only intercept absolute URLs (http/https) — internal Next.js
+      // navigation uses relative paths and should not be intercepted.
+      if (!/^https?:\/\//i.test(href)) return;
+      e.preventDefault();
+      void openInAppBrowser(href);
+    }
+    document.addEventListener("click", interceptExternalLinks, true);
+    cleanups.push(() =>
+      document.removeEventListener("click", interceptExternalLinks, true),
+    );
 
     async function bootstrap() {
       // 1. Configure status bar to match wattle theme
