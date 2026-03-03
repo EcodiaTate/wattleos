@@ -240,7 +240,7 @@ export async function getDailyCareLogDashboard(): Promise<
         .in("entry_id", activeSleeperEntryIds)
         .order("checked_at", { ascending: false });
 
-      for (const c of (checks ?? []) as Array<Record<string, unknown>>) {
+      for (const c of (checks ?? []) as unknown as Array<Record<string, unknown>>) {
         const eid = c.entry_id as string;
         if (!sleepCheckMap[eid]) {
           sleepCheckMap[eid] = { count: 0, lastCheck: null };
@@ -466,7 +466,7 @@ export async function getDailyCareLog(
       return failure(entryError.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    const rawEntries = (entryRows ?? []) as Array<Record<string, unknown>>;
+    const rawEntries = (entryRows ?? []) as unknown as Array<Record<string, unknown>>;
 
     // Fetch recorder info for entries
     const recorderIds = [
@@ -479,7 +479,7 @@ export async function getDailyCareLog(
         .select("id, first_name, last_name")
         .in("id", recorderIds);
 
-      for (const r of (recorders ?? []) as Array<Record<string, unknown>>) {
+      for (const r of (recorders ?? []) as unknown as Array<Record<string, unknown>>) {
         recorderMap[r.id as string] = r;
       }
     }
@@ -499,7 +499,7 @@ export async function getDailyCareLog(
         .in("entry_id", sleepEntryIds)
         .order("checked_at", { ascending: true });
 
-      for (const c of (checks ?? []) as Array<Record<string, unknown>>) {
+      for (const c of (checks ?? []) as unknown as Array<Record<string, unknown>>) {
         const eid = c.entry_id as string;
         if (!sleepChecksMap[eid]) {
           sleepChecksMap[eid] = [];
@@ -688,7 +688,7 @@ export async function listDailyCareLogs(
         .in("log_id", logIds)
         .is("deleted_at", null);
 
-      for (const e of (entryRows ?? []) as Array<Record<string, unknown>>) {
+      for (const e of (entryRows ?? []) as unknown as Array<Record<string, unknown>>) {
         const logId = e.log_id as string;
         logEntryCountMap[logId] = (logEntryCountMap[logId] ?? 0) + 1;
         const recAt = e.recorded_at as string;
@@ -1204,7 +1204,7 @@ export async function getActiveSleepers(): Promise<
       .in("id", studentIds);
 
     const studentMap: Record<string, Record<string, unknown>> = {};
-    for (const s of (students ?? []) as Array<Record<string, unknown>>) {
+    for (const s of (students ?? []) as unknown as Array<Record<string, unknown>>) {
       studentMap[s.id as string] = s;
     }
 
@@ -1220,7 +1220,7 @@ export async function getActiveSleepers(): Promise<
       string,
       { count: number; lastCheck: string | null }
     > = {};
-    for (const c of (checks ?? []) as Array<Record<string, unknown>>) {
+    for (const c of (checks ?? []) as unknown as Array<Record<string, unknown>>) {
       const eid = c.entry_id as string;
       if (!checkMap[eid]) {
         checkMap[eid] = { count: 0, lastCheck: null };
@@ -1333,7 +1333,7 @@ export async function getSunscreenDue(): Promise<
       .in("id", studentIds);
 
     const studentMap: Record<string, Record<string, unknown>> = {};
-    for (const s of (students ?? []) as Array<Record<string, unknown>>) {
+    for (const s of (students ?? []) as unknown as Array<Record<string, unknown>>) {
       studentMap[s.id as string] = s;
     }
 
@@ -1557,7 +1557,7 @@ export async function getChildCareHistory(
         .in("log_id", logIds)
         .is("deleted_at", null);
 
-      for (const e of (entryRows ?? []) as Array<Record<string, unknown>>) {
+      for (const e of (entryRows ?? []) as unknown as Array<Record<string, unknown>>) {
         const logId = e.log_id as string;
         logEntryCountMap[logId] = (logEntryCountMap[logId] ?? 0) + 1;
         const recAt = e.recorded_at as string;
@@ -1688,7 +1688,7 @@ export async function getDailyCareExport(
       return failure(entryError.message, ErrorCodes.DATABASE_ERROR);
     }
 
-    const rawEntries = (entries ?? []) as Array<Record<string, unknown>>;
+    const rawEntries = (entries ?? []) as unknown as Array<Record<string, unknown>>;
 
     if (rawEntries.length === 0) {
       return success({
@@ -1714,7 +1714,7 @@ export async function getDailyCareExport(
       .in("id", studentIds);
 
     const studentNameMap: Record<string, string> = {};
-    for (const s of (students ?? []) as Array<Record<string, unknown>>) {
+    for (const s of (students ?? []) as unknown as Array<Record<string, unknown>>) {
       const preferred = s.preferred_name as string | null;
       const firstName = preferred ?? (s.first_name as string);
       studentNameMap[s.id as string] = `${firstName} ${s.last_name as string}`;
@@ -1730,7 +1730,7 @@ export async function getDailyCareExport(
       .in("id", recorderIds);
 
     const recorderNameMap: Record<string, string> = {};
-    for (const r of (recorders ?? []) as Array<Record<string, unknown>>) {
+    for (const r of (recorders ?? []) as unknown as Array<Record<string, unknown>>) {
       recorderNameMap[r.id as string] =
         `${(r.first_name as string | null) ?? ""} ${(r.last_name as string | null) ?? ""}`.trim();
     }
