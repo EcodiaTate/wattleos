@@ -21,7 +21,8 @@ interface GuideRow {
   guide_id: string;
   guide_name: string;
   total: number;
-  completed: number;
+  submitted: number;
+  approved: number;
 }
 
 interface PeriodDashboardClientProps {
@@ -60,7 +61,7 @@ export function PeriodDashboardClient({
       });
 
       if (listResult.error || !listResult.data?.length) {
-        setResult({ error: listResult.error ?? "No submitted reports found." });
+        setResult({ error: listResult.error?.message ?? "No submitted reports found." });
         return;
       }
 
@@ -68,9 +69,9 @@ export function PeriodDashboardClient({
       const approveResult = await bulkApproveInstances(ids);
 
       if (approveResult.error) {
-        setResult({ error: approveResult.error });
+        setResult({ error: approveResult.error.message });
       } else {
-        setResult({ approved: approveResult.data ?? 0 });
+        setResult({ approved: approveResult.data?.approved ?? 0 });
       }
     });
   };
@@ -133,14 +134,14 @@ export function PeriodDashboardClient({
             {guides.map((guide) => {
               const pct =
                 guide.total > 0
-                  ? Math.round((guide.completed / guide.total) * 100)
+                  ? Math.round((guide.approved / guide.total) * 100)
                   : 0;
               return (
                 <div key={guide.guide_id} className="space-y-1">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-foreground">{guide.guide_name}</span>
                     <span className="text-muted-foreground">
-                      {guide.completed}/{guide.total}
+                      {guide.approved}/{guide.total}
                     </span>
                   </div>
                   <div

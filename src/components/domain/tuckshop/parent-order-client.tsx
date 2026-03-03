@@ -86,7 +86,7 @@ export function ParentOrderClient({
     if (!confirm("Cancel this order?")) return;
     haptics.impact("medium");
     startTransition(async () => {
-      await cancelOrder(orderId, {});
+      await cancelOrder(orderId, { cancellation_reason: null });
       router.refresh();
     });
   }

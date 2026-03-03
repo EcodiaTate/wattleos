@@ -148,12 +148,12 @@ export function FieldConfigBuilder({
       });
 
       if (result.error) {
-        haptics.notification("error");
+        haptics.error();
         setSaveError(result.error.message);
         return;
       }
 
-      haptics.notification("success");
+      haptics.success();
       setSavedOk(true);
       onSaved?.();
 
@@ -228,7 +228,6 @@ export function FieldConfigBuilder({
         className="divide-y rounded-xl border"
         style={{
           borderColor: "var(--border)",
-          divideColor: "var(--border)",
         }}
       >
         {rows.map((row, index) => {
@@ -329,7 +328,9 @@ export function FieldConfigBuilder({
                   style={{
                     borderColor: "var(--border)",
                     color: "var(--foreground)",
-                    ringColor: "var(--primary)",
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.outlineColor = "var(--primary)";
                   }}
                 />
               </div>

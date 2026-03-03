@@ -242,7 +242,7 @@ export function InstanceEditor({
     startTransition(async () => {
       const result = await submitInstance(instance.id);
       if (result.error) {
-        setSubmitError(result.error);
+        setSubmitError(result.error.message);
       } else if (result.data) {
         setStatus(result.data.status);
       }

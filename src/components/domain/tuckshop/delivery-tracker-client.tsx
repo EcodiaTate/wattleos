@@ -80,7 +80,7 @@ export function DeliveryTrackerClient({
   ) {
     haptics.impact("medium");
     startTransition(async () => {
-      await advanceDeliveryWeekStatus(weekId, { status });
+      await advanceDeliveryWeekStatus(weekId, { status, notes: null });
       router.refresh();
     });
   }

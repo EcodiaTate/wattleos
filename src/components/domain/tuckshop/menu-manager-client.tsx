@@ -116,13 +116,15 @@ export function MenuManagerClient({
     }
 
     const payload = {
+      supplier_id: form.supplier_id || null,
       name: form.name,
       description: form.description || null,
       category: form.category,
       price_cents: priceCents,
-      supplier_id: form.supplier_id || null,
       available_days: form.available_days,
+      image_url: null,
       is_active: form.is_active,
+      sort_order: 0,
     };
 
     startTransition(async () => {
