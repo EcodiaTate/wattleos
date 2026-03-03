@@ -18,6 +18,7 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     // TODO: Replace with Sentry or structured logging
+    //TOUCH
     console.error("Global error:", error);
   }, [error]);
 
