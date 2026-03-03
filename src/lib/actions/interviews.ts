@@ -526,17 +526,23 @@ export async function getInterviewSessionDashboard(
       session: sessionWithCounts,
       by_staff: Array.from(staffMap.values()),
       bookings: ((bookings ?? []) as RawBookingFull[])
-        .filter((b) => b.students !== null && b.interview_slots !== null)
-        .map((b) => ({
-          ...b,
-          student: b.students!,
-          slot: b.interview_slots!,
-          staff: typedSlots.find((s) => s.id === b.slot_id)?.users ?? {
-            id: "",
-            first_name: "Unknown",
-            last_name: "",
-          },
-        })),
+        .filter((b) => {
+          const fullSlot = typedSlots.find((s) => s.id === b.slot_id);
+          return b.students !== null && fullSlot !== undefined;
+        })
+        .map((b) => {
+          const fullSlot = typedSlots.find((s) => s.id === b.slot_id)!;
+          return {
+            ...b,
+            student: b.students!,
+            slot: fullSlot as unknown as InterviewSlot,
+            staff: fullSlot.users ?? {
+              id: "",
+              first_name: "Unknown",
+              last_name: "",
+            },
+          };
+        }),
     });
   } catch (err) {
     return failure(
@@ -1061,7 +1067,7 @@ export async function cancelInterviewBooking(
       .single();
 
     if (!booking) return failure("Booking not found", ErrorCodes.NOT_FOUND);
-    const typedCancelBooking = booking as RawBookingWithSessionSlot;
+    const typedCancelBooking = booking as unknown as RawBookingWithSessionSlot;
     if (typedCancelBooking.status !== "confirmed") {
       return failure(
         "Only confirmed bookings can be cancelled",
@@ -1207,7 +1213,7 @@ export async function getFamilyInterviewView(
       .eq("tenant_id", context.tenant.id)
       .eq("is_active", true);
 
-    const students = ((guardianLinks ?? []) as RawGuardianLink[])
+    const students = ((guardianLinks ?? []) as unknown as RawGuardianLink[])
       .map((link) => link.students)
       .filter((s): s is RawStudentBasic => s !== null);
 

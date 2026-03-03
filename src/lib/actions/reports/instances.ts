@@ -124,12 +124,7 @@ export async function listMyInstances(params?: {
       };
     });
 
-    return paginated(rows, {
-      page,
-      per_page: perPage,
-      total: count ?? 0,
-      total_pages: Math.ceil((count ?? 0) / perPage),
-    });
+    return paginated(rows, count ?? 0, page, perPage);
   } catch {
     return paginatedFailure("Failed to list report instances.");
   }
@@ -180,12 +175,9 @@ export async function listPeriodInstances(
         section_responses: (row.section_responses ??
           []) as ReportInstanceSectionResponse[],
       })),
-      {
-        page,
-        per_page: perPage,
-        total: count ?? 0,
-        total_pages: Math.ceil((count ?? 0) / perPage),
-      },
+      count ?? 0,
+      page,
+      perPage,
     );
   } catch {
     return paginatedFailure("Failed to list period instances.");

@@ -22,6 +22,7 @@ import { Permissions } from "@/lib/constants/permissions";
 import type { ActionResponse } from "@/types/api";
 import { success, failure, ErrorCodes } from "@/types/api";
 import type {
+  CurriculumLevel,
   ObservationTagSuggestion,
   ObservationTagSuggestionWithNode,
   ObservationTagSuggestionsResult,
@@ -537,7 +538,7 @@ function mapSuggestions(rows: unknown[]): ObservationTagSuggestionWithNode[] {
         ? {
             id: nodeRow.id as string,
             title: nodeRow.title as string,
-            level: nodeRow.level as string,
+            level: nodeRow.level as CurriculumLevel,
           }
         : null,
     } satisfies ObservationTagSuggestionWithNode;

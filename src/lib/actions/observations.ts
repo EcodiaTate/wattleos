@@ -451,7 +451,7 @@ export async function getObservationFeed(options?: {
 
   // observation_students map: obsId -> [{ student }]
   const studentsByObs = new Map<string, ObservationStudentJoin[]>();
-  for (const row of (studentsRes.data ?? []) as RawObservationStudentRow[]) {
+  for (const row of (studentsRes.data ?? []) as unknown as RawObservationStudentRow[]) {
     const obsId = row.observation_id;
     const student = row.student;
     if (!student) continue;
@@ -462,7 +462,7 @@ export async function getObservationFeed(options?: {
 
   // observation_outcomes map: obsId -> [{ curriculum_node }]
   const outcomesByObs = new Map<string, ObservationOutcomeJoin[]>();
-  for (const row of (outcomesRes.data ?? []) as RawObservationOutcomeRow[]) {
+  for (const row of (outcomesRes.data ?? []) as unknown as RawObservationOutcomeRow[]) {
     const obsId = row.observation_id;
     const node = row.curriculum_node;
     if (!node) continue;
@@ -557,11 +557,11 @@ export async function getObservation(
   type RawSingleStudentRow = { student: StudentPick | null };
   type RawSingleOutcomeRow = { curriculum_node: OutcomePick | null };
 
-  const observation_students: ObservationStudentJoin[] = ((studentsRes.data ?? []) as RawSingleStudentRow[])
+  const observation_students: ObservationStudentJoin[] = ((studentsRes.data ?? []) as unknown as RawSingleStudentRow[])
     .filter((r): r is RawSingleStudentRow & { student: StudentPick } => r.student !== null)
     .map((r) => ({ student: r.student }));
 
-  const observation_outcomes: ObservationOutcomeJoin[] = ((outcomesRes.data ?? []) as RawSingleOutcomeRow[])
+  const observation_outcomes: ObservationOutcomeJoin[] = ((outcomesRes.data ?? []) as unknown as RawSingleOutcomeRow[])
     .filter((r): r is RawSingleOutcomeRow & { curriculum_node: OutcomePick } => r.curriculum_node !== null)
     .map((r) => ({ curriculum_node: r.curriculum_node }));
 

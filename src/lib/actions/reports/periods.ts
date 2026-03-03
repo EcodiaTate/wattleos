@@ -119,12 +119,7 @@ export async function listReportPeriods(params?: {
 
     if (error) return paginatedFailure(error.message);
 
-    return paginated(data ?? [], {
-      page,
-      per_page: perPage,
-      total: count ?? 0,
-      total_pages: Math.ceil((count ?? 0) / perPage),
-    });
+    return paginated(data ?? [], count ?? 0, page, perPage);
   } catch {
     return paginatedFailure("Failed to list report periods.");
   }

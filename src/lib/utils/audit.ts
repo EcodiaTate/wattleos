@@ -80,6 +80,10 @@ export const AuditActions = {
   OBSERVATION_DELETED: "observation.deleted",
   OBSERVATION_MEDIA_ADDED: "observation.media_added",
   OBSERVATION_MEDIA_DELETED: "observation.media_deleted",
+  OBSERVATION_TAGS_GENERATED: "observation.tags_generated",
+  OBSERVATION_TAG_CONFIRMED: "observation.tag_confirmed",
+  OBSERVATION_TAG_DISMISSED: "observation.tag_dismissed",
+  OBSERVATION_TAGS_BULK_REVIEWED: "observation.tags_bulk_reviewed",
 
   // ── Attendance ──────────────────────────────────────────
   ATTENDANCE_MARKED: "attendance.marked",
