@@ -20,7 +20,7 @@ const config: CapacitorConfig = {
   server: {
     // During development, point to your local Next.js dev server.
     // Override via environment or build-time config.
-    url: process.env.CAPACITOR_SERVER_URL || "https://wattleos.au",
+    url: process.env.CAPACITOR_SERVER_URL || "https://wattleos.au/dashboard",
     cleartext: false, // HTTPS only in production
     allowNavigation: [
       "wattleos.au",
