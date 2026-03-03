@@ -24,8 +24,7 @@ export default async function NewReportPeriodPage() {
   }
 
   const templatesResult = await listReportTemplates({
-    active_only: true,
-    per_page: 100,
+    activeOnly: true,
   });
   const templates = templatesResult.data ?? [];
 
