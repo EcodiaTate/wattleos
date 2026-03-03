@@ -23,7 +23,7 @@ import {
   DEFAULT_REVIEW_CYCLE_DAYS,
 } from "@/lib/constants/ilp";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { AuditActions, logAudit } from "@/lib/utils/audit";
+import { AuditAction, AuditActions, logAudit } from "@/lib/utils/audit";
 import {
   createPlanSchema,
   updatePlanSchema,
@@ -759,7 +759,7 @@ export async function updateGoal(
     }
 
     // Choose audit action based on status change
-    let auditAction = AuditActions.ILP_GOAL_UPDATED;
+    let auditAction: AuditAction = AuditActions.ILP_GOAL_UPDATED;
     if (isStatusChange && v.goal_status === "achieved") {
       auditAction = AuditActions.ILP_GOAL_ACHIEVED;
     } else if (isStatusChange && v.goal_status === "discontinued") {
