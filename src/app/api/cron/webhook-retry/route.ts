@@ -144,7 +144,7 @@ async function retryEvent(event: EventRow): Promise<boolean> {
 
 async function retryStripeEvent(event: EventRow): Promise<boolean> {
   const supabase = createSupabaseAdminClient();
-  const stripeEvent = event.payload as Stripe.Event;
+  const stripeEvent = event.payload as unknown as Stripe.Event;
 
   const result = await processWebhook({
     provider: "stripe",
