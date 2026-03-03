@@ -142,7 +142,7 @@ export async function getDailyCareLogDashboard(): Promise<
       if (entryError) {
         return failure(entryError.message, ErrorCodes.DATABASE_ERROR);
       }
-      entries = (entryData ?? []) as Array<Record<string, unknown>>;
+      entries = (entryData ?? []) as unknown as Array<Record<string, unknown>>;
     }
 
     // Count eligible children (all active enrolled)
