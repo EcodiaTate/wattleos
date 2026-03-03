@@ -26,7 +26,7 @@ export default async function TuckshopAdminPage({ searchParams }: PageProps) {
 
   const [dashboardResult, menuResult, suppliersResult] = await Promise.all([
     getTuckshopDashboard(),
-    listMenuItems({ include_inactive: true }),
+    listMenuItems({ supplier_id: null, include_inactive: true }),
     listSuppliers(),
   ]);
 
