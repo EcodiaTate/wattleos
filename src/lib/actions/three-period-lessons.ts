@@ -34,12 +34,12 @@ import {
   type UpdateSensitivePeriodInput,
   type UpdateThreePeriodLessonInput,
 } from "@/lib/validations/three-period-lessons";
-import { failure, success } from "@/types/api";
+import { type ActionResponse, failure, success } from "@/types/api";
 import type {
-  ActionResponse,
   MaterialThreePeriodProgress,
   MontessoriArea,
   MontessoriMaterial,
+  MontessoriSensitivePeriod,
   SensitivePeriodMaterial,
   SensitivePeriodMaterialWithDetails,
   StudentSensitivePeriod,
@@ -473,7 +473,7 @@ export async function getThreePeriodDashboard(): Promise<
     >();
 
     for (const row of rows) {
-      const mat = row.material as { area: string } | null;
+      const mat = (row.material as unknown) as { area: string } | null;
       if (!mat) continue;
       // Use a composite key for student+material tracking
       // Since we don't have material_id in this select, group by what we have
@@ -492,7 +492,7 @@ export async function getThreePeriodDashboard(): Promise<
 
     for (const row of detailRows ?? []) {
       const key = `${row.student_id}:${row.material_id}`;
-      const mat = row.material as { area: string } | null;
+      const mat = (row.material as unknown) as { area: string } | null;
       const area = mat?.area ?? "unknown";
 
       const existing = progressMap.get(key);
@@ -1175,7 +1175,14 @@ export async function getStudentSensitivePeriodsWithMaterials(
       const suggestedIds = (row.suggested_material_ids as string[]) ?? [];
       return {
         ...(row as unknown as StudentSensitivePeriodWithDetails),
-        student: row.student as Pick<User, "id" | "first_name" | "last_name">,
+        student: (() => {
+          const s = row.student as Pick<User, "id" | "first_name" | "last_name"> | null;
+          return {
+            id: (s?.id ?? "") as string,
+            first_name: (s?.first_name ?? "") as string,
+            last_name: (s?.last_name ?? "") as string,
+          };
+        })(),
         suggested_materials: suggestedIds
           .map((mid) => suggestedMaterialMap.get(mid))
           .filter(Boolean) as Pick<

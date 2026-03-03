@@ -525,16 +525,18 @@ export async function getInterviewSessionDashboard(
     return success({
       session: sessionWithCounts,
       by_staff: Array.from(staffMap.values()),
-      bookings: ((bookings ?? []) as RawBookingFull[]).map((b) => ({
-        ...b,
-        student: b.students,
-        slot: b.interview_slots,
-        staff: typedSlots.find((s) => s.id === b.slot_id)?.users ?? {
-          id: "",
-          first_name: "Unknown",
-          last_name: "",
-        },
-      })),
+      bookings: ((bookings ?? []) as RawBookingFull[])
+        .filter((b) => b.students !== null && b.interview_slots !== null)
+        .map((b) => ({
+          ...b,
+          student: b.students!,
+          slot: b.interview_slots!,
+          staff: typedSlots.find((s) => s.id === b.slot_id)?.users ?? {
+            id: "",
+            first_name: "Unknown",
+            last_name: "",
+          },
+        })),
     });
   } catch (err) {
     return failure(
@@ -784,7 +786,9 @@ export async function listSlotsForSession(
         created_at: slot.created_at,
         updated_at: slot.updated_at,
         staff: slot.users ?? { id: "", first_name: "Unknown", last_name: "" },
-        booking: booking ? { ...booking, student: booking.students } : null,
+        booking: booking?.students
+          ? { ...booking, student: booking.students }
+          : null,
       };
     });
 
@@ -864,7 +868,9 @@ export async function getMyInterviewSchedule(
         created_at: slot.created_at,
         updated_at: slot.updated_at,
         staff: slot.users ?? { id: "", first_name: "Unknown", last_name: "" },
-        booking: booking ? { ...booking, student: booking.students } : null,
+        booking: booking?.students
+          ? { ...booking, student: booking.students }
+          : null,
       });
     }
 

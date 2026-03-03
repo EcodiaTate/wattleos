@@ -23,7 +23,7 @@ type RawSickBayRow = SickBayVisit & {
   students: { id: string; first_name: string; last_name: string; dob: string } | null;
   users: { id: string; first_name: string | null; last_name: string | null } | null;
 };
-import { AuditActions, logAudit } from "@/lib/utils/audit";
+import { AuditAction, AuditActions, logAudit } from "@/lib/utils/audit";
 import {
   createSickBayVisitSchema,
   type CreateSickBayVisitInput,
@@ -62,8 +62,14 @@ export async function getSickBayDashboard(): Promise<
     // Reshape to SickBayVisitWithStudent
     const reshaped: SickBayVisitWithStudent[] = visits.map((row) => ({
       ...row,
-      student: row.students,
-      recorder: row.users,
+      student: row.students!,
+      recorder: row.users
+        ? {
+            id: row.users.id,
+            first_name: row.users.first_name ?? "",
+            last_name: row.users.last_name ?? "",
+          }
+        : null,
     }));
 
     const todayVisits = reshaped.filter((v) => v.visit_date === today);
@@ -115,8 +121,14 @@ export async function getSickBayVisit(
     const row = data as RawSickBayRow;
     const reshaped: SickBayVisitWithStudent = {
       ...row,
-      student: row.students,
-      recorder: row.users,
+      student: row.students!,
+      recorder: row.users
+        ? {
+            id: row.users.id,
+            first_name: row.users.first_name ?? "",
+            last_name: row.users.last_name ?? "",
+          }
+        : null,
     };
 
     return success(reshaped);
@@ -188,8 +200,14 @@ export async function listSickBayVisits(
     const records: SickBayVisitWithStudent[] = ((data ?? []) as RawSickBayRow[]).map(
       (row) => ({
         ...row,
-        student: row.students,
-        recorder: row.users,
+        student: row.students!,
+        recorder: row.users
+          ? {
+              id: row.users.id,
+              first_name: row.users.first_name ?? "",
+              last_name: row.users.last_name ?? "",
+            }
+          : null,
       }),
     );
 
@@ -301,7 +319,7 @@ export async function updateSickBayVisit(
     if (error) return failure(error.message, ErrorCodes.UPDATE_FAILED);
 
     // Log audit with action based on status change
-    let auditAction = AuditActions.SICK_BAY_VISIT_UPDATED;
+    let auditAction: AuditAction = AuditActions.SICK_BAY_VISIT_UPDATED;
     if (parsed.data.status && parsed.data.status !== existing.status) {
       if (parsed.data.status === "resolved") {
         auditAction = AuditActions.SICK_BAY_VISIT_RESOLVED;
