@@ -1,4 +1,4 @@
--- supabase/migrations/00004_staff_management.sql
+-- supabase/migrations/00058_staff_management.sql
 --
 -- ============================================================
 -- WattleOS V2 - Staff Management (Module 15)

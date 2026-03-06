@@ -1,4 +1,4 @@
--- supabase/migrations/00020_visitor_contractor_log.sql
+-- supabase/migrations/00059_visitor_contractor_log.sql
 --
 -- ============================================================
 -- WattleOS V2 — Visitor & Contractor Sign-In Log

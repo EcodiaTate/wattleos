@@ -1,4 +1,4 @@
--- 00040_montessori_literacy_hub.sql
+-- 00064_montessori_literacy_hub.sql
 -- Parent Montessori Literacy Hub — in-app guides explaining Montessori concepts,
 -- linked contextually from observations and portfolios.
 

@@ -1,4 +1,4 @@
--- Migration: 00052_incident_escalation_index
+-- Migration: 00066_incident_escalation_index
 --
 -- Adds a partial index to support the hourly NQA escalation cron job.
 -- The cron queries: serious incidents where regulator_notified_at IS NULL,

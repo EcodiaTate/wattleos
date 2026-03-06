@@ -1,5 +1,5 @@
 -- ============================================================
--- WattleOS V2 - Migration 00045: Newsletter Module
+-- WattleOS V2 - Migration 00065: Newsletter Module
 -- ============================================================
 -- Rich-text newsletter templates, scheduled send, audience
 -- targeting, and read-receipt tracking. Distinct from

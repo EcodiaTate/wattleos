@@ -1,4 +1,4 @@
--- supabase/migrations/00025_naplan_coordination.sql
+-- supabase/migrations/00060_naplan_coordination.sql
 --
 -- ============================================================
 -- NAPLAN Coordination

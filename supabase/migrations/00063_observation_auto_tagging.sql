@@ -1,4 +1,4 @@
--- 00039_observation_auto_tagging.sql
+-- 00063_observation_auto_tagging.sql
 -- ============================================================
 -- Observation Auto-Tagging — AI-suggested EYLF/NQF +
 -- Montessori area tags presented as confirmable chips.
