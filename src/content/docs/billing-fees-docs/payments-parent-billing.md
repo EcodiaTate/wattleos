@@ -1,6 +1,6 @@
 # Payments and Parent Billing
 
-Payment records in WattleOS track every transaction against an invoice — successful payments, failed attempts, and refunds. On the parent side, the billing page provides a transparent view of what has been charged, what is due, and how to pay.
+Payment records in WattleOS track every transaction against an invoice - successful payments, failed attempts, and refunds. On the parent side, the billing page provides a transparent view of what has been charged, what is due, and how to pay.
 
 ## Payment Records
 
@@ -8,19 +8,19 @@ Every time Stripe processes a payment event against a WattleOS invoice, a paymen
 
 For successful payments, the record includes the Stripe payment intent ID, the charge ID, the payment method type (typically "card"), the last four digits of the card used, and the timestamp when payment was received. For failed payments, the record includes the failure reason (for example, "Payment declined") and the payment intent ID for reference.
 
-Refund information is stored on the original payment record. When a refund is processed through Stripe, the refund amount in cents and the refund reason are added to the payment. This keeps the full financial history for an invoice in one place — you can see the original payment, any partial refunds, and the net amount.
+Refund information is stored on the original payment record. When a refund is processed through Stripe, the refund amount in cents and the refund reason are added to the payment. This keeps the full financial history for an invoice in one place - you can see the original payment, any partial refunds, and the net amount.
 
 ## How Payment Status Updates Work
 
 Payment status updates are entirely automated through Stripe webhooks. When a parent pays an invoice through Stripe's hosted payment page, Stripe sends an `invoice.paid` event to WattleOS. The webhook handler verifies the signature, finds the matching WattleOS invoice using metadata, updates the invoice status to paid, and creates a succeeded payment record. No manual intervention is needed.
 
-If a payment fails — for example, the parent's card is declined — Stripe sends an `invoice.payment_failed` event. WattleOS marks the invoice as overdue (not void, since Stripe may retry the charge according to its retry schedule) and creates a failed payment record. The school can see the failure in the billing dashboard and follow up with the parent.
+If a payment fails - for example, the parent's card is declined - Stripe sends an `invoice.payment_failed` event. WattleOS marks the invoice as overdue (not void, since Stripe may retry the charge according to its retry schedule) and creates a failed payment record. The school can see the failure in the billing dashboard and follow up with the parent.
 
 ## The Parent Billing View
 
-Parents access their billing information through the parent portal's **Billing** page. This shows a list of their invoices with the invoice number, total amount, due date, and payment status. Draft invoices are excluded from the parent view — parents only see invoices that have been synced to Stripe (pending, sent, paid, overdue, or voided).
+Parents access their billing information through the parent portal's **Billing** page. This shows a list of their invoices with the invoice number, total amount, due date, and payment status. Draft invoices are excluded from the parent view - parents only see invoices that have been synced to Stripe (pending, sent, paid, overdue, or voided).
 
-For invoices that have a Stripe hosted URL (which is set after syncing to Stripe), a link takes the parent directly to Stripe's payment page. There they can see the full line-item breakdown, the total, and submit payment using a saved payment method or a new card. The payment experience is handled entirely by Stripe's hosted page — WattleOS does not collect or display any card information.
+For invoices that have a Stripe hosted URL (which is set after syncing to Stripe), a link takes the parent directly to Stripe's payment page. There they can see the full line-item breakdown, the total, and submit payment using a saved payment method or a new card. The payment experience is handled entirely by Stripe's hosted page - WattleOS does not collect or display any card information.
 
 After payment, the parent sees the invoice status update to paid in the portal. The Stripe hosted page also serves as a receipt, and Stripe can be configured to email payment receipts directly to the parent.
 
@@ -42,4 +42,4 @@ The billing system is designed for straightforward reconciliation. Every WattleO
 
 ## Permissions
 
-The billing dashboard and all administrative billing actions require the **MANAGE_INTEGRATIONS** permission. Parents can view their own invoices and make payments without any staff permissions — their access is controlled by the guardian relationship, and they can only see invoices where they are the named guardian.
+The billing dashboard and all administrative billing actions require the **MANAGE_INTEGRATIONS** permission. Parents can view their own invoices and make payments without any staff permissions - their access is controlled by the guardian relationship, and they can only see invoices where they are the named guardian.

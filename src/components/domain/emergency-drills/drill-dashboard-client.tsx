@@ -101,7 +101,7 @@ function ComplianceCard({ item }: { item: DrillComplianceSummary }) {
                     : "var(--foreground)",
             }}
           >
-            {item.days_since_last !== null ? `${item.days_since_last}d` : "—"}
+            {item.days_since_last !== null ? `${item.days_since_last}d` : "-"}
           </span>
         </div>
         <div className="flex items-baseline justify-between text-xs">

@@ -12,7 +12,7 @@
 //   MANAGE_WELLBEING       - write flags, check-ins, pastoral records
 //   MANAGE_REFERRALS       - write referrals
 //   VIEW_COUNSELLOR_NOTES  - read case notes (restricted)
-//   MANAGE_COUNSELLOR_NOTES— write case notes (restricted)
+//   MANAGE_COUNSELLOR_NOTES- write case notes (restricted)
 //
 // All data is tenant-isolated and soft-deleted.
 // ============================================================

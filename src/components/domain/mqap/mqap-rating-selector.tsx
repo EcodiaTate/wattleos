@@ -9,7 +9,7 @@ interface MqapRatingSelectorProps {
 }
 
 const OPTIONS: Array<{ value: MqapRating | null; label: string; short: string }> = [
-  { value: null, label: "Not assessed", short: "—" },
+  { value: null, label: "Not assessed", short: "-" },
   { value: "working_towards", label: "Working Towards", short: "WT" },
   { value: "meeting", label: "Meeting", short: "M" },
   { value: "exceeding", label: "Exceeding", short: "E" },

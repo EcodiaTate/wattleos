@@ -183,7 +183,7 @@ npx cap sync android && npx cap open android
 
 ## Usage Examples
 
-### Observation Form — Replace File Input with Native Camera
+### Observation Form - Replace File Input with Native Camera
 ```tsx
 import { capturePhoto, tapMedium, notifySuccess } from "@/lib/native";
 
@@ -203,7 +203,7 @@ async function handleAddPhoto() {
 }
 ```
 
-### Attendance — Haptic Feedback on Toggle
+### Attendance - Haptic Feedback on Toggle
 ```tsx
 import { tapLight, notifySuccess } from "@/lib/native";
 

@@ -1,6 +1,6 @@
 # Logging Time
 
-The timesheet grid is where staff record their daily hours during each pay period. It is designed for quick entry — each day of the period appears as a row where you enter your start time, end time, break duration, and entry type. Hours are calculated automatically, and a submit button sends the completed timesheet for approval.
+The timesheet grid is where staff record their daily hours during each pay period. It is designed for quick entry - each day of the period appears as a row where you enter your start time, end time, break duration, and entry type. Hours are calculated automatically, and a submit button sends the completed timesheet for approval.
 
 ## The Timesheet Grid
 
@@ -20,13 +20,13 @@ The entry type affects how hours are tallied. When you submit your timesheet, Wa
 
 Click on any day's row to edit the start time, end time, break, and type. The total hours are calculated automatically as (end time minus start time minus break duration). For example, 8:30 AM to 3:30 PM with a 30-minute break gives 6.5 hours.
 
-If your schedule is consistent, the **Fill Defaults** button populates all empty weekday rows with the default start time, end time, and break from your school's payroll settings. This is a significant time-saver — you fill defaults, then adjust only the days that were different (a sick day, a late start, overtime).
+If your schedule is consistent, the **Fill Defaults** button populates all empty weekday rows with the default start time, end time, and break from your school's payroll settings. This is a significant time-saver - you fill defaults, then adjust only the days that were different (a sick day, a late start, overtime).
 
 Notes can be added to any day's entry for additional context, such as "covered Year 6 class" or "parent-teacher conferences." Notes are visible to the approver.
 
 ## Saving Entries
 
-Time entries are saved individually as you complete each day's row. Each save creates or updates a time entry record linked to your user account and the current pay period. You do not need to save the entire grid at once — entries persist as you go.
+Time entries are saved individually as you complete each day's row. Each save creates or updates a time entry record linked to your user account and the current pay period. You do not need to save the entire grid at once - entries persist as you go.
 
 ## Deleting Entries
 
@@ -42,4 +42,4 @@ Click the **History** link on the timesheet page to see past timesheets across a
 
 ## Permissions
 
-Logging time entries and submitting timesheets requires the **LOG_TIME** permission. This is typically granted to all staff — guides, coordinators, and administrators. Time entries are scoped to your own user account; you cannot log hours on behalf of another staff member.
+Logging time entries and submitting timesheets requires the **LOG_TIME** permission. This is typically granted to all staff - guides, coordinators, and administrators. Time entries are scoped to your own user account; you cannot log hours on behalf of another staff member.

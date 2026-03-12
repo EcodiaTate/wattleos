@@ -56,7 +56,7 @@ export function NativeInitializer() {
       if (!anchor) return;
       const href = anchor.getAttribute("href");
       if (!href) return;
-      // Only intercept absolute URLs (http/https) — internal Next.js
+      // Only intercept absolute URLs (http/https) - internal Next.js
       // navigation uses relative paths and should not be intercepted.
       if (!/^https?:\/\//i.test(href)) return;
       e.preventDefault();

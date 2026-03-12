@@ -12,12 +12,12 @@ The attendance view is available at `/parent/{studentId}/attendance`.
 
 At the top of the page, six summary cards show your child's attendance at a glance:
 
-- **Total Days** — The total number of school days with an attendance record
-- **Present** — Days your child was recorded as present (green)
-- **Absent** — Days your child was absent (red)
-- **Late** — Days your child arrived late (amber)
-- **Excused** — Days your child had an excused absence (blue)
-- **Attendance Rate** — The overall attendance percentage, calculated as the proportion of days your child was present, late, or attending a half day out of total days
+- **Total Days** - The total number of school days with an attendance record
+- **Present** - Days your child was recorded as present (green)
+- **Absent** - Days your child was absent (red)
+- **Late** - Days your child arrived late (amber)
+- **Excused** - Days your child had an excused absence (blue)
+- **Attendance Rate** - The overall attendance percentage, calculated as the proportion of days your child was present, late, or attending a half day out of total days
 
 ## Attendance Records
 

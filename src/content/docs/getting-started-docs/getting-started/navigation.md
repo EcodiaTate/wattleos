@@ -1,6 +1,6 @@
 # Navigating WattleOS
 
-The sidebar on the left side of the screen is your primary way to move between sections of WattleOS. What you see in the sidebar depends entirely on your role and permissions — you will never see a link to a section you cannot access.
+The sidebar on the left side of the screen is your primary way to move between sections of WattleOS. What you see in the sidebar depends entirely on your role and permissions - you will never see a link to a section you cannot access.
 
 ## Sidebar Layout
 
@@ -22,7 +22,7 @@ The sidebar is permission-gated, meaning it only shows items relevant to your ro
 
 **Administrators** see everything guides see, plus: Enrollment, Admissions, and Admin (which includes school settings, roles and permissions, data import, and integrations).
 
-**Custom roles** (like "Office Coordinator" or "Music Specialist") see only the items that match the specific permissions assigned to their role. For example, an office coordinator with attendance and enrollment permissions but no pedagogy permissions would see Dashboard, Students, Classes, Attendance, Enrollment, and Settings — but not Observations, Curriculum, or Mastery.
+**Custom roles** (like "Office Coordinator" or "Music Specialist") see only the items that match the specific permissions assigned to their role. For example, an office coordinator with attendance and enrollment permissions but no pedagogy permissions would see Dashboard, Students, Classes, Attendance, Enrollment, and Settings - but not Observations, Curriculum, or Mastery.
 
 The system determines whether you are a "staff" user or a "parent" user based on your permissions. If you have any pedagogy, student management, or attendance permissions, you see the staff navigation. If you have none of these, you see the parent navigation.
 
@@ -32,7 +32,7 @@ The Communications and Announcements sidebar items show a badge with the count o
 
 ## Collapsing the Sidebar
 
-On desktop, you can collapse the sidebar to icon-only mode by clicking the arrow tab on the right edge of the sidebar. This reclaims approximately 256 pixels of screen width for content — useful when you are focused on writing observations or reviewing mastery grids.
+On desktop, you can collapse the sidebar to icon-only mode by clicking the arrow tab on the right edge of the sidebar. This reclaims approximately 256 pixels of screen width for content - useful when you are focused on writing observations or reviewing mastery grids.
 
 When collapsed, hovering over any icon shows a tooltip with the item's name. Click the arrow tab again to expand the sidebar back to full width.
 
@@ -40,7 +40,7 @@ Your collapsed or expanded preference is saved in your browser's local storage, 
 
 ## Mobile and Tablet Navigation
 
-On iPad and mobile devices (screens narrower than the desktop breakpoint), the sidebar starts collapsed to a slim icon bar. Tapping any icon opens the full sidebar as an overlay panel. The overlay has a semi-transparent backdrop — tap outside the sidebar or navigate to a page to close it.
+On iPad and mobile devices (screens narrower than the desktop breakpoint), the sidebar starts collapsed to a slim icon bar. Tapping any icon opens the full sidebar as an overlay panel. The overlay has a semi-transparent backdrop - tap outside the sidebar or navigate to a page to close it.
 
 This design prioritises content space on smaller screens while keeping all navigation accessible with a single tap.
 
@@ -48,7 +48,7 @@ This design prioritises content space on smaller screens while keeping all navig
 
 If you belong to more than one WattleOS school, the sidebar shows a **Switch School** button near your profile at the bottom. Clicking this clears your current school context and takes you to the school picker, where you can select a different school. All data, navigation, and permissions update to reflect the selected school.
 
-If you only belong to one school, the Switch School button is hidden — there is nothing to switch to.
+If you only belong to one school, the Switch School button is hidden - there is nothing to switch to.
 
 ## Quick Navigation
 

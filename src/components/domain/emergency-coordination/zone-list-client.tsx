@@ -92,7 +92,7 @@ export function ZoneListClient({
               color: zone.is_active ? "var(--zone-clear-fg)" : "var(--muted-foreground)",
             }}
           >
-            {zone.is_active ? "✓" : "—"}
+            {zone.is_active ? "✓" : "-"}
           </div>
           {canManage && (
             <div className="flex gap-1">

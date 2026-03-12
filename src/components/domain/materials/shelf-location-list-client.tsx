@@ -130,7 +130,7 @@ export function ShelfLocationListClient({
               Room Type
             </label>
             <select value={roomType} onChange={(e) => setRoomType(e.target.value)} className={selectCls} style={{ color: "var(--text-primary)" }}>
-              <option value="">—</option>
+              <option value="">-</option>
               {ROOM_TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>

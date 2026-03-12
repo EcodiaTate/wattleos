@@ -6,15 +6,15 @@ Custody restrictions are among the most sensitive records in WattleOS. They docu
 
 Each custody restriction record identifies a restricted person by name and specifies what type of restriction applies. The four restriction types are:
 
-**No Contact** — the restricted person may not have any contact with the child on school premises. This includes direct interaction, passing messages, or being present during pickup and drop-off. **No Pickup** — the restricted person is specifically prohibited from collecting the child from school, but may not be subject to a broader contact restriction. **Supervised Only** — the restricted person may have contact with the child, but only under supervision by a staff member. **No Information** — the restricted person may not receive any information about the child, including academic progress, attendance, medical updates, or even confirmation of enrollment.
+**No Contact** - the restricted person may not have any contact with the child on school premises. This includes direct interaction, passing messages, or being present during pickup and drop-off. **No Pickup** - the restricted person is specifically prohibited from collecting the child from school, but may not be subject to a broader contact restriction. **Supervised Only** - the restricted person may have contact with the child, but only under supervision by a staff member. **No Information** - the restricted person may not receive any information about the child, including academic progress, attendance, medical updates, or even confirmation of enrollment.
 
-A single child can have multiple restrictions — for example, one person may be subject to no contact while another is restricted to supervised visits only.
+A single child can have multiple restrictions - for example, one person may be subject to no contact while another is restricted to supervised visits only.
 
 ## Creating a Restriction
 
 Custody restrictions are added from the student's profile by a user with the appropriate safety permission. Each record requires the restricted person's name and the restriction type. You can also record a court order reference number, upload or link to a court order document, and add notes providing context or instructions for staff.
 
-Every restriction must have an effective date — the date from which the restriction is in force. An optional expiry date can be set if the restriction is time-limited (for example, an interim court order that expires after a hearing). If no expiry date is set, the restriction is treated as ongoing.
+Every restriction must have an effective date - the date from which the restriction is in force. An optional expiry date can be set if the restriction is time-limited (for example, an interim court order that expires after a hearing). If no expiry date is set, the restriction is treated as ongoing.
 
 Custody restriction data collected during the enrollment application process is automatically converted into structured restriction records when the application is approved. If a parent listed custody restrictions on their enrollment form, those details appear on the student's profile from day one.
 
@@ -22,7 +22,7 @@ Custody restriction data collected during the enrollment application process is 
 
 The restricted person's name, court order reference, and notes fields are encrypted at the database level. WattleOS uses field-level encryption for custody data because this information is legally sensitive and must be protected against unauthorized access, including database-level breaches. Even someone with direct database access cannot read these fields without the encryption key.
 
-This encryption is transparent to authorized users — when you view a custody restriction in the WattleOS interface with the correct permissions, the data is decrypted automatically. You do not need to do anything special to read or edit encrypted fields.
+This encryption is transparent to authorized users - when you view a custody restriction in the WattleOS interface with the correct permissions, the data is decrypted automatically. You do not need to do anything special to read or edit encrypted fields.
 
 ## How Restrictions Appear in the Platform
 
@@ -32,7 +32,7 @@ When staff use the check-in/check-out system, custody restrictions inform the pi
 
 ## Editing and Removing Restrictions
 
-Restrictions can be updated to change the type, modify the court order reference, adjust dates, or add notes. Like all sensitive records in WattleOS, deletion is a soft delete — the record is marked as removed but retained indefinitely for legal and audit purposes. This is particularly important for custody data, where schools may need to demonstrate what restrictions were in place at a specific point in time.
+Restrictions can be updated to change the type, modify the court order reference, adjust dates, or add notes. Like all sensitive records in WattleOS, deletion is a soft delete - the record is marked as removed but retained indefinitely for legal and audit purposes. This is particularly important for custody data, where schools may need to demonstrate what restrictions were in place at a specific point in time.
 
 All changes to custody restrictions are captured in the audit trail, including who made the change and when. This provides schools with a defensible record if restriction compliance is ever questioned.
 
@@ -42,7 +42,7 @@ Custody restrictions have the strictest access control in WattleOS. They are not
 
 At the database level, custody restrictions are protected by a dedicated row-level security policy that checks for the safety permission specifically. This is a separate policy from the general tenant isolation applied to other tables. Even within the same school, a guide who can view student profiles and medical conditions cannot see custody data unless they hold the safety records permission.
 
-Parents do not have direct access to custody restriction records through the parent portal. This is intentional — in custody disputes, both parties may have portal access, and exposing restriction details to the restricted party could compromise the child's safety. Schools should communicate restriction details to the relevant guardian through secure, offline channels.
+Parents do not have direct access to custody restriction records through the parent portal. This is intentional - in custody disputes, both parties may have portal access, and exposing restriction details to the restricted party could compromise the child's safety. Schools should communicate restriction details to the relevant guardian through secure, offline channels.
 
 ## Permissions
 

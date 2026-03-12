@@ -13,7 +13,7 @@
 // this interactive shell to the browser.
 //
 // DESIGN: Uses WattleOS global CSS variables (--audit-*)
-// for severity badges. No emojis — SVG icons throughout.
+// for severity badges. No emojis - SVG icons throughout.
 //
 // EXPORT: CSV export for compliance and auditor handoff.
 // Exports all logs matching current filters (not just the

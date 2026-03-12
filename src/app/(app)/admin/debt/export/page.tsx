@@ -23,7 +23,7 @@ export default async function DebtExportPage() {
     redirect("/admin/debt?export_error=1");
   }
 
-  // We can't return a Response from a page component in Next.js app router —
+  // We can't return a Response from a page component in Next.js app router -
   // redirect the user back and expose the CSV via a route handler instead.
   // For now, show a simple download UI.
   const csvData = result.data;

@@ -299,7 +299,7 @@ export function MedicationRegister({
                     >
                       {admin.witness
                         ? `${admin.witness.first_name} ${admin.witness.last_name}`
-                        : "—"}
+                        : "-"}
                     </td>
                     <td className="px-4 py-3 text-center">
                       {admin.parent_notified ? (

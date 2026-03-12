@@ -6,9 +6,9 @@ WattleOS provides two complementary views of student progress: the individual st
 
 The portfolio is a chronological timeline of a student's learning journey. It interleaves two types of events:
 
-**Observations** — Published observations where the student is tagged, showing the observation content, author, linked curriculum outcomes, and media count. Each observation entry includes a snippet of the text and a link to the full observation detail page.
+**Observations** - Published observations where the student is tagged, showing the observation content, author, linked curriculum outcomes, and media count. Each observation entry includes a snippet of the text and a link to the full observation detail page.
 
-**Mastery changes** — Status transitions (e.g. "Not Started → Presented" or "Practicing → Mastered"), showing which outcome changed, the new status, and which guide made the change.
+**Mastery changes** - Status transitions (e.g. "Not Started → Presented" or "Practicing → Mastered"), showing which outcome changed, the new status, and which guide made the change.
 
 Events are sorted by date with the most recent at the top, creating a reverse-chronological narrative of the student's experience.
 
@@ -24,9 +24,9 @@ There are two paths to a student's portfolio:
 
 At the top of the portfolio, summary cards show the student's progress across each active curriculum instance:
 
-- **Total outcomes** — The number of visible outcomes in the curriculum
-- **Not Started / Presented / Practicing / Mastered** — Counts for each status
-- **Progress bar** — A visual representation of the mastery distribution
+- **Total outcomes** - The number of visible outcomes in the curriculum
+- **Not Started / Presented / Practicing / Mastered** - Counts for each status
+- **Progress bar** - A visual representation of the mastery distribution
 
 These cards give a quick snapshot before diving into the detailed timeline. A student with 120 total outcomes showing 45 mastered, 30 practicing, 25 presented, and 20 not started provides an immediately readable picture of their progress.
 
@@ -46,10 +46,10 @@ Navigate to **Mastery** and click **Heatmap** (or go directly to `/pedagogy/mast
 
 The heatmap uses the standard mastery colours:
 
-- **Grey** — Not Started
-- **Blue** — Presented
-- **Amber** — Practicing
-- **Green** — Mastered
+- **Grey** - Not Started
+- **Blue** - Presented
+- **Amber** - Practicing
+- **Green** - Mastered
 
 Students are listed alphabetically by last name down the left side. Curriculum outcomes are arranged across the top in sequence order, grouped by area.
 
@@ -83,6 +83,6 @@ Draft and archived observations are not visible to parents. The timeline gives p
 
 ## Permissions
 
-- **View Students** — Required to access student portfolios (staff view)
-- **Manage Mastery** — Required to access the class heatmap
-- **Parent role** — Automatically grants access to their own children's portfolios through the Parent Portal
+- **View Students** - Required to access student portfolios (staff view)
+- **Manage Mastery** - Required to access the class heatmap
+- **Parent role** - Automatically grants access to their own children's portfolios through the Parent Portal

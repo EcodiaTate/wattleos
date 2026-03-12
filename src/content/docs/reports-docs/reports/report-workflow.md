@@ -10,7 +10,7 @@ Every report starts as a draft after generation. In this stage, the teacher writ
 
 **Available actions**: Submit for Review
 
-A draft report can be edited freely. It is only visible to staff with the Manage Reports permission — parents cannot see draft reports.
+A draft report can be edited freely. It is only visible to staff with the Manage Reports permission - parents cannot see draft reports.
 
 ### Review
 
@@ -18,7 +18,7 @@ After the teacher completes their writing, they submit the report for review. In
 
 **Available actions**: Send Back to Draft, Approve
 
-If the reviewer identifies issues — missing content, unclear language, factual errors — they send the report back to draft with feedback. The teacher then revises and resubmits.
+If the reviewer identifies issues - missing content, unclear language, factual errors - they send the report back to draft with feedback. The teacher then revises and resubmits.
 
 If the report meets standards, the reviewer approves it.
 
@@ -55,10 +55,10 @@ Attempting an invalid transition (e.g. Draft → Published) returns an error wit
 
 Each status has a colour-coded badge in the UI:
 
-- **Draft** — Styled with the report-draft colour variable
-- **In Review** — Styled with the report-review colour variable
-- **Approved** — Styled with the report-approved colour variable
-- **Published** — Styled with the report-published colour variable
+- **Draft** - Styled with the report-draft colour variable
+- **In Review** - Styled with the report-review colour variable
+- **Approved** - Styled with the report-approved colour variable
+- **Published** - Styled with the report-published colour variable
 
 These colours are part of WattleOS's design system and adapt to the school's theme settings.
 
@@ -70,7 +70,7 @@ All status transitions are audit-logged, recording who changed the status, what 
 
 ## Deleting Reports
 
-Draft and review reports can be deleted (soft-deleted). Published reports cannot be deleted — they must be unpublished first, which returns them to approved status, and then they still cannot be deleted because they have been distributed. This protects the integrity of reports that parents have already seen.
+Draft and review reports can be deleted (soft-deleted). Published reports cannot be deleted - they must be unpublished first, which returns them to approved status, and then they still cannot be deleted because they have been distributed. This protects the integrity of reports that parents have already seen.
 
 Approved reports that have never been published can be sent back to review and then to draft, where they become deletable.
 
@@ -86,4 +86,4 @@ A typical end-of-term reporting cycle looks like:
 
 ## Permissions
 
-**Manage Reports** — Required for all workflow transitions. Any staff member with this permission can move reports through the workflow. Schools should limit this permission to guides and administrators to maintain quality control.
+**Manage Reports** - Required for all workflow transitions. Any staff member with this permission can move reports through the workflow. Schools should limit this permission to guides and administrators to maintain quality control.

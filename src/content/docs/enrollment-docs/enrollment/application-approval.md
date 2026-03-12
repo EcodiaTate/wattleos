@@ -1,6 +1,6 @@
 # Application Approval
 
-Approving an enrollment application is the most powerful single action in WattleOS. One click triggers a cascade that creates the student record, enrollment, guardian links, medical conditions, emergency contacts, custody restrictions, consent records, and parent invitations — all from the data the family provided in their application. Zero re-entry.
+Approving an enrollment application is the most powerful single action in WattleOS. One click triggers a cascade that creates the student record, enrollment, guardian links, medical conditions, emergency contacts, custody restrictions, consent records, and parent invitations - all from the data the family provided in their application. Zero re-entry.
 
 ## The Approval Cascade
 
@@ -36,7 +36,7 @@ For each emergency contact beyond the guardians, creates an emergency_contacts r
 
 ### Step 6: Create Custody Restrictions
 
-For each custody restriction from the application, creates a safety record linked to the student. This is particularly sensitive data — custody restrictions control which individuals are not permitted to collect the child.
+For each custody restriction from the application, creates a safety record linked to the student. This is particularly sensitive data - custody restrictions control which individuals are not permitted to collect the child.
 
 ### Step 7: Create Parent Invitations
 
@@ -50,8 +50,8 @@ Sets the application status to "approved," records the reviewing administrator a
 
 Before approving, the administrator must:
 
-1. **Assign a class** — Select which class the student will join. Approval is blocked without a class assignment.
-2. **Review the application** — The application must be in Submitted, Under Review, or Changes Requested status. Draft, already-approved, or rejected applications cannot be approved.
+1. **Assign a class** - Select which class the student will join. Approval is blocked without a class assignment.
+2. **Review the application** - The application must be in Submitted, Under Review, or Changes Requested status. Draft, already-approved, or rejected applications cannot be approved.
 
 ## What the Family Experiences
 
@@ -59,15 +59,15 @@ After approval, the family receives:
 
 - Invitation emails for each guardian to create their WattleOS account
 - When they accept the invitation and log in, they see their child in the Parent Portal with the portfolio, attendance, reports, and communications already accessible
-- All the information they provided in the application — medical conditions, emergency contacts, guardian details — is already in the system with no need to re-enter anything
+- All the information they provided in the application - medical conditions, emergency contacts, guardian details - is already in the system with no need to re-enter anything
 
 ## Rejection
 
-If an application does not meet requirements, administrators can reject it. Rejection updates the application status and records the reviewer, but does not trigger any cascade — no student record, enrollment, or invitations are created.
+If an application does not meet requirements, administrators can reject it. Rejection updates the application status and records the reviewer, but does not trigger any cascade - no student record, enrollment, or invitations are created.
 
 Rejected applications are preserved in the system for audit purposes but can be filtered out of the active applications list.
 
 ## Permissions
 
-- **Approve Applications** — Required to trigger the approval cascade. This is the most consequential enrollment permission because it creates student records, guardian links, and invitations in a single action.
-- **Review Applications** — Required to view application details and assign classes (prerequisite for approval).
+- **Approve Applications** - Required to trigger the approval cascade. This is the most consequential enrollment permission because it creates student records, guardian links, and invitations in a single action.
+- **Review Applications** - Required to view application details and assign classes (prerequisite for approval).

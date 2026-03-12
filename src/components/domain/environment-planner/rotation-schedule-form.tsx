@@ -168,7 +168,7 @@ export function RotationScheduleForm({ schedule, locations, plans, backHref }: P
           value={form.location_id}
           onChange={(e) => set("location_id", e.target.value)}
         >
-          <option value="">— All / unspecified —</option>
+          <option value="">- All / unspecified -</option>
           {locations.filter((l) => l.is_active).map((l) => (
             <option key={l.id} value={l.id}>{l.name}</option>
           ))}
@@ -185,7 +185,7 @@ export function RotationScheduleForm({ schedule, locations, plans, backHref }: P
             value={form.plan_id}
             onChange={(e) => set("plan_id", e.target.value)}
           >
-            <option value="">— No linked plan —</option>
+            <option value="">- No linked plan -</option>
             {plans.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}

@@ -6,13 +6,13 @@ Mastery tracking is how WattleOS records each student's progress through the cur
 
 WattleOS uses four mastery statuses that align with the Montessori three-period lesson model:
 
-**Not Started** (grey) — The student has not been introduced to this material or concept. This is the default state for all outcomes. No database record exists until the status is changed — "not started" is implied by the absence of a mastery record.
+**Not Started** (grey) - The student has not been introduced to this material or concept. This is the default state for all outcomes. No database record exists until the status is changed - "not started" is implied by the absence of a mastery record.
 
-**Presented** (blue) — The guide has given the initial lesson or presentation. In Montessori terms, this means the student has had their first period lesson. They have been shown the material and how to use it, but have not yet worked with it independently.
+**Presented** (blue) - The guide has given the initial lesson or presentation. In Montessori terms, this means the student has had their first period lesson. They have been shown the material and how to use it, but have not yet worked with it independently.
 
-**Practicing** (amber) — The student is working with the material independently. They may still make errors and are developing fluency. In Montessori terms, this covers the second and third period — the student is choosing the work, repeating it, and building competence.
+**Practicing** (amber) - The student is working with the material independently. They may still make errors and are developing fluency. In Montessori terms, this covers the second and third period - the student is choosing the work, repeating it, and building competence.
 
-**Mastered** (green) — The student demonstrates consistent, independent competence. They can use the material correctly without guidance, can teach it to a peer, or can apply the concept in new contexts. This is the goal state.
+**Mastered** (green) - The student demonstrates consistent, independent competence. They can use the material correctly without guidance, can teach it to a peer, or can apply the concept in new contexts. This is the goal state.
 
 ## The Mastery Grid
 
@@ -30,9 +30,9 @@ If your school has multiple curriculum instances, use the instance selector to c
 
 The grid displays outcomes grouped under their parent areas and strands. Each outcome shows:
 
-- **Title** — The outcome name
-- **Current status** — A colour-coded dot or badge (grey/blue/amber/green)
-- **Date achieved** — When the status was last changed
+- **Title** - The outcome name
+- **Current status** - A colour-coded dot or badge (grey/blue/amber/green)
+- **Date achieved** - When the status was last changed
 
 The colour coding provides an at-a-glance view of the student's progress: mostly grey means early in the curriculum, a mix of blue and amber means active engagement, and predominantly green means approaching completion.
 
@@ -52,11 +52,11 @@ When updating a mastery status, you can optionally add notes. Notes provide cont
 
 Every status change is recorded in a history log. The history shows:
 
-- **Previous status** — What the status was before the change
-- **New status** — What it was changed to
-- **Changed by** — The name of the guide who made the change
-- **Date** — When the change occurred
-- **Curriculum node** — Which outcome was affected
+- **Previous status** - What the status was before the change
+- **New status** - What it was changed to
+- **Changed by** - The name of the guide who made the change
+- **Date** - When the change occurred
+- **Curriculum node** - Which outcome was affected
 
 This history is valuable for parent conferences, report writing, and tracking a student's learning trajectory over time. If a status was changed by mistake, the history provides a clear audit trail.
 
@@ -70,10 +70,10 @@ For assessment periods (end of term, before report writing), you can update mult
 
 When a guide creates an observation and tags it with curriculum outcomes, that observation becomes evidence of the student's engagement with those outcomes. The portfolio timeline interleaves observation entries with mastery status changes, creating a rich narrative of the student's learning journey.
 
-Observations do not automatically change mastery status — the guide makes that professional judgment. But having observations linked to outcomes provides the evidence needed to justify a status change during assessment.
+Observations do not automatically change mastery status - the guide makes that professional judgment. But having observations linked to outcomes provides the evidence needed to justify a status change during assessment.
 
 ## Permissions
 
-**Manage Mastery** — Required to update mastery statuses. Included in the default Guide role.
+**Manage Mastery** - Required to update mastery statuses. Included in the default Guide role.
 
 All staff with observation permissions can view mastery records (for context when writing observations), but only those with Manage Mastery can change statuses.

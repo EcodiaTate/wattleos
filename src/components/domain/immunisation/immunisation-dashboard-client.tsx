@@ -352,7 +352,7 @@ function RecordRow({
               month: "short",
               year: "numeric",
             })
-          : "—"}
+          : "-"}
       </td>
       <td className="px-4 py-3">
         <ImmunisationStatusPill
@@ -369,13 +369,13 @@ function RecordRow({
               month: "short",
               year: "numeric",
             })
-          : "—"}
+          : "-"}
       </td>
       <td
         className="px-4 py-3 tabular-nums"
         style={{ color: "var(--muted-foreground)" }}
       >
-        {daysSinceCheck !== null ? `${daysSinceCheck}d` : "—"}
+        {daysSinceCheck !== null ? `${daysSinceCheck}d` : "-"}
       </td>
       <td
         className="px-4 py-3 tabular-nums"
@@ -387,7 +387,7 @@ function RecordRow({
               month: "short",
               year: "numeric",
             })
-          : "—"}
+          : "-"}
       </td>
     </tr>
   );

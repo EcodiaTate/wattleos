@@ -1,4 +1,4 @@
-# WattleOS Build Verification — 6 Mar 2026
+# WattleOS Build Verification - 6 Mar 2026
 
 ## Build Status: ✅ PRODUCTION READY
 
@@ -61,7 +61,7 @@ NODE_OPTIONS="--max-old-space-size=8192" npx next build
 ```
 
 **Status:** Non-blocking, build succeeds
-**Resolution:** Optional — add to `next.config.mjs` to silence:
+**Resolution:** Optional - add to `next.config.mjs` to silence:
 ```javascript
 turbopack: {
   root: 'wattleos'
@@ -235,7 +235,7 @@ Use this for cache-busting (e.g., `<script src="/app.js?v=${BUILD_ID}">`)
 
 ## Next Steps
 
-1. ✅ **Commit build artifacts** (optional — `.next/` usually in `.gitignore`)
+1. ✅ **Commit build artifacts** (optional - `.next/` usually in `.gitignore`)
 2. ✅ **Deploy to staging** (verify all integrations work)
 3. ✅ **Run smoke tests** (admissions, incidents, medications workflows)
 4. ✅ **Deploy to production** (use Vercel, Docker, or cloud platform)

@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       tenantId = membership?.tenant_id ?? null;
 
       // Resolve the user's actual permissions from their role.
-      // Uses the same join pattern as getTenantContext() —
+      // Uses the same join pattern as getTenantContext() -
       // role_permissions has permission_id (FK), not permission_key.
       if (membership?.role_id && tenantId) {
         const { data: rolePerms } = await supabase

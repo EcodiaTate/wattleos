@@ -1,16 +1,16 @@
 # Student Profiles
 
-Every child in your school has a student profile in WattleOS. This is the central record that connects to observations, mastery tracking, attendance, reports, medical data, guardians, and billing. Getting student profiles right is the foundation of the "enter it once" principle — information you record here flows automatically into every other module.
+Every child in your school has a student profile in WattleOS. This is the central record that connects to observations, mastery tracking, attendance, reports, medical data, guardians, and billing. Getting student profiles right is the foundation of the "enter it once" principle - information you record here flows automatically into every other module.
 
 ## Creating a Student
 
 Navigate to **Students** in the sidebar and click the **Add Student** button in the top right. The required fields are first name and last name. Everything else is optional but recommended for complete records.
 
-The basic information section captures the child's first name, last name, preferred name (the name they go by day-to-day — this is what WattleOS displays throughout the platform when set), date of birth, and gender. Gender options include male, female, non-binary, other, and prefer not to say. You can also upload a profile photo, which appears on attendance rolls, observation cards, and the student directory.
+The basic information section captures the child's first name, last name, preferred name (the name they go by day-to-day - this is what WattleOS displays throughout the platform when set), date of birth, and gender. Gender options include male, female, non-binary, other, and prefer not to say. You can also upload a profile photo, which appears on attendance rolls, observation cards, and the student directory.
 
 Enrollment status determines where the student sits in your pipeline. The available statuses are **inquiry** (initial interest, not yet applied), **applicant** (application submitted), **active** (currently attending), **withdrawn** (left the school), and **graduated** (completed their program). New students default to active, but you can set this to any status during creation if you are importing historical records or managing a waitlist.
 
-A free-text notes field is available for anything that does not fit elsewhere — learning preferences, transition notes, or special considerations that guides should be aware of.
+A free-text notes field is available for anything that does not fit elsewhere - learning preferences, transition notes, or special considerations that guides should be aware of.
 
 ## Demographics and Compliance
 
@@ -20,11 +20,11 @@ The demographics section captures nationality, country of birth, languages spoke
 
 The residential address section stores the child's home address with fields for street line one, street line two, suburb, state (selected from Australian states and territories), postcode, and country.
 
-Government identifiers — CRN (Centrelink Reference Number), USI (Unique Student Identifier), and Medicare number — can also be stored on the profile. These fields are encrypted at the database level for security and are only visible to users with appropriate permissions.
+Government identifiers - CRN (Centrelink Reference Number), USI (Unique Student Identifier), and Medicare number - can also be stored on the profile. These fields are encrypted at the database level for security and are only visible to users with appropriate permissions.
 
 ## Editing a Student
 
-Open any student profile and click **Edit** in the top right. The edit form is pre-filled with the student's existing data. You can update any field, including changing the enrollment status. Only users with the MANAGE_STUDENTS permission can access the edit page — others are redirected to the read-only profile view.
+Open any student profile and click **Edit** in the top right. The edit form is pre-filled with the student's existing data. You can update any field, including changing the enrollment status. Only users with the MANAGE_STUDENTS permission can access the edit page - others are redirected to the read-only profile view.
 
 ## Searching and Filtering Students
 
@@ -38,7 +38,7 @@ Below the header, the page is split into a two-column layout showing demographic
 
 ## Deleting a Student
 
-Student deletion is a soft delete — the record is marked as deleted but retained in the database for audit purposes. Deleted students no longer appear in lists, attendance rolls, or search results. This action requires the MANAGE_STUDENTS permission and should be used cautiously, as it affects historical records. In most cases, changing the enrollment status to withdrawn or graduated is preferable to deletion.
+Student deletion is a soft delete - the record is marked as deleted but retained in the database for audit purposes. Deleted students no longer appear in lists, attendance rolls, or search results. This action requires the MANAGE_STUDENTS permission and should be used cautiously, as it affects historical records. In most cases, changing the enrollment status to withdrawn or graduated is preferable to deletion.
 
 ## Permissions
 

@@ -1,12 +1,12 @@
 # Viewing Your Child's Portfolio
 
-The portfolio page is the heart of the parent portal. It combines published observations from the classroom with mastery tracking data to tell the story of your child's learning — what they have been working on, what they have achieved, and how they are progressing through the curriculum.
+The portfolio page is the heart of the parent portal. It combines published observations from the classroom with mastery tracking data to tell the story of your child's learning - what they have been working on, what they have achieved, and how they are progressing through the curriculum.
 
 ## Observations
 
 Observations are the records that guides create as they watch your child work. Each observation may include written notes about what the child was doing, photos or videos captured during the activity, and tagged curriculum outcomes showing which skills or concepts the work relates to.
 
-In the parent portal, you only see observations that have been published by the guide. Drafts and archived observations are not visible. This means every observation you see has been reviewed by the guide and intentionally shared with you. Published observations are immutable — once shared, they cannot be edited, providing a reliable record of what was documented.
+In the parent portal, you only see observations that have been published by the guide. Drafts and archived observations are not visible. This means every observation you see has been reviewed by the guide and intentionally shared with you. Published observations are immutable - once shared, they cannot be edited, providing a reliable record of what was documented.
 
 Each observation in the portfolio feed shows the author's name (the guide who wrote it), the date it was published, the observation text, any attached media (photos and videos with thumbnails), and the curriculum outcomes it was linked to. Outcome tags show the node title and the level in the curriculum hierarchy, so you can see whether the observation relates to practical life, sensorial work, language, mathematics, or any other area.
 
@@ -18,7 +18,7 @@ Below or alongside the observation feed, the portfolio page shows your child's m
 
 For each curriculum instance (for example, "AMI Primary 3–6" or "EYLF"), the summary shows the total number of outcomes, how many are not yet started, how many have been presented (the guide has given the initial lesson), how many the child is practicing (working independently), and how many have been mastered (demonstrating consistent, independent competence). A percentage mastered figure gives you a quick sense of overall progression.
 
-This is not a grade or a ranking. Mastery tracking in Montessori reflects the child's individual journey through the materials. A child who has mastered fewer outcomes is not behind — they may be deeply engaged with certain materials, which is exactly how Montessori learning works. The mastery view is designed to celebrate progress, not create pressure.
+This is not a grade or a ranking. Mastery tracking in Montessori reflects the child's individual journey through the materials. A child who has mastered fewer outcomes is not behind - they may be deeply engaged with certain materials, which is exactly how Montessori learning works. The mastery view is designed to celebrate progress, not create pressure.
 
 ## Mastery Details
 

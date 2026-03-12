@@ -8,10 +8,10 @@ WattleOS provides moderation tools to maintain a safe, professional communicatio
 
 Moderators can hide any message in any channel. Hidden messages are removed from the visible conversation but preserved in the database for audit purposes. Each hidden message records:
 
-- **Who hid it** — The moderator's user ID
-- **Why** — A required reason explaining why the message was hidden (e.g. "Inappropriate language," "Off-topic," "Contains personal information about another family")
+- **Who hid it** - The moderator's user ID
+- **Why** - A required reason explaining why the message was hidden (e.g. "Inappropriate language," "Off-topic," "Contains personal information about another family")
 
-Hidden messages are not deleted — they can be unhidden if the moderation decision is reversed. This preserves the complete communication history while keeping the visible conversation appropriate.
+Hidden messages are not deleted - they can be unhidden if the moderation decision is reversed. This preserves the complete communication history while keeping the visible conversation appropriate.
 
 ### Unhiding Messages
 
@@ -30,16 +30,16 @@ This separation ensures that moderation actions are transparent (recorded with a
 
 ### Moderated Channels
 
-When a channel's `is_moderated` flag is enabled, it signals that moderators are actively reviewing content. This setting is informational in the current implementation — messages are posted immediately rather than queued for approval — but it indicates to members that the channel is monitored and inappropriate content will be hidden.
+When a channel's `is_moderated` flag is enabled, it signals that moderators are actively reviewing content. This setting is informational in the current implementation - messages are posted immediately rather than queued for approval - but it indicates to members that the channel is monitored and inappropriate content will be hidden.
 
 ### Controlling Parent Posting
 
 The `allow_parent_posts` setting on class group and program group channels controls whether parents can send messages:
 
-- **Enabled (default)** — Parents can send text, images, and files in the channel. This creates a two-way communication channel.
-- **Disabled** — Parents can only read messages. Only staff can post. This is useful for channels that serve as one-way information broadcasts, such as weekly updates or homework instructions.
+- **Enabled (default)** - Parents can send text, images, and files in the channel. This creates a two-way communication channel.
+- **Disabled** - Parents can only read messages. Only staff can post. This is useful for channels that serve as one-way information broadcasts, such as weekly updates or homework instructions.
 
-This setting does not affect direct message channels — parents can always send messages in DMs.
+This setting does not affect direct message channels - parents can always send messages in DMs.
 
 ### Deactivating Channels
 
@@ -55,7 +55,7 @@ For persistent issues with a specific user, address the behaviour through direct
 
 ## Permissions
 
-- **Moderate Chat** — Hide and unhide messages. Create staff channels. Update channel settings (name, moderation flags, active status, parent posting). This is the primary moderation permission.
-- **Send Announcements** — Not a moderation permission, but relevant because announcement authors can view acknowledgement statistics.
-- **Manage Directory** — Controls visibility in the school directory, which affects who appears as available for direct messages.
-- **View Message Analytics** — Access communication metrics and usage statistics.
+- **Moderate Chat** - Hide and unhide messages. Create staff channels. Update channel settings (name, moderation flags, active status, parent posting). This is the primary moderation permission.
+- **Send Announcements** - Not a moderation permission, but relevant because announcement authors can view acknowledgement statistics.
+- **Manage Directory** - Controls visibility in the school directory, which affects who appears as available for direct messages.
+- **View Message Analytics** - Access communication metrics and usage statistics.

@@ -287,7 +287,7 @@ export function ClassCycleHeatmap({
                           className="px-3 py-2.5 text-center"
                           style={{ color: "var(--muted-foreground)" }}
                         >
-                          —
+                          -
                         </td>
                       );
                     }

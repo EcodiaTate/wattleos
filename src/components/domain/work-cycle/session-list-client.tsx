@@ -172,7 +172,7 @@ export function SessionListClient({ result, classes, canManage }: SessionListCli
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      {topSourceKey ? <InterruptionSourceBadge source={topSourceKey} /> : "—"}
+                      {topSourceKey ? <InterruptionSourceBadge source={topSourceKey} /> : "-"}
                     </td>
                     <td className="px-4 py-3">
                       <QualityRatingDisplay rating={s.quality_rating} showLabel={false} />

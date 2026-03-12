@@ -8,14 +8,14 @@ The top of the Dashboard shows a time-aware greeting (Good morning, Good afterno
 
 ## Quick Actions
 
-Below the greeting, you see Quick Action cards — large, clickable tiles that link to your most-used features. Which cards appear depends on your permissions:
+Below the greeting, you see Quick Action cards - large, clickable tiles that link to your most-used features. Which cards appear depends on your permissions:
 
-- **New Observation** — appears if you have the Create Observation permission. Links directly to the observation capture form.
-- **Today's Roll** — appears if you have the Manage Attendance permission. Links to the attendance roll call page with today's date pre-selected.
-- **Students** — appears if you have the View Students permission. Links to the student directory.
-- **Curriculum** — appears if you have the Manage Curriculum permission. Links to the curriculum browser.
-- **Mastery Tracking** — appears if you have the Manage Mastery permission. Links to the mastery grid.
-- **Reports** — appears if you have the Manage Reports permission. Links to the reports section.
+- **New Observation** - appears if you have the Create Observation permission. Links directly to the observation capture form.
+- **Today's Roll** - appears if you have the Manage Attendance permission. Links to the attendance roll call page with today's date pre-selected.
+- **Students** - appears if you have the View Students permission. Links to the student directory.
+- **Curriculum** - appears if you have the Manage Curriculum permission. Links to the curriculum browser.
+- **Mastery Tracking** - appears if you have the Manage Mastery permission. Links to the mastery grid.
+- **Reports** - appears if you have the Manage Reports permission. Links to the reports section.
 
 If you are a parent, you will not see these staff-focused quick actions. Instead, your Dashboard shows your children's information directly.
 

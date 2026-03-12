@@ -1,6 +1,6 @@
 # Messages and Chat Channels
 
-WattleOS provides persistent chat channels for ongoing communication between staff, and between staff and parents. Channels support real-time messaging, read tracking, file sharing, reply threads, and moderation — replacing the need for external messaging apps.
+WattleOS provides persistent chat channels for ongoing communication between staff, and between staff and parents. Channels support real-time messaging, read tracking, file sharing, reply threads, and moderation - replacing the need for external messaging apps.
 
 ## Accessing Messages
 
@@ -14,7 +14,7 @@ WattleOS supports four channel types, each designed for a specific communication
 
 A shared channel for everyone connected to a class: the class guides and all parents of enrolled students. When a class group channel is created, WattleOS automatically populates the member list by pulling all guides assigned to the class and all guardians of actively enrolled students.
 
-Class group channels are one-per-class — attempting to create a duplicate for the same class is blocked. As students enroll or leave, the channel membership can be refreshed to stay current.
+Class group channels are one-per-class - attempting to create a duplicate for the same class is blocked. As students enroll or leave, the channel membership can be refreshed to stay current.
 
 **Use for**: Weekly updates, class photos, reminders about upcoming activities, general class communication.
 
@@ -26,7 +26,7 @@ Similar to class groups but scoped to a program (e.g. Before School Care, After 
 
 ### Direct Messages
 
-One-to-one private channels between any two members of the school. Creating a direct message is idempotent — if a DM channel already exists between two users, the existing channel is returned rather than creating a duplicate. You cannot create a DM channel with yourself.
+One-to-one private channels between any two members of the school. Creating a direct message is idempotent - if a DM channel already exists between two users, the existing channel is returned rather than creating a duplicate. You cannot create a DM channel with yourself.
 
 **Use for**: Private parent-teacher conversations, individual student matters, sensitive discussions.
 
@@ -40,15 +40,15 @@ Channels restricted to staff members only. Parents cannot see or join staff chan
 
 Open a channel to see the message thread and compose new messages. Messages support:
 
-**Text** — Standard text messages.
+**Text** - Standard text messages.
 
-**Images** — Attach images directly in the conversation with preview.
+**Images** - Attach images directly in the conversation with preview.
 
-**Files** — Share documents, forms, or other files with a name and download link.
+**Files** - Share documents, forms, or other files with a name and download link.
 
-**Replies** — Reply to a specific message to create a threaded conversation within the channel. The reply references the original message for context.
+**Replies** - Reply to a specific message to create a threaded conversation within the channel. The reply references the original message for context.
 
-**System messages** — Automatically generated messages for channel events (member joined, member left, channel created).
+**System messages** - Automatically generated messages for channel events (member joined, member left, channel created).
 
 ## Message Inbox
 
@@ -60,19 +60,19 @@ The inbox displays all your channels sorted by most recent activity. Each channe
 - Preview of the last message (content snippet, sender name, timestamp)
 - Member count
 
-The global unread count across all channels is available for notification badges — WattleOS calculates total unread messages by comparing each channel's `last_read_at` cursor against new messages since that timestamp.
+The global unread count across all channels is available for notification badges - WattleOS calculates total unread messages by comparing each channel's `last_read_at` cursor against new messages since that timestamp.
 
 ## Channel Settings
 
 Channel owners and moderators can configure:
 
-**Name** — Custom display name for the channel.
+**Name** - Custom display name for the channel.
 
-**Allow Parent Posts** — When enabled (default), parents can send messages. When disabled, parents can only read — useful for channels that are purely informational broadcasts from staff.
+**Allow Parent Posts** - When enabled (default), parents can send messages. When disabled, parents can only read - useful for channels that are purely informational broadcasts from staff.
 
-**Moderated** — When enabled, moderators can review and hide messages that violate community guidelines.
+**Moderated** - When enabled, moderators can review and hide messages that violate community guidelines.
 
-**Active** — Deactivate a channel to prevent new messages without deleting the history.
+**Active** - Deactivate a channel to prevent new messages without deleting the history.
 
 ## Read Tracking
 
@@ -86,7 +86,7 @@ Members can mute a channel to suppress notification badges without leaving the c
 
 ## Permissions
 
-- **Send Class Messages** — Create class group and program group channels. Send messages in group channels.
-- **Moderate Chat** — Create staff channels. Hide and unhide messages. Update channel settings.
-- **Manage Directory** — Related permission for controlling who appears in the school directory (affects who can be messaged).
-- Direct messages require no special permission — any authenticated user within the tenant can create a DM.
+- **Send Class Messages** - Create class group and program group channels. Send messages in group channels.
+- **Moderate Chat** - Create staff channels. Hide and unhide messages. Update channel settings.
+- **Manage Directory** - Related permission for controlling who appears in the school directory (affects who can be messaged).
+- Direct messages require no special permission - any authenticated user within the tenant can create a DM.

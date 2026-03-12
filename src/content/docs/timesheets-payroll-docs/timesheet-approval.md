@@ -6,7 +6,7 @@ The timesheet workflow bridges the gap between individual time logging and payro
 
 Once you have logged your hours for a pay period, click **Submit** on the timesheet grid page. WattleOS aggregates all your time entries for that period and calculates three hour totals: regular hours (from regular and public holiday entries), overtime hours, and leave hours (from sick leave, annual leave, and unpaid leave). A grand total is computed from all three.
 
-Submission requires at least one time entry in the period — you cannot submit an empty timesheet. If the pay period has already been processed, submission is blocked.
+Submission requires at least one time entry in the period - you cannot submit an empty timesheet. If the pay period has already been processed, submission is blocked.
 
 If you have previously submitted and your timesheet was rejected, you can edit your entries (assuming the period is still open) and resubmit. The resubmission updates the existing timesheet record with new totals and resets the status to submitted.
 
@@ -16,7 +16,7 @@ After submission, your timesheet grid shows a status banner indicating the curre
 
 Administrators and approvers access the approval workflow from **Admin → Timesheets**. This page shows all submitted timesheets awaiting review, grouped by pay period.
 
-Each submitted timesheet in the list shows the staff member's name, the pay period, total hours with the regular/overtime/leave breakdown, and the submission date. Expanding a timesheet reveals the full daily entries — every day's start time, end time, break, entry type, notes, and calculated hours. This lets the approver verify the details before making a decision.
+Each submitted timesheet in the list shows the staff member's name, the pay period, total hours with the regular/overtime/leave breakdown, and the submission date. Expanding a timesheet reveals the full daily entries - every day's start time, end time, break, entry type, notes, and calculated hours. This lets the approver verify the details before making a decision.
 
 ## Approving a Timesheet
 
@@ -26,15 +26,15 @@ For efficiency, the approval interface supports **batch approve**. Select multip
 
 ## Rejecting a Timesheet
 
-If a timesheet has issues — missing days, incorrect entry types, unusual hours — click **Reject**. You are prompted to enter rejection notes explaining what needs to be corrected. These notes are stored on the timesheet record and displayed to the staff member when they view their rejected timesheet.
+If a timesheet has issues - missing days, incorrect entry types, unusual hours - click **Reject**. You are prompted to enter rejection notes explaining what needs to be corrected. These notes are stored on the timesheet record and displayed to the staff member when they view their rejected timesheet.
 
 After rejection, the staff member sees a rejection banner on their timesheet grid showing the notes. If the pay period is still open, they can edit their time entries and resubmit. If the period has been locked, the staff member will need to contact the administrator to resolve the issue.
 
 ## Timesheet Lifecycle Summary
 
-The full lifecycle flows through five statuses. **Draft** means time entries exist but the timesheet has not been submitted (this state is implicit — a timesheet record is created on first submission). **Submitted** means the staff member has submitted their hours for review. **Approved** means the approver has accepted the timesheet. **Rejected** means the approver has sent it back for corrections. **Synced** means the approved hours have been pushed to the external payroll system.
+The full lifecycle flows through five statuses. **Draft** means time entries exist but the timesheet has not been submitted (this state is implicit - a timesheet record is created on first submission). **Submitted** means the staff member has submitted their hours for review. **Approved** means the approver has accepted the timesheet. **Rejected** means the approver has sent it back for corrections. **Synced** means the approved hours have been pushed to the external payroll system.
 
-A rejected timesheet can be resubmitted, returning to submitted status. Approved timesheets move forward to synced. There is no path backward from synced — once hours have been sent to payroll, the timesheet is finalised.
+A rejected timesheet can be resubmitted, returning to submitted status. Approved timesheets move forward to synced. There is no path backward from synced - once hours have been sent to payroll, the timesheet is finalised.
 
 ## What Approvers Should Check
 

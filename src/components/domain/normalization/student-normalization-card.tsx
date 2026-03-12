@@ -14,7 +14,7 @@ const TREND_ICON: Record<string, string> = {
   improving: "↗",
   stable: "→",
   declining: "↘",
-  insufficient_data: "—",
+  insufficient_data: "-",
 };
 
 const TREND_LABEL: Record<string, string> = {

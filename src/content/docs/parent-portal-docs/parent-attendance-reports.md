@@ -1,6 +1,6 @@
 # Attendance and Reports
 
-The parent portal gives you read-only access to your child's attendance records and published term reports. These sections complement the portfolio by showing the practical side of your child's school life — when they were present and what their guides have summarised about their learning each term.
+The parent portal gives you read-only access to your child's attendance records and published term reports. These sections complement the portfolio by showing the practical side of your child's school life - when they were present and what their guides have summarised about their learning each term.
 
 ## Attendance View
 
@@ -20,7 +20,7 @@ Attendance records in the parent portal are strictly read-only. Parents cannot m
 
 ## Term Reports
 
-The reports section shows term reports that have been published by the school. Reports go through a workflow on the staff side — they are generated from a template, filled in by the guide, reviewed, approved, and finally published. Only reports that have reached the published stage are visible in the parent portal.
+The reports section shows term reports that have been published by the school. Reports go through a workflow on the staff side - they are generated from a template, filled in by the guide, reviewed, approved, and finally published. Only reports that have reached the published stage are visible in the parent portal.
 
 Each report summary in the list shows the report term, the template name, the date it was published, and the guide who authored it. Opening a report shows the full content, which typically includes written commentary on your child's progress across different curriculum areas, social development notes, and may reference specific observations and mastery achievements from the term.
 
@@ -32,7 +32,7 @@ Published reports can be exported as PDF documents. When available, a download l
 
 ## Privacy and Access
 
-Both attendance and report views are protected by the guardian verification system. You can only see records for children where you have an active guardian link. The data loads on the server before the page renders, and the guardian check runs on every request — there is no client-side shortcut that could expose another child's data.
+Both attendance and report views are protected by the guardian verification system. You can only see records for children where you have an active guardian link. The data loads on the server before the page renders, and the guardian check runs on every request - there is no client-side shortcut that could expose another child's data.
 
 Reports that are in draft, under review, or approved-but-not-published are not visible to parents. This ensures you only see final, polished reports that the school has intentionally shared.
 

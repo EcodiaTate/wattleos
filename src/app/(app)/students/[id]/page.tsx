@@ -361,7 +361,7 @@ export default async function StudentDetailPage({
                     Previous School
                   </dt>
                   <dd className="text-sm text-foreground text-right">
-                    {student.previous_school ?? "—"}{" "}
+                    {student.previous_school ?? "-"}{" "}
                     <Link
                       href={`/students/${id}/previous-schools`}
                       className="text-xs hover:underline"

@@ -91,7 +91,7 @@ export function RatingBadge({
           "--badge-fg": "var(--qip-unassessed-fg)",
         } as React.CSSProperties}
       >
-        {compact ? "—" : "Not assessed"}
+        {compact ? "-" : "Not assessed"}
       </span>
     );
   }

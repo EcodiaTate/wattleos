@@ -320,7 +320,7 @@ export function IncidentCaptureForm({ students, staff, currentUserId }: Props) {
               className="w-full rounded-[var(--radius-md)] border border-border bg-background px-3 py-2 text-sm"
               style={{ color: "var(--foreground)" }}
             >
-              <option value="">— select —</option>
+              <option value="">- select -</option>
               {staff.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.first_name} {s.last_name}

@@ -211,12 +211,12 @@ export function InventoryDetailClient({
             label: "Quantity",
             value: `${item.quantity} piece${item.quantity !== 1 ? "s" : ""}`,
           },
-          { label: "Serial No.", value: item.serial_number ?? "—" },
+          { label: "Serial No.", value: item.serial_number ?? "-" },
           {
             label: "Date Acquired",
             value: item.date_acquired
               ? new Date(item.date_acquired).toLocaleDateString("en-AU")
-              : "—",
+              : "-",
           },
           {
             label: "Last Inspected",

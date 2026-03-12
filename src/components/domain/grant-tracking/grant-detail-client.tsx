@@ -935,7 +935,7 @@ function ExpendituresTab({
                         fontSize: "0.82rem",
                       }}
                     >
-                      {ex.category ?? "—"}
+                      {ex.category ?? "-"}
                     </td>
                     <td
                       style={{
@@ -953,7 +953,7 @@ function ExpendituresTab({
                         fontSize: "0.78rem",
                       }}
                     >
-                      {ex.receipt_reference ?? "—"}
+                      {ex.receipt_reference ?? "-"}
                     </td>
                     <td style={{ padding: "0.55rem 0.85rem" }}>
                       {canManage && (

@@ -10,13 +10,13 @@ Click **Observations** in the sidebar, or navigate to `/pedagogy/observations`. 
 
 Each observation in the feed is displayed as a card showing:
 
-- **Author** — Name and avatar of the guide who created the observation
-- **Date and time** — When the observation was created
-- **Status badge** — Draft (amber), Published (green), or Archived (grey)
-- **Content** — The observation text, truncated if long
-- **Media thumbnails** — A horizontal strip of small photo thumbnails (64px). Click any thumbnail to open it in a full-screen lightbox where you can browse through all attached photos
-- **Student tags** — Coloured pills showing which students are tagged. Click a student tag to navigate to their profile
-- **Outcome tags** — Green pills showing linked curriculum outcomes with their level (outcome or activity)
+- **Author** - Name and avatar of the guide who created the observation
+- **Date and time** - When the observation was created
+- **Status badge** - Draft (amber), Published (green), or Archived (grey)
+- **Content** - The observation text, truncated if long
+- **Media thumbnails** - A horizontal strip of small photo thumbnails (64px). Click any thumbnail to open it in a full-screen lightbox where you can browse through all attached photos
+- **Student tags** - Coloured pills showing which students are tagged. Click a student tag to navigate to their profile
+- **Outcome tags** - Green pills showing linked curriculum outcomes with their level (outcome or activity)
 
 Click anywhere on an observation card to open its detail page.
 
@@ -28,20 +28,20 @@ The feed has two filter controls at the top:
 
 Four tabs let you filter by observation status:
 
-- **All** — Shows all observations (default)
-- **Drafts** — Shows only draft observations. Useful during planning time when you want to review and publish your drafts from the day
-- **Published** — Shows only published observations. This is what parents can see
-- **Archived** — Shows observations that have been archived (hidden from parent portal but still available for records)
+- **All** - Shows all observations (default)
+- **Drafts** - Shows only draft observations. Useful during planning time when you want to review and publish your drafts from the day
+- **Published** - Shows only published observations. This is what parents can see
+- **Archived** - Shows observations that have been archived (hidden from parent portal but still available for records)
 
 ### Student Filter
 
-A dropdown lets you filter observations to a specific student. Select a student's name and the feed shows only observations where that student is tagged. This is helpful when preparing for parent conferences or writing term reports — you can quickly review every observation for a particular child.
+A dropdown lets you filter observations to a specific student. Select a student's name and the feed shows only observations where that student is tagged. This is helpful when preparing for parent conferences or writing term reports - you can quickly review every observation for a particular child.
 
 ## Pagination
 
 The feed shows 20 observations per page. If there are more than 20, pagination controls appear at the bottom showing "Showing 1 to 20 of X observations" with Previous and Next buttons.
 
-Filters and pagination work together through URL search parameters. This means you can bookmark or share a filtered view — for example, `/pedagogy/observations?status=draft&student=abc123` shows all drafts for a specific student.
+Filters and pagination work together through URL search parameters. This means you can bookmark or share a filtered view - for example, `/pedagogy/observations?status=draft&student=abc123` shows all drafts for a specific student.
 
 ## Empty States
 

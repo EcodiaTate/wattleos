@@ -499,7 +499,7 @@ export function VisitorLogClient({ canManage }: VisitorLogClientProps) {
                     </td>
                     <td className="px-4 py-3 text-foreground">
                       {r.host_name ?? (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-muted-foreground">-</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -519,7 +519,7 @@ export function VisitorLogClient({ canManage }: VisitorLogClientProps) {
                           />
                         </svg>
                       ) : (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-muted-foreground">-</span>
                       )}
                     </td>
                     {canManage && (

@@ -182,7 +182,7 @@ export function NaplanDashboardClient({
                             year: "numeric",
                           },
                         )
-                      : "—"}
+                      : "-"}
                   </td>
                   <td className="px-4 py-3">{w.cohort_count}</td>
                   <td className="hidden px-4 py-3 sm:table-cell">
@@ -191,7 +191,7 @@ export function NaplanDashboardClient({
                   <td className="hidden px-4 py-3 sm:table-cell">
                     {w.results_total_possible > 0
                       ? `${w.results_entered_count} / ${w.results_total_possible}`
-                      : "—"}
+                      : "-"}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">

@@ -15,13 +15,13 @@ Navigate to **Admin → Integrations**. This requires the Manage Integrations or
 When connected, WattleOS automatically creates a Google Drive folder for each student inside a root portfolio folder you specify. Published observation photos can be synced to the student's folder, creating a cloud-based portfolio that parents can access directly through Google Drive.
 
 **Configuration requires**:
-- **Service Account Email** — A Google Cloud service account email (e.g. wattleos@project.iam.gserviceaccount.com). Create this in the Google Cloud Console.
-- **Private Key** — The private key from your service account's JSON key file. This is sensitive — WattleOS encrypts it at rest.
-- **Root Portfolio Folder ID** — The Google Drive folder ID where all student portfolio folders will be created. Share this folder with the service account email so it has write access.
+- **Service Account Email** - A Google Cloud service account email (e.g. wattleos@project.iam.gserviceaccount.com). Create this in the Google Cloud Console.
+- **Private Key** - The private key from your service account's JSON key file. This is sensitive - WattleOS encrypts it at rest.
+- **Root Portfolio Folder ID** - The Google Drive folder ID where all student portfolio folders will be created. Share this folder with the service account email so it has write access.
 
 **Settings**:
-- **Auto-share with parents** — When enabled, parents are automatically granted read access to their child's portfolio folder.
-- **Folder name template** — How student portfolio folders are named. Supports `{student_name}` and `{year}` variables.
+- **Auto-share with parents** - When enabled, parents are automatically granted read access to their child's portfolio folder.
+- **Folder name template** - How student portfolio folders are named. Supports `{student_name}` and `{year}` variables.
 
 ### Stripe (Active)
 
@@ -30,13 +30,13 @@ When connected, WattleOS automatically creates a Google Drive folder for each st
 WattleOS creates invoices in Stripe, sends them to parents, and processes payments automatically. The webhook integration keeps WattleOS in sync when payments are completed, fail, or are refunded.
 
 **Configuration requires**:
-- **Secret Key** — Your Stripe secret API key (starts with `sk_live_` or `sk_test_`).
-- **Publishable Key** — Your Stripe publishable key (starts with `pk_live_` or `pk_test_`). Used for client-side payment forms.
-- **Webhook Signing Secret** — Used to verify that webhook events genuinely come from Stripe. Found in Stripe Dashboard → Webhooks.
+- **Secret Key** - Your Stripe secret API key (starts with `sk_live_` or `sk_test_`).
+- **Publishable Key** - Your Stripe publishable key (starts with `pk_live_` or `pk_test_`). Used for client-side payment forms.
+- **Webhook Signing Secret** - Used to verify that webhook events genuinely come from Stripe. Found in Stripe Dashboard → Webhooks.
 
 **Settings**:
-- **Auto-charge on invoice due date** — When enabled, automatically charges the parent's saved payment method when an invoice becomes due.
-- **Currency** — The three-letter ISO currency code for invoices (e.g. aud, usd, gbp).
+- **Auto-charge on invoice due date** - When enabled, automatically charges the parent's saved payment method when an invoice becomes due.
+- **Currency** - The three-letter ISO currency code for invoices (e.g. aud, usd, gbp).
 
 **Webhook events handled**: invoice.paid, invoice.payment_failed, and charge.refunded. The webhook endpoint is at `/api/webhooks/stripe`.
 
@@ -62,9 +62,9 @@ When implemented, report cards generated in WattleOS can be exported as Google D
 
 The integrations page displays each provider as a card showing:
 
-- **Connection status** — Whether the integration is connected and configured, disconnected, or has errors.
-- **Last sync** — When the most recent data sync occurred.
-- **Sync history** — A log of recent sync operations with success/failure status.
+- **Connection status** - Whether the integration is connected and configured, disconnected, or has errors.
+- **Last sync** - When the most recent data sync occurred.
+- **Sync history** - A log of recent sync operations with success/failure status.
 
 ## Connecting an Integration
 
@@ -88,5 +88,5 @@ This isolation means that a failure in one integration (e.g. Stripe API is down)
 
 ## Permissions
 
-- **Manage Integrations** — Required to configure, connect, disconnect, and test integrations. View sync history.
-- **Manage Tenant Settings** — Also grants access to the integrations page as a fallback for school administrators.
+- **Manage Integrations** - Required to configure, connect, disconnect, and test integrations. View sync history.
+- **Manage Tenant Settings** - Also grants access to the integrations page as a fallback for school administrators.

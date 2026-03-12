@@ -66,7 +66,7 @@ export default async function PublicPortalSettingsPage() {
               <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
                 /inquiry
               </span>{" "}
-              — your school&apos;s public front door.
+              - your school&apos;s public front door.
             </p>
           </div>
           <InquiryConfigClient initialConfig={inquiryConfig} />
@@ -83,7 +83,7 @@ export default async function PublicPortalSettingsPage() {
               <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
                 /tours
               </span>{" "}
-              — where families self-book tour slots.
+              - where families self-book tour slots.
             </p>
           </div>
           <ToursConfigClient initialConfig={toursConfig} />

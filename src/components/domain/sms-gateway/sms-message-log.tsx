@@ -161,7 +161,7 @@ export function SmsMessageLog({ initialMessages, initialTotal }: Props) {
                     {msg.recipient_phone}
                   </td>
                   <td className="px-3 py-2 text-xs" style={{ color: "var(--foreground)" }}>
-                    {msg.recipient_name ?? (msg.student ? `${msg.student.first_name} ${msg.student.last_name}` : "—")}
+                    {msg.recipient_name ?? (msg.student ? `${msg.student.first_name} ${msg.student.last_name}` : "-")}
                   </td>
                   <td className="px-3 py-2 text-xs" style={{ color: "var(--muted-foreground)" }}>
                     {SMS_MESSAGE_TYPE_LABELS[msg.message_type] ?? msg.message_type}

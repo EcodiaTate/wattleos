@@ -1,6 +1,6 @@
 # Creating Observations
 
-Observations are the core of WattleOS. They document learning moments — a child choosing a particular material, completing a work cycle, collaborating with a peer, or demonstrating mastery of a concept. Creating observations is designed to be fast enough that a guide can capture a moment without interrupting the flow of the classroom.
+Observations are the core of WattleOS. They document learning moments - a child choosing a particular material, completing a work cycle, collaborating with a peer, or demonstrating mastery of a concept. Creating observations is designed to be fast enough that a guide can capture a moment without interrupting the flow of the classroom.
 
 ## Who Can Create Observations
 
@@ -34,9 +34,9 @@ The student search matches on first name, last name, and preferred name. If a st
 
 ### Curriculum Outcomes
 
-Optionally link the observation to one or more curriculum outcomes. Start typing an outcome title and matching outcomes from all active curriculum instances appear. Only outcomes and activities (the leaf-level items) appear in the search — you cannot tag high-level areas or strands directly.
+Optionally link the observation to one or more curriculum outcomes. Start typing an outcome title and matching outcomes from all active curriculum instances appear. Only outcomes and activities (the leaf-level items) appear in the search - you cannot tag high-level areas or strands directly.
 
-Each outcome pill shows its level (outcome or activity) and title. This linking is what feeds the mastery tracking system — when you link an observation to a curriculum outcome for a student, it becomes evidence of that student's engagement with that outcome.
+Each outcome pill shows its level (outcome or activity) and title. This linking is what feeds the mastery tracking system - when you link an observation to a curriculum outcome for a student, it becomes evidence of that student's engagement with that outcome.
 
 Linking curriculum outcomes is optional. Many observations are valuable without curriculum links, especially for social-emotional notes, transitions, or general classroom observations.
 
@@ -62,9 +62,9 @@ Media consent is set by parents through the Parent Portal and can also be manage
 
 Every observation form gives you two options:
 
-**Save as Draft** — Creates the observation in draft status. Only staff with observation permissions can see drafts. Parents cannot see drafts. Use drafts when you want to come back and add more detail, attach additional photos, or have someone review the observation before it goes to parents.
+**Save as Draft** - Creates the observation in draft status. Only staff with observation permissions can see drafts. Parents cannot see drafts. Use drafts when you want to come back and add more detail, attach additional photos, or have someone review the observation before it goes to parents.
 
-**Save & Publish** — Creates the observation and immediately publishes it. Published observations are visible in the observation feed for all staff and appear in the Parent Portal for the tagged students' guardians. You need the **Publish Observation** permission to publish (this is a separate permission from creating, so a school can require a lead guide to review and publish observations created by assistants).
+**Save & Publish** - Creates the observation and immediately publishes it. Published observations are visible in the observation feed for all staff and appear in the Parent Portal for the tagged students' guardians. You need the **Publish Observation** permission to publish (this is a separate permission from creating, so a school can require a lead guide to review and publish observations created by assistants).
 
 If you only have the Create Observation permission but not Publish Observation, you will only see the Save as Draft button. The observation will need to be published by someone with the Publish permission.
 
@@ -72,7 +72,7 @@ If you only have the Create Observation permission but not Publish Observation, 
 
 After saving (draft or published), you are redirected to the observation feed. The new observation appears at the top of the list, showing its status badge (Draft or Published), the content, tagged students, linked outcomes, and media thumbnails.
 
-The observation is now associated with your user account as the author. Only the author can edit or delete a draft observation. Published observations cannot be edited — they are a permanent record. If something needs to change, an observation can be archived and a new one created.
+The observation is now associated with your user account as the author. Only the author can edit or delete a draft observation. Published observations cannot be edited - they are a permanent record. If something needs to change, an observation can be archived and a new one created.
 
 ## Tips for Effective Observations
 
@@ -80,7 +80,7 @@ The observation is now associated with your user account as the author. Only the
 
 - **Tag multiple students**: Group lessons and collaborative work should tag all participating students. Each student's portfolio will include the observation.
 
-- **Link to curriculum**: Even a quick link to one or two outcomes makes the observation much more valuable for mastery tracking and report generation. The search makes this fast — two or three keystrokes usually find the right outcome.
+- **Link to curriculum**: Even a quick link to one or two outcomes makes the observation much more valuable for mastery tracking and report generation. The search makes this fast - two or three keystrokes usually find the right outcome.
 
 - **Write for parents**: Published observations appear in the Parent Portal. Write in a way that helps parents understand what their child is working on and why it matters. Avoid jargon where possible.
 

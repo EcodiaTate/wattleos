@@ -102,7 +102,7 @@ function LoginForm() {
         const { Browser } = await import("@capacitor/browser");
         await Browser.open({ url: data.url, presentationStyle: "popover" });
       }
-      // Loading stays true — session change will trigger a page navigation
+      // Loading stays true - session change will trigger a page navigation
       return;
     }
 
@@ -159,7 +159,7 @@ function LoginForm() {
       const { error: signInError } = await supabase.auth.signInWithIdToken({
         provider: "apple",
         token: identityToken,
-        nonce, // raw nonce — Supabase hashes it and compares to Apple's claim
+        nonce, // raw nonce - Supabase hashes it and compares to Apple's claim
       });
 
       if (signInError) {
@@ -168,7 +168,7 @@ function LoginForm() {
       // Success: onAuthStateChange fires → middleware redirects to /dashboard
     } catch (e: any) {
       const msg: string = e?.message ?? "";
-      // 1001 = ASAuthorizationErrorCanceled — user dismissed, not an error
+      // 1001 = ASAuthorizationErrorCanceled - user dismissed, not an error
       if (!msg.includes("1001") && !msg.toLowerCase().includes("cancel")) {
         setError(msg || "Apple Sign-In failed.");
       }
@@ -216,7 +216,7 @@ function LoginForm() {
       )}
 
       <div className="space-y-3">
-        {/* Apple Sign-In — native only, black per Apple HIG */}
+        {/* Apple Sign-In - native only, black per Apple HIG */}
         {isNative && (
           <button
             onClick={handleAppleLogin}

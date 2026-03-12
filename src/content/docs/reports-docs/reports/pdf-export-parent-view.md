@@ -6,7 +6,7 @@ WattleOS generates professional PDF report cards and makes published reports ava
 
 ### When PDFs Are Available
 
-PDF export is only available for reports in **Approved** or **Published** status. Draft and in-review reports cannot be exported — this ensures parents only receive finalised, quality-reviewed documents.
+PDF export is only available for reports in **Approved** or **Published** status. Draft and in-review reports cannot be exported - this ensures parents only receive finalised, quality-reviewed documents.
 
 ### Generating a PDF
 
@@ -17,7 +17,7 @@ From the Report Editor or the report detail page, click **Export PDF**. WattleOS
 3. Updates the report record with the storage path
 4. Returns a signed download URL valid for one hour
 
-The PDF downloads automatically in your browser. If you need to download it again later, click **Download PDF** — this retrieves a fresh signed URL for the existing PDF file.
+The PDF downloads automatically in your browser. If you need to download it again later, click **Download PDF** - this retrieves a fresh signed URL for the existing PDF file.
 
 ### PDF Contents
 
@@ -29,7 +29,7 @@ The generated PDF includes all sections from the report in template order:
 - Mastery grids with colour-coded status indicators
 - Attendance summaries with counts and percentages
 
-The PDF is styled with the WattleOS branding — the school name appears in the header. The layout is designed for A4 printing with appropriate margins and page breaks.
+The PDF is styled with the WattleOS branding - the school name appears in the header. The layout is designed for A4 printing with appropriate margins and page breaks.
 
 ### Re-exporting
 
@@ -51,7 +51,7 @@ Click on a report to open the read-only viewer.
 
 ### The Parent Report Viewer
 
-The parent viewer displays the full report content in a clean, read-only format. All sections are shown — student information, mastery data, attendance summaries, observation highlights, and teacher narratives.
+The parent viewer displays the full report content in a clean, read-only format. All sections are shown - student information, mastery data, attendance summaries, observation highlights, and teacher narratives.
 
 The viewer is intentionally separate from the staff editor. There are no editing controls, no workflow buttons, and no status indicators. Parents see a polished presentation of the report content.
 
@@ -80,5 +80,5 @@ PDF storage paths follow the format: `{tenantId}/{studentId}/{reportId}.pdf`. Th
 
 ## Permissions
 
-- **Manage Reports** — Required for staff to export PDFs and download reports
-- **Parent role** — Automatically grants access to download published reports for their own children
+- **Manage Reports** - Required for staff to export PDFs and download reports
+- **Parent role** - Automatically grants access to download published reports for their own children

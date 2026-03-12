@@ -7,7 +7,7 @@ description: Scaffold a new WattleOS compliance module. Use when asked to build 
 
 You are building a new compliance module for WattleOS. Follow these steps in order. Complete each fully before moving to the next. Confirm with the user after each step if the module is non-trivial.
 
-## Step 0 — Clarify scope before starting
+## Step 0 - Clarify scope before starting
 Ask the user:
 - Module name (used for file naming, e.g. `incident-reports`)
 - DB table name(s)
@@ -17,7 +17,7 @@ Ask the user:
 
 ---
 
-## Step 1 — Migration
+## Step 1 - Migration
 
 File: `supabase/migrations/000XX_<module_name>.sql`
 
@@ -53,7 +53,7 @@ CREATE TRIGGER update_<table_name>_updated_at
 
 ---
 
-## Step 2 — Domain Types
+## Step 2 - Domain Types
 
 File: `src/types/domain.ts`
 
@@ -91,7 +91,7 @@ Rules:
 
 ---
 
-## Step 3 — Validation Schemas
+## Step 3 - Validation Schemas
 
 File: `src/lib/validations/<module>.ts`
 
@@ -125,7 +125,7 @@ Rules:
 
 ---
 
-## Step 4 — Server Actions
+## Step 4 - Server Actions
 
 File: `src/lib/actions/<module>.ts`
 
@@ -163,7 +163,7 @@ Rules:
 - `ErrorCodes.DATABASE_ERROR` not `QUERY_FAILED` (latter doesn't exist)
 - `ErrorCodes.ALREADY_EXISTS` not `CONFLICT`
 - Check `result.error` for failure (not `!result.ok`)
-- Supabase joins return arrays — use `arr[0]` not direct cast
+- Supabase joins return arrays - use `arr[0]` not direct cast
 - Always `"use server"` at top
 - Always `requirePermission` before any DB query
 
@@ -171,7 +171,7 @@ Implement: CRUD + dashboard + list + export (CSV if needed)
 
 ---
 
-## Step 5 — CSS Tokens
+## Step 5 - CSS Tokens
 
 File: `src/app/globals.css`
 
@@ -191,12 +191,12 @@ And matching dark mode variants in `.dark { }`.
 Status token naming: `--<module>-<status>` (border/accent), `--<module>-<status>-fg` (text), `--<module>-<status>-bg` (background).
 
 Rules:
-- NEVER use hardcoded `bg-red-100`, `text-green-700` etc in components — always use these tokens
+- NEVER use hardcoded `bg-red-100`, `text-green-700` etc in components - always use these tokens
 - Use `style={{ color: "var(--token)" }}` or `style={{ backgroundColor: "var(--token)" }}`
 
 ---
 
-## Step 6 — Audit Actions
+## Step 6 - Audit Actions
 
 File: `src/lib/utils/audit.ts`
 
@@ -216,7 +216,7 @@ Sensitivity levels: `"low"` | `"medium"` | `"high"` | `"critical"`
 
 ---
 
-## Step 7 — Routes
+## Step 7 - Routes
 
 Create pages using Next.js App Router conventions under `src/app/(app)/`:
 
@@ -250,19 +250,19 @@ export default async function <Module>Page() {
 
 ---
 
-## Step 8 — Components
+## Step 8 - Components
 
 Directory: `src/components/domain/<module>/`
 
 Standard component set:
-- `<module>-status-badge.tsx` — displays status with CSS token colors
-- `<module>-dashboard-client.tsx` — main dashboard "use client" component
-- `<module>-form.tsx` — create/edit form with haptics
-- `<module>-list-client.tsx` — filterable list
+- `<module>-status-badge.tsx` - displays status with CSS token colors
+- `<module>-dashboard-client.tsx` - main dashboard "use client" component
+- `<module>-form.tsx` - create/edit form with haptics
+- `<module>-list-client.tsx` - filterable list
 
 Component rules:
 - `"use client"` at top of interactive components
-- `const haptics = useHaptics()` — medium for confirmations, heavy for publish/submit, light for nav/toggle
+- `const haptics = useHaptics()` - medium for confirmations, heavy for publish/submit, light for nav/toggle
 - Touch targets: `active-push touch-target` classes (44px min)
 - Cards: `card-interactive` class
 - Borders: `border border-border` (NOT `borderborder-border`)
@@ -272,7 +272,7 @@ Component rules:
 
 ---
 
-## Step 9 — Sidebar Entry
+## Step 9 - Sidebar Entry
 
 File: `src/components/domain/sidebar.tsx`
 
@@ -289,7 +289,7 @@ Find the appropriate group array (Operations / Compliance / Pedagogy / Admin). A
 
 ---
 
-## Step 10 — Permissions
+## Step 10 - Permissions
 
 File: `src/lib/constants/permissions.ts` (or wherever Permissions are defined)
 
@@ -303,7 +303,7 @@ Update default role assignments: Owners + Admins get `MANAGE_<MODULE>`, Educator
 
 ---
 
-## Step 11 — Ask Wattle Tool (if needed)
+## Step 11 - Ask Wattle Tool (if needed)
 
 Files: `src/lib/docs/wattle-tools.ts` + handler file
 
@@ -341,4 +341,4 @@ Before calling the module done:
 - [ ] Sidebar entry added
 - [ ] Permissions defined and assigned to roles
 - [ ] Ask Wattle tool (if requested)
-- [ ] Run `NODE_OPTIONS="--max-old-space-size=8192" npx tsc --noEmit` — zero errors
+- [ ] Run `NODE_OPTIONS="--max-old-space-size=8192" npx tsc --noEmit` - zero errors

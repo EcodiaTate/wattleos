@@ -61,7 +61,7 @@ export async function initAppLifecycle(options: {
 
           // OAuth callback via custom scheme: au.ecodia.wattleos://auth/callback?code=...
           // Fired after SFSafariViewController (iOS) or Chrome Custom Tab (Android) closes.
-          // URL parsing: host="auth", pathname="/callback" — check both.
+          // URL parsing: host="auth", pathname="/callback" - check both.
           // Route to the server-side /auth/callback handler which exchanges the code.
           if (
             url.protocol === "au.ecodia.wattleos:" &&
@@ -143,7 +143,7 @@ export async function hideSplashScreen(): Promise<void> {
 
 /**
  * Configure the status bar appearance.
- * No-op — @capacitor/status-bar removed due to Cap 8 build conflict.
+ * No-op - @capacitor/status-bar removed due to Cap 8 build conflict.
  * Status bar style is handled via Info.plist / capacitor.config.ts static config.
  */
 export async function configureStatusBar(_options: {

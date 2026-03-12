@@ -135,7 +135,7 @@ export function MqapAlignmentClient({ items }: MqapAlignmentClientProps) {
                           className="text-xs"
                           style={{ color: "var(--muted-foreground)" }}
                         >
-                          —
+                          -
                         </span>
                       )}
                     </div>
@@ -160,7 +160,7 @@ function RatingPill({ rating }: { rating: MqapRating | null }) {
           color: "var(--qip-unassessed-fg)",
         }}
       >
-        —
+        -
       </span>
     );
   }

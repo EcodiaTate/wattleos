@@ -47,7 +47,7 @@ const AGE_BAND_LABELS: Record<string, string> = {
 };
 
 function formatDate(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "-";
   return new Date(iso).toLocaleDateString(undefined, {
     day: "numeric",
     month: "short",

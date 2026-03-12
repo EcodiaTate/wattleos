@@ -14,7 +14,7 @@ Schools cannot edit templates directly. Instead, they fork a template to create 
 
 ### Instances
 
-A curriculum instance is a school's private copy of a curriculum. When you fork a template, WattleOS copies every node from the template into a new instance owned by your school. From that point on, the instance is entirely yours — you can rename nodes, add custom outcomes, hide items that are not relevant, reorder content, and delete nodes you do not use.
+A curriculum instance is a school's private copy of a curriculum. When you fork a template, WattleOS copies every node from the template into a new instance owned by your school. From that point on, the instance is entirely yours - you can rename nodes, add custom outcomes, hide items that are not relevant, reorder content, and delete nodes you do not use.
 
 Each school can have multiple active instances. A typical Montessori school might have three: an AMI Primary instance for ages 6-9, an AMI Elementary instance for ages 9-12, and an EYLF instance for the toddler program.
 
@@ -24,13 +24,13 @@ Instances are what your guides interact with daily. When they tag an observation
 
 A curriculum node is a single item in the hierarchy. Nodes have four possible levels:
 
-**Area** — The broadest category (e.g. "Mathematics," "Language," "Practical Life"). Areas are the top-level containers.
+**Area** - The broadest category (e.g. "Mathematics," "Language," "Practical Life"). Areas are the top-level containers.
 
-**Strand** — A sub-category within an area (e.g. "Numeration" within Mathematics, "Reading" within Language).
+**Strand** - A sub-category within an area (e.g. "Numeration" within Mathematics, "Reading" within Language).
 
-**Outcome** — A specific learning outcome or skill (e.g. "Understands place value to 1000," "Reads independently for 20 minutes"). Outcomes are the primary tracking unit — mastery is recorded at the outcome level.
+**Outcome** - A specific learning outcome or skill (e.g. "Understands place value to 1000," "Reads independently for 20 minutes"). Outcomes are the primary tracking unit - mastery is recorded at the outcome level.
 
-**Activity** — A specific Montessori material or lesson (e.g. "Golden Bead Material," "Movable Alphabet"). Activities are optional and sit below outcomes.
+**Activity** - A specific Montessori material or lesson (e.g. "Golden Bead Material," "Movable Alphabet"). Activities are optional and sit below outcomes.
 
 Each node has a title, optional description, a sequence order (for display ordering), and can be marked as hidden (excluded from views and tracking without being deleted).
 
@@ -62,6 +62,6 @@ This creates an empty instance with no nodes. You then build your curriculum tre
 
 ## Permissions
 
-**Manage Curriculum** — Required to fork templates, create blank instances, add/edit/delete/reorder nodes, and toggle visibility. This permission is included in the default Administrator role.
+**Manage Curriculum** - Required to fork templates, create blank instances, add/edit/delete/reorder nodes, and toggle visibility. This permission is included in the default Administrator role.
 
 All authenticated staff can view curriculum instances and their nodes (for observation tagging and mastery tracking), but only those with the Manage Curriculum permission can modify the structure.

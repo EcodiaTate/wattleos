@@ -641,7 +641,7 @@ export function IdCardBatchClient({
                   className="font-medium"
                   style={{ color: "var(--foreground)" }}
                 >
-                  {selectedTemplate?.name ?? "—"}
+                  {selectedTemplate?.name ?? "-"}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -661,7 +661,7 @@ export function IdCardBatchClient({
                   className="font-medium capitalize"
                   style={{ color: "var(--foreground)" }}
                 >
-                  {selectedTemplate?.template_config.card_orientation ?? "—"}
+                  {selectedTemplate?.template_config.card_orientation ?? "-"}
                 </span>
               </div>
               <div className="flex justify-between">

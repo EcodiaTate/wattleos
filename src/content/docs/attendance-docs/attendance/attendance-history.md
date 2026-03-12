@@ -10,9 +10,9 @@ From the main Attendance page, click **History** in the top-right corner. You ca
 
 The history page has three filters:
 
-**Class** — Select a class to view. If your school has one class, it auto-selects. If you have multiple classes, you must select one before data appears.
+**Class** - Select a class to view. If your school has one class, it auto-selects. If you have multiple classes, you must select one before data appears.
 
-**From / To** — A date range picker. Defaults to the last two weeks. Adjust these to view any period — a specific school week, a full term, or the entire year.
+**From / To** - A date range picker. Defaults to the last two weeks. Adjust these to view any period - a specific school week, a full term, or the entire year.
 
 Data reloads automatically when any filter changes.
 
@@ -20,22 +20,22 @@ Data reloads automatically when any filter changes.
 
 When data is available, four summary cards appear at the top:
 
-**Attendance Rate** — The overall percentage of students who were present, late, or attending a half day (all three count as "in attendance"). Shows the number of school days in the range.
+**Attendance Rate** - The overall percentage of students who were present, late, or attending a half day (all three count as "in attendance"). Shows the number of school days in the range.
 
-**Total Present** — The raw count of Present records, out of the total number of attendance records.
+**Total Present** - The raw count of Present records, out of the total number of attendance records.
 
-**Total Absent** — The count of Absent records. If there are any absences, the sublabel reads "Needs follow-up."
+**Total Absent** - The count of Absent records. If there are any absences, the sublabel reads "Needs follow-up."
 
-**Total Late** — The count of Late records.
+**Total Late** - The count of Late records.
 
 ## Daily Breakdown Table
 
 Below the summary cards, a table shows one row per school day within the date range, sorted newest first. Each row displays:
 
-- **Date** — Formatted as day-of-week, day, month (e.g. "Wed, 19 Feb")
-- **Total** — The number of students with a record that day
-- **Present / Absent / Late / Excused / Half Day** — Colour-coded badge counts for each status. A dash (–) appears if the count is zero
-- **Rate** — That day's attendance rate as a percentage
+- **Date** - Formatted as day-of-week, day, month (e.g. "Wed, 19 Feb")
+- **Total** - The number of students with a record that day
+- **Present / Absent / Late / Excused / Half Day** - Colour-coded badge counts for each status. A dash (–) appears if the count is zero
+- **Rate** - That day's attendance rate as a percentage
 
 This table makes it easy to spot patterns: a day with an unusually high absent count, a pattern of late arrivals on Mondays, or a gradual decline in attendance towards the end of term.
 
@@ -45,4 +45,4 @@ If no class is selected, a message prompts you to choose one. If no attendance r
 
 ## Navigating to the Absence Report
 
-The history page includes a link to the **Absence Report** in the top-right corner. The absence report focuses specifically on unexplained absences that require follow-up — a complementary view to the broader history.
+The history page includes a link to the **Absence Report** in the top-right corner. The absence report focuses specifically on unexplained absences that require follow-up - a complementary view to the broader history.

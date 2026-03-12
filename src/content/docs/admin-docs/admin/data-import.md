@@ -10,12 +10,12 @@ Navigate to **Admin → Data Import**. The import tool requires the Manage Tenan
 
 WattleOS supports six import types, and they should be imported in this order because later types reference earlier ones:
 
-1. **Students** — Names, dates of birth, gender, class assignments, enrollment status. Import this first — everything else references students.
-2. **Guardians** — Parent/guardian details linked to students. Requires students to already exist.
-3. **Emergency Contacts** — Additional emergency contacts linked to students.
-4. **Medical Conditions** — Allergies, conditions, medications, and severity levels linked to students.
-5. **Staff** — Staff member details and role assignments. Can be imported at any time.
-6. **Attendance** — Historical attendance records. Requires students to already exist.
+1. **Students** - Names, dates of birth, gender, class assignments, enrollment status. Import this first - everything else references students.
+2. **Guardians** - Parent/guardian details linked to students. Requires students to already exist.
+3. **Emergency Contacts** - Additional emergency contacts linked to students.
+4. **Medical Conditions** - Allergies, conditions, medications, and severity levels linked to students.
+5. **Staff** - Staff member details and role assignments. Can be imported at any time.
+6. **Attendance** - Historical attendance records. Requires students to already exist.
 
 ## The Import Wizard
 
@@ -27,7 +27,7 @@ Choose what you are importing from the six options. Each option shows a descript
 
 ### Step 2: Upload CSV
 
-Drag and drop a CSV file or click to browse. The file is parsed entirely in the browser — no data is sent to the server at this stage. The parser detects the delimiter, handles quoted fields, and reports any structural errors.
+Drag and drop a CSV file or click to browse. The file is parsed entirely in the browser - no data is sent to the server at this stage. The parser detects the delimiter, handles quoted fields, and reports any structural errors.
 
 Maximum file size is 5,000 rows per import. For larger datasets, split into multiple files.
 
@@ -37,7 +37,7 @@ This is the key step. WattleOS displays your CSV's column headers alongside its 
 
 **Smart auto-detection**: The system recognises over 100 common column names from popular platforms. If your CSV header says "Child First Name," "first_name," or "Given Name," it will automatically suggest mapping to WattleOS's first_name field. Similarly, "DOB," "Date of Birth," and "Birthday" all map to the date of birth field. Auto-detected mappings with high confidence (above 70%) are pre-selected.
 
-**Required fields** are marked and must be mapped before proceeding. Optional fields can be left unmapped — they will be set to null in the imported records.
+**Required fields** are marked and must be mapped before proceeding. Optional fields can be left unmapped - they will be set to null in the imported records.
 
 **Download Template**: Each import type has a downloadable CSV template showing the expected columns with example data. This is useful if you are creating a CSV from scratch rather than exporting from another system.
 
@@ -61,13 +61,13 @@ Click **Import** to execute. WattleOS processes each valid row, creating records
 
 For guardian and staff imports, the system uses elevated database privileges (admin client) because these imports may need to create or look up user accounts.
 
-Attendance imports use an upsert pattern — if a record already exists for the same student and date, it is updated rather than duplicated.
+Attendance imports use an upsert pattern - if a record already exists for the same student and date, it is updated rather than duplicated.
 
 ### Step 6: Results
 
 The results page shows a summary: total rows processed, successfully imported, skipped (duplicates), and errors. Each error includes the row number, field, and a descriptive message.
 
-**Rollback**: If something went wrong, click **Undo Import** to soft-delete all records created by this import job. The rollback tracks which entity IDs were created and reverses them. This is safe to use — it does not affect records that existed before the import.
+**Rollback**: If something went wrong, click **Undo Import** to soft-delete all records created by this import job. The rollback tracks which entity IDs were created and reverses them. This is safe to use - it does not affect records that existed before the import.
 
 ## Import History
 
@@ -77,7 +77,7 @@ The Data Import page also shows a history table of all previous import jobs, wit
 
 Below the import wizard, the Data Import page includes a **Mass Invite** tool. This lets you send invitation emails to multiple parents at once by uploading a CSV with parent emails and student names. Each row generates an invitation link that the parent can use to create their account and link to their child's profile.
 
-Mass invite is separate from the guardian import — it creates invitations, not guardian records. The guardian record is created when the parent accepts the invitation and completes the onboarding flow.
+Mass invite is separate from the guardian import - it creates invitations, not guardian records. The guardian record is created when the parent accepts the invitation and completes the onboarding flow.
 
 ## Best Practices
 

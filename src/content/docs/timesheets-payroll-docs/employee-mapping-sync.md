@@ -6,11 +6,11 @@ Employee mapping connects WattleOS staff accounts to their corresponding records
 
 Navigate to **Admin → Settings → Payroll → Employee Mapping** to manage the connections between WattleOS users and external payroll identities.
 
-Each mapping links a WattleOS staff member (identified by their user account) to an external employee ID and optionally an external employee name. The external employee ID is the identifier used in your payroll system — for Xero, this is the Xero Employee ID; for KeyPay, this is the KeyPay Employee ID.
+Each mapping links a WattleOS staff member (identified by their user account) to an external employee ID and optionally an external employee name. The external employee ID is the identifier used in your payroll system - for Xero, this is the Xero Employee ID; for KeyPay, this is the KeyPay Employee ID.
 
 ### Creating a Mapping
 
-The mapping page shows all staff members in your school. For each unmapped staff member, you can enter their external employee ID and name, then save to create the mapping. The external name is optional but helpful for verification — it confirms that the WattleOS user is linked to the correct payroll record.
+The mapping page shows all staff members in your school. For each unmapped staff member, you can enter their external employee ID and name, then save to create the mapping. The external name is optional but helpful for verification - it confirms that the WattleOS user is linked to the correct payroll record.
 
 ### Updating and Deactivating
 
@@ -40,7 +40,7 @@ If any step fails, the sync is aborted and the error is returned. The timesheet 
 
 ### After Sync
 
-Once all approved timesheets for a period have been synced, the administrator can mark the pay period as processed. This is the terminal state — processed periods are complete and archived. The payroll system then handles the remaining steps: calculating award rates, tax, superannuation, and issuing payments to staff.
+Once all approved timesheets for a period have been synced, the administrator can mark the pay period as processed. This is the terminal state - processed periods are complete and archived. The payroll system then handles the remaining steps: calculating award rates, tax, superannuation, and issuing payments to staff.
 
 ## Current Status
 

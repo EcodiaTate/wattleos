@@ -194,7 +194,7 @@ export default async function VolunteerProfilePage({ params }: PageProps) {
           )}
           <div style={rowStyle}>
             <span style={labelStyle}>WWCC Number</span>
-            <span style={valueStyle}>{volunteer.wwcc_number ?? "—"}</span>
+            <span style={valueStyle}>{volunteer.wwcc_number ?? "-"}</span>
           </div>
           <div style={rowStyle}>
             <span style={labelStyle}>WWCC Expiry</span>
@@ -204,12 +204,12 @@ export default async function VolunteerProfilePage({ params }: PageProps) {
                     "en-AU",
                     { day: "numeric", month: "long", year: "numeric" },
                   )
-                : "—"}
+                : "-"}
             </span>
           </div>
           <div style={rowStyle}>
             <span style={labelStyle}>WWCC State</span>
-            <span style={valueStyle}>{volunteer.wwcc_state ?? "—"}</span>
+            <span style={valueStyle}>{volunteer.wwcc_state ?? "-"}</span>
           </div>
           {volunteer.notes && (
             <div style={{ ...rowStyle, borderBottom: "none" }}>

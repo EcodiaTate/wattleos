@@ -6,15 +6,15 @@ Timesheets follow a four-stage workflow from draft through to synced. Staff subm
 
 The workflow has five statuses:
 
-**Draft** — The timesheet exists but has not been submitted. Time entries can still be added or modified. Drafts are created automatically when a staff member logs their first entry for a pay period.
+**Draft** - The timesheet exists but has not been submitted. Time entries can still be added or modified. Drafts are created automatically when a staff member logs their first entry for a pay period.
 
-**Submitted** — The staff member has submitted their timesheet for review. The submission aggregates all time entries for the pay period and calculates hour breakdowns (regular, overtime, and leave). Submitted timesheets appear in the approver's pending queue.
+**Submitted** - The staff member has submitted their timesheet for review. The submission aggregates all time entries for the pay period and calculates hour breakdowns (regular, overtime, and leave). Submitted timesheets appear in the approver's pending queue.
 
-**Approved** — An approver has reviewed and approved the timesheet. The approval records who approved it and when. Approved timesheets are ready for payroll sync.
+**Approved** - An approver has reviewed and approved the timesheet. The approval records who approved it and when. Approved timesheets are ready for payroll sync.
 
-**Rejected** — An approver has sent the timesheet back with notes explaining what needs to be corrected. The staff member can edit their time entries and resubmit. Rejection requires a reason — the notes field is mandatory.
+**Rejected** - An approver has sent the timesheet back with notes explaining what needs to be corrected. The staff member can edit their time entries and resubmit. Rejection requires a reason - the notes field is mandatory.
 
-**Synced** — The approved timesheet has been exported to the external payroll system (Xero or KeyPay). This is the terminal status.
+**Synced** - The approved timesheet has been exported to the external payroll system (Xero or KeyPay). This is the terminal status.
 
 ## Submitting a Timesheet
 
@@ -48,5 +48,5 @@ Resubmission clears the previous rejection details (rejected_at, rejected_by, re
 
 ## Permissions
 
-- **Log Time** — Submit and resubmit your own timesheets. View your timesheet history.
-- **Approve Timesheets** — Required to approve or reject timesheets (covered in the Approval documentation).
+- **Log Time** - Submit and resubmit your own timesheets. View your timesheet history.
+- **Approve Timesheets** - Required to approve or reject timesheets (covered in the Approval documentation).

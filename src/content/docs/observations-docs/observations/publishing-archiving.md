@@ -10,13 +10,13 @@ When you create an observation, it starts as a **draft**. Drafts are only visibl
 
 Drafts can be edited by their author. You can change the content, add or remove student tags, update curriculum outcome links, and manage photos. Only the original author can edit their own drafts.
 
-Drafts can also be deleted by their author. Deletion is a soft delete — the observation is marked as deleted and hidden from all views, but the data is retained in the database for audit purposes.
+Drafts can also be deleted by their author. Deletion is a soft delete - the observation is marked as deleted and hidden from all views, but the data is retained in the database for audit purposes.
 
 ### Published
 
 Publishing an observation makes it part of the official record. Published observations are visible to all staff and appear in the Parent Portal for the tagged students' guardians. They contribute to portfolio timelines and mastery evidence.
 
-Published observations **cannot be edited**. This is by design — once an observation is shared with parents and included in portfolio records, it should not change. If you need to correct a published observation, archive it and create a new one.
+Published observations **cannot be edited**. This is by design - once an observation is shared with parents and included in portfolio records, it should not change. If you need to correct a published observation, archive it and create a new one.
 
 Publishing requires the **Publish Observation** permission, which is separate from the Create Observation permission. This separation supports review workflows where assistant guides create observations and lead guides review and publish them.
 

@@ -4,7 +4,7 @@ Every WattleOS user can personalise how the platform looks on their device. Pers
 
 ## Accessing Display Settings
 
-Navigate to **Settings → Display** from the sidebar. This page is available to all authenticated users — no special permissions are required.
+Navigate to **Settings → Display** from the sidebar. This page is available to all authenticated users - no special permissions are required.
 
 The page shows your current settings with clear indicators when you are using the school default rather than a personal choice.
 
@@ -12,13 +12,13 @@ The page shows your current settings with clear indicators when you are using th
 
 The theme controls whether WattleOS uses a light or dark colour scheme. Four options are available.
 
-**School Default** uses whatever the administrator has set as the school-wide theme. A label shows the current school default (for example, "School Default (light)") so you know what you will get. **Light** is a bright background with dark text. **Dark** reverses the scheme — dark background with light text, easier on the eyes in low-light environments. **System** follows your operating system's preference, switching automatically when your device switches between light and dark mode.
+**School Default** uses whatever the administrator has set as the school-wide theme. A label shows the current school default (for example, "School Default (light)") so you know what you will get. **Light** is a bright background with dark text. **Dark** reverses the scheme - dark background with light text, easier on the eyes in low-light environments. **System** follows your operating system's preference, switching automatically when your device switches between light and dark mode.
 
 Selecting any option other than School Default means your choice persists regardless of what the administrator changes. Selecting School Default means your display will automatically update if the administrator changes the school theme.
 
 ## Layout Density
 
-Density controls how much space appears between elements — padding, margins, font sizes, and touch targets.
+Density controls how much space appears between elements - padding, margins, font sizes, and touch targets.
 
 **Compact** fits the most information on screen. Tables have tighter rows, cards have smaller padding, and buttons are more condensed. This is ideal for administrators working on large monitors who want to see more data at once.
 
@@ -30,7 +30,7 @@ As with theme, you can select School Default to inherit whatever the administrat
 
 ## Font Scale
 
-Font scale adjusts the base text size across the entire interface. Four sizes are available: small, base (default), large, and extra large. This is particularly useful for accessibility — users who find the default text too small can increase it without affecting the layout of other users.
+Font scale adjusts the base text size across the entire interface. Four sizes are available: small, base (default), large, and extra large. This is particularly useful for accessibility - users who find the default text too small can increase it without affecting the layout of other users.
 
 ## Live Preview
 
@@ -42,4 +42,4 @@ Click **Save** to persist your preferences. The settings are stored in a browser
 
 ## How Overrides Work
 
-Your personal settings are stored separately from the school defaults. WattleOS maintains two pieces of information: the effective value (what is actually applied, for example "dark") and whether that value was explicitly chosen by you or inherited from the school. This is why the interface can show "(using school default)" next to options — it knows the difference between "I chose light" and "the school default is light and I have not overridden it."
+Your personal settings are stored separately from the school defaults. WattleOS maintains two pieces of information: the effective value (what is actually applied, for example "dark") and whether that value was explicitly chosen by you or inherited from the school. This is why the interface can show "(using school default)" next to options - it knows the difference between "I chose light" and "the school default is light and I have not overridden it."

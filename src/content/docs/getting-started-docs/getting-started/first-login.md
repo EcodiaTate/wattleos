@@ -18,7 +18,7 @@ Parents receive access to WattleOS through an invitation email sent after their 
 
 1. You receive an email with a link to your school's WattleOS site (for example, `greenvalley.wattleos.au/invite/your-token`).
 2. Click the link. You will be taken to a Google Sign-In page.
-3. Sign in with the **same Google account** that matches the email on the invitation. This is important — the system verifies your email matches the invitation for security.
+3. Sign in with the **same Google account** that matches the email on the invitation. This is important - the system verifies your email matches the invitation for security.
 4. On successful sign-in, WattleOS automatically creates your account, links you to your child, and assigns you the Parent role.
 5. You land on the Dashboard, where you can see your child's class and start exploring their portfolio.
 

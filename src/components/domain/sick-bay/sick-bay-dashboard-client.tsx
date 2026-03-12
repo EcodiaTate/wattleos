@@ -125,7 +125,7 @@ export function SickBayDashboardClient({
                             hour: "2-digit",
                             minute: "2-digit",
                           })
-                        : "—"}
+                        : "-"}
                     </p>
                   </div>
                   {!visit.parent_notified && (

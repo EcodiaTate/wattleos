@@ -98,7 +98,7 @@ export function NewPeriodForm({ templates }: Props) {
             onChange={(e) => setTerm(e.target.value)}
             className="block w-full rounded-lg border border-input bg-background px-4 h-[var(--density-input-height)] text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
           >
-            <option value="">— None —</option>
+            <option value="">- None -</option>
             <option value="Term 1">Term 1</option>
             <option value="Term 2">Term 2</option>
             <option value="Term 3">Term 3</option>
@@ -166,7 +166,7 @@ export function NewPeriodForm({ templates }: Props) {
             onChange={(e) => setTemplateId(e.target.value)}
             className="block w-full rounded-lg border border-input bg-background px-4 h-[var(--density-input-height)] text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
           >
-            <option value="">— Select template later —</option>
+            <option value="">- Select template later -</option>
             {templates.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}

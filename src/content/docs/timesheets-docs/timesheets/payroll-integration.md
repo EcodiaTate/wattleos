@@ -10,27 +10,27 @@ Navigate to **Admin → Settings → Payroll** to configure payroll integration.
 
 The payroll settings page configures defaults and integration parameters for the entire school:
 
-**Pay Frequency** — The standard pay cycle: weekly, fortnightly, or monthly. This sets the expected cadence for pay period creation.
+**Pay Frequency** - The standard pay cycle: weekly, fortnightly, or monthly. This sets the expected cadence for pay period creation.
 
-**Pay Cycle Start Day** — Which day of the week the pay cycle begins (1 = Monday through 7 = Sunday). Used when auto-generating pay periods.
+**Pay Cycle Start Day** - Which day of the week the pay cycle begins (1 = Monday through 7 = Sunday). Used when auto-generating pay periods.
 
-**Default Start Time** — The default work start time pre-filled in the timesheet grid (e.g. 8:00 AM). Staff can override this on any entry.
+**Default Start Time** - The default work start time pre-filled in the timesheet grid (e.g. 8:00 AM). Staff can override this on any entry.
 
-**Default End Time** — The default work end time pre-filled in the timesheet grid (e.g. 4:00 PM).
+**Default End Time** - The default work end time pre-filled in the timesheet grid (e.g. 4:00 PM).
 
-**Default Break Minutes** — The default break duration pre-filled in the timesheet grid (e.g. 30 minutes).
+**Default Break Minutes** - The default break duration pre-filled in the timesheet grid (e.g. 30 minutes).
 
-**Payroll Provider** — The external payroll system to sync with. Currently supports Xero and KeyPay, with the option to set no provider for manual processing.
+**Payroll Provider** - The external payroll system to sync with. Currently supports Xero and KeyPay, with the option to set no provider for manual processing.
 
-**Provider Config** — Provider-specific configuration stored as JSON (API keys, organisation IDs, pay calendar IDs). The exact fields depend on the selected provider.
+**Provider Config** - Provider-specific configuration stored as JSON (API keys, organisation IDs, pay calendar IDs). The exact fields depend on the selected provider.
 
-**Auto-Create Periods** — When enabled, the system automatically generates new pay periods based on the frequency and start day settings.
+**Auto-Create Periods** - When enabled, the system automatically generates new pay periods based on the frequency and start day settings.
 
 Settings are auto-created with sensible defaults the first time the page is accessed. If no settings record exists for the tenant, one is created automatically.
 
 ## Employee Mappings
 
-Employee mappings link WattleOS user accounts to their corresponding employee records in the external payroll system. This is essential for the sync — without a mapping, the system does not know where to send a staff member's approved hours.
+Employee mappings link WattleOS user accounts to their corresponding employee records in the external payroll system. This is essential for the sync - without a mapping, the system does not know where to send a staff member's approved hours.
 
 ### Managing Mappings
 
@@ -87,13 +87,13 @@ If a sync fails for individual timesheets (API errors, network issues), the succ
 
 ## Supported Providers
 
-**Xero** — Cloud accounting and payroll platform popular with Australian small businesses. Integration pushes timesheet data to Xero's payroll timesheets API.
+**Xero** - Cloud accounting and payroll platform popular with Australian small businesses. Integration pushes timesheet data to Xero's payroll timesheets API.
 
-**KeyPay** — Australian-focused payroll platform (now part of Employment Hero). Integration pushes timesheet data to KeyPay's timesheet API with support for pay categories and locations.
+**KeyPay** - Australian-focused payroll platform (now part of Employment Hero). Integration pushes timesheet data to KeyPay's timesheet API with support for pay categories and locations.
 
 Both integrations are implemented as action shells with proper validation, error handling, and status tracking. The actual API client calls are wired through the provider configuration.
 
 ## Permissions
 
-- **Manage Integrations** — Configure payroll settings, manage employee mappings, create pay periods, trigger timesheet sync, mark periods as processed. This is the primary payroll administration permission.
-- **Approve Timesheets** — Required to approve timesheets before they can be synced (covered in the Approval documentation).
+- **Manage Integrations** - Configure payroll settings, manage employee mappings, create pay periods, trigger timesheet sync, mark periods as processed. This is the primary payroll administration permission.
+- **Approve Timesheets** - Required to approve timesheets before they can be synced (covered in the Approval documentation).

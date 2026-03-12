@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 /**
- * Native OAuth landing page — runs inside SFSafariViewController (iOS)
+ * Native OAuth landing page - runs inside SFSafariViewController (iOS)
  * or Chrome Custom Tabs (Android) after Google sign-in.
  *
  * The server route at /auth/callback handles web OAuth. For native, we

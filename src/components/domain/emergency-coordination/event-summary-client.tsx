@@ -16,7 +16,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 };
 
 function formatDuration(startIso: string, endIso: string | null) {
-  if (!endIso) return "—";
+  if (!endIso) return "-";
   const diff = Math.floor(
     (new Date(endIso).getTime() - new Date(startIso).getTime()) / 1000,
   );
@@ -75,9 +75,9 @@ export function EventSummaryClient({
             label: "Duration",
             value: totalDuration
               ? formatDuration(event.activated_at, totalDuration)
-              : "—",
+              : "-",
           },
-          { label: "Time to All Clear", value: allClearTime ?? "—" },
+          { label: "Time to All Clear", value: allClearTime ?? "-" },
           {
             label: "Students Accounted",
             value: `${summary.students_accounted}/${summary.students_total}`,

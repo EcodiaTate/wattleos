@@ -7,7 +7,7 @@
 // ============================================================
 // All queries and mutations for the chronic absence monitoring
 // module. Attendance rates are calculated live from
-// `attendance_records` using a configurable rolling window —
+// `attendance_records` using a configurable rolling window -
 // no denormalisation so there's one source of truth.
 //
 // Rate calculation:

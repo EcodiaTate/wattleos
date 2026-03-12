@@ -29,7 +29,7 @@ interface SessionDetailClientProps {
 }
 
 function fmtTime(t: string | null) {
-  if (!t) return "—";
+  if (!t) return "-";
   return t.slice(0, 5);
 }
 
@@ -147,7 +147,7 @@ export function SessionDetailClient({
         <StatCard
           label="Longest Uninterrupted"
           value={
-            longestUninterrupted !== null ? `${longestUninterrupted} min` : "—"
+            longestUninterrupted !== null ? `${longestUninterrupted} min` : "-"
           }
           sub={
             longestUninterrupted !== null && plannedMins > 0
@@ -279,7 +279,7 @@ export function SessionDetailClient({
                       )}
                     </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground max-w-xs truncate">
-                      {intr.description ?? "—"}
+                      {intr.description ?? "-"}
                     </td>
                     {canManage && (
                       <td className="px-4 py-3 text-right">

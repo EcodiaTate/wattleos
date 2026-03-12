@@ -12,13 +12,13 @@ You can select multiple photos at once. Each selected photo appears as a preview
 
 Before uploading, WattleOS compresses each image on your device. This is important because classroom photos taken on iPads can be 4–8 MB each, and uploading multiple large photos over school Wi-Fi would be slow. Compression typically reduces file sizes by 60–80% with minimal visible quality loss.
 
-The compression happens automatically — you do not need to do anything. Each photo's status indicator shows the current step:
+The compression happens automatically - you do not need to do anything. Each photo's status indicator shows the current step:
 
-- **Pending** — Photo selected but upload has not started
-- **Compressing** — Photo is being compressed on your device
-- **Uploading** — Compressed photo is being sent to the server
-- **Done** — Upload complete and the photo is attached to the observation
-- **Error** — Something went wrong (the error message appears). The observation is still saved; only the failed photo is missing
+- **Pending** - Photo selected but upload has not started
+- **Compressing** - Photo is being compressed on your device
+- **Uploading** - Compressed photo is being sent to the server
+- **Done** - Upload complete and the photo is attached to the observation
+- **Error** - Something went wrong (the error message appears). The observation is still saved; only the failed photo is missing
 
 If compression fails for any reason (unusual file format, corrupted image), the original uncompressed file is uploaded instead.
 
@@ -68,7 +68,7 @@ When you create an observation with photos and tag students:
 - Students **without** media consent show a small warning icon next to their name tag
 - When you attempt to publish, a **Media Consent Warning** banner appears listing the students without consent
 
-The warning does not prevent publishing. You can click **Publish Anyway** to proceed — the photos are saved and the observation is published. The consent status serves as a reminder for guides to be mindful of which photos may be shared externally (in newsletters, social media, etc.) versus kept internal to the school.
+The warning does not prevent publishing. You can click **Publish Anyway** to proceed - the photos are saved and the observation is published. The consent status serves as a reminder for guides to be mindful of which photos may be shared externally (in newsletters, social media, etc.) versus kept internal to the school.
 
 ## Removing Photos
 

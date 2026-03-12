@@ -220,7 +220,7 @@
   --sidebar-border: hsl(35 14% 90%);
   --sidebar-ring: hsl(38 92% 50%);
   --sidebar-item-radius: calc(var(--radius) - 2px);
-  /* Item interaction tokens — avoids color-mix() for reliability */
+  /* Item interaction tokens - avoids color-mix() for reliability */
   --sidebar-item-hover-bg: hsl(35 22% 91%);
   --sidebar-item-active-bg: hsl(38 88% 90%);
   --sidebar-item-active-fg: hsl(38 80% 30%);
@@ -372,11 +372,11 @@
    ============================================================
    Driven by data-sidebar-style="light|dark|brand" on <html>
    set by the root layout from the display cookie.
-   "light" is the default (already in :root) — no selector needed.
+   "light" is the default (already in :root) - no selector needed.
    These run after .dark and the brand-hue blocks so they win.
    ============================================================ */
 
-/* Dark sidebar — forces a dark sidebar regardless of app theme */
+/* Dark sidebar - forces a dark sidebar regardless of app theme */
 [data-sidebar-style="dark"] {
   --sidebar-background: hsl(25 15% 10%);
   --sidebar-foreground: hsl(35 12% 72%);
@@ -391,7 +391,7 @@
   --sidebar-item-active-fg: hsl(40 82% 68%);
 }
 
-/* Brand sidebar — uses the admin-configured brand hue/saturation */
+/* Brand sidebar - uses the admin-configured brand hue/saturation */
 [data-sidebar-style="brand"] {
   --sidebar-background: hsl(var(--brand-hue) var(--brand-sat) 26%);
   --sidebar-foreground: hsl(var(--brand-hue) 20% 88%);
@@ -512,7 +512,7 @@
   --audit-low: hsl(210 40% 65%);
   --audit-low-fg: hsl(210 40% 15%);
   --audit-low-bg: hsl(210 30% 96%);
-  
+
   --comms-announcement: hsl(38 85% 55%);
   --comms-announcement-fg: hsl(38 80% 12%);
   --comms-message: hsl(210 50% 55%);
@@ -864,7 +864,7 @@
   --ilp-progress-maintaining: hsl(210 45% 55%);
   --ilp-progress-maintaining-fg: hsl(210 45% 98%);
 
-  /* ── Daily Care Log (Module O — Reg 162) ────────────────── */
+  /* ── Daily Care Log (Module O - Reg 162) ────────────────── */
 
   /* Log status */
   --care-in-progress: hsl(38 85% 55%);
@@ -1119,7 +1119,7 @@
   --acara-submitted: hsl(152 55% 42%);
   --acara-submitted-fg: hsl(152 50% 98%);
   --acara-submitted-bg: hsl(152 45% 94%);
-  /* Rate bands — mirror chronic-absence palette for consistency */
+  /* Rate bands - mirror chronic-absence palette for consistency */
   --acara-rate-good: hsl(152 55% 45%);
   --acara-rate-good-fg: hsl(152 50% 98%);
   --acara-rate-good-bg: hsl(152 45% 94%);
@@ -1291,7 +1291,7 @@
   --wc-severity-moderate-bg: hsl(38 80% 93%);
   --wc-severity-severe-fg:   hsl(0 0% 100%);
   --wc-severity-severe-bg:   hsl(0 70% 50%);
-  /* Sources — simplified palette */
+  /* Sources - simplified palette */
   --wc-source-pa-fg:         hsl(270 50% 25%);
   --wc-source-pa-bg:         hsl(270 45% 94%);
   --wc-source-specialist-fg: hsl(210 60% 25%);
@@ -1777,7 +1777,7 @@
   --accred-body-ams:   hsl(38 85% 50%);
   --accred-body-msaa:  hsl(152 58% 40%);
 
-  /* ── Cosmic Education — unit status ──────────────────── */
+  /* ── Cosmic Education - unit status ──────────────────── */
   --cosmic-draft:            hsl(220 12% 58%);
   --cosmic-draft-fg:         hsl(220 10% 22%);
   --cosmic-draft-bg:         hsl(220 15% 94%);
@@ -1791,7 +1791,7 @@
   --cosmic-archived-fg:      hsl(220 8% 20%);
   --cosmic-archived-bg:      hsl(220 12% 95%);
 
-  /* ── Cosmic Education — study record status ──────────── */
+  /* ── Cosmic Education - study record status ──────────── */
   --cosmic-introduced:       hsl(210 65% 52%);
   --cosmic-introduced-fg:    hsl(210 60% 98%);
   --cosmic-introduced-bg:    hsl(210 55% 94%);
@@ -1805,7 +1805,7 @@
   --cosmic-record-completed-fg: hsl(152 50% 98%);
   --cosmic-record-completed-bg: hsl(152 45% 93%);
 
-  /* ── Cosmic Education — Great Lesson accent colours ─────── */
+  /* ── Cosmic Education - Great Lesson accent colours ─────── */
   --cosmic-lesson-universe:       hsl(220 70% 52%);
   --cosmic-lesson-life:           hsl(152 55% 42%);
   --cosmic-lesson-humans:         hsl(28 80% 52%);
@@ -1813,7 +1813,7 @@
   --cosmic-lesson-numbers:        hsl(38 85% 52%);
   --cosmic-lesson-custom:         hsl(190 55% 45%);
 
-  /* ── Cosmic Education — study area accent colours ────────── */
+  /* ── Cosmic Education - study area accent colours ────────── */
   --cosmic-area-history:        hsl(28 70% 50%);
   --cosmic-area-geography:      hsl(152 50% 42%);
   --cosmic-area-biology:        hsl(140 55% 38%);
@@ -2231,7 +2231,7 @@
   --ilp-progress-maintaining: hsl(210 35% 45%);
   --ilp-progress-maintaining-fg: hsl(210 35% 92%);
 
-  /* ── Daily Care Log (Module O — Reg 162) ────────────────── */
+  /* ── Daily Care Log (Module O - Reg 162) ────────────────── */
   --care-in-progress: hsl(38 70% 42%);
   --care-in-progress-fg: hsl(38 60% 92%);
   --care-in-progress-bg: hsl(38 50% 15%);
@@ -3111,7 +3111,7 @@
   --accred-body-ams:   hsl(38 68% 42%);
   --accred-body-msaa:  hsl(152 45% 32%);
 
-  /* ── Cosmic Education — unit status (dark) ───────────────── */
+  /* ── Cosmic Education - unit status (dark) ───────────────── */
   --cosmic-draft:            hsl(220 10% 38%);
   --cosmic-draft-fg:         hsl(220 8% 72%);
   --cosmic-draft-bg:         hsl(220 12% 18%);
@@ -3125,7 +3125,7 @@
   --cosmic-archived-fg:      hsl(220 6% 65%);
   --cosmic-archived-bg:      hsl(220 10% 15%);
 
-  /* ── Cosmic Education — study record status (dark) ───────── */
+  /* ── Cosmic Education - study record status (dark) ───────── */
   --cosmic-introduced:       hsl(210 48% 36%);
   --cosmic-introduced-fg:    hsl(210 50% 92%);
   --cosmic-introduced-bg:    hsl(210 38% 16%);
@@ -3139,7 +3139,7 @@
   --cosmic-record-completed-fg: hsl(152 40% 92%);
   --cosmic-record-completed-bg: hsl(152 35% 13%);
 
-  /* ── Cosmic Education — Great Lesson accent colours (dark) ── */
+  /* ── Cosmic Education - Great Lesson accent colours (dark) ── */
   --cosmic-lesson-universe:       hsl(220 55% 42%);
   --cosmic-lesson-life:           hsl(152 42% 32%);
   --cosmic-lesson-humans:         hsl(28 60% 38%);
@@ -3147,7 +3147,7 @@
   --cosmic-lesson-numbers:        hsl(38 65% 38%);
   --cosmic-lesson-custom:         hsl(190 42% 34%);
 
-  /* ── Cosmic Education — study area accent colours (dark) ──── */
+  /* ── Cosmic Education - study area accent colours (dark) ──── */
   --cosmic-area-history:        hsl(28 55% 38%);
   --cosmic-area-geography:      hsl(152 38% 32%);
   --cosmic-area-biology:        hsl(140 42% 28%);
@@ -3173,7 +3173,7 @@
   /* Mobile tab bar */
   --tab-bar-height: 3.25rem;
 
-  /* Safe areas for mobile — always valid, 0px on desktop */
+  /* Safe areas for mobile - always valid, 0px on desktop */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
@@ -3385,7 +3385,7 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     scroll-behavior: smooth;
-    /* True native height on iOS — no URL-bar gymnastics */
+    /* True native height on iOS - no URL-bar gymnastics */
     height: 100%;
     height: -webkit-fill-available;
   }
@@ -3397,14 +3397,14 @@
     font-size: var(--text-base);
     line-height: 1.5;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
-    /* Prevent body-level rubber-banding — scrollable areas manage their own */
+    /* Prevent body-level rubber-banding - scrollable areas manage their own */
     overscroll-behavior: none;
     height: 100%;
     min-height: 100dvh;
     min-height: -webkit-fill-available;
   }
 
-  /* Disable text selection on touch devices — native app feel.
+  /* Disable text selection on touch devices - native app feel.
      Inputs, textareas, contenteditable remain selectable. */
   @media (pointer: coarse) {
     * { user-select: none; -webkit-user-select: none; }
@@ -3529,7 +3529,7 @@
   background: var(--sidebar-item-active-bg);
 }
 
-/* Active indicator bar — animated slide-in */
+/* Active indicator bar - animated slide-in */
 .sidebar-active-bar {
   animation: sidebar-bar-enter 250ms var(--ease-spring) both;
 }
@@ -3673,7 +3673,7 @@
   to { opacity: 0; }
 }
 
-/* Emergency coordination — flash + pulse animations */
+/* Emergency coordination - flash + pulse animations */
 @keyframes emergency-flash-in {
   0% { background-color: var(--emergency-flash); }
   100% { background-color: transparent; }
@@ -3709,7 +3709,7 @@
 @utility animate-slide-in-right { animation: slide-in-right var(--duration-base) var(--ease-out) both; }
 @utility animate-pop { animation: pop 350ms var(--ease-spring) both; }
 
-/* Staggered children — add to parent container, children get delayed entrance */
+/* Staggered children - add to parent container, children get delayed entrance */
 @utility stagger-children {
   & > * {
     animation: fade-in-up var(--duration-slow) var(--ease-spring) both;
@@ -3724,7 +3724,7 @@
   & > *:nth-child(8) { animation-delay: 350ms; }
 }
 
-/* Page enter — applies to route page containers */
+/* Page enter - applies to route page containers */
 @utility page-enter {
   animation: fade-in-up 350ms var(--ease-out) both;
 }
@@ -3736,7 +3736,7 @@
   border: 1px solid hsl(0 0% 100% / 0.1);
 }
 
-/* Shimmer skeleton — more native than plain pulse */
+/* Shimmer skeleton - more native than plain pulse */
 @utility skeleton-shimmer {
   position: relative;
   overflow: hidden;
@@ -3771,9 +3771,9 @@
 @utility card-interactive {
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
   will-change: transform;
-  &:hover { 
+  &:hover {
     border-color: var(--primary-300);
-    box-shadow: var(--shadow-lg); 
+    box-shadow: var(--shadow-lg);
   }
   &:active { transform: scale(0.985); }
 }
@@ -3802,7 +3802,7 @@
    18b. FORM & INPUT POLISH
    ============================================================ */
 
-/* Native-feel input focus — warm glow ring on focus */
+/* Native-feel input focus - warm glow ring on focus */
 @layer base {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   textarea,
@@ -3818,7 +3818,7 @@
   }
 }
 
-/* Checkbox/radio — subtle scale bounce on check */
+/* Checkbox/radio - subtle scale bounce on check */
 @layer base {
   input[type="checkbox"],
   input[type="radio"] {
@@ -3834,7 +3834,7 @@
    19. MOBILE-NATIVE UTILITIES
    ============================================================ */
 
-/* Momentum-scroll container — use on any overflowing element
+/* Momentum-scroll container - use on any overflowing element
    that should scroll natively on iOS */
 @utility scroll-native {
   overflow-y: auto;
@@ -3842,7 +3842,7 @@
   overscroll-behavior-y: contain;
 }
 
-/* Mobile tab bar surface — frosted glass for native iOS feel */
+/* Mobile tab bar surface - frosted glass for native iOS feel */
 @utility mobile-tab-bar {
   position: fixed;
   bottom: 0;
@@ -3859,7 +3859,7 @@
   z-index: 40;
 }
 
-/* Bottom-safe spacer for pages — keeps content above the tab bar */
+/* Bottom-safe spacer for pages - keeps content above the tab bar */
 @utility pb-tab-bar {
   padding-bottom: calc(var(--tab-bar-height) + var(--safe-bottom));
 }

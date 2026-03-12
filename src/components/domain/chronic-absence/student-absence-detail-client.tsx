@@ -320,7 +320,7 @@ export function StudentAbsenceDetailClient({
                     style={{ color: "var(--muted-foreground)" }}
                   >
                     {f.created_at.split("T")[0]} →{" "}
-                    {f.resolved_at?.split("T")[0] ?? "—"}
+                    {f.resolved_at?.split("T")[0] ?? "-"}
                   </span>
                   {f.resolution_note && (
                     <p

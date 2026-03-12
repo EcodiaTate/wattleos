@@ -171,7 +171,7 @@ export async function proxy(request: NextRequest) {
   // Everything below requires authentication
   if (!user) {
     // API routes must return JSON 401, not an HTML redirect.
-    // Clients (mobile apps, fetch calls) can't follow a 307 to /login —
+    // Clients (mobile apps, fetch calls) can't follow a 307 to /login -
     // they'd silently receive an HTML page and misinterpret it as success.
     // The route handler itself also checks auth, but this gives a clean
     // early exit with the right status code and Content-Type.

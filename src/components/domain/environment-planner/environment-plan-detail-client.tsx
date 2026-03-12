@@ -211,7 +211,7 @@ export function EnvironmentPlanDetailClient({ plan, availableItems, canManage }:
                 value={newSlotItemId}
                 onChange={(e) => setNewSlotItemId(e.target.value)}
               >
-                <option value="">— Empty slot —</option>
+                <option value="">- Empty slot -</option>
                 {availableItems.map((item) => (
                   <option key={item.id} value={item.id}>
                     {item.material?.name ?? item.id.slice(0, 8)}
@@ -293,7 +293,7 @@ export function EnvironmentPlanDetailClient({ plan, availableItems, canManage }:
                         value={item?.id ?? ""}
                         onChange={(e) => handleSlotItemChange(slot.id, slot.slot_label, e.target.value)}
                       >
-                        <option value="">— Empty —</option>
+                        <option value="">- Empty -</option>
                         {availableItems.map((av) => (
                           <option key={av.id} value={av.id}>
                             {av.material?.name ?? av.id.slice(0, 8)}

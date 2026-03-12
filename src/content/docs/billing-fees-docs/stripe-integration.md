@@ -1,6 +1,6 @@
 # Stripe Integration
 
-WattleOS uses Stripe as its payment processing platform. Stripe handles all credit card storage, payment collection, and receipt generation — WattleOS never stores credit card details. The integration covers customer management, invoice creation and delivery, payment method setup, refunds, and automated webhook processing.
+WattleOS uses Stripe as its payment processing platform. Stripe handles all credit card storage, payment collection, and receipt generation - WattleOS never stores credit card details. The integration covers customer management, invoice creation and delivery, payment method setup, refunds, and automated webhook processing.
 
 ## Setting Up Stripe
 
@@ -8,7 +8,7 @@ Navigate to **Admin → Settings → Integrations** and find the Stripe card. Th
 
 The **Secret Key** (starting with `sk_live_` or `sk_test_`) is your Stripe API key used for server-side operations like creating invoices and processing refunds. The **Publishable Key** (starting with `pk_live_` or `pk_test_`) is used for client-side operations like the payment method setup checkout. The **Webhook Signing Secret** (starting with `whsec_`) is used to verify that incoming webhook events genuinely come from Stripe.
 
-All three are found in your Stripe Dashboard. For testing, use your test-mode keys — invoices and payments will be simulated without real charges.
+All three are found in your Stripe Dashboard. For testing, use your test-mode keys - invoices and payments will be simulated without real charges.
 
 Two configuration settings are available. **Auto-charge on invoice due date** controls whether Stripe automatically charges the parent's saved payment method when an invoice is due. When disabled, invoices require manual payment by the parent. **Currency** sets the three-letter ISO currency code used for all invoices (default is "aud" for Australian Dollars).
 
@@ -20,7 +20,7 @@ The customer creation happens automatically during the first invoice sync. Subse
 
 ## Payment Method Setup
 
-Parents can save a payment method (credit or debit card) through a Stripe-hosted checkout session. WattleOS creates a setup session in Stripe's "setup" mode — no payment is taken, only card details are stored. The parent is redirected to Stripe's secure page, enters their card details, and is redirected back. The saved payment method is then available for auto-charging on future invoices.
+Parents can save a payment method (credit or debit card) through a Stripe-hosted checkout session. WattleOS creates a setup session in Stripe's "setup" mode - no payment is taken, only card details are stored. The parent is redirected to Stripe's secure page, enters their card details, and is redirected back. The saved payment method is then available for auto-charging on future invoices.
 
 WattleOS does not store any card details. The default payment method ID is recorded on the Stripe customer record, but all sensitive card data lives entirely within Stripe's PCI-compliant infrastructure.
 
@@ -44,7 +44,7 @@ All webhook payloads are verified using the webhook signing secret before proces
 
 ## Refunds
 
-Refunds are initiated through Stripe and can be either full or partial. When a refund is processed, the charge.refunded webhook updates the WattleOS payment record. The refund amount and reason are recorded on the payment, providing a complete audit trail. WattleOS does not currently support initiating refunds from the billing dashboard — they are managed through the Stripe Dashboard.
+Refunds are initiated through Stripe and can be either full or partial. When a refund is processed, the charge.refunded webhook updates the WattleOS payment record. The refund amount and reason are recorded on the payment, providing a complete audit trail. WattleOS does not currently support initiating refunds from the billing dashboard - they are managed through the Stripe Dashboard.
 
 ## Integration Sync Logging
 

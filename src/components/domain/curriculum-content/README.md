@@ -1,4 +1,4 @@
-# Module 14 Content Library — Audit Fix Package
+# Module 14 Content Library - Audit Fix Package
 
 ## Change Summary
 
@@ -44,7 +44,7 @@ src/
 
 ## Manual Steps Required
 
-1. **Add "Content Library" to sidebar** — See SIDEBAR_UPDATE_INSTRUCTIONS.ts
-2. **Add Module 14 permissions to constants** — See SIDEBAR_UPDATE_INSTRUCTIONS.ts
-3. **Seed Module 14 permissions in database** — Run the SQL INSERT from SIDEBAR_UPDATE_INSTRUCTIONS.ts
-4. **cross-mappings/page.tsx is UNCHANGED** — No action needed for this file
+1. **Add "Content Library" to sidebar** - See SIDEBAR_UPDATE_INSTRUCTIONS.ts
+2. **Add Module 14 permissions to constants** - See SIDEBAR_UPDATE_INSTRUCTIONS.ts
+3. **Seed Module 14 permissions in database** - Run the SQL INSERT from SIDEBAR_UPDATE_INSTRUCTIONS.ts
+4. **cross-mappings/page.tsx is UNCHANGED** - No action needed for this file

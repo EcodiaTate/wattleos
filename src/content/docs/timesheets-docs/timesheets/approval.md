@@ -10,11 +10,11 @@ Navigate to **Admin → Timesheets** to see the approval dashboard. This require
 
 The pending approvals view lists all timesheets in "submitted" status, sorted by submission date (oldest first). Each entry shows:
 
-- **Staff member** — Name and avatar
-- **Pay period** — Which period the timesheet covers
-- **Total hours** — The aggregated total
-- **Regular / Overtime / Leave** — Hour breakdown
-- **Submitted at** — When the timesheet was submitted
+- **Staff member** - Name and avatar
+- **Pay period** - Which period the timesheet covers
+- **Total hours** - The aggregated total
+- **Regular / Overtime / Leave** - Hour breakdown
+- **Submitted at** - When the timesheet was submitted
 
 The queue can be filtered by pay period to focus on a specific cycle.
 
@@ -22,7 +22,7 @@ The queue can be filtered by pay period to focus on a specific cycle.
 
 Click on a pending timesheet to see its full details. The detail view shows the timesheet summary (total hours, breakdown by type) alongside the individual time entries that make up those hours. Each entry displays the date, start/end time, break duration, entry type, class assignment, notes, and calculated hours.
 
-This allows approvers to verify that the hours match expectations — checking for unusual patterns like missing days, excessive overtime, or entries that do not align with the school calendar.
+This allows approvers to verify that the hours match expectations - checking for unusual patterns like missing days, excessive overtime, or entries that do not align with the school calendar.
 
 ## Approving
 
@@ -36,11 +36,11 @@ Approved timesheets move out of the pending queue and are ready for payroll sync
 
 ### Self-Approval Prevention
 
-A staff member cannot approve their own timesheet. This is enforced at the server action level — if the approver's user ID matches the timesheet owner's user ID, the action returns an error. This ensures separation of duties for payroll integrity.
+A staff member cannot approve their own timesheet. This is enforced at the server action level - if the approver's user ID matches the timesheet owner's user ID, the action returns an error. This ensures separation of duties for payroll integrity.
 
 ## Rejecting
 
-Click **Reject** to send the timesheet back for correction. Rejection requires notes explaining what needs to be fixed — the notes field is mandatory and cannot be empty.
+Click **Reject** to send the timesheet back for correction. Rejection requires notes explaining what needs to be fixed - the notes field is mandatory and cannot be empty.
 
 The system:
 
@@ -67,5 +67,5 @@ Each row shows the staff member name, avatar, status badge, hour totals, and sub
 
 ## Permissions
 
-- **Approve Timesheets** — View pending timesheets, approve, reject, batch approve. View all timesheets for a period. Filter by pay period.
-- **View All Timesheets** — Read-only access to all staff timesheets across periods (useful for reporting without approval authority).
+- **Approve Timesheets** - View pending timesheets, approve, reject, batch approve. View all timesheets for a period. Filter by pay period.
+- **View All Timesheets** - Read-only access to all staff timesheets across periods (useful for reporting without approval authority).

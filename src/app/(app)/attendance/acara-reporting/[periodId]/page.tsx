@@ -70,7 +70,7 @@ export default async function AcaraPeriodDetailPage({ params }: Props) {
             </span>
           </div>
           <h1 className="text-2xl font-bold">
-            {period.calendar_year} —{" "}
+            {period.calendar_year} -{" "}
             {period.collection_type === "annual_school_collection"
               ? "Annual School Collection"
               : period.collection_type === "semester_1_snapshot"

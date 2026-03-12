@@ -237,17 +237,17 @@ export default async function TenantDetailPage({ params }: PageProps) {
               label: "Activated",
               value: tenant.activated_at
                 ? new Date(tenant.activated_at).toLocaleDateString("en-AU")
-                : "—",
+                : "-",
             },
             {
               label: "Trial ends",
               value: tenant.trial_ends_at
                 ? new Date(tenant.trial_ends_at).toLocaleDateString("en-AU")
-                : "—",
+                : "-",
             },
             {
               label: "Stripe sub",
-              value: tenant.stripe_platform_subscription_id ?? "—",
+              value: tenant.stripe_platform_subscription_id ?? "-",
             },
             {
               label: "Created",

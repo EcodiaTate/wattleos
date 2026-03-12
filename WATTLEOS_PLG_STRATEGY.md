@@ -1,4 +1,4 @@
-# WattleOS — Product-Led Growth Strategy
+# WattleOS - Product-Led Growth Strategy
 
 **Purpose:** Isolatable free modules that deliver standalone value, accumulate switching-cost data, and expose natural upsells.
 
@@ -13,7 +13,7 @@
 2. Data accumulation creates genuine switching cost
 3. At least one natural upsell trigger exists within core workflow
 
-**Milestone-Triggered Expansion:** Contextual nudges appear when user behaviour signals they've outgrown the free tier — never generic "upgrade now" banners, always specific and data-driven.
+**Milestone-Triggered Expansion:** Contextual nudges appear when user behaviour signals they've outgrown the free tier - never generic "upgrade now" banners, always specific and data-driven.
 
 ---
 
@@ -31,7 +31,7 @@
 ## Module A: Term Report Builder
 
 **Target:** Systems coordinator / Head of School | **Pain:** Crystal Reports charges, Word doc workflows
-**Standalone:** Yes — works without other modules
+**Standalone:** Yes - works without other modules
 
 **Problem:** Guides fill reports manually (Word docs), office staff compiles/formats, process takes weeks.
 **Solution:** Visual template builder, guide fills in-browser with autosave, office reviews from dashboard, PDFs auto-generate.
@@ -130,7 +130,7 @@ saveReportDraft() | submitReport()
 ## Module B: Observation Capture
 
 **Target:** Classroom Guide | **Pain:** Paper notes, Google Forms, Transparent Classroom data residency issues
-**Standalone:** Yes — one guide, one class, no SIS/curriculum dependencies
+**Standalone:** Yes - one guide, one class, no SIS/curriculum dependencies
 
 **Problem:** Guides observe constantly but notes stay scattered (sticky notes, Apple Notes, Google Sheets). No outcome linking, never reaches parents.
 **Solution:** Mobile-first iPad capture with optional curriculum tagging, draft/publish workflow, photo attachments, fast submit.
@@ -166,7 +166,7 @@ CREATE POLICY "Tenant isolation" ON observation_freeform_tags FOR ALL USING (ten
 | Pull into reports | ❌ | ✅ |
 | Export as PDF/CSV | ✅ | ✅ |
 
-**Why export is free:** Easy export reduces lock-in anxiety. The real switching cost is the *graph* — observation linked to curriculum linked to mastery linked to portfolio. That graph only exists in WattleOS.
+**Why export is free:** Easy export reduces lock-in anxiety. The real switching cost is the *graph* - observation linked to curriculum linked to mastery linked to portfolio. That graph only exists in WattleOS.
 
 ### Upsell Moments
 
@@ -180,7 +180,7 @@ CREATE POLICY "Tenant isolation" ON observation_freeform_tags FOR ALL USING (ten
 ## Module C: Curriculum & Mastery Tracker
 
 **Target:** Curriculum Coordinator / Lead Guide | **Pain:** Curriculum in printed albums/binders/Google Sheets, no tracking
-**Standalone:** Yes — one person tracks mastery without any other module
+**Standalone:** Yes - one person tracks mastery without any other module
 
 **Problem:** Curriculum almost never in digital system that can be queried/filtered/reported on.
 **Solution:** Pre-loaded AMI/EYLF curriculum templates (schools fork and customise), track mastery per student per outcome (not_started → presented → practicing → mastered).
@@ -212,7 +212,7 @@ CREATE POLICY "Tenant isolation" ON observation_freeform_tags FOR ALL USING (ten
 ## Module D: Admissions Pipeline
 
 **Target:** Registrar / Office Admin | **Pain:** Waitlists in spreadsheets, inquiries lost in email, no tour booking
-**Standalone:** Yes — entire pipeline from inquiry to offer works independently
+**Standalone:** Yes - entire pipeline from inquiry to offer works independently
 **Special:** **Hard architectural wall** at offer → enrollment. Upsell is built into core workflow.
 
 **Problem:** Multi-year waitlists managed in spreadsheets, inquiries scattered in email, tours booked manually.
@@ -228,7 +228,7 @@ Family accepts offer
   → [Upgrade to Full Platform] [Export data and complete manually]
 ```
 
-The export option demonstrates confidence — schools that click it see manual work required and often return.
+The export option demonstrates confidence - schools that click it see manual work required and often return.
 
 ### Routes
 - Public inquiry form at `{school}.wattleos.au/inquiry` (no auth, embeddable iframe)
@@ -241,7 +241,7 @@ The export option demonstrates confidence — schools that click it see manual w
 
 **Automatic Head of School Notification:**
 When 2+ guides from same school use free tier:
-> "Two guides are using WattleOS. Here's what they've built: [X observations], [Y outcomes tracked], [Z reports]. Currently isolated — their data doesn't connect. Upgrade to bring it all together."
+> "Two guides are using WattleOS. Here's what they've built: [X observations], [Y outcomes tracked], [Z reports]. Currently isolated - their data doesn't connect. Upgrade to bring it all together."
 
 Data-driven, not spammy. Surfaces product to budget holder.
 
@@ -260,13 +260,13 @@ Every school embeds inquiry form on own website → "Powered by WattleOS" footer
 
 ## Build Sequencing (for first deployment)
 
-**1. Module A (Term Reports)** — Entry point for your mum's school. Pain is acute (Crystal Reports), decision-maker motivated (principal), champion sold (systems coordinator).
+**1. Module A (Term Reports)** - Entry point for your mum's school. Pain is acute (Crystal Reports), decision-maker motivated (principal), champion sold (systems coordinator).
 
-**2. Module C (Curriculum)** — After reports running, natural question: "Can mastery auto-populate report?" Mastery summary sections auto-fill. First ecosystem moment.
+**2. Module C (Curriculum)** - After reports running, natural question: "Can mastery auto-populate report?" Mastery summary sections auto-fill. First ecosystem moment.
 
-**3. Module B (Observations)** — Observations connect to both curriculum and reports. Full workflow: observe → tag outcome → mastery updates → report auto-fills. Conversion moment.
+**3. Module B (Observations)** - Observations connect to both curriculum and reports. Full workflow: observe → tag outcome → mastery updates → report auto-fills. Conversion moment.
 
-**4. Module D (Admissions)** — Separate buyer, separate workflow. Build once A–C proven with at least one school.
+**4. Module D (Admissions)** - Separate buyer, separate workflow. Build once A–C proven with at least one school.
 
 ---
 
@@ -274,7 +274,7 @@ Every school embeds inquiry form on own website → "Powered by WattleOS" footer
 
 **Stack:** Next.js 15 App Router, Supabase, TypeScript strict, Tailwind v4, shadcn/ui
 
-**Middleware:** Use `proxy.ts` — NOT `middleware.ts`. Do not rename.
+**Middleware:** Use `proxy.ts` - NOT `middleware.ts`. Do not rename.
 
 **Server-first:** Default Server Components. Use `'use client'` only for immediate interactivity (forms, real-time, drag-and-drop).
 

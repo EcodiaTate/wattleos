@@ -1,6 +1,6 @@
 # Pickup Authorizations
 
-WattleOS maintains a record of who is authorized to pick up each student. This is a child safety feature — schools need to verify that the person collecting a child is someone the parents have approved.
+WattleOS maintains a record of who is authorized to pick up each student. This is a child safety feature - schools need to verify that the person collecting a child is someone the parents have approved.
 
 ## Where to Find Them
 
@@ -10,27 +10,27 @@ Pickup authorizations appear on the student detail page, in a dedicated section 
 
 Guardians (parents and legal guardians) are managed through the enrollment and admissions process. They are the primary contacts for the student and have access to the Parent Portal.
 
-Pickup authorizations are for additional people who may collect the child but are not guardians — grandparents, nannies, family friends, older siblings, or anyone else the parent approves. These people do not get WattleOS accounts or Parent Portal access.
+Pickup authorizations are for additional people who may collect the child but are not guardians - grandparents, nannies, family friends, older siblings, or anyone else the parent approves. These people do not get WattleOS accounts or Parent Portal access.
 
 ## Adding an Authorized Person
 
 Click **Add Person** in the Pickup Authorizations section header. A form appears with the following fields:
 
-**Full Name** (required) — The person's full name as they would identify themselves at pickup.
+**Full Name** (required) - The person's full name as they would identify themselves at pickup.
 
-**Relationship** — How they are related to the student (e.g. Grandmother, Nanny, Family Friend, Uncle). Optional but helpful for staff recognition.
+**Relationship** - How they are related to the student (e.g. Grandmother, Nanny, Family Friend, Uncle). Optional but helpful for staff recognition.
 
-**Phone** — A contact phone number. Optional but recommended so staff can verify identity if needed.
+**Phone** - A contact phone number. Optional but recommended so staff can verify identity if needed.
 
-**Permanent authorization** — A checkbox that defaults to enabled. When checked, the person can pick up the student at any time with no expiry.
+**Permanent authorization** - A checkbox that defaults to enabled. When checked, the person can pick up the student at any time with no expiry.
 
-**Valid From / Valid Until** — If the authorization is not permanent, date fields appear for setting a specific validity window. This is useful for temporary arrangements (e.g. "Grandmother is picking up for the next two weeks while Mum is travelling").
+**Valid From / Valid Until** - If the authorization is not permanent, date fields appear for setting a specific validity window. This is useful for temporary arrangements (e.g. "Grandmother is picking up for the next two weeks while Mum is travelling").
 
 ## Authorization Types
 
-**Permanent** — Shown with a green "Permanent" badge. The person is authorized to pick up the student indefinitely until the authorization is removed.
+**Permanent** - Shown with a green "Permanent" badge. The person is authorized to pick up the student indefinitely until the authorization is removed.
 
-**Temporary** — Shown with an amber "Temporary" badge. The authorization is only valid within the specified date range. After the end date, it is automatically shown as "Expired" with reduced opacity, making it clear at a glance that it is no longer active.
+**Temporary** - Shown with an amber "Temporary" badge. The authorization is only valid within the specified date range. After the end date, it is automatically shown as "Expired" with reduced opacity, making it clear at a glance that it is no longer active.
 
 ## Validity Checking
 
@@ -38,7 +38,7 @@ WattleOS automatically checks whether temporary authorizations are currently val
 
 ## Removing an Authorization
 
-Click **Remove** next to any authorization. A confirmation dialog asks "Remove [name] from pickup authorizations?" before proceeding. Removal is immediate — the record is soft-deleted and disappears from the list.
+Click **Remove** next to any authorization. A confirmation dialog asks "Remove [name] from pickup authorizations?" before proceeding. Removal is immediate - the record is soft-deleted and disappears from the list.
 
 ## Best Practices
 

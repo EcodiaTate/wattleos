@@ -21,17 +21,17 @@ Migrations: `supabase/migrations/`
 - [ ] Number is sequential (no gaps or conflicts with existing files)
 - [ ] Name describes what the migration does
 
-### 2. Destructive Operations — HIGH RISK
+### 2. Destructive Operations - HIGH RISK
 Flag any of these and require explicit confirmation:
-- `DROP TABLE` — data loss
-- `DROP COLUMN` — data loss
-- `TRUNCATE` — data loss
-- `DELETE FROM` without `WHERE` — data loss
-- `ALTER COLUMN ... TYPE` on populated columns — may fail
-- `DROP INDEX` on production index — may cause query plans to break
-- `DROP POLICY` — may open RLS gaps
+- `DROP TABLE` - data loss
+- `DROP COLUMN` - data loss
+- `TRUNCATE` - data loss
+- `DELETE FROM` without `WHERE` - data loss
+- `ALTER COLUMN ... TYPE` on populated columns - may fail
+- `DROP INDEX` on production index - may cause query plans to break
+- `DROP POLICY` - may open RLS gaps
 
-### 3. Row Level Security (RLS) — CRITICAL
+### 3. Row Level Security (RLS) - CRITICAL
 Every new table MUST have:
 ```sql
 ALTER TABLE <table> ENABLE ROW LEVEL SECURITY;
@@ -43,9 +43,9 @@ Flag if:
 - New table created without `ENABLE ROW LEVEL SECURITY`
 - Policy created without `tenant_id` check
 - Policy uses `auth.uid()` directly without tenant join (user could access other tenants)
-- `SECURITY DEFINER` used on functions (bypasses RLS — needs justification)
+- `SECURITY DEFINER` used on functions (bypasses RLS - needs justification)
 
-### 4. Tenant Isolation — CRITICAL
+### 4. Tenant Isolation - CRITICAL
 Every new table MUST have:
 - `tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE`
 - Index on `tenant_id`
@@ -67,7 +67,7 @@ Every new table SHOULD have:
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
   ```
 
-Flag missing `updated_at` trigger — without it, `updated_at` never changes.
+Flag missing `updated_at` trigger - without it, `updated_at` never changes.
 
 ### 6. Indexes
 Check that:
@@ -79,7 +79,7 @@ Check that:
 ### 7. ENUMs
 - ENUMs must be created before tables that reference them
 - Adding values to existing ENUMs: `ALTER TYPE ... ADD VALUE` is safe but irreversible
-- Renaming/removing ENUM values: destructive — flag
+- Renaming/removing ENUM values: destructive - flag
 
 ### 8. Foreign Keys
 - All FK columns should have `ON DELETE CASCADE` or `ON DELETE SET NULL` explicitly set (not default RESTRICT which causes silent insert failures)
@@ -124,7 +124,7 @@ Check: supabase/migrations/*.sql sorted by name
 1. Read the migration file fully
 2. List existing migrations to verify sequential numbering
 3. Check each section of the checklist
-4. Be specific — quote the exact SQL lines that are problematic
+4. Be specific - quote the exact SQL lines that are problematic
 5. Provide the corrected SQL for any issues found
 
-Do not approve a migration that creates tables without RLS. This is a multi-tenant SaaS — RLS gaps are a critical data breach risk.
+Do not approve a migration that creates tables without RLS. This is a multi-tenant SaaS - RLS gaps are a critical data breach risk.

@@ -10,12 +10,12 @@ Navigate to **Admin → Admissions**, then click the **Tours** quick link, or go
 
 A tour slot represents a specific date and time window when the school can host prospective families. Each slot has:
 
-- **Date** — The calendar date of the tour
-- **Start and end time** — The time window (e.g. 10:00 AM – 11:30 AM)
-- **Maximum families** — The capacity limit for the slot (default: 5 families)
-- **Guide** — The staff member leading the tour (optional, for scheduling visibility)
-- **Location** — Where the tour begins (e.g. "Main Reception," "Front Gate")
-- **Notes** — Internal notes for staff (e.g. "Cycle 1 focus" or "Rainy day plan: start in hall")
+- **Date** - The calendar date of the tour
+- **Start and end time** - The time window (e.g. 10:00 AM – 11:30 AM)
+- **Maximum families** - The capacity limit for the slot (default: 5 families)
+- **Guide** - The staff member leading the tour (optional, for scheduling visibility)
+- **Location** - Where the tour begins (e.g. "Main Reception," "Front Gate")
+- **Notes** - Internal notes for staff (e.g. "Cycle 1 focus" or "Rainy day plan: start in hall")
 
 ### Creating Slots
 
@@ -71,5 +71,5 @@ This integration means tour data flows automatically into the pipeline without d
 
 ## Permissions
 
-- **Manage Tours** — Create, edit, deactivate, and delete tour slots. View bookings and mark attendance.
-- **Manage Waitlist** — Required to transition pipeline entries to Tour Scheduled (linking entries to slots)
+- **Manage Tours** - Create, edit, deactivate, and delete tour slots. View bookings and mark attendance.
+- **Manage Waitlist** - Required to transition pipeline entries to Tour Scheduled (linking entries to slots)

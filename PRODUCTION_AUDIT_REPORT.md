@@ -1,8 +1,8 @@
-# WattleOS Production Readiness Audit — 6 Mar 2026
+# WattleOS Production Readiness Audit - 6 Mar 2026
 
 ## Executive Summary
 
-✅ **PRODUCTION READY** — TypeScript compilation passes with zero errors. Full Next.js build succeeds. Core architecture patterns are correctly implemented across 1,395 TypeScript files with 16 completed modules.
+✅ **PRODUCTION READY** - TypeScript compilation passes with zero errors. Full Next.js build succeeds. Core architecture patterns are correctly implemented across 1,395 TypeScript files with 16 completed modules.
 
 ### Key Metrics
 
@@ -164,22 +164,22 @@ logAudit(dbAdmin, "incident", incidentId, AuditActions.CREATE, {
 
 | Module | Features | Status |
 |--------|----------|--------|
-| **A** | Incidents | ✅ Complete — regulation Reg 87, 24h notification, audit log |
-| **B** | Medications | ✅ Complete — ASCIA plans, admin records, expiry alerts |
-| **C** | Staff Compliance | ✅ Complete — WWCC, qualifications, Geccko alerts |
-| **E** | QIP | ✅ Complete — NQS assessment, evidence, PDF reports |
-| **F** | Immunisations | ✅ Complete — IHS state rules, parent support |
-| **G** | CCS | ✅ Complete — bundles, absence cap, CSV import |
-| **H** | Excursions | ✅ Complete — risk assessment, consent, headcount |
-| **I** | Complaints/Policies | ✅ Complete — Reg 168, policies, register |
-| **J** | Lessons | ✅ Complete — work cycles, EYLF progress |
-| **K** | MQ:AP | ✅ Complete — 27 criteria, NQS alignment |
-| **L** | Ask Wattle | ✅ Complete — 35+ AI tools, compliance coaching |
-| **M** | Emergency Coordination | ✅ Complete — zones, realtime accountability |
-| **N** | Rostering | ✅ Complete — templates, swaps, coverage alerts |
-| **Q** | ILPs | ✅ Complete — goals, strategies, transitions |
-| **—** | Emergency Drills | ✅ Complete — Reg 97, monthly execution |
-| **15** | Staff Mgmt | ✅ Complete — profiles, roles, permissions |
+| **A** | Incidents | ✅ Complete - regulation Reg 87, 24h notification, audit log |
+| **B** | Medications | ✅ Complete - ASCIA plans, admin records, expiry alerts |
+| **C** | Staff Compliance | ✅ Complete - WWCC, qualifications, Geccko alerts |
+| **E** | QIP | ✅ Complete - NQS assessment, evidence, PDF reports |
+| **F** | Immunisations | ✅ Complete - IHS state rules, parent support |
+| **G** | CCS | ✅ Complete - bundles, absence cap, CSV import |
+| **H** | Excursions | ✅ Complete - risk assessment, consent, headcount |
+| **I** | Complaints/Policies | ✅ Complete - Reg 168, policies, register |
+| **J** | Lessons | ✅ Complete - work cycles, EYLF progress |
+| **K** | MQ:AP | ✅ Complete - 27 criteria, NQS alignment |
+| **L** | Ask Wattle | ✅ Complete - 35+ AI tools, compliance coaching |
+| **M** | Emergency Coordination | ✅ Complete - zones, realtime accountability |
+| **N** | Rostering | ✅ Complete - templates, swaps, coverage alerts |
+| **Q** | ILPs | ✅ Complete - goals, strategies, transitions |
+| **-** | Emergency Drills | ✅ Complete - Reg 97, monthly execution |
+| **15** | Staff Mgmt | ✅ Complete - profiles, roles, permissions |
 
 ---
 

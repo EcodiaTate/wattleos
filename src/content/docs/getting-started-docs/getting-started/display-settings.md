@@ -10,10 +10,10 @@ Go to **Settings** in the sidebar, then select **Display**. You can also navigat
 
 Choose how WattleOS handles light and dark mode:
 
-- **School Default** — Uses whatever your administrator has set as the school-wide theme. If you are unsure what to pick, this is a safe choice.
-- **Light** — Always uses the light colour scheme with a white background.
-- **Dark** — Always uses the dark colour scheme with a dark background. Easier on the eyes in low-light environments.
-- **System** — Follows your device's system preference. If your computer or iPad is set to dark mode, WattleOS will be dark. If it is set to light mode, WattleOS will be light.
+- **School Default** - Uses whatever your administrator has set as the school-wide theme. If you are unsure what to pick, this is a safe choice.
+- **Light** - Always uses the light colour scheme with a white background.
+- **Dark** - Always uses the dark colour scheme with a dark background. Easier on the eyes in low-light environments.
+- **System** - Follows your device's system preference. If your computer or iPad is set to dark mode, WattleOS will be dark. If it is set to light mode, WattleOS will be light.
 
 Changes preview immediately as you select them, so you can see the effect before saving.
 
@@ -21,10 +21,10 @@ Changes preview immediately as you select them, so you can see the effect before
 
 Controls how much space appears between elements across the platform:
 
-- **School Default** — Uses the administrator's chosen density for this school.
-- **Compact** — Reduces padding and spacing. Fits more content on screen, which is useful for desktop users with large screens or anyone who prefers a dense information layout.
-- **Comfortable** — The balanced middle ground. This is the default for most schools.
-- **Spacious** — Increases padding and spacing. Better for touch devices like iPads and for users who prefer larger tap targets and more breathing room between elements.
+- **School Default** - Uses the administrator's chosen density for this school.
+- **Compact** - Reduces padding and spacing. Fits more content on screen, which is useful for desktop users with large screens or anyone who prefers a dense information layout.
+- **Comfortable** - The balanced middle ground. This is the default for most schools.
+- **Spacious** - Increases padding and spacing. Better for touch devices like iPads and for users who prefer larger tap targets and more breathing room between elements.
 
 The density setting affects padding in cards, spacing between sections, button heights, and overall layout proportions throughout the entire platform.
 
@@ -32,18 +32,18 @@ The density setting affects padding in cards, spacing between sections, button h
 
 Scale all text up or down across WattleOS:
 
-- **Small** — Slightly smaller than default text
-- **Base** — The standard text size (default)
-- **Large** — Slightly larger text
-- **Extra Large** — Noticeably larger text, useful for accessibility
+- **Small** - Slightly smaller than default text
+- **Base** - The standard text size (default)
+- **Large** - Slightly larger text
+- **Extra Large** - Noticeably larger text, useful for accessibility
 
 ## How Settings Are Applied
 
 WattleOS uses a three-layer configuration system:
 
-1. **Platform defaults** — Built into WattleOS (comfortable density, light theme, base text size)
-2. **School defaults** — Set by your administrator in the Admin Appearance Settings. These override platform defaults for everyone at the school.
-3. **Your personal preferences** — Set on this page. These override school defaults for you only.
+1. **Platform defaults** - Built into WattleOS (comfortable density, light theme, base text size)
+2. **School defaults** - Set by your administrator in the Admin Appearance Settings. These override platform defaults for everyone at the school.
+3. **Your personal preferences** - Set on this page. These override school defaults for you only.
 
 If you set a preference to "School Default," it falls back to whatever your administrator has configured. If you explicitly choose a value (like "Dark" for theme), it overrides the school default regardless of what the administrator changes later.
 

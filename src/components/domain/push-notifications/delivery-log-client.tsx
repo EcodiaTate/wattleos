@@ -104,7 +104,7 @@ export function DeliveryLogClient({ dispatch, log }: Props) {
                           hour: "2-digit",
                           minute: "2-digit",
                         })
-                      : "—"}
+                      : "-"}
                   </span>
                   {entry.error_message && (
                     <span className="text-xs" style={{ color: "var(--push-failed)" }}>

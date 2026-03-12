@@ -238,7 +238,7 @@ export function BundleDetailClient({
                   className="px-2 py-2"
                   style={{ color: "var(--foreground)" }}
                 >
-                  {report.absence_type_code ?? "—"}
+                  {report.absence_type_code ?? "-"}
                 </td>
                 {canManage && (
                   <td className="px-2 py-2">

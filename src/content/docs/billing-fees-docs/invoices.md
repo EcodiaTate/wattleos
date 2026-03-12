@@ -1,6 +1,6 @@
 # Creating and Managing Invoices
 
-Invoices are the core billing documents in WattleOS. Each invoice is addressed to a specific student and guardian, contains one or more line items, and follows a lifecycle from draft through to payment or voiding. Invoices are synced to Stripe for payment processing — WattleOS creates the billing record, Stripe handles the money.
+Invoices are the core billing documents in WattleOS. Each invoice is addressed to a specific student and guardian, contains one or more line items, and follows a lifecycle from draft through to payment or voiding. Invoices are synced to Stripe for payment processing - WattleOS creates the billing record, Stripe handles the money.
 
 ## The Billing Dashboard
 
@@ -10,9 +10,9 @@ Below the summaries, the Invoices tab shows a table of all invoices with the inv
 
 ## Creating an Invoice
 
-Click **Create Invoice** to open the invoice form. Select a student from the list of actively enrolled students, then select a guardian for that student — this is the person who will receive and pay the invoice. Choose a due date and optionally set a billing period (start and end dates) to indicate which period the charges cover.
+Click **Create Invoice** to open the invoice form. Select a student from the list of actively enrolled students, then select a guardian for that student - this is the person who will receive and pay the invoice. Choose a due date and optionally set a billing period (start and end dates) to indicate which period the charges cover.
 
-Add one or more line items. Each line item needs a description, quantity, and unit amount. You can populate a line item from a fee schedule by selecting one from the dropdown — this auto-fills the description and amount from the fee schedule template. You can also enter custom line items with free-text descriptions and manual amounts for ad-hoc charges.
+Add one or more line items. Each line item needs a description, quantity, and unit amount. You can populate a line item from a fee schedule by selecting one from the dropdown - this auto-fills the description and amount from the fee schedule template. You can also enter custom line items with free-text descriptions and manual amounts for ad-hoc charges.
 
 An invoice can have up to 50 line items. The total is calculated automatically from the sum of each line item's quantity multiplied by its unit amount. You can optionally add notes that will appear on the invoice.
 
@@ -54,4 +54,4 @@ Each invoice is assigned a unique invoice number when created. This number is di
 
 ## Permissions
 
-All billing operations — creating invoices, syncing to Stripe, sending, and voiding — require the **MANAGE_INTEGRATIONS** permission. This is typically held by school administrators or business managers. Parents can view their own invoices through the parent portal but cannot modify them.
+All billing operations - creating invoices, syncing to Stripe, sending, and voiding - require the **MANAGE_INTEGRATIONS** permission. This is typically held by school administrators or business managers. Parents can view their own invoices through the parent portal but cannot modify them.

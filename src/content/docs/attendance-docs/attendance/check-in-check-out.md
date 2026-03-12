@@ -30,10 +30,10 @@ Check-in and check-out are most valuable for:
 
 Check-in and check-out complement but do not replace roll call. Roll call captures the day's overall attendance status (Present, Absent, Late, etc.), while check-in/check-out records the specific times. A typical day might look like:
 
-1. Students arrive — checked in at 8:15, 8:22, 8:28, etc.
-2. Morning roll is taken — guide confirms who is present, marks absences
-3. A student leaves early at 2pm — checked out, note added to attendance record
-4. End of day — remaining students are checked out as they are picked up
+1. Students arrive - checked in at 8:15, 8:22, 8:28, etc.
+2. Morning roll is taken - guide confirms who is present, marks absences
+3. A student leaves early at 2pm - checked out, note added to attendance record
+4. End of day - remaining students are checked out as they are picked up
 
 Both systems write to the same attendance record in the database, ensuring a single source of truth per student per day.
 

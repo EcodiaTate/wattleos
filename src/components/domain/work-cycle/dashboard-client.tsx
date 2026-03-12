@@ -136,7 +136,7 @@ export function WorkCycleDashboardClient({
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-xs font-medium text-muted-foreground">Avg Quality Rating</p>
           <p className="mt-1 text-2xl font-bold text-foreground">
-            {data.avg_quality_rating !== null ? data.avg_quality_rating.toFixed(1) : "—"}
+            {data.avg_quality_rating !== null ? data.avg_quality_rating.toFixed(1) : "-"}
             {data.avg_quality_rating !== null && <span className="text-sm font-normal text-muted-foreground">/5</span>}
           </p>
         </div>
@@ -211,13 +211,13 @@ export function WorkCycleDashboardClient({
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">
-                      {cs.avg_quality_rating !== null ? `${cs.avg_quality_rating.toFixed(1)}/5` : "—"}
+                      {cs.avg_quality_rating !== null ? `${cs.avg_quality_rating.toFixed(1)}/5` : "-"}
                     </td>
                     <td className="px-4 py-3">
                       {cs.most_common_source ? (
                         <InterruptionSourceBadge source={cs.most_common_source} />
                       ) : (
-                        <span className="text-muted-foreground text-xs">—</span>
+                        <span className="text-muted-foreground text-xs">-</span>
                       )}
                     </td>
                   </tr>

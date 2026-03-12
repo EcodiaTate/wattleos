@@ -1,6 +1,6 @@
 # Payroll Settings
 
-Payroll settings configure how your school's timesheet system operates — the pay cycle, default work hours, and the connection to an external payroll provider. These settings are school-wide and affect all staff timesheets.
+Payroll settings configure how your school's timesheet system operates - the pay cycle, default work hours, and the connection to an external payroll provider. These settings are school-wide and affect all staff timesheets.
 
 ## Accessing Payroll Settings
 
@@ -24,7 +24,7 @@ The default work hours section defines the standard daily schedule that is pre-f
 
 **Start time** is the default shift start (for example, 8:30 AM). **End time** is the default shift end (for example, 3:30 PM). **Break duration** in minutes is the standard unpaid break (for example, 30 minutes).
 
-These defaults are used when staff click "Fill Defaults" on their timesheet grid, populating empty weekday rows with these values. Staff can still adjust individual days — the defaults are a convenience, not a constraint.
+These defaults are used when staff click "Fill Defaults" on their timesheet grid, populating empty weekday rows with these values. Staff can still adjust individual days - the defaults are a convenience, not a constraint.
 
 A preview calculation shows the resulting daily hours. For example, 8:30 AM to 3:30 PM with a 30-minute break gives 6.5 hours per day.
 
@@ -36,9 +36,9 @@ The payroll provider section connects WattleOS to your external payroll system. 
 
 **Xero** connects WattleOS to Xero for automatic timesheet push. When approved timesheets are synced, the hours are sent to Xero using the employee mapping configuration. Xero then handles tax, superannuation, and payment calculations.
 
-**KeyPay** connects WattleOS to KeyPay, an Australian payroll platform. The same sync workflow applies — approved hours are pushed to KeyPay using employee mappings.
+**KeyPay** connects WattleOS to KeyPay, an Australian payroll platform. The same sync workflow applies - approved hours are pushed to KeyPay using employee mappings.
 
-Selecting Xero or KeyPay displays an information note indicating that the direct API integration is planned for a future update. In the current version, selecting a provider configures the system for sync readiness — employee mappings can be set up, timesheets can be approved, and the approved totals are ready for manual entry into the selected system until the automatic push is available.
+Selecting Xero or KeyPay displays an information note indicating that the direct API integration is planned for a future update. In the current version, selecting a provider configures the system for sync readiness - employee mappings can be set up, timesheets can be approved, and the approved totals are ready for manual entry into the selected system until the automatic push is available.
 
 ## A Critical Design Decision
 

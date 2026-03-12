@@ -292,12 +292,12 @@ export function SignInOutRecordList({ initialDate }: SignInOutRecordListProps) {
                         )}
                       </span>
                     ) : (
-                      <span className="text-muted-foreground">—</span>
+                      <span className="text-muted-foreground">-</span>
                     )}
                   </td>
                   <td className="max-w-[200px] px-4 py-3 text-muted-foreground">
                     <span className="line-clamp-2">
-                      {r.reason_notes ?? "—"}
+                      {r.reason_notes ?? "-"}
                     </span>
                   </td>
                   <td className="px-4 py-3">

@@ -610,7 +610,7 @@ export async function massOnboardParents(
       }
     }
 
-    // WHY audit: Mass onboarding is the most impactful bulk operation —
+    // WHY audit: Mass onboarding is the most impactful bulk operation -
     // it creates auth accounts, guardian links, and invitations. Schools
     // need a clear record of who triggered this and the full outcome.
     await logAudit({

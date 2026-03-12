@@ -1,12 +1,12 @@
 # Pay Periods
 
-Pay periods are the foundation of the timesheet system. They define the date ranges that staff log their hours against and provide the structure for the approval and payroll sync workflow. Pay periods are explicit records rather than calculated date ranges — this lets you handle edge cases like mid-cycle starts, holiday adjustments, and schools that begin payroll at different times of year.
+Pay periods are the foundation of the timesheet system. They define the date ranges that staff log their hours against and provide the structure for the approval and payroll sync workflow. Pay periods are explicit records rather than calculated date ranges - this lets you handle edge cases like mid-cycle starts, holiday adjustments, and schools that begin payroll at different times of year.
 
 ## Creating a Pay Period
 
 Navigate to **Admin → Timesheets → Pay Periods** to see the list of all pay periods with their status badges. Click **Create Period** to set up a new one.
 
-Each pay period requires a name (for example, "W/E 7 Mar 2026" or "Fortnight 3 — March"), a start date, an end date, and a frequency. The frequency can be **weekly**, **fortnightly**, or **monthly**, matching your school's pay cycle. When you select a start date, the end date is automatically calculated based on the frequency — 6 days ahead for weekly, 13 for fortnightly, and 29 for monthly. You can manually adjust the end date if needed.
+Each pay period requires a name (for example, "W/E 7 Mar 2026" or "Fortnight 3 - March"), a start date, an end date, and a frequency. The frequency can be **weekly**, **fortnightly**, or **monthly**, matching your school's pay cycle. When you select a start date, the end date is automatically calculated based on the frequency - 6 days ahead for weekly, 13 for fortnightly, and 29 for monthly. You can manually adjust the end date if needed.
 
 The name is generated automatically from the start and end dates but can be customised. This name appears on staff timesheets and in the approval interface, so making it recognisable helps everyone stay oriented.
 
@@ -28,7 +28,7 @@ In the payroll settings, there is an option to automatically create the next pay
 
 ## What Staff See
 
-When a staff member opens the timesheets page, WattleOS looks for the current open pay period. If one exists, the timesheet grid loads for that period. If no open period exists, the staff member sees a message indicating that no active pay period is available — with guidance to contact the administrator if they are an admin, or to wait for one to be created if they are not.
+When a staff member opens the timesheets page, WattleOS looks for the current open pay period. If one exists, the timesheet grid loads for that period. If no open period exists, the staff member sees a message indicating that no active pay period is available - with guidance to contact the administrator if they are an admin, or to wait for one to be created if they are not.
 
 ## Permissions
 

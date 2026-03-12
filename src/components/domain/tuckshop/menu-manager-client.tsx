@@ -481,7 +481,7 @@ export function MenuManagerClient({
                     className="px-4 py-3"
                     style={{ color: "var(--muted-foreground)" }}
                   >
-                    {item.supplier?.name ?? "—"}
+                    {item.supplier?.name ?? "-"}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">

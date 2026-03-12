@@ -203,13 +203,13 @@ export default async function PreviousSchoolsOverviewPage({
                       className="hidden px-4 py-3 sm:table-cell"
                       style={{ color: "var(--muted-foreground)" }}
                     >
-                      {location || "—"}
+                      {location || "-"}
                     </td>
                     <td
                       className="hidden px-4 py-3 md:table-cell"
                       style={{ color: "var(--muted-foreground)" }}
                     >
-                      {dateRange || "—"}
+                      {dateRange || "-"}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link

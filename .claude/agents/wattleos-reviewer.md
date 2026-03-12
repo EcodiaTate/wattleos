@@ -17,14 +17,14 @@ When given a module name (e.g. "chronic-absence", "naplan", "interviews"), syste
 
 For each step, check the file exists AND spot-check the content for correctness.
 
-### Step 1 — Migration
+### Step 1 - Migration
 - File: `supabase/migrations/000XX_<module>.sql`
 - Check: Table has `tenant_id`, `id UUID`, `created_at`, `updated_at`
 - Check: RLS is enabled (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`)
 - Check: Tenant isolation policy exists
 - Check: `updated_at` trigger is set
 
-### Step 2 — Domain Types
+### Step 2 - Domain Types
 - File: `src/types/domain.ts`
 - Check: Entity interface exists with snake_case fields
 - Check: Status enum type defined
@@ -32,13 +32,13 @@ For each step, check the file exists AND spot-check the content for correctness.
 - Check: Dates are `string` (not `Date`)
 - Check: Uses `dob` (not `date_of_birth`) for student DOB
 
-### Step 3 — Validation Schemas
+### Step 3 - Validation Schemas
 - File: `src/lib/validations/<module>.ts`
 - Check: Create, update, and filter schemas exist
 - Check: Filter types use `z.input<>` (not `z.infer<>`)
 - Check: No use of `|| undefined` in schema construction (should be `|| null`)
 
-### Step 4 — Server Actions
+### Step 4 - Server Actions
 - File: `src/lib/actions/<module>.ts`
 - Check: `"use server"` at top
 - Check: `requirePermission()` called before DB queries
@@ -48,40 +48,40 @@ For each step, check the file exists AND spot-check the content for correctness.
 - Check: Audit events recorded for mutations
 - Check: Dashboard, list, CRUD functions all present
 
-### Step 5 — CSS Tokens
+### Step 5 - CSS Tokens
 - File: `src/app/globals.css`
 - Check: `--<module>-<status>` tokens exist in `:root {}`
 - Check: Dark mode variants in `.dark {}`
 - Check: Each status has `-fg` and `-bg` variants
 
-### Step 6 — Audit Actions
+### Step 6 - Audit Actions
 - File: `src/lib/utils/audit.ts`
 - Check: `AuditAction` union includes module-specific actions
 - Check: Sensitivity levels are appropriate
 
-### Step 7 — Routes
+### Step 7 - Routes
 - Directory: `src/app/(app)/<group>/<module>/`
 - Check: `page.tsx` exists (dashboard)
 - Check: Pages are server components that pass data to client components
 - Check: Permission check + redirect for unauthorized users
 
-### Step 8 — Components
+### Step 8 - Components
 - Directory: `src/components/domain/<module>/`
 - Check: Status badge component exists
 - Check: Dashboard client component exists
 - Spot-check one component for: `useHaptics()`, CSS var usage (not hardcoded `bg-*`), `touch-target active-push` on buttons, `border border-border` (not `borderborder-border`), `scroll-native` on scrollable containers
 
-### Step 9 — Sidebar
+### Step 9 - Sidebar
 - File: `src/components/domain/sidebar.tsx`
 - Check: Module link exists in the correct group
 - Check: Permission guard matches `VIEW_<MODULE>`
 - Check: Route path matches actual route
 
-### Step 10 — Permissions
+### Step 10 - Permissions
 - Check: `VIEW_<MODULE>` and `MANAGE_<MODULE>` exist in permissions constants
 - Check: Default role assignments include the module
 
-### Step 11 — Ask Wattle Tool (if applicable)
+### Step 11 - Ask Wattle Tool (if applicable)
 - File: `src/lib/docs/wattle-tools.ts`
 - Check: Tool registered in TOOL_REGISTRY
 - Check: Handler registered in dispatcher
@@ -108,7 +108,7 @@ For each step, check the file exists AND spot-check the content for correctness.
 
 ## How to Check
 
-Use Read, Grep, and Glob tools to inspect files. Do not just check for file existence — read key sections to verify correctness. Focus on the most common errors:
+Use Read, Grep, and Glob tools to inspect files. Do not just check for file existence - read key sections to verify correctness. Focus on the most common errors:
 - `borderborder-border` typo in components
 - Missing RLS or tenant isolation in migration
 - Hardcoded `bg-*` colors instead of CSS vars

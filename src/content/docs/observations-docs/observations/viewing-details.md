@@ -30,19 +30,19 @@ The actions available on the detail page depend on the observation's status, whe
 
 ### For Draft Observations
 
-- **Publish** (green button) — Appears if you have the Publish Observation permission. Transitions the observation to published status immediately.
-- **Edit** — Appears if you are the observation's author. Navigates to the edit form where you can modify content, student tags, outcome links, and photos.
-- **Delete Draft** (red link) — Appears if you are the author. Shows a confirmation dialog before soft-deleting the observation.
-- **Back to Feed** — Always available. Returns to the observation feed.
+- **Publish** (green button) - Appears if you have the Publish Observation permission. Transitions the observation to published status immediately.
+- **Edit** - Appears if you are the observation's author. Navigates to the edit form where you can modify content, student tags, outcome links, and photos.
+- **Delete Draft** (red link) - Appears if you are the author. Shows a confirmation dialog before soft-deleting the observation.
+- **Back to Feed** - Always available. Returns to the observation feed.
 
 ### For Published Observations
 
-- **Archive** — Appears if you have the Publish Observation permission. Moves the observation to archived status, removing it from the active feed and parent portal.
-- **Back to Feed** — Returns to the observation feed.
+- **Archive** - Appears if you have the Publish Observation permission. Moves the observation to archived status, removing it from the active feed and parent portal.
+- **Back to Feed** - Returns to the observation feed.
 
 ### For Archived Observations
 
-- **Back to Feed** — The only action available. Archived observations are read-only.
+- **Back to Feed** - The only action available. Archived observations are read-only.
 
 ## Navigation
 

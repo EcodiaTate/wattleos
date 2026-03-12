@@ -1,10 +1,10 @@
 # Sessions and Scheduling
 
-Programs define the template — the schedule, pricing, and capacity rules. Sessions are the concrete, bookable instances: "Before School Care on Tuesday 4th March" is a session. WattleOS pre-generates sessions in advance so parents can browse availability and book ahead, while staff can override individual dates for holidays or special events.
+Programs define the template - the schedule, pricing, and capacity rules. Sessions are the concrete, bookable instances: "Before School Care on Tuesday 4th March" is a session. WattleOS pre-generates sessions in advance so parents can browse availability and book ahead, while staff can override individual dates for holidays or special events.
 
 ## How Sessions Work
 
-Each session belongs to a program and represents a single date with a start time, end time, and capacity limit. There is one session per program per day — you cannot have two separate "Before School Care" sessions on the same date, though you can create distinct programs if you need morning and afternoon offerings.
+Each session belongs to a program and represents a single date with a start time, end time, and capacity limit. There is one session per program per day - you cannot have two separate "Before School Care" sessions on the same date, though you can create distinct programs if you need morning and afternoon offerings.
 
 Sessions have four statuses. **Scheduled** means the session is upcoming and accepting bookings. **In progress** means the session is currently running (children are being checked in). **Completed** means the session has finished. **Cancelled** means the session has been removed from the schedule and any confirmed bookings should be handled.
 
@@ -26,7 +26,7 @@ Cancelling a session sets its status to cancelled. Parents with existing booking
 
 ## The Session Calendar
 
-The session calendar provides a week and month view of all sessions across all programs. Each session appears as a block showing the program name, time, and a booking count relative to capacity. Colour coding indicates the session status — scheduled sessions appear normally, in-progress sessions are highlighted, completed sessions are dimmed, and cancelled sessions are visually distinct.
+The session calendar provides a week and month view of all sessions across all programs. Each session appears as a block showing the program name, time, and a booking count relative to capacity. Colour coding indicates the session status - scheduled sessions appear normally, in-progress sessions are highlighted, completed sessions are dimmed, and cancelled sessions are visually distinct.
 
 Clicking a session on the calendar opens the session detail page, which shows all booked children, their check-in status, the waitlist, and session-level information like the assigned staff member and any notes.
 
@@ -34,7 +34,7 @@ Clicking a session on the calendar opens the session detail page, which shows al
 
 The session detail page is the operational hub for a specific session. It displays the full list of bookings grouped by status: confirmed children at the top, waitlisted children below, and cancelled or no-show bookings at the bottom. For each child, you can see their name, booking type (recurring or casual), check-in and check-out times, and medical alert badges.
 
-From this page, staff can check children in and out, mark no-shows, cancel individual bookings, and manage the waitlist. The session detail page and the kiosk view (described in a separate article) share the same underlying data — actions taken in one are immediately reflected in the other.
+From this page, staff can check children in and out, mark no-shows, cancel individual bookings, and manage the waitlist. The session detail page and the kiosk view (described in a separate article) share the same underlying data - actions taken in one are immediately reflected in the other.
 
 ## Permissions
 

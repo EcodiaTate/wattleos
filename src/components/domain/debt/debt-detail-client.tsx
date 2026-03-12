@@ -115,7 +115,7 @@ export function DebtDetailClient({ record, reminders, canManage, canApproveWrite
             : "Debt Record"}
         </h1>
         <p style={{ fontSize: "0.83rem", color: "var(--muted-foreground)" }}>
-          Invoice {record.invoice?.invoice_number ?? "—"}
+          Invoice {record.invoice?.invoice_number ?? "-"}
           {record.invoice && ` · Due ${formatDate(record.invoice.due_date)}`}
         </p>
       </div>
@@ -239,17 +239,17 @@ export function DebtDetailClient({ record, reminders, canManage, canApproveWrite
         <div className="flex flex-col gap-4">
           {/* Account details */}
           <DetailCard title="Account">
-            <DetailRow label="Invoice" value={record.invoice?.invoice_number ?? "—"} />
-            <DetailRow label="Student" value={record.student ? `${record.student.first_name} ${record.student.last_name}` : "—"} />
+            <DetailRow label="Invoice" value={record.invoice?.invoice_number ?? "-"} />
+            <DetailRow label="Student" value={record.student ? `${record.student.first_name} ${record.student.last_name}` : "-"} />
             <DetailRow
               label="Guardian"
-              value={guardianUser ? `${guardianUser.first_name ?? ""} ${guardianUser.last_name ?? ""}`.trim() : "—"}
+              value={guardianUser ? `${guardianUser.first_name ?? ""} ${guardianUser.last_name ?? ""}`.trim() : "-"}
             />
-            <DetailRow label="Email" value={guardianUser?.email ?? "—"} />
-            <DetailRow label="Invoice Total" value={record.invoice ? formatCents(record.invoice.total_cents) : "—"} />
-            <DetailRow label="Amount Paid" value={record.invoice ? formatCents(record.invoice.amount_paid_cents) : "—"} />
+            <DetailRow label="Email" value={guardianUser?.email ?? "-"} />
+            <DetailRow label="Invoice Total" value={record.invoice ? formatCents(record.invoice.total_cents) : "-"} />
+            <DetailRow label="Amount Paid" value={record.invoice ? formatCents(record.invoice.amount_paid_cents) : "-"} />
             <DetailRow label="Outstanding" value={formatCents(outstanding)} bold />
-            <DetailRow label="Due Date" value={record.invoice ? formatDate(record.invoice.due_date) : "—"} />
+            <DetailRow label="Due Date" value={record.invoice ? formatDate(record.invoice.due_date) : "-"} />
             <DetailRow label="Days Overdue" value={`${record.days_overdue} days`} />
             <DetailRow label="In Collection Since" value={formatDate(record.created_at)} />
           </DetailCard>

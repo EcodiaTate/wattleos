@@ -218,7 +218,7 @@ export default async function StaffCompliancePage() {
                 className="text-xs"
                 style={{ color: "var(--foreground)" }}
               >
-                <span className="font-medium">{item.user_name}</span> —{" "}
+                <span className="font-medium">{item.user_name}</span> -{" "}
                 {item.label}{" "}
                 <span
                   className="font-semibold"

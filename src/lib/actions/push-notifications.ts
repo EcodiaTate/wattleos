@@ -10,7 +10,7 @@
 // we fan-out to all eligible device tokens and write a delivery
 // log row per device. APNs/FCM callbacks update delivery status.
 //
-// The actual push transport is pluggable (currently simulated —
+// The actual push transport is pluggable (currently simulated -
 // integrate a real FCM/APNs SDK here for production).
 // ============================================================
 

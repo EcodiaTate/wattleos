@@ -7,7 +7,7 @@
 // periods, and enrollment blocking. Based on:
 //   - Federal: A New Tax System (Family Assistance) Act 1999
 //     (No Jab No Pay)
-//   - State: Public Health Acts (No Jab No Play) —
+//   - State: Public Health Acts (No Jab No Play) -
 //     VIC, NSW, QLD, WA, SA
 //
 // WHY declarative: Each state has slightly different rules.

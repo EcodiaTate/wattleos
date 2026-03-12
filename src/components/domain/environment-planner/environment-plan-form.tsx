@@ -128,7 +128,7 @@ export function EnvironmentPlanForm({ plan, locations, backHref }: Props) {
           value={form.location_id}
           onChange={(e) => set("location_id", e.target.value)}
         >
-          <option value="">— No specific location —</option>
+          <option value="">- No specific location -</option>
           {locations
             .filter((l) => l.is_active)
             .map((l) => (

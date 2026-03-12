@@ -1,6 +1,6 @@
 # Xero and KeyPay Payroll Integration
 
-WattleOS supports connecting to Xero and KeyPay as external payroll providers. These integrations push approved timesheet data out of WattleOS into your payroll system, which then handles the compliance-critical calculations — tax, superannuation, award rates, penalty rates, and leave entitlements. WattleOS is the source of truth for "what happened" (who worked, when, what type of hours); Xero or KeyPay is the source of truth for "what it costs."
+WattleOS supports connecting to Xero and KeyPay as external payroll providers. These integrations push approved timesheet data out of WattleOS into your payroll system, which then handles the compliance-critical calculations - tax, superannuation, award rates, penalty rates, and leave entitlements. WattleOS is the source of truth for "what happened" (who worked, when, what type of hours); Xero or KeyPay is the source of truth for "what it costs."
 
 ## Current Status
 
@@ -26,11 +26,11 @@ Before timesheets can be synced, each WattleOS staff member must be mapped to th
 
 ## The Sync Flow
 
-When automatic sync is available, the flow will work as follows. A staff member logs their hours in WattleOS and submits their timesheet. An approver reviews and approves the timesheet. The approved timesheet is synced to the payroll provider — WattleOS sends the employee's external ID, the pay period dates, and the hour breakdowns (regular, overtime, and leave hours). The payroll system records the hours and applies the appropriate award rates, tax, and superannuation calculations. WattleOS marks the timesheet as synced and stores the external reference ID. The administrator marks the pay period as processed.
+When automatic sync is available, the flow will work as follows. A staff member logs their hours in WattleOS and submits their timesheet. An approver reviews and approves the timesheet. The approved timesheet is synced to the payroll provider - WattleOS sends the employee's external ID, the pay period dates, and the hour breakdowns (regular, overtime, and leave hours). The payroll system records the hours and applies the appropriate award rates, tax, and superannuation calculations. WattleOS marks the timesheet as synced and stores the external reference ID. The administrator marks the pay period as processed.
 
 ## Why WattleOS Does Not Calculate Pay
 
-This is a deliberate architectural decision. Australian employment law requires compliance with Modern Awards, the Fair Work Act, superannuation guarantee legislation, and Single Touch Payroll reporting. Getting these calculations wrong has legal consequences including penalties from the Fair Work Ombudsman and the ATO. Xero and KeyPay are purpose-built for these calculations, maintain up-to-date award interpretation databases, and carry professional indemnity for their compliance calculations. WattleOS adds value by capturing accurate time data and automating the approval workflow — it does not add value by attempting to replicate payroll compliance logic.
+This is a deliberate architectural decision. Australian employment law requires compliance with Modern Awards, the Fair Work Act, superannuation guarantee legislation, and Single Touch Payroll reporting. Getting these calculations wrong has legal consequences including penalties from the Fair Work Ombudsman and the ATO. Xero and KeyPay are purpose-built for these calculations, maintain up-to-date award interpretation databases, and carry professional indemnity for their compliance calculations. WattleOS adds value by capturing accurate time data and automating the approval workflow - it does not add value by attempting to replicate payroll compliance logic.
 
 ## Permissions
 

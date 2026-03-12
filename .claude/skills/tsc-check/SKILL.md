@@ -13,8 +13,8 @@ NODE_OPTIONS="--max-old-space-size=8192" npx tsc --noEmit && NODE_OPTIONS="--max
 ```
 
 ## Why these flags
-- `--max-old-space-size=8192` is required for tsc — the project has 94+ action files and 30+ migrations worth of generated types; bare `npx tsc` runs out of heap
-- `--noEmit` — type-check only, no output files
+- `--max-old-space-size=8192` is required for tsc - the project has 94+ action files and 30+ migrations worth of generated types; bare `npx tsc` runs out of heap
+- `--noEmit` - type-check only, no output files
 - `next lint` uses 4096 (sufficient for ESLint)
 
 ## Interpreting results
@@ -29,7 +29,7 @@ Common errors to watch for:
 | `Type 'undefined' is not assignable to type 'null'` | Use `|| null` not `|| undefined` |
 | `Property 'CONFLICT' does not exist on ErrorCodes` | Use `ErrorCodes.ALREADY_EXISTS` |
 | `Property 'QUERY_FAILED' does not exist on ErrorCodes` | Use `ErrorCodes.DATABASE_ERROR` |
-| `Type '...' is not assignable — Supabase join` | Join returns array, use `result[0]` not direct cast |
+| `Type '...' is not assignable - Supabase join` | Join returns array, use `result[0]` not direct cast |
 | Errors in `sick-bay`, `sensitive-periods`, `three-period-lessons`, `daily-care` | Pre-existing, ignore unless you touched those files |
 
 ## If type check passes but build fails

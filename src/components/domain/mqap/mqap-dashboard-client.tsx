@@ -194,7 +194,7 @@ export function MqapDashboardClient({
                   {qa.working_towards_count} WT
                 </span>
                 <span style={{ color: "var(--muted-foreground)" }}>
-                  {qa.total_criteria - qa.assessed_count} —
+                  {qa.total_criteria - qa.assessed_count} -
                 </span>
               </div>
 

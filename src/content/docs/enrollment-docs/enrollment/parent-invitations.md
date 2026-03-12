@@ -6,15 +6,15 @@ Parent invitations are the bridge between enrollment approval and parent access 
 
 The invitation flow has five steps:
 
-1. **Application approved** — The approval cascade automatically creates invitation records for each guardian listed on the application, each with a unique secure token and a 14-day expiry.
+1. **Application approved** - The approval cascade automatically creates invitation records for each guardian listed on the application, each with a unique secure token and a 14-day expiry.
 
-2. **Email sent** — An email is sent to the guardian's address containing a link to `yourschool.wattleos.au/invite/{token}`.
+2. **Email sent** - An email is sent to the guardian's address containing a link to `yourschool.wattleos.au/invite/{token}`.
 
-3. **Token validated** — When the parent clicks the link, the system validates the token: checks it exists, is still pending (not already accepted, expired, or revoked), and has not passed its expiry date. If the token is expired, it is automatically marked as expired.
+3. **Token validated** - When the parent clicks the link, the system validates the token: checks it exists, is still pending (not already accepted, expired, or revoked), and has not passed its expiry date. If the token is expired, it is automatically marked as expired.
 
-4. **Parent creates or signs into account** — The parent either creates a new WattleOS account or signs in with an existing one. The invitation page shows the school name and child's name so the parent knows what they are accepting.
+4. **Parent creates or signs into account** - The parent either creates a new WattleOS account or signs in with an existing one. The invitation page shows the school name and child's name so the parent knows what they are accepting.
 
-5. **Invitation accepted** — The system links the parent's user account to the existing guardian record by setting the user_id field. This backfill approach preserves all the guardian details (phone, relationship, consent flags, pickup authorisation) that were stored when the enrollment was approved. The parent immediately sees their child in the Parent Portal.
+5. **Invitation accepted** - The system links the parent's user account to the existing guardian record by setting the user_id field. This backfill approach preserves all the guardian details (phone, relationship, consent flags, pickup authorisation) that were stored when the enrollment was approved. The parent immediately sees their child in the Parent Portal.
 
 ## Why Tokens Instead of Magic Links
 
@@ -36,10 +36,10 @@ Filter invitations by status or student to quickly find pending invitations that
 
 ### Invitation Statuses
 
-- **Pending** — The invitation has been sent but not yet accepted. The token is valid and the parent can still use it.
-- **Accepted** — The parent has clicked the link, authenticated, and been connected to their child. The invitation is complete.
-- **Expired** — The 14-day window has passed without the parent accepting. Expired invitations can be resent.
-- **Revoked** — An administrator has manually cancelled the invitation before it was accepted.
+- **Pending** - The invitation has been sent but not yet accepted. The token is valid and the parent can still use it.
+- **Accepted** - The parent has clicked the link, authenticated, and been connected to their child. The invitation is complete.
+- **Expired** - The 14-day window has passed without the parent accepting. Expired invitations can be resent.
+- **Revoked** - An administrator has manually cancelled the invitation before it was accepted.
 
 ## Manual Invitations
 
@@ -68,10 +68,10 @@ For bulk onboarding (e.g. after approving an entire class of enrollments), the *
 
 ## Security Considerations
 
-Invitation tokens are cryptographically random and stored in the database. They are single-use — once accepted, the token cannot be reused. Expired tokens are automatically invalidated when a parent attempts to use them. Validation uses an admin client (service role) because the parent may not yet have an authenticated session when clicking the link.
+Invitation tokens are cryptographically random and stored in the database. They are single-use - once accepted, the token cannot be reused. Expired tokens are automatically invalidated when a parent attempts to use them. Validation uses an admin client (service role) because the parent may not yet have an authenticated session when clicking the link.
 
 The token validation endpoint returns only the minimum information needed for the invitation page: school name, school slug, student first and last name, parent email, and expiry date. No sensitive data is exposed through the public token validation.
 
 ## Permissions
 
-- **Manage Parent Invitations** — Required to view, create, and revoke invitations. This permission is included in the default Administrator and Office Staff roles.
+- **Manage Parent Invitations** - Required to view, create, and revoke invitations. This permission is included in the default Administrator and Office Staff roles.

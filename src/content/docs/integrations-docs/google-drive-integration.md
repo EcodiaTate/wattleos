@@ -14,7 +14,7 @@ Navigate to **Admin → Integrations** and expand the Google Drive card. Three c
 
 **Service Account Email** is the email address of your Google Cloud service account (for example, `wattleos@your-project.iam.gserviceaccount.com`). You create this in the Google Cloud Console under IAM & Admin → Service Accounts.
 
-**Private Key** is the private key from your service account's JSON key file. This is the long string that begins with `-----BEGIN PRIVATE KEY-----`. Keep this secret — it grants full access to the service account.
+**Private Key** is the private key from your service account's JSON key file. This is the long string that begins with `-----BEGIN PRIVATE KEY-----`. Keep this secret - it grants full access to the service account.
 
 **Root Portfolio Folder ID** is the Google Drive folder ID where all student portfolios will be created. This is the string of characters in the folder's URL. You must share this folder with the service account email address and grant it Editor access. Without this sharing step, the service account cannot create subfolders.
 
@@ -22,9 +22,9 @@ Two settings are available. **Auto-share folders with parents** controls whether
 
 ## Portfolio Folder Provisioning
 
-When a student's portfolio is provisioned (typically triggered during enrollment or manually by an administrator), the following happens. WattleOS checks whether a portfolio folder already exists for the student and year — if so, it returns the existing folder (the operation is idempotent). If no folder exists, the Google Drive client creates a student folder inside the root folder, then creates a year subfolder inside the student folder. The folder ID and URL are stored in the `student_portfolio_folders` table, linking the WattleOS student record to the Drive folder. If auto-sharing is enabled, each parent's email is granted read-only access to the folder. The entire operation is logged in the integration sync log.
+When a student's portfolio is provisioned (typically triggered during enrollment or manually by an administrator), the following happens. WattleOS checks whether a portfolio folder already exists for the student and year - if so, it returns the existing folder (the operation is idempotent). If no folder exists, the Google Drive client creates a student folder inside the root folder, then creates a year subfolder inside the student folder. The folder ID and URL are stored in the `student_portfolio_folders` table, linking the WattleOS student record to the Drive folder. If auto-sharing is enabled, each parent's email is granted read-only access to the folder. The entire operation is logged in the integration sync log.
 
-If sharing with a parent fails (for example, the parent's email is not a valid Google account), the provisioning still succeeds — the sharing failure is logged but does not block folder creation.
+If sharing with a parent fails (for example, the parent's email is not a valid Google account), the provisioning still succeeds - the sharing failure is logged but does not block folder creation.
 
 ## Media Storage
 
@@ -32,7 +32,7 @@ Observation media (photos and videos captured during observations) can be upload
 
 ## Dynamic Import
 
-The Google Drive client library (googleapis) is loaded using dynamic imports. This is a deliberate performance decision — the googleapis package is large, and loading it on every server action would slow down actions that do not need Google Drive. The library is only imported when an actual Drive operation is triggered.
+The Google Drive client library (googleapis) is loaded using dynamic imports. This is a deliberate performance decision - the googleapis package is large, and loading it on every server action would slow down actions that do not need Google Drive. The library is only imported when an actual Drive operation is triggered.
 
 ## Permissions
 

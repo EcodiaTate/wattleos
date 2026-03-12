@@ -1,6 +1,6 @@
 # The Admin Hub
 
-The admin hub is the central navigation point for all school administration tasks in WattleOS. It organises administrative functions into logical groups and provides quick access to the most common workflows. Only users with administrative permissions can access the hub — the specific cards visible depend on the permissions held by the current user.
+The admin hub is the central navigation point for all school administration tasks in WattleOS. It organises administrative functions into logical groups and provides quick access to the most common workflows. Only users with administrative permissions can access the hub - the specific cards visible depend on the permissions held by the current user.
 
 ## Accessing the Admin Hub
 
@@ -22,7 +22,7 @@ Below the page header, quick links provide one-click access to frequently used a
 
 ## Permission-Based Visibility
 
-The admin hub respects the role and permission system. A user who has MANAGE_ENROLLMENT but not MANAGE_INTEGRATIONS will see the Enrollment card but not the Integrations card. This means each administrator sees only the tools relevant to their responsibilities. The hub page itself requires at least one administrative permission to access — users with no administrative permissions are redirected to the dashboard.
+The admin hub respects the role and permission system. A user who has MANAGE_ENROLLMENT but not MANAGE_INTEGRATIONS will see the Enrollment card but not the Integrations card. This means each administrator sees only the tools relevant to their responsibilities. The hub page itself requires at least one administrative permission to access - users with no administrative permissions are redirected to the dashboard.
 
 ## The Separation Between Admin and Settings
 

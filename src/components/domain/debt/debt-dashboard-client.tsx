@@ -307,16 +307,16 @@ export function DebtDashboardClient({ dashboard, stages }: Props) {
                 {dashboard.recently_resolved.map(s => (
                   <tr key={s.id} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td style={{ padding: "0.65rem 1rem", color: "var(--muted-foreground)", fontSize: "0.82rem" }}>
-                      {s.invoice?.invoice_number ?? "—"}
+                      {s.invoice?.invoice_number ?? "-"}
                     </td>
                     <td style={{ padding: "0.65rem 1rem", fontWeight: 500, color: "var(--foreground)" }}>
-                      {s.student ? `${s.student.first_name} ${s.student.last_name}` : "—"}
+                      {s.student ? `${s.student.first_name} ${s.student.last_name}` : "-"}
                     </td>
                     <td style={{ padding: "0.65rem 1rem" }}>
                       {formatCents(s.outstanding_cents)}
                     </td>
                     <td style={{ padding: "0.65rem 1rem", color: "var(--muted-foreground)", fontSize: "0.82rem" }}>
-                      {s.resolved_at ? formatDate(s.resolved_at) : "—"}
+                      {s.resolved_at ? formatDate(s.resolved_at) : "-"}
                     </td>
                   </tr>
                 ))}
@@ -375,7 +375,7 @@ function DebtRow({ record }: { record: DebtCollectionRecordWithDetails }) {
       onClick={() => haptics.impact("light")}
     >
       <td style={{ padding: "0.65rem 1rem", color: "var(--muted-foreground)", fontSize: "0.82rem" }}>
-        {record.invoice?.invoice_number ?? "—"}
+        {record.invoice?.invoice_number ?? "-"}
       </td>
       <td style={{ padding: "0.65rem 1rem", fontWeight: 500, color: "var(--foreground)" }}>
         <Link
@@ -383,14 +383,14 @@ function DebtRow({ record }: { record: DebtCollectionRecordWithDetails }) {
           style={{ color: "inherit", textDecoration: "none" }}
           onClick={e => e.stopPropagation()}
         >
-          {record.student ? `${record.student.first_name} ${record.student.last_name}` : "—"}
+          {record.student ? `${record.student.first_name} ${record.student.last_name}` : "-"}
         </Link>
       </td>
       <td style={{ padding: "0.65rem 1rem", color: "var(--muted-foreground)", fontSize: "0.82rem" }}>
-        {guardianUser ? `${guardianUser.first_name ?? ""} ${guardianUser.last_name ?? ""}`.trim() : "—"}
+        {guardianUser ? `${guardianUser.first_name ?? ""} ${guardianUser.last_name ?? ""}`.trim() : "-"}
       </td>
       <td style={{ padding: "0.65rem 1rem", color: "var(--muted-foreground)", fontSize: "0.82rem", whiteSpace: "nowrap" }}>
-        {record.invoice ? new Date(record.invoice.due_date).toLocaleDateString("en-AU", { day: "numeric", month: "short" }) : "—"}
+        {record.invoice ? new Date(record.invoice.due_date).toLocaleDateString("en-AU", { day: "numeric", month: "short" }) : "-"}
       </td>
       <td style={{ padding: "0.65rem 1rem", fontWeight: 600 }}>
         {formatCents(outstanding)}

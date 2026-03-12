@@ -1,10 +1,10 @@
-# WattleOS Report Builder — Standalone Product Build Brief
+# WattleOS Report Builder - Standalone Product Build Brief
 
 > **READ THIS FIRST BEFORE WRITING ANY CODE**
 >
-> This document describes a **standalone product** — not a module inside WattleOS. It happens to share WattleOS's infrastructure (Supabase, Next.js, auth), but from the user's perspective it is a complete, self-sufficient tool they signed up for specifically. They have never heard of "WattleOS Module A" or "Module 7". They signed up for **WattleOS Report Builder** because their school pays Crystal Reports to change a template and they are fed up.
+> This document describes a **standalone product** - not a module inside WattleOS. It happens to share WattleOS's infrastructure (Supabase, Next.js, auth), but from the user's perspective it is a complete, self-sufficient tool they signed up for specifically. They have never heard of "WattleOS Module A" or "Module 7". They signed up for **WattleOS Report Builder** because their school pays Crystal Reports to change a template and they are fed up.
 >
-> The #1 failure mode for this build is treating it as "the WattleOS reports module with a free tier". That is not what this is. Think about how Dropbox Paper, Notion, or Linear launched — products complete enough to be useful on day one for one person, with a clear path to expanding into a larger ecosystem. That is the model.
+> The #1 failure mode for this build is treating it as "the WattleOS reports module with a free tier". That is not what this is. Think about how Dropbox Paper, Notion, or Linear launched - products complete enough to be useful on day one for one person, with a clear path to expanding into a larger ecosystem. That is the model.
 
 ---
 
@@ -12,7 +12,7 @@
 
 **WattleOS Report Builder** is a term report management tool for Montessori schools. It lets office staff build report templates with full autonomy (no vendor charges for changes), guides fill reports in-browser with autosave, and administrators review and approve from a single dashboard. Final reports export as professional PDFs.
 
-It is a web application. A systems coordinator at a school can sign up, create their school's account, build a report template, invite their guides, and have reports flowing — in one afternoon, without IT involvement, without a sales call, without reading documentation about anything called "WattleOS".
+It is a web application. A systems coordinator at a school can sign up, create their school's account, build a report template, invite their guides, and have reports flowing - in one afternoon, without IT involvement, without a sales call, without reading documentation about anything called "WattleOS".
 
 ---
 
@@ -36,7 +36,7 @@ System automatically:
   4. Seeds default permissions for the tenant
   5. Creates a default report period ("Term [current] [current year]")
     ↓
-User lands on their dashboard — NOT a blank screen
+User lands on their dashboard - NOT a blank screen
 Dashboard shows:
   - "Welcome to WattleOS Report Builder, [School Name]"
   - A single prominent CTA: "Create your first report template"
@@ -49,7 +49,7 @@ The user must see value within 2 minutes of signing up. This means:
 
 - The dashboard shows a **sample report template** pre-loaded (a generic Montessori term report with placeholder sections) that they can edit immediately rather than start from scratch
 - The current term/year is pre-populated as an active report period
-- There is a visible "Add your first student" button that takes 10 seconds to complete (first name, last name — nothing else required in free tier)
+- There is a visible "Add your first student" button that takes 10 seconds to complete (first name, last name - nothing else required in free tier)
 
 If a user lands on a blank dashboard and has to figure out what to do next, they leave. This is non-negotiable UX.
 
@@ -92,7 +92,7 @@ Every route listed here must be built. No exceptions.
 
 | Route | Purpose |
 |---|---|
-| `/report-builder` | Marketing/landing page for this specific product. Headline, key benefits, "Start free" CTA. Not the main WattleOS marketing site — specific to reports. |
+| `/report-builder` | Marketing/landing page for this specific product. Headline, key benefits, "Start free" CTA. Not the main WattleOS marketing site - specific to reports. |
 | `/report-builder/signup` | Signup form: school name, name, email, password. Or "Continue with Google". |
 | `/report-builder/login` | Login for returning users. |
 | `/invite/[token]` | Guide invite acceptance. Validates token, creates guide account, redirects to their report dashboard. |
@@ -124,7 +124,7 @@ Every route listed here must be built. No exceptions.
 
 ---
 
-## The Template Builder — Detailed Spec
+## The Template Builder - Detailed Spec
 
 This is the core product feature. It must be excellent.
 
@@ -132,17 +132,17 @@ This is the core product feature. It must be excellent.
 
 A template is an ordered list of sections. Each section has a type:
 
-**`header`** — Locked. Renders school logo, student name, class, term, guide name, date. Auto-populated from report instance data. Not editable by guide. Coordinator configures which fields appear.
+**`header`** - Locked. Renders school logo, student name, class, term, guide name, date. Auto-populated from report instance data. Not editable by guide. Coordinator configures which fields appear.
 
-**`locked_text`** — Locked. Coordinator writes boilerplate that appears on every report (e.g., school philosophy statement, legal notices). Guide cannot touch it.
+**`locked_text`** - Locked. Coordinator writes boilerplate that appears on every report (e.g., school philosophy statement, legal notices). Guide cannot touch it.
 
-**`guide_narrative`** — Editable by guide. This is where guides write their per-student observations and assessments. Coordinator sets: label, placeholder hint text, optional word count minimum/maximum, whether it's required before submission.
+**`guide_narrative`** - Editable by guide. This is where guides write their per-student observations and assessments. Coordinator sets: label, placeholder hint text, optional word count minimum/maximum, whether it's required before submission.
 
-**`divider`** — Visual separator between sections. Just a horizontal line with optional label.
+**`divider`** - Visual separator between sections. Just a horizontal line with optional label.
 
-**`mastery_summary`** — PAID TIER ONLY. Auto-populates from curriculum tracking data. In free tier: visible in template builder as a greyed-out section with a lock icon and tooltip: "Connect Curriculum Tracking to auto-populate this section." If a coordinator adds this section, guides see it greyed out too with a note: "Mastery data not yet connected."
+**`mastery_summary`** - PAID TIER ONLY. Auto-populates from curriculum tracking data. In free tier: visible in template builder as a greyed-out section with a lock icon and tooltip: "Connect Curriculum Tracking to auto-populate this section." If a coordinator adds this section, guides see it greyed out too with a note: "Mastery data not yet connected."
 
-**`observation_highlights`** — PAID TIER ONLY. Same treatment as mastery_summary.
+**`observation_highlights`** - PAID TIER ONLY. Same treatment as mastery_summary.
 
 ### Template Builder UX
 
@@ -150,9 +150,9 @@ A template is an ordered list of sections. Each section has a type:
 - Drag handle on left side to reorder
 - "Add Section" button between each existing section and at the bottom
 - Clicking "Add Section" shows a type picker (large icons, clear labels)
-- Each section card is immediately editable inline — no modal, no separate page
+- Each section card is immediately editable inline - no modal, no separate page
 - Preview button renders a sample report with placeholder data in a side panel
-- Save is automatic — no "save" button, just a "last saved" timestamp
+- Save is automatic - no "save" button, just a "last saved" timestamp
 
 ### The Paid Tier Sections in the Builder
 
@@ -167,11 +167,11 @@ When a coordinator adds a `mastery_summary` or `observation_highlights` section 
   [Connect Curriculum Tracking]    [Keep as manual text section instead]
 ```
 
-"Keep as manual text section instead" converts it to a `guide_narrative` section so they can still have a mastery section — they just fill it in manually. This is honest. It also means every guide who fills in mastery manually is feeling exactly the friction the upgrade removes.
+"Keep as manual text section instead" converts it to a `guide_narrative` section so they can still have a mastery section - they just fill it in manually. This is honest. It also means every guide who fills in mastery manually is feeling exactly the friction the upgrade removes.
 
 ---
 
-## The Student & Guide Management — Detailed Spec
+## The Student & Guide Management - Detailed Spec
 
 ### Students (Free Tier)
 
@@ -179,7 +179,7 @@ Students are added manually. The form is:
 - First name (required)
 - Last name (required)
 - Preferred name (optional)
-- Class/cycle (required — dropdown the coordinator configures: "Wattle Room 3-6", "Banksia Room 6-9", etc.)
+- Class/cycle (required - dropdown the coordinator configures: "Wattle Room 3-6", "Banksia Room 6-9", etc.)
 
 That is all. No date of birth, no medical info, no guardian details. Those belong to the full SIS module. A student in the free tier is just a name attached to a class.
 
@@ -197,7 +197,7 @@ Coordinator can also assign which classes a guide is responsible for. When repor
 
 ---
 
-## PDF Generation — Detailed Spec
+## PDF Generation - Detailed Spec
 
 PDFs are generated using `@react-pdf/renderer`. The PDF must look professional enough that a parent would be proud to receive it.
 
@@ -222,7 +222,7 @@ PDFs are generated using `@react-pdf/renderer`. The PDF must look professional e
 │   background colour to distinguish them)        │
 │                                                 │
 ├────────────────────────────────────────────────┤
-│  Confidential — [School Name] — [Term] [Year]   │
+│  Confidential - [School Name] - [Term] [Year]   │
 └────────────────────────────────────────────────┘
 ```
 
@@ -256,23 +256,23 @@ submitted
     │   submitted (again)
     ↓ (coordinator approves)
 approved
-    ↓ (coordinator publishes period — generates and stores PDF)
+    ↓ (coordinator publishes period - generates and stores PDF)
 published
 ```
 
 Each state has a distinct visual treatment:
-- `not_started` — grey
-- `in_progress` — amber
-- `submitted` — blue
-- `changes_requested` — orange (attention needed)
-- `approved` — green
-- `published` — purple
+- `not_started` - grey
+- `in_progress` - amber
+- `submitted` - blue
+- `changes_requested` - orange (attention needed)
+- `approved` - green
+- `published` - purple
 
 ---
 
 ## The Milestone Expansion Prompts
 
-These are **not banners**. They are contextual, data-driven messages that appear at the right moment in the right place. The copy below is final — use it verbatim.
+These are **not banners**. They are contextual, data-driven messages that appear at the right moment in the right place. The copy below is final - use it verbatim.
 
 ### Prompt 1: After guide fills 5th narrative section for 5th student
 Location: Inside the guide's report editor, below the section they just completed.
@@ -280,14 +280,14 @@ Location: Inside the guide's report editor, below the section they just complete
 You've written this 5 times today. With Curriculum Tracking connected,
 the mastery summary section writes itself from your recorded observations.
 ```
-[See how it works] — links to `/report-builder/upgrade?feature=mastery`
+[See how it works] - links to `/report-builder/upgrade?feature=mastery`
 
 ### Prompt 2: After coordinator generates a report period
 Location: Top of the period dashboard, dismissible.
 ```
 These reports have [X] fields you'll fill in manually this term.
 Connect student records and attendance tracking and most of these
-auto-fill — your guides focus on the narrative sections only.
+auto-fill - your guides focus on the narrative sections only.
 ```
 [Connect student records] [Dismiss]
 
@@ -343,7 +343,7 @@ What would have been automatic with the full platform:
 | Parent portal delivery | ❌ | ✅ |
 | Custom PDF branding (logo, colours) | ✅ | ✅ |
 
-**Note on the 40-student limit:** 40 students is approximately 2 Montessori classes. A single guide with a single class has 20–28 students. This means one guide can use the free tier indefinitely. When the second guide's class is added, they hit the limit. That is the intended trigger — the school is now institutionally using the product, not just one person experimenting.
+**Note on the 40-student limit:** 40 students is approximately 2 Montessori classes. A single guide with a single class has 20–28 students. This means one guide can use the free tier indefinitely. When the second guide's class is added, they hit the limit. That is the intended trigger - the school is now institutionally using the product, not just one person experimenting.
 
 ---
 
@@ -357,7 +357,7 @@ Be explicit about these in the UI so there are no surprises:
 - **Does not have observation capture.** That is a separate product (WattleOS Observations).
 - **Does not have billing, payroll, or attendance tracking.** Those require the full platform.
 
-These absences should be communicated positively in the onboarding: "WattleOS Report Builder is focused on doing one thing exceptionally well — managing your term reports. Connect other modules as your school needs them."
+These absences should be communicated positively in the onboarding: "WattleOS Report Builder is focused on doing one thing exceptionally well - managing your term reports. Connect other modules as your school needs them."
 
 ---
 
@@ -376,7 +376,7 @@ CREATE TABLE report_builder_students (
   first_name      TEXT NOT NULL,
   last_name       TEXT NOT NULL,
   preferred_name  TEXT,
-  class_label     TEXT NOT NULL,  -- e.g. "Wattle Room 3-6" — free text, not FK
+  class_label     TEXT NOT NULL,  -- e.g. "Wattle Room 3-6" - free text, not FK
   is_active       BOOLEAN NOT NULL DEFAULT true,
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -475,7 +475,7 @@ async function signupForReportBuilder(
 // 9. Send welcome email
 // 10. Return { tenantId, userId, redirectTo: '/reports/setup' }
 //
-// Must be atomic — if any step fails, the entire signup rolls back.
+// Must be atomic - if any step fails, the entire signup rolls back.
 // Use Supabase service role client for steps 2-8 (bypasses RLS for setup).
 // Never expose the service role key to the client.
 ```
@@ -486,7 +486,7 @@ async function signupForReportBuilder(
 
 The product is ready when:
 
-1. A person with no prior WattleOS knowledge can find `wattleos.au/report-builder`, sign up, build a report template, add 3 students, invite 1 guide, and have that guide fill a report — all within 30 minutes.
+1. A person with no prior WattleOS knowledge can find `wattleos.au/report-builder`, sign up, build a report template, add 3 students, invite 1 guide, and have that guide fill a report - all within 30 minutes.
 
 2. The guide's experience of filling a report is faster and less frustrating than filling in a Word document and emailing it.
 
@@ -496,4 +496,4 @@ The product is ready when:
 
 5. The free tier limits (40 students, 5 guides, 1 active period) are enforced in server actions with a clear upgrade message, not a cryptic error.
 
-6. A school can use this product for a full academic year on the free tier without hitting a limit that forces them off — but they will have seen enough upsell moments to understand exactly what upgrading would give them.
+6. A school can use this product for a full academic year on the free tier without hitting a limit that forces them off - but they will have seen enough upsell moments to understand exactly what upgrading would give them.

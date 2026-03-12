@@ -10,13 +10,13 @@ Navigate to **Reports** in the sidebar, then click **Generate Reports**. This re
 
 To generate a report for one student:
 
-1. **Select a template** — Choose from your active report templates. Templates show their name and cycle level to help you pick the right one.
-2. **Select a student** — Pick the student this report is for.
-3. **Set the term** — Enter a term label (e.g. "Term 1 2026," "Semester 2," "End of Year"). This label appears on the report and is used to filter reports in the list view.
-4. **Set the reporting period** — Choose a start and end date. These dates determine which attendance records and observations are included in auto-populated sections. For a standard term report, this would be the first and last day of the term.
+1. **Select a template** - Choose from your active report templates. Templates show their name and cycle level to help you pick the right one.
+2. **Select a student** - Pick the student this report is for.
+3. **Set the term** - Enter a term label (e.g. "Term 1 2026," "Semester 2," "End of Year"). This label appears on the report and is used to filter reports in the list view.
+4. **Set the reporting period** - Choose a start and end date. These dates determine which attendance records and observations are included in auto-populated sections. For a standard term report, this would be the first and last day of the term.
 5. Click **Generate**
 
-WattleOS checks for duplicates — if a report already exists for the same student, template, and term, generation is blocked. This prevents accidental double-reports.
+WattleOS checks for duplicates - if a report already exists for the same student, template, and term, generation is blocked. This prevents accidental double-reports.
 
 ## What Happens During Generation
 
@@ -37,9 +37,9 @@ Auto-populated sections are marked as complete immediately. Semi-auto sections (
 
 For end-of-term reporting, you will typically generate reports for every student in a class at once:
 
-1. **Select a template** — Same as single generation
-2. **Select students** — Choose multiple students (e.g. all students in a class)
-3. **Set the term and reporting period** — These apply to all generated reports
+1. **Select a template** - Same as single generation
+2. **Select students** - Choose multiple students (e.g. all students in a class)
+3. **Set the term and reporting period** - These apply to all generated reports
 4. Click **Generate All**
 
 Bulk generation processes each student individually. If a report already exists for a student (same template and term), that student is skipped rather than producing an error. After completion, you see a summary: how many were generated, how many were skipped (already existed), and any errors.
@@ -52,12 +52,12 @@ The Reports list page supports filtering by term, status, student, and author, m
 
 ## Reporting Period Tips
 
-Choose your reporting period dates carefully — they directly affect what data appears in the auto-populated sections:
+Choose your reporting period dates carefully - they directly affect what data appears in the auto-populated sections:
 
 - **Attendance**: Only records between the start and end dates are counted. If your period is too narrow, the attendance summary will be incomplete.
 - **Observations**: Only published observations created within the period are included. Draft observations are excluded. If an observation was published after the period end date but describes an event during the period, it will not be included automatically (the teacher can reference it in their narrative).
-- **Mastery**: Mastery data is fetched as a current snapshot — it shows the student's mastery status at the time of generation, not just changes within the period. This is intentional: parents want to know where their child stands now, not just what changed this term.
+- **Mastery**: Mastery data is fetched as a current snapshot - it shows the student's mastery status at the time of generation, not just changes within the period. This is intentional: parents want to know where their child stands now, not just what changed this term.
 
 ## Permissions
 
-**Manage Reports** — Required to generate reports (single or bulk).
+**Manage Reports** - Required to generate reports (single or bulk).

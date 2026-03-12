@@ -64,7 +64,7 @@ function DailyOpsSection() {
             The four tasks that used to take an hour, now take minutes
           </SectionHeading>
           <SectionDescription>
-            Attendance, medical lookups, pickup authorisation, OSHC check-in —
+            Attendance, medical lookups, pickup authorisation, OSHC check-in -
             each one redesigned for one-handed iPad operation.
           </SectionDescription>
         </div>
@@ -246,7 +246,7 @@ function StudentRecordsSection() {
             custody records. Medical conditions require{" "}
             <em>view_medical_records</em>. Custody restrictions require{" "}
             <em>manage_safety_records</em>. An admin sees the full picture.
-            Every single access to sensitive data is timestamped and logged —
+            Every single access to sensitive data is timestamped and logged -
             automatically, with no extra steps.
           </p>
         </div>

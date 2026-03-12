@@ -378,7 +378,7 @@ export function AdministerForm({
                 className="w-full rounded-[var(--radius-md)] border border-border bg-background px-3 py-2 text-sm"
                 style={{ color: "var(--foreground)" }}
               >
-                <option value="">— no witness —</option>
+                <option value="">- no witness -</option>
                 {staff
                   .filter((s) => s.id !== currentUserId)
                   .map((s) => (

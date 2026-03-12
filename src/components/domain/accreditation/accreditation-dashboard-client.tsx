@@ -270,7 +270,7 @@ export function AccreditationDashboardClient({ data, canManage }: Props) {
                         </span>
                       ) : (
                         <span style={{ color: "var(--muted-foreground)" }}>
-                          —
+                          -
                         </span>
                       )}
                     </td>

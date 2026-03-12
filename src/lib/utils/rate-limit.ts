@@ -41,7 +41,7 @@ function getRedis(): Redis | null {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   if (!url || !token) {
-    // In production, missing rate-limit config is a security misconfiguration —
+    // In production, missing rate-limit config is a security misconfiguration -
     // all public endpoints would be unprotected. Throw to surface it immediately.
     if (process.env.NODE_ENV === "production") {
       throw new Error(
@@ -146,7 +146,7 @@ function getLimiter(tier: RateLimitTier): Ratelimit | null {
 // IP Resolution
 // ============================================================
 // WHY x-real-ip first: On Vercel, x-real-ip is set by the
-// infrastructure and reflects the actual connection IP —
+// infrastructure and reflects the actual connection IP -
 // clients cannot forge it. x-forwarded-for is also set by
 // Vercel on the last hop, but could be spoofed if there's
 // an upstream proxy that passes client-supplied headers through.

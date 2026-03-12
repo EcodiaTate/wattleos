@@ -20,7 +20,7 @@ Expired announcements (past their `expires_at` date) are automatically hidden fr
 
 ### Acknowledging Announcements
 
-When an announcement has acknowledgement enabled, parents see an "Acknowledge" button. Clicking it confirms that the parent has read and understood the announcement. The acknowledgement is recorded with a timestamp and cannot be undone — this creates a verifiable record that the information was received.
+When an announcement has acknowledgement enabled, parents see an "Acknowledge" button. Clicking it confirms that the parent has read and understood the announcement. The acknowledgement is recorded with a timestamp and cannot be undone - this creates a verifiable record that the information was received.
 
 Staff can see which parents have acknowledged and which have not, enabling follow-up with families who may have missed important communications.
 
@@ -37,9 +37,9 @@ School events appear in the parent feed alongside announcements, providing a sin
 
 When an event has RSVP enabled, parents can respond directly from the event card:
 
-- **Going** — With an optional guest count for additional family members
-- **Maybe** — Tentative response
-- **Not Going** — Confirmed non-attendance
+- **Going** - With an optional guest count for additional family members
+- **Maybe** - Tentative response
+- **Not Going** - Confirmed non-attendance
 
 Parents can add notes to their RSVP (e.g. dietary requirements, arrival time). They can change their response at any time before the RSVP deadline. After the deadline, responses are locked.
 
@@ -51,9 +51,9 @@ Like announcements, event visibility follows scope rules. School events are visi
 
 Parents access their message channels through the **Messages** section of the Parent Portal. The inbox shows:
 
-- **Class group channels** — Shared channels for each class where their child is enrolled. Parents can read all messages and, if parent posting is enabled, send messages to the group.
-- **Program group channels** — Shared channels for programs their child is enrolled in.
-- **Direct message channels** — Private one-to-one conversations with staff members (guides, administrators, office staff).
+- **Class group channels** - Shared channels for each class where their child is enrolled. Parents can read all messages and, if parent posting is enabled, send messages to the group.
+- **Program group channels** - Shared channels for programs their child is enrolled in.
+- **Direct message channels** - Private one-to-one conversations with staff members (guides, administrators, office staff).
 
 Each channel shows unread count, last message preview, and member count.
 
@@ -61,7 +61,7 @@ Each channel shows unread count, last message preview, and member count.
 
 Opening a channel displays the message history with sender names, avatars, and timestamps. Messages can include text, images, and file attachments. Reply threading allows parents to respond to specific messages for contextual conversations.
 
-When `allow_parent_posts` is disabled on a group channel, parents can only read — the message input is hidden. Direct messages always allow two-way communication.
+When `allow_parent_posts` is disabled on a group channel, parents can only read - the message input is hidden. Direct messages always allow two-way communication.
 
 ### Starting a New Conversation
 
@@ -69,10 +69,10 @@ Parents can initiate a direct message with any staff member visible in the schoo
 
 ## Notification Awareness
 
-The Parent Portal shows a global unread count across all message channels, helping parents notice when new communications arrive. Unread counts are calculated from the `last_read_at` cursor — messages sent after the parent last opened the channel are counted as new.
+The Parent Portal shows a global unread count across all message channels, helping parents notice when new communications arrive. Unread counts are calculated from the `last_read_at` cursor - messages sent after the parent last opened the channel are counted as new.
 
 ## What Parents Cannot Do
 
 Parents cannot create announcements, events, or group channels. They cannot see draft or unpublished announcements. They cannot see staff-only events or channels. They cannot hide or moderate messages. They cannot see acknowledgement statistics or RSVP lists for other families.
 
-The parent communication experience is intentionally read-focused with targeted interaction points (acknowledge, RSVP, message) — keeping the interface simple while ensuring families stay informed and connected.
+The parent communication experience is intentionally read-focused with targeted interaction points (acknowledge, RSVP, message) - keeping the interface simple while ensuring families stay informed and connected.
