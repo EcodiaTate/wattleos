@@ -19,6 +19,27 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ActionResponse, failure, success } from "@/types/api";
 import { MedicalCondition } from "@/types/domain";
 import { logAudit, AuditActions } from "@/lib/utils/audit";
+import { encryptField, decryptField } from "@/lib/utils/encryption";
+
+const SENSITIVE_MEDICAL_FIELDS = [
+  "condition_name",
+  "description",
+  "action_plan",
+  "medication_name",
+  "medication_location",
+] as const;
+
+function decryptMedicalRecord<T extends Record<string, unknown>>(row: T): T {
+  const result = { ...row };
+  for (const field of SENSITIVE_MEDICAL_FIELDS) {
+    if (typeof result[field] === "string") {
+      (result as Record<string, unknown>)[field] = decryptField(
+        result[field] as string,
+      );
+    }
+  }
+  return result;
+}
 
 // ============================================================
 // Input Types (kept for backward-compat re-exports)
@@ -50,7 +71,17 @@ export async function listMedicalConditions(
       return failure(error.message, "DB_ERROR");
     }
 
-    return success((data ?? []) as MedicalCondition[]);
+    await logAudit({
+      context,
+      action: AuditActions.MEDICAL_VIEWED,
+      entityType: "student",
+      entityId: studentId,
+      metadata: { record_count: (data ?? []).length },
+    });
+
+    return success(
+      (data ?? []).map((row) => decryptMedicalRecord(row)) as MedicalCondition[],
+    );
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to list medical conditions";
@@ -84,7 +115,9 @@ export async function listCriticalMedicalConditions(): Promise<
       return failure(error.message, "DB_ERROR");
     }
 
-    return success((data ?? []) as MedicalCondition[]);
+    return success(
+      (data ?? []).map((row) => decryptMedicalRecord(row)) as MedicalCondition[],
+    );
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to list critical conditions";
@@ -123,20 +156,27 @@ export async function createMedicalCondition(
         tenant_id: context.tenant.id,
         student_id: v.student_id,
         condition_type: v.condition_type,
-        condition_name: v.condition_name,
+        condition_name: encryptField(v.condition_name),
         severity: v.severity,
-        description: v.description,
-        action_plan: v.action_plan,
+        description: v.description ? encryptField(v.description) : v.description,
+        action_plan: v.action_plan ? encryptField(v.action_plan) : v.action_plan,
         action_plan_doc_url: v.action_plan_doc_url,
         requires_medication: v.requires_medication,
-        medication_name: v.medication_name,
-        medication_location: v.medication_location,
+        medication_name: v.medication_name ? encryptField(v.medication_name) : v.medication_name,
+        medication_location: v.medication_location ? encryptField(v.medication_location) : v.medication_location,
         expiry_date: v.expiry_date,
       })
       .select()
       .single();
 
     if (error) {
+      await logAudit({
+        context,
+        action: AuditActions.MEDICAL_CREATED,
+        entityType: "medical_condition",
+        outcome: "failure",
+        metadata: { student_id: v.student_id, error: error.message },
+      });
       return failure(error.message, "DB_ERROR");
     }
 
@@ -152,7 +192,7 @@ export async function createMedicalCondition(
       },
     });
 
-    return success(data as MedicalCondition);
+    return success(decryptMedicalRecord(data) as MedicalCondition);
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to create medical condition";
@@ -180,20 +220,20 @@ export async function updateMedicalCondition(
     if (v.condition_type !== undefined)
       updateData.condition_type = v.condition_type;
     if (v.condition_name !== undefined)
-      updateData.condition_name = v.condition_name;
+      updateData.condition_name = encryptField(v.condition_name);
     if (v.severity !== undefined) updateData.severity = v.severity;
     if (v.description !== undefined)
-      updateData.description = v.description;
+      updateData.description = v.description ? encryptField(v.description) : v.description;
     if (v.action_plan !== undefined)
-      updateData.action_plan = v.action_plan;
+      updateData.action_plan = v.action_plan ? encryptField(v.action_plan) : v.action_plan;
     if (v.action_plan_doc_url !== undefined)
       updateData.action_plan_doc_url = v.action_plan_doc_url;
     if (v.requires_medication !== undefined)
       updateData.requires_medication = v.requires_medication;
     if (v.medication_name !== undefined)
-      updateData.medication_name = v.medication_name;
+      updateData.medication_name = v.medication_name ? encryptField(v.medication_name) : v.medication_name;
     if (v.medication_location !== undefined)
-      updateData.medication_location = v.medication_location;
+      updateData.medication_location = v.medication_location ? encryptField(v.medication_location) : v.medication_location;
     if (v.expiry_date !== undefined)
       updateData.expiry_date = v.expiry_date;
 
@@ -211,6 +251,14 @@ export async function updateMedicalCondition(
       .single();
 
     if (error) {
+      await logAudit({
+        context,
+        action: AuditActions.MEDICAL_UPDATED,
+        entityType: "medical_condition",
+        entityId: conditionId,
+        outcome: "failure",
+        metadata: { updated_fields: Object.keys(updateData), error: error.message },
+      });
       return failure(error.message, "DB_ERROR");
     }
 
@@ -226,7 +274,7 @@ export async function updateMedicalCondition(
       metadata: { updated_fields: Object.keys(updateData) },
     });
 
-    return success(data as MedicalCondition);
+    return success(decryptMedicalRecord(data) as MedicalCondition);
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to update medical condition";
@@ -240,6 +288,7 @@ export async function updateMedicalCondition(
 
 export async function deleteMedicalCondition(
   conditionId: string,
+  deletionReason?: string,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_MEDICAL_RECORDS);
@@ -256,12 +305,24 @@ export async function deleteMedicalCondition(
 
     const { error } = await supabase
       .from("medical_conditions")
-      .update({ deleted_at: new Date().toISOString() })
+      .update({
+        deleted_at: new Date().toISOString(),
+        deleted_by: context.user.id,
+        deletion_reason: deletionReason ?? null,
+      })
       .eq("id", conditionId)
       .eq("tenant_id", context.tenant.id)
       .is("deleted_at", null);
 
     if (error) {
+      await logAudit({
+        context,
+        action: AuditActions.MEDICAL_DELETED,
+        entityType: "medical_condition",
+        entityId: conditionId,
+        outcome: "failure",
+        metadata: { error: error.message },
+      });
       return failure(error.message, "DB_ERROR");
     }
 
@@ -275,6 +336,7 @@ export async function deleteMedicalCondition(
           student_id: existing.student_id,
           condition_name: existing.condition_name,
           severity: existing.severity,
+          deletion_reason: deletionReason ?? null,
         },
       });
     }

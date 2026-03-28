@@ -74,7 +74,8 @@ type RateLimitTier =
   | "public_write"
   | "public_read"
   | "auth_action"
-  | "authenticated_llm";
+  | "authenticated_llm"
+  | "authenticated_export";
 
 interface TierConfig {
   /** Max requests allowed in the window */
@@ -118,6 +119,16 @@ const TIER_CONFIGS: Record<RateLimitTier, TierConfig> = {
     limit: 30,
     window: "1 m",
     prefix: "rl:auth_llm",
+  },
+
+  // Bulk data export endpoints - keyed per user ID. Prevents data harvesting
+  // by staff exporting entire student rosters in rapid succession.
+  // 10 exports per 5 minutes is generous for legitimate use and tight enough
+  // to matter if someone is bulk-exporting programmatically.
+  authenticated_export: {
+    limit: 10,
+    window: "5 m",
+    prefix: "rl:auth_export",
   },
 };
 

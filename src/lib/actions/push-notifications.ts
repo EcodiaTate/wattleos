@@ -77,6 +77,7 @@ async function resolveRecipientIds(
       .from("class_enrollments")
       .select("student:students(guardian_id)")
       .eq("class_id", dispatch.target_class_id)
+      .eq("tenant_id", tenantId)
       .is("deleted_at", null);
 
     const ids = new Set<string>();
@@ -101,6 +102,7 @@ async function resolveRecipientIds(
       .from("program_bookings")
       .select("parent_user_id")
       .eq("program_id", dispatch.target_program_id)
+      .eq("tenant_id", tenantId)
       .eq("status", "active");
 
     return (data ?? [])

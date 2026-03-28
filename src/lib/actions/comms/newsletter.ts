@@ -16,6 +16,7 @@
 import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { sanitizeHtml } from "@/lib/utils/sanitize-html";
 import {
   ActionResponse,
   ErrorCodes,
@@ -65,7 +66,7 @@ export async function createNewsletterTemplate(
         description: input.description ?? null,
         body_json: JSON.stringify(input.body_json ?? []),
         header_image_url: input.header_image_url ?? null,
-        footer_html: input.footer_html ?? null,
+        footer_html: input.footer_html ? sanitizeHtml(input.footer_html) : null,
         created_by: context.user.id,
       })
       .select()
@@ -105,7 +106,7 @@ export async function updateNewsletterTemplate(
     if (input.header_image_url !== undefined)
       updateData.header_image_url = input.header_image_url;
     if (input.footer_html !== undefined)
-      updateData.footer_html = input.footer_html;
+      updateData.footer_html = input.footer_html ? sanitizeHtml(input.footer_html) : null;
 
     if (Object.keys(updateData).length === 0) {
       return failure("No fields to update", ErrorCodes.VALIDATION_ERROR);
@@ -200,10 +201,10 @@ export async function createNewsletter(
         title: input.title.trim(),
         subject_line: input.subject_line.trim(),
         preheader: input.preheader ?? null,
-        body_html: input.body_html ?? "",
+        body_html: sanitizeHtml(input.body_html ?? ""),
         body_json: JSON.stringify(input.body_json ?? []),
         header_image_url: input.header_image_url ?? null,
-        footer_html: input.footer_html ?? null,
+        footer_html: input.footer_html ? sanitizeHtml(input.footer_html) : null,
         audience: input.audience,
         target_class_id:
           input.audience === "class" ? input.target_class_id : null,
@@ -266,13 +267,13 @@ export async function updateNewsletter(
     if (input.subject_line !== undefined)
       updateData.subject_line = input.subject_line.trim();
     if (input.preheader !== undefined) updateData.preheader = input.preheader;
-    if (input.body_html !== undefined) updateData.body_html = input.body_html;
+    if (input.body_html !== undefined) updateData.body_html = sanitizeHtml(input.body_html);
     if (input.body_json !== undefined)
       updateData.body_json = JSON.stringify(input.body_json);
     if (input.header_image_url !== undefined)
       updateData.header_image_url = input.header_image_url;
     if (input.footer_html !== undefined)
-      updateData.footer_html = input.footer_html;
+      updateData.footer_html = input.footer_html ? sanitizeHtml(input.footer_html) : null;
     if (input.audience !== undefined) updateData.audience = input.audience;
     if (input.target_class_id !== undefined)
       updateData.target_class_id = input.target_class_id;

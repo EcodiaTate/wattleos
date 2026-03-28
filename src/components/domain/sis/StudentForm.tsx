@@ -33,6 +33,8 @@ import { useState } from "react";
 interface StudentFormProps {
   initialData?: Student;
   canManageEnrollment?: boolean;
+  /** Tenant state/jurisdiction — used to conditionally show ISQ fields (QLD only) */
+  tenantState?: string | null;
 }
 
 const GENDER_OPTIONS = [
@@ -78,9 +80,15 @@ const INPUT_CLASS =
 export function StudentForm({
   initialData,
   canManageEnrollment = true,
+  tenantState = null,
 }: StudentFormProps) {
   const router = useRouter();
   const isEditing = !!initialData;
+
+  // Religion field is only required for QLD independent schools (ISQ reporting).
+  // Hide it entirely for non-QLD tenants to avoid collecting data unnecessarily
+  // (APP 3.2 — minimum necessary collection).
+  const showReligionField = tenantState === "QLD";
 
   // ── Basic fields ──────────────────────────────────────────
   const [firstName, setFirstName] = useState(initialData?.first_name ?? "");
@@ -182,8 +190,8 @@ export function StudentForm({
       interpreter_required: interpreterRequired,
       // Address
       residential_address: buildAddress(),
-      // ISQ
-      religion: religion.trim() || null,
+      // ISQ — only collected for QLD schools
+      religion: showReligionField ? religion.trim() || null : null,
       // Government identifiers
       crn: crn.trim() || null,
       usi: usi.trim() || null,
@@ -421,22 +429,24 @@ export function StudentForm({
               </span>
             </label>
           </div>
-          <div>
-            <label htmlFor="religion" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
-              Religion
-            </label>
-            <input
-              id="religion"
-              type="text"
-              value={religion}
-              onChange={(e) => setReligion(e.target.value)}
-              placeholder="e.g. Catholic, Buddhist, No religion"
-              className={INPUT_CLASS}
-            />
-            <p className="mt-1.5 text-xs font-medium text-form-helper-fg italic">
-              Required for ISQ (Independent Schools Queensland) reporting.
-            </p>
-          </div>
+          {showReligionField && (
+            <div>
+              <label htmlFor="religion" className="block text-xs font-bold uppercase tracking-wider text-form-label-fg">
+                Religion
+              </label>
+              <input
+                id="religion"
+                type="text"
+                value={religion}
+                onChange={(e) => setReligion(e.target.value)}
+                placeholder="e.g. Catholic, Buddhist, No religion"
+                className={INPUT_CLASS}
+              />
+              <p className="mt-1.5 text-xs font-medium text-form-helper-fg italic">
+                Required for ISQ (Independent Schools Queensland) reporting.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

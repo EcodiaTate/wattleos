@@ -3,6 +3,7 @@
 import { cache } from 'react';
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient, createSupabaseAdminClient } from '@/lib/supabase/server';
+import { isDemoMode, DEMO_CONTEXT } from '@/lib/auth/demo-mode';
 import type { TenantContext, Tenant, User, Role } from '@/types/domain';
 import type { PermissionKey } from '@/lib/constants/permissions';
 
@@ -26,6 +27,11 @@ type OverrideRow = {
 // Redirects to /tenant-picker if no tenant in JWT.
 // ============================================================
 export const getTenantContext = cache(async (): Promise<TenantContext> => {
+  // Demo mode: return mock admin context (no Supabase session needed)
+  if (isDemoMode()) {
+    return DEMO_CONTEXT;
+  }
+
   const supabase = await createSupabaseServerClient();
 
   // 1. Get authenticated user

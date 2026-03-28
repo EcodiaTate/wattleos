@@ -626,7 +626,16 @@ export async function createCaseNote(
       .select()
       .single();
 
-    if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
+    if (error) {
+      await logAudit({
+        context,
+        action: AuditActions.CASE_NOTE_CREATED,
+        entityType: "counsellor_case_note",
+        metadata: { student_id: parsed.data.student_id, error: error.message },
+        outcome: "failure",
+      });
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
+    }
     if (!data)
       return failure("Failed to create case note", ErrorCodes.CREATE_FAILED);
 
@@ -678,7 +687,17 @@ export async function updateCaseNote(
       .select()
       .single();
 
-    if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
+    if (error) {
+      await logAudit({
+        context,
+        action: AuditActions.CASE_NOTE_UPDATED,
+        entityType: "counsellor_case_note",
+        entityId: noteId,
+        metadata: { error: error.message },
+        outcome: "failure",
+      });
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
+    }
     if (!data) return failure("Case note not found", ErrorCodes.NOT_FOUND);
 
     await logAudit({
@@ -713,7 +732,17 @@ export async function deleteCaseNote(
       .eq("tenant_id", context.tenant.id)
       .is("deleted_at", null);
 
-    if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
+    if (error) {
+      await logAudit({
+        context,
+        action: AuditActions.CASE_NOTE_DELETED,
+        entityType: "counsellor_case_note",
+        entityId: noteId,
+        metadata: { error: error.message },
+        outcome: "failure",
+      });
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
+    }
 
     await logAudit({
       context,
@@ -750,6 +779,14 @@ export async function getCaseNote(
 
     if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
     if (!data) return failure("Case note not found", ErrorCodes.NOT_FOUND);
+
+    await logAudit({
+      context,
+      action: AuditActions.CASE_NOTE_VIEWED,
+      entityType: "counsellor_case_note",
+      entityId: noteId,
+      metadata: { student_id: (data as unknown as { student_id: string }).student_id },
+    });
 
     return success(data as unknown as CounsellorCaseNoteWithStudent);
   } catch (err) {
@@ -798,6 +835,17 @@ export async function listCaseNotes(
     const { data, error, count } = await query;
     if (error)
       return paginatedFailure(error.message, ErrorCodes.DATABASE_ERROR);
+
+    // Log individual student counsellor case note access (not bulk list views)
+    if (f.student_id) {
+      await logAudit({
+        context,
+        action: AuditActions.CASE_NOTE_VIEWED,
+        entityType: "student",
+        entityId: f.student_id,
+        metadata: { record_count: count ?? 0, page: f.page },
+      });
+    }
 
     return paginated(
       (data ?? []) as unknown as CounsellorCaseNoteWithStudent[],

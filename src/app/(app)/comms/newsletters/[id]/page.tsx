@@ -4,6 +4,7 @@
 // status, and read-receipt analytics for sent editions.
 
 import Link from "next/link";
+import { sanitizeHtml } from "@/lib/utils/sanitize-html";
 import { NewsletterStatusPill } from "@/components/domain/newsletter/newsletter-status-pill";
 import { NewsletterRecipientList } from "@/components/domain/newsletter/newsletter-recipient-list";
 import { OpenRateBar } from "@/components/domain/newsletter/open-rate-bar";
@@ -141,7 +142,7 @@ export default async function NewsletterDetailPage({
         <div
           className="prose max-w-none text-sm"
           style={{ color: "var(--foreground)" }}
-          dangerouslySetInnerHTML={{ __html: nl.body_html }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(nl.body_html) }}
         />
       </div>
 

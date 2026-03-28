@@ -10,6 +10,7 @@ import {
   updateNewsletter,
 } from "@/lib/actions/comms/newsletter";
 import { useHaptics } from "@/lib/hooks/use-haptics";
+import { sanitizeHtml } from "@/lib/utils/sanitize-html";
 import { NewsletterStatusPill } from "./newsletter-status-pill";
 
 interface NewsletterEditorClientProps {
@@ -373,7 +374,7 @@ export function NewsletterEditorClient({
             <div
               className="prose max-w-none text-sm"
               style={{ color: "var(--foreground)" }}
-              dangerouslySetInnerHTML={{ __html: newsletter.body_html }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(newsletter.body_html) }}
             />
           </div>
         </div>

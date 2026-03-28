@@ -27,6 +27,7 @@ export const Permissions = {
   MANAGE_USERS: "manage_users",
   VIEW_AUDIT_LOGS: "view_audit_logs",
   MANAGE_INTEGRATIONS: "manage_integrations",
+  MANAGE_MFA_POLICY: "manage_mfa_policy",
 
   // ── Pedagogy ────────────────────────────────────────────────
   CREATE_OBSERVATION: "create_observation",

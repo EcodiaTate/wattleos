@@ -61,6 +61,13 @@ function getEncryptionKey(): Buffer | null {
   const keyHex = process.env.FIELD_ENCRYPTION_KEY;
 
   if (!keyHex) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "[encryption] FATAL: FIELD_ENCRYPTION_KEY is not set in production. " +
+          "Refusing to store or return sensitive data as plaintext. " +
+          "Generate a key with: openssl rand -hex 32",
+      );
+    }
     console.error(
       "[encryption] FIELD_ENCRYPTION_KEY not set. Sensitive field encryption is disabled. " +
         "Generate a key with: openssl rand -hex 32",
@@ -69,6 +76,12 @@ function getEncryptionKey(): Buffer | null {
   }
 
   if (keyHex.length !== 64) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "[encryption] FATAL: FIELD_ENCRYPTION_KEY must be exactly 64 hex characters (32 bytes). " +
+          `Current length: ${keyHex.length}. Refusing to operate with an invalid key.`,
+      );
+    }
     console.error(
       "[encryption] FIELD_ENCRYPTION_KEY must be exactly 64 hex characters (32 bytes). " +
         `Current length: ${keyHex.length}. Generate with: openssl rand -hex 32`,
@@ -165,6 +178,12 @@ export function decryptField(value: string): string {
 
   const key = getEncryptionKey();
   if (!key) {
+    // getEncryptionKey() already throws in production, but guard the decrypt path too
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "[encryption] FATAL: Cannot decrypt sensitive data without FIELD_ENCRYPTION_KEY in production.",
+      );
+    }
     console.error(
       "[encryption] Cannot decrypt: FIELD_ENCRYPTION_KEY not set. Returning raw value.",
     );
@@ -300,10 +319,25 @@ export function isEncrypted(value: string): boolean {
 export const ENCRYPTED_FIELDS = {
   medical_conditions: [
     "condition_name",
-    "details",
-    "treatment_plan",
-    "medication_details",
-    "emergency_instructions",
+    "description",
+    "action_plan",
+    "medication_name",
+    "medication_location",
+  ] as const,
+
+  nccd_register_entries: [
+    "disability_subcategory",
+    "notes",
+  ] as const,
+
+  individual_learning_plans: [
+    "child_strengths",
+    "background_information",
+    "family_goals",
+  ] as const,
+
+  daily_care_logs: [
+    "general_notes",
   ] as const,
 
   custody_restrictions: [

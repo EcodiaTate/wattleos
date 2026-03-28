@@ -53,7 +53,10 @@ export default async function CreateStudentPage() {
       </div>
 
       {/* Form */}
-      <StudentForm canManageEnrollment={canManageEnrollment} />
+      <StudentForm
+        canManageEnrollment={canManageEnrollment}
+        tenantState={context.tenant.state}
+      />
     </div>
   );
 }

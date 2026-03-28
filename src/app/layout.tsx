@@ -23,7 +23,71 @@
 import { DISPLAY_COOKIE_NAME, parseDisplayCookie } from "@/types/display";
 import type { Metadata, Viewport } from "next";
 import { cookies, headers } from "next/headers";
+import {
+  DM_Sans,
+  Source_Serif_4,
+  Lora,
+  DM_Mono,
+  Fraunces,
+  Outfit,
+} from "next/font/google";
 import "./globals.css";
+
+// ── Self-hosted Google Fonts (downloaded at build time, zero CDN requests) ──
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-dm-sans",
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
+const sourceSerif4 = Source_Serif_4({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-source-serif-4",
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
+const lora = Lora({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-lora",
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-dm-mono",
+  weight: ["400", "500"],
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-fraunces",
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-outfit",
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const fontVariables = [
+  dmSans.variable,
+  sourceSerif4.variable,
+  lora.variable,
+  dmMono.variable,
+  fraunces.variable,
+  outfit.variable,
+].join(" ");
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://wattleos.au";
 
@@ -123,7 +187,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={themeClass}
+      className={`${fontVariables} ${themeClass}`.trim()}
       data-density={display.density}
       data-font-scale={display.fontScale}
       data-sidebar-style={display.sidebarStyle}

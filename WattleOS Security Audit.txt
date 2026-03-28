@@ -1,0 +1,1598 @@
+WattleOS RLS Security Audit — Full Report
+Executive Summary
+186 tables across 66 migrations. 186 ENABLE ROW LEVEL SECURITY statements — every table has RLS enabled. However, the audit uncovered 6 CRITICAL issues, 5 HIGH issues, and numerous MEDIUM/LOW findings across RLS policies, SECURITY DEFINER functions, and server-side admin client usage.
+
+CRITICAL FINDINGS
+CRITICAL 1: fee_notice_deliveries — RLS NOT ENABLED
+Migration 00045 — This table has no ALTER TABLE ... ENABLE ROW LEVEL SECURITY statement. Any authenticated user can read/write all delivery records across all tenants. Contains parent contact data and fee amounts.
+
+CRITICAL 2: oauth_state_tokens — Wide-open ALL policy
+Migration 00048 — The ALL policy uses USING(true) WITH CHECK(true) without restricting to service_role. Any authenticated user can INSERT/UPDATE/DELETE any tenant's OAuth CSRF tokens. This is a session hijack vector.
+
+CRITICAL 3: create_class_broadcast() — SECURITY DEFINER with no tenant validation
+Migration 00006 — This function accepts p_tenant_id as a parameter and uses it directly to insert into message_threads, messages, and message_recipients. It bypasses RLS. A caller can inject data into any tenant's messaging system (which handles child/family communications).
+
+CRITICAL 4: checkRatioBreaches() / checkIncidentNqaEscalations() — Exported as public server actions with no auth
+Files: ratios.ts, incidents.ts — Use admin client to query ALL tenants' ratio breaches and serious incidents (including child injury/abuse reports). Exported as "use server" functions callable by any user. Platform-wide exposure of child safety data.
+
+CRITICAL 5: retryWebhookEvent() — No tenant scoping on admin client
+File: webhooks.ts — Looks up webhook events by ID only, no .eq("tenant_id", ...). A staff member at Tenant A could retry a webhook belonging to Tenant B, potentially triggering cross-tenant payment processing.
+
+CRITICAL 6: resolveRecipientIds() — Missing tenant_id on admin client queries
+File: push-notifications.ts — Queries class_enrollments and program_bookings by class_id/program_id only, no tenant filter. Could leak guardian IDs across tenants and send notifications to wrong-school parents.
+
+HIGH FINDINGS
+HIGH 1: LIMIT 1 multi-tenant pattern — Non-deterministic tenant scoping
+13+ tables across migrations 00040, 00059, 00060, 00062, 00063, 00064 use:
+
+
+tenant_id = (SELECT tenant_id FROM tenant_members WHERE user_id = auth.uid() LIMIT 1)
+For users belonging to multiple tenants, LIMIT 1 without ORDER BY is non-deterministic. The user could be scoped to the wrong tenant, seeing School A's data while logged into School B. Affected tables include naplan_domain_results (student academic results), visitor_sign_in_records, contractor_sign_in_records, and all accreditation tables.
+
+HIGH 2: notification_delivery_log / notification_topic_prefs — No tenant scoping
+Migration 00031 — SELECT policy is user_id = auth.uid() only. A multi-tenant user sees delivery logs and notification preferences from ALL their tenants, not just the current one.
+
+HIGH 3: counsellor_case_notes — Permission check is app-layer only
+Migration 00018 — RLS policy is tenant_id = current_tenant_id() with no permission gate. Any authenticated user in the tenant can read all counsellor case notes (professional privilege material) if they bypass the app layer.
+
+HIGH 4: tuckshop_* tables (5 tables) — RLS enabled, zero policies
+Migration 00046 — All 5 tuckshop tables have RLS enabled but NO policies defined. This means all access is denied (including via anon key). Only service_role can access. If any feature tries to use the regular Supabase client, it silently fails. tuckshop_order_items also has no tenant_id column.
+
+HIGH 5: next_invoice_number() — SECURITY DEFINER leaks invoice count
+Migration 00028 — Accepts any p_tenant_id, bypasses RLS. Caller can learn invoice count for any school.
+
+FULL TABLE AUDIT
+Table	Migration	RLS	Policies	Tenant-Scoped	Issues
+tenants	00001	YES	SELECT	YES (id = current_tenant_id())	OK
+users	00001	YES	SELECT x2, UPDATE	YES (auth.uid() + same-tenant)	OK
+permissions	00001	YES	SELECT	N/A (global ref)	OK
+roles	00001	YES	ALL	YES (current_tenant_id())	OK
+role_permissions	00001	YES	ALL	YES (current_tenant_id())	OK
+tenant_users	00001	YES	SELECT x2, ALL	YES (current_tenant_id())	OK
+audit_logs	00001	YES	SELECT	YES + permission	OK
+tenant_setup_tokens	00003	YES	ALL	YES (platform admin)	OK
+incidents	00004	YES	ALL, SELECT	YES + guardian	OK
+medical_management_plans	00004	YES	ALL, SELECT	YES + guardian	OK
+medication_authorisations	00004	YES	ALL, SELECT	YES + guardian	OK
+medication_administrations	00004	YES	ALL, SELECT	YES + guardian	OK
+staff_compliance_profiles	00004	YES	ALL	YES	OK
+staff_certificates	00004	YES	ALL	YES	OK
+floor_sign_ins	00004	YES	ALL	YES	OK
+ratio_logs	00004	YES	ALL	YES	OK
+service_philosophies	00004	YES	ALL	YES	OK
+qip_element_assessments	00004	YES	ALL	YES	OK
+qip_goals	00004	YES	ALL	YES	OK
+qip_evidence	00004	YES	ALL	YES	OK
+immunisation_records	00004	YES	ALL, SELECT	YES + guardian	OK
+ccs_absence_type_codes	00004	YES	SELECT	N/A (global ref)	OK
+ccs_weekly_bundles	00004	YES	ALL	YES	OK
+ccs_session_reports	00004	YES	ALL	YES	OK
+excursions	00004	YES	ALL	YES	OK
+excursion_risk_assessments	00004	YES	ALL	YES	OK
+excursion_consents	00004	YES	ALL x2	YES + guardian	OK
+excursion_headcounts	00004	YES	ALL	YES	OK
+policies	00004	YES	ALL	YES	OK
+policy_versions	00004	YES	ALL	YES	OK
+policy_acknowledgements	00004	YES	ALL	YES	OK
+complaints	00004	YES	ALL	YES	OK
+complaint_responses	00004	YES	ALL	YES	OK
+montessori_materials	00004	YES	SELECT, ALL	YES (dual: global + tenant)	OK
+lesson_records	00004	YES	ALL, SELECT	YES + guardian	OK
+work_cycle_sessions	00004	YES	ALL	YES	OK
+work_cycle_material_selections	00004	YES	ALL	YES	OK
+mqap_criteria	00004	YES	SELECT	N/A (global ref)	OK
+mqap_assessments	00004	YES	ALL	YES	OK
+mqap_goals	00004	YES	ALL	YES	OK
+tenant_user_permission_overrides	00005	YES	ALL, SELECT	YES (via join)	OK
+device_push_tokens	00006	YES	ALL	PARTIAL (auth.uid() only)	MEDIUM — no tenant_id check
+emergency_drills	00007	YES	ALL	YES	OK
+emergency_drill_participants	00007	YES	ALL	YES	OK
+emergency_zones	00008	YES	ALL	YES	OK
+emergency_events	00008	YES	ALL	YES	OK
+emergency_event_zones	00008	YES	ALL	YES	OK
+emergency_student_accountability	00008	YES	ALL	YES	OK
+emergency_staff_accountability	00008	YES	ALL	YES	OK
+emergency_event_log	00008	YES	ALL	YES	OK
+roster_templates	00011	YES	ALL	YES	OK
+roster_template_shifts	00011	YES	ALL	YES	OK
+roster_weeks	00011	YES	ALL	YES	OK
+shifts	00011	YES	ALL	YES	OK
+staff_availability	00011	YES	ALL	YES	OK
+leave_requests	00011	YES	ALL	YES	OK
+shift_swap_requests	00011	YES	ALL	YES	OK
+shift_coverage_requests	00011	YES	ALL	YES	OK
+individual_learning_plans	00012	YES	ALL, SELECT	YES + guardian	OK
+ilp_goals	00012	YES	ALL, SELECT	YES + guardian (via join)	OK
+ilp_strategies	00012	YES	ALL, SELECT	YES + guardian (via join)	OK
+ilp_reviews	00012	YES	ALL, SELECT	YES + guardian (via join)	OK
+ilp_collaborators	00012	YES	ALL, SELECT	YES + guardian (via join)	OK
+ilp_evidence	00012	YES	ALL, SELECT	YES + guardian (via join)	OK
+transition_statements	00012	YES	ALL, SELECT	YES + guardian	OK
+daily_care_logs	00013	YES	ALL, SELECT	YES + guardian (shared)	OK
+daily_care_entries	00013	YES	ALL, SELECT	YES + guardian (via join)	OK
+daily_care_sleep_checks	00013	YES	SELECT, INSERT	YES + guardian	OK — immutable
+photo_sessions	00015	YES	ALL (implicit)	YES	Minor — no WITH CHECK
+person_photos	00015	YES	ALL (implicit)	YES	Minor — no WITH CHECK
+id_card_templates	00015	YES	ALL (implicit)	YES	Minor — no WITH CHECK
+nccd_register_entries	00016	YES	ALL (implicit)	YES	OK — staff-only by design
+nccd_evidence_items	00016	YES	ALL (implicit)	YES	OK
+sign_in_out_records	00017	YES	ALL	YES (raw JWT, not helper fn)	MEDIUM — inconsistent
+wellbeing_flags	00018	YES	ALL (implicit)	YES	OK
+student_referrals	00018	YES	ALL (implicit)	YES	OK
+counsellor_case_notes	00018	YES	ALL (implicit)	YES	HIGH — no permission gate
+wellbeing_check_ins	00018	YES	ALL (implicit)	YES	OK
+pastoral_care_records	00018	YES	ALL (implicit)	YES	OK
+sick_bay_visits	00019	YES	ALL	YES	OK
+three_period_lessons	00020	YES	ALL	YES	OK
+student_sensitive_periods	00020	YES	ALL	YES	OK
+bus_routes	00021	YES	ALL	YES (JWT)	OK
+pickup_authorizations	00021	YES	ALL	YES (JWT)	OK
+student_dismissal_methods	00021	YES	ALL	YES (JWT)	OK
+dismissal_records	00021	YES	ALL	YES (JWT)	OK
+interview_sessions	00022	YES	ALL	YES (TM)	OK
+interview_slots	00022	YES	ALL	YES (TM)	OK
+interview_bookings	00022	YES	ALL	YES (TM)	OK
+absence_monitoring_config	00023	YES	SELECT, ALL	YES + permission	OK
+absence_monitoring_flags	00023	YES	SELECT, INSERT, UPDATE	YES + permission	No DELETE
+absence_follow_up_log	00023	YES	SELECT, INSERT	YES + permission	No UPDATE/DELETE — audit
+volunteers	00024	YES	SELECT, INSERT, UPDATE	YES + permission	No DELETE (WWCC data)
+volunteer_assignments	00024	YES	SELECT, INSERT, UPDATE, DELETE	YES + permission	OK
+material_shelf_locations	00025	YES	ALL	YES (current_tenant_id())	OK
+material_inventory_items	00025	YES	ALL	YES (current_tenant_id())	OK
+normalization_observations	00026	YES	ALL	YES (current_setting)	OK
+normalization_goals	00026	YES	ALL	YES (current_setting)	OK
+absence_followup_config	00027	YES	SELECT, ALL	YES + permission	OK
+absence_followup_alerts	00027	YES	SELECT, INSERT, UPDATE	YES + permission	No DELETE
+absence_followup_notifications	00027	YES	SELECT, INSERT, UPDATE	YES + permission	No DELETE
+fee_schedules	00028	YES	ALL	YES (current_setting)	OK
+invoices	00028	YES	ALL	YES (current_setting)	OK
+invoice_line_items	00028	YES	ALL	YES (current_setting)	OK
+payments	00028	YES	ALL	YES (current_setting)	OK
+stripe_customers	00028	YES	ALL	YES (current_setting)	OK
+sms_gateway_config	00030	YES	SELECT, UPDATE, INSERT	Implicit (via permission)	MEDIUM — no explicit tenant_id
+sms_messages	00030	YES	SELECT	Implicit (via permission)	MEDIUM — SELECT only, no tenant_id guard
+notification_dispatches	00031	YES	SELECT, ALL (svc)	YES (TM)	OK
+notification_delivery_log	00031	YES	SELECT, ALL (svc)	NO — auth.uid() only	HIGH — cross-tenant leak
+notification_topic_prefs	00031	YES	ALL	NO — auth.uid() only	HIGH — cross-tenant leak
+recurring_billing_setups	00032	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+recurring_billing_schedules	00032	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+billing_payment_attempts	00032	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+billing_failures	00032	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+school_events	00033	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+event_rsvps	00033	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+environment_plans	00035	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+plan_shelf_slots	00035	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+rotation_schedules	00035	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+accreditation_criteria	00036	YES	ALL (implicit)	YES (TM + NULL global)	OK
+accreditation_cycles	00036	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+accreditation_assessments	00036	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+accreditation_evidence	00036	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+excursion_transport_bookings	00037	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+previous_school_records	00038	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+acara_report_periods	00039	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+acara_student_records	00039	YES	ALL (implicit)	YES (TM)	No WITH CHECK
+cosmic_great_lessons	00040	YES	ALL (implicit)	YES (TM + NULL)	HIGH — LIMIT 1
+cosmic_units	00040	YES	ALL (implicit)	PARTIAL	HIGH — LIMIT 1
+cosmic_unit_studies	00040	YES	ALL (implicit)	PARTIAL	HIGH — LIMIT 1
+cosmic_unit_participants	00040	YES	ALL (implicit)	PARTIAL	HIGH — LIMIT 1
+cosmic_study_records	00040	YES	ALL (implicit)	PARTIAL	HIGH — LIMIT 1
+debt_collection_stages	00041	YES	svc ALL, SELECT	YES	OK — svc writes
+debt_payment_plans	00041	YES	svc ALL, SELECT	YES	OK
+debt_payment_plan_items	00041	YES	svc ALL, SELECT	YES	OK
+debt_reminder_sequences	00041	YES	svc ALL, SELECT	YES	OK
+debt_reminder_log	00041	YES	svc ALL, SELECT	YES	OK
+debt_write_offs	00041	YES	svc ALL, SELECT	YES	OK
+grants	00042	YES	svc ALL, SELECT	YES	OK
+grant_milestones	00042	YES	svc ALL, SELECT	YES	OK
+grant_expenditures	00042	YES	svc ALL, SELECT	YES	OK
+grant_documents	00042	YES	svc ALL, SELECT	YES	OK
+fee_notice_configs	00045	YES	ALL	YES (current_setting)	MEDIUM — no permission
+fee_notices	00045	YES	ALL	YES (current_setting)	MEDIUM — no permission
+fee_notice_deliveries	00045	NO	NONE	NO	CRITICAL — RLS MISSING
+tuckshop_suppliers	00046	YES	NONE	NO	HIGH — 0 policies
+tuckshop_menu_items	00046	YES	NONE	NO	HIGH — 0 policies
+tuckshop_delivery_weeks	00046	YES	NONE	NO	HIGH — 0 policies
+tuckshop_orders	00046	YES	NONE	NO	HIGH — 0 policies
+tuckshop_order_items	00046	YES	NONE	NO	HIGH — 0 policies, no tenant_id
+oauth_state_tokens	00048	YES	SELECT, ALL(true)	NO	CRITICAL — open write
+plg_feature_usage	00049	YES	ALL(false)	N/A	OK — locked
+plg_champion_notifications	00049	YES	ALL(false)	N/A	OK — locked
+report_periods	00050	YES	ALL, SELECT	YES + permission	OK
+report_instances	00050	YES	ALL, SELECT, UPDATE	YES + permission	OK
+report_builder_students	00051	YES	ALL	YES	MEDIUM — no permission
+guide_invitations	00051	YES	ALL, SELECT	YES admin / token-based	OK
+product_signups	00051	YES	ALL(false)	N/A	OK — locked
+report_settings	00051	YES	ALL, SELECT	YES + permission	OK
+ratio_breach_alert_log	00053	YES	SELECT	Implicit (via has_permission)	MEDIUM — no direct tenant check
+daily_care_log_field_configs	00054	YES	SELECT, INSERT, UPDATE	YES + permission	OK
+sensitive_period_materials	00055	YES	ALL	YES	MEDIUM — no permission
+webhook_events	00056	YES	SELECT	PARTIAL (OR NULL)	MEDIUM — platform events exposed
+medication_plan_review_alerts	00057	YES	SELECT, INSERT	YES	OK
+staff_profiles	00058	YES	ALL, SELECT	YES + permission	OK
+staff_compliance_records	00058	YES	ALL, SELECT	YES + permission	OK
+visitor_sign_in_records	00059	YES	SELECT, ALL	PARTIAL	HIGH — LIMIT 1
+contractor_sign_in_records	00059	YES	SELECT, ALL	PARTIAL	HIGH — LIMIT 1
+naplan_test_windows	00060	YES	S/I/U/D	PARTIAL	HIGH — LIMIT 1 (student data)
+naplan_cohort_entries	00060	YES	S/I/U/D	PARTIAL	HIGH — LIMIT 1
+naplan_domain_results	00060	YES	S/I/U/D	PARTIAL	HIGH — LIMIT 1
+work_cycle_sessions	00061	YES	S/I/U/D	YES + permission	OK
+work_cycle_interruptions	00061	YES	S/I/U/D	YES + permission	OK
+accreditation_criteria	00062	YES	SELECT, ALL	PARTIAL	HIGH — LIMIT 1
+accreditation_cycles	00062	YES	ALL	PARTIAL	HIGH — LIMIT 1, no permission
+accreditation_assessments	00062	YES	ALL	PARTIAL	HIGH — LIMIT 1
+accreditation_evidence	00062	YES	ALL	PARTIAL	HIGH — LIMIT 1
+observation_tag_suggestions	00063	YES	ALL	PARTIAL	HIGH — LIMIT 1
+montessori_hub_articles	00064	YES	SELECT, ALL	PARTIAL	HIGH — LIMIT 1
+montessori_hub_reads	00064	YES	ALL	PARTIAL	HIGH — LIMIT 1, impersonation
+montessori_hub_feedback	00064	YES	ALL	PARTIAL	HIGH — LIMIT 1, impersonation
+newsletter_templates	00065	YES	ALL	YES (app.tenant_id)	MEDIUM — no permission
+newsletters	00065	YES	ALL	YES (app.tenant_id)	MEDIUM — no permission
+newsletter_sections	00065	YES	ALL	YES (app.tenant_id)	MEDIUM — no permission
+newsletter_recipients	00065	YES	ALL	YES (app.tenant_id)	MEDIUM — no permission
+SECURITY DEFINER Functions
+Function	Migration	Risk
+handle_new_user()	00001	LOW — Auth trigger, SET search_path = public
+seed_tenant_roles()	00001+	LOW — Insert trigger on tenants
+create_class_broadcast()	00006	CRITICAL — No tenant validation on p_tenant_id
+next_invoice_number()	00028	HIGH — Leaks invoice count cross-tenant
+prevent_hard_delete()	00052	LOW — Only raises exception
+Service Role / Client-Side Checks
+Check	Status
+Browser client uses anon key only	PASS — NEXT_PUBLIC_SUPABASE_ANON_KEY
+No .env files committed	PASS
+No 'use client' files import admin client	PASS
+SUPABASE_SERVICE_ROLE_KEY has no NEXT_PUBLIC_ prefix	PASS
+Admin client is server-only	PASS
+All admin client usages have auth gates	FAIL — 3 functions lack auth (see CRITICALs 4-6)
+Tenant Scoping Inconsistency (5 different patterns)
+Pattern	Used By	Count
+current_tenant_id() (helper fn on JWT)	00001-00020	~60 tables
+tenant_members subquery	00022-00033	~20 tables
+current_setting('app.current_tenant_id')	00026, 00050-00051	~6 tables
+current_setting('app.tenant_id')	00045, 00065	~7 tables
+Raw JWT extraction	00017, 00021	~5 tables
+LIMIT 1 subquery (non-deterministic)	00040, 00059-00064	~13 tables
+This is a significant maintenance risk. If any one mechanism changes, a subset of tables silently loses isolation.
+
+Prioritised Remediation Plan
+P0 — Fix immediately (cross-tenant data exposure)
+fee_notice_deliveries — Add ALTER TABLE fee_notice_deliveries ENABLE ROW LEVEL SECURITY + tenant-scoped policy
+oauth_state_tokens — Change the ALL(true) policy to TO service_role or scope to tenant
+create_class_broadcast() — Add IF p_tenant_id != current_tenant_id() THEN RAISE EXCEPTION guard
+checkRatioBreaches() / checkIncidentNqaEscalations() — Move to cron-only API routes gated by CRON_SECRET, not exported server actions
+retryWebhookEvent() — Add .eq("tenant_id", context.tenant.id) to both SELECT and UPDATE
+resolveRecipientIds() — Add .eq("tenant_id", tenantId) to class_enrollments and program_bookings queries
+P1 — Fix soon (weak isolation)
+Replace all LIMIT 1 patterns with current_tenant_id() across 13 tables
+notification_delivery_log / notification_topic_prefs — Add tenant_id scoping to policies
+counsellor_case_notes — Add has_permission('view_counsellor_notes') to RLS policy
+tuckshop_* tables — Add tenant-scoped policies (currently all access denied)
+next_invoice_number() — Restrict EXECUTE to service_role or add internal tenant check
+P2 — Standardise (reduce maintenance risk)
+Unify all tenant scoping to use current_tenant_id() — eliminate the 5 different patterns
+Add explicit WITH CHECK clauses to ~18 tables using implicit USING-only pattern
+Add permission checks to newsletter, fee notice, report builder, and sensitive period tables
+Add deleted_at IS NULL / is_active filter to all tenant_members subqueries in RLS
+This is a platform handling children's data under Australian Privacy Act and state child protection laws. The P0 items should be patched before any new deployment.
+
+WattleOS — Australian Privacy Principles (APPs) Data Minimisation Audit
+Executive Summary
+WattleOS is a Montessori school management platform handling data for children, parents, teachers, and administrators. This audit maps every piece of personal information collected, assesses necessity under the APPs, identifies all external data flows, and flags compliance gaps.
+
+Overall Assessment: The platform collects data that is broadly justified by educational and regulatory obligations. However, there are 7 findings requiring attention — most notably, personal data flowing to OpenAI (US) and Google Fonts leaking metadata.
+
+1. COMPLETE DATA MAP
+A. Student Personal Information
+Data Point	Where Collected	Storage	Necessary?	Justification
+First name, last name	StudentForm, EnrollmentWizard	Supabase (Sydney)	Yes	Core identity, regulatory requirement
+Preferred name	StudentForm, EnrollmentWizard	Supabase	Yes	Montessori practice, child wellbeing
+Date of birth	StudentForm, EnrollmentWizard	Supabase	Yes	Age-based ratio compliance (Reg 123), CCS reporting
+Gender	StudentForm	Supabase	Marginal	ACARA reporting requires it, but "prefer not to say" is offered
+Photo/avatar	BulkUploadZone	Supabase Storage (Sydney)	Yes	ID cards, kiosk identification, safety
+Residential address (full)	StudentForm	Supabase	Yes	Emergency contact, CCS, ACARA reporting
+Nationality	StudentForm, EnrollmentWizard	Supabase	Marginal	Government reporting (ACARA)
+Languages spoken	StudentForm	Supabase	Yes	LBOTE reporting, interpreter needs
+Home language	StudentForm	Supabase	Yes	CALD compliance, interpreter flag
+Previous school	StudentForm	Supabase	Marginal	Transition support — not strictly required
+Religion	StudentForm	Supabase	Marginal	ISQ reporting (QLD only) — should be conditional
+Country of birth	StudentForm	Supabase	Yes	ACARA mandatory field
+Visa subclass	StudentForm	Supabase	Yes	International student compliance
+Indigenous status	StudentForm	Supabase	Yes	ACARA mandatory, Closing the Gap
+Language background (LBOTE)	StudentForm	Supabase	Yes	ACARA mandatory
+Parent education level	Database schema	Supabase	EXCESSIVE	ACARA SES field — collected but not operationally needed by school
+Parent occupation group	Database schema	Supabase	EXCESSIVE	ACARA SES field — collected but not operationally needed by school
+Medicare number	StudentForm	Supabase (encrypted)	Yes	Emergency medical treatment
+CRN (Customer Reference Number)	StudentForm	Supabase	Yes	Child Care Subsidy mandatory
+USI (Unique Student Identifier)	StudentForm	Supabase	Yes	Senior secondary requirement
+B. Guardian/Parent Information
+Data Point	Where Collected	Storage	Necessary?	Justification
+First name, last name	GuardianSection, EnrollmentWizard	Supabase	Yes	Identity, communication
+Email	GuardianSection, EnrollmentWizard	Supabase	Yes	Primary communication channel
+Phone	GuardianSection, ContactInfoForm	Supabase	Yes	Emergency contact
+Relationship to child	GuardianSection	Supabase	Yes	Custody, authority determination
+Residential address	EnrollmentWizard (Step 1)	Supabase	Yes	Emergency, regulatory
+Media consent	GuardianSection	Supabase	Yes	Consent record required
+Directory consent	GuardianSection	Supabase	Yes	Consent record required
+Pickup authorisation	GuardianSection	Supabase	Yes	Child safety
+C. Medical & Health Data (APP 3 — Sensitive Information)
+Data Point	Where Collected	Storage	Necessary?	Justification
+Medical conditions (type, name, severity)	MedicalConditionSection	Supabase (encrypted)	Yes	Duty of care, Reg 90-96
+Action plans	MedicalConditionSection	Supabase	Yes	Regulatory — anaphylaxis/asthma management
+Medication details (name, location, expiry)	MedicalConditionSection	Supabase	Yes	Medication administration (Reg 95-96)
+Medication administration records	Medication module	Supabase (immutable)	Yes	Regulatory evidence
+Immunisation status	Immunisation records	Supabase	Yes	No Jab No Play compliance
+Sick bay visit records	Sick bay module	Supabase	Yes	Duty of care, parent notification
+Wellbeing mood scores	Wellbeing check-ins	Supabase	Yes	Pastoral care, early intervention
+Counsellor case notes	Counsellor module	Supabase (immutable)	Yes	Allied health records
+Body temperature	Daily care / sick bay	Supabase	Yes	Illness monitoring
+Sleep position checks	Daily care (SIDS)	Supabase (immutable)	Yes	SIDS compliance — mandatory for under-2s
+D. Custody & Safety Data
+Data Point	Where Collected	Storage	Necessary?
+Restricted person name	Enrollment Step 7	Supabase	Yes — child safety
+Restriction type	Enrollment Step 7	Supabase	Yes
+Court order reference	Enrollment Step 7	Supabase	Yes
+E. Staff Data
+Data Point	Storage	Necessary?
+WWCC number, state, expiry	Supabase	Yes — legal requirement
+First aid / CPR / anaphylaxis certs	Supabase	Yes — Reg 136
+Teacher registration number	Supabase	Yes — state requirement
+Date of birth	Supabase	Yes — Worker Register (mandatory from Feb 2026)
+Visa status, subclass, restrictions	Supabase	Yes — employment law
+Leave requests (type, dates, reason)	Supabase	Yes — operational
+Timesheet hours	Supabase	Yes — payroll
+F. Visitor & Contractor Data
+Data Point	Storage	Necessary?
+Visitor name, type, purpose	Supabase	Yes — Reg 165
+Organisation, host name	Supabase	Yes — accountability
+Contractor licence, insurance, WWCC	Supabase	Yes — WHS compliance
+Sign-in/out timestamps	Supabase	Yes — regulatory
+G. Volunteer Data
+Data Point	Storage	Necessary?
+Name, email, phone	Supabase	Yes — coordination
+WWCC number, expiry, state	Supabase	Yes — legal requirement
+2. DATA MINIMISATION FINDINGS
+FINDING 1: Parent Education Level & Occupation Group — EXCESSIVE
+Fields: parent_education_level, parent_occupation_group in students table
+Source: Migration 00044 (ACARA SES fields)
+Issue: These are ACARA SES (Socio-Economic Status) demographic fields. While ACARA can request them, schools are not required to collect them directly from parents. Many schools derive SES from postcode. Collecting parental education and occupation from families is not necessary for the educational/operational purpose and constitutes collection beyond what is reasonably necessary (APP 3.2).
+Risk: Medium — socioeconomic profiling of families
+Recommendation: Make these fields admin-only and derive from postcode where possible, or remove if not actively reported to ACARA.
+FINDING 2: Religion Field — CONDITIONALLY EXCESSIVE
+Field: religion in students table
+Source: StudentForm.tsx — labelled "ISQ reporting requirement"
+Issue: Only required for Queensland independent schools reporting to ISQ. For schools in other states, this field collects sensitive information (APP 3 — religious beliefs) with no purpose.
+Recommendation: Make this field conditional on tenant state/jurisdiction. Hide it entirely for non-QLD tenants.
+FINDING 3: "Previous School" and "How Heard" — LOW RISK, MARGINAL
+Fields: previous_school, how_heard (inquiry form)
+Issue: Not strictly necessary for educational delivery. "How heard" is marketing data.
+Mitigation: how_heard is already behind a tenant toggle (good). previous_school is useful for transition support but could be made optional-only.
+3. ANALYTICS, TRACKING & TELEMETRY
+Category	Status
+Google Analytics / GA4	Not present
+Facebook Pixel / Meta	Not present
+Hotjar / FullStory / session replay	Not present
+Sentry / error tracking	Not present
+Mixpanel / Amplitude / Segment	Not present
+A/B testing frameworks	Not present
+Advertising trackers	Not present
+Device fingerprinting	Not present
+Canvas fingerprinting	Not present
+Verdict: No analytics, advertising, or behavioural tracking is present. This is excellent for a children's platform.
+
+4. THIRD-PARTY SERVICES — COMPLETE EXTERNAL DATA FLOW MAP
+FINDING 4: OpenAI — CRITICAL (Data Leaves Australia)
+Attribute	Detail
+Service	OpenAI API (GPT-4o, text-embedding-3-small)
+Server Location	United States
+What's sent — always	User's name, role, school name, current page, permissions, user query text, documentation chunks
+What's sent — on demand	Student names, medical conditions, medication details, emergency contacts, custody restrictions, attendance records, observation narratives
+Who triggers it	Authenticated staff via "Ask Wattle" AI assistant
+Audit logging	Sensitive data access (medical, custody, emergency) is audit-logged
+APP concern	APP 8 (Cross-border disclosure): Personal information including children's health data is sent to a US entity. OpenAI's data processing terms do not guarantee Australian Privacy Act equivalence. This is the single most significant privacy finding.
+Recommendation	(1) Add explicit disclosure in privacy policy that AI features send data to US servers. (2) Obtain specific consent before enabling Ask Wattle for sensitive queries. (3) Consider Azure OpenAI in Australia East region as alternative. (4) Add a toggle to disable sensitive-data tools in Ask Wattle entirely.
+FINDING 5: Google Fonts — MODERATE (Metadata Leakage)
+Attribute	Detail
+Service	Google Fonts CDN (fonts.googleapis.com, fonts.gstatic.com)
+Server Location	Google global CDN (likely US/SG)
+What's sent	HTTP requests with IP address, User-Agent, Referer header (page URL)
+Who's affected	Every user on every page load (including children if they access the platform)
+Source	globals.css line 1 — @import url(https://fonts.googleapis.com/...)
+Also in	homepage-client.tsx, wattleos/components.tsx
+APP concern	Implicit cross-border disclosure of IP addresses and browsing behaviour to Google. Not strictly "personal information" but metadata that can identify users.
+Recommendation	Switch to next/font/google which downloads fonts at build time and serves them locally — zero external requests at runtime. This is a one-line fix.
+Other External Services (Lower Risk)
+Service	Location	Data Sent	Necessary?	Risk
+Supabase (DB + Auth + Storage)	Sydney, AU	All primary data	Yes	Low — AU-resident
+Stripe	US (PCI-DSS L1)	Customer name, email, payment methods, billing amounts	Yes — billing	Low — covered by PCI-DSS, standard DPA
+Resend (email)	US	Recipient email, subject, body (no student records)	Yes — transactional email	Low-Medium
+MessageMedia	Australia	Phone numbers, SMS content	Yes — parent comms	Low — AU-based
+Burst SMS	Australia	Phone numbers, SMS content	Yes — parent comms	Low — AU-based
+Upstash Redis	Region unspecified (likely US)	Rate-limit counters (IP hash, user ID) — ephemeral, TTL 1-15 min	Yes — security	Low — no PII stored persistently
+KeyPay / Employment Hero	Australia (api.yourpayroll.io)	Employee IDs, names, hours, leave	Yes — payroll sync	Low — AU-based, optional
+Google Drive	Depends on school's Workspace region	Student names, portfolio files	Optional — admin-configured	Medium — data may leave AU
+Google OAuth	US	Email, profile for login	Yes — authentication	Low — standard OAuth
+Apple Sign-In	US	Authentication tokens	Yes — iOS auth	Low — standard OAuth
+Vercel (hosting)	Edge (SYD for AU traffic)	Application code, SSR rendering	Yes — hosting	Low — no persistent user data
+5. DEVICE DATA & BROWSER METADATA
+FINDING 6: Geolocation Collection
+Attribute	Detail
+Source	@capacitor/geolocation
+What's collected	Latitude, longitude, accuracy, timestamp
+When	Only during excursion tracking on native mobile apps
+Permission	Properly gated behind OS permission prompt
+Storage	Used in real-time, not persisted to database
+Risk	Low — purpose-limited, permission-gated
+FINDING 7: Device Info Collection
+Attribute	Detail
+Source	@capacitor/device
+What's collected	Device model, platform, OS version, manufacturer, webview version
+When	Support ticket generation
+Storage	Not persisted to database
+Risk	Low — diagnostic only
+Other Metadata
+Type	Status	Detail
+IP address	Collected transiently	Rate limiting only, stored in Upstash with 1-15 min TTL
+User-Agent	Read locally	iPad detection for UI adaptation — not transmitted
+Screen dimensions	Read locally	Tablet detection — not transmitted
+Canvas fingerprinting	Not present	—
+Cookie tracking	First-party only	Supabase auth JWT + UI preferences (theme, density)
+6. LOCAL STORAGE OF PERSONAL DATA
+FINDING 7: Enrollment Drafts in localStorage
+Attribute	Detail
+Key	wattleos_enroll_{tenantId}
+Contains	Guardian names, child name, DOB, medical conditions, emergency contacts, addresses
+Purpose	Offline draft recovery for multi-step enrollment form
+Risk	Medium — PII persists in browser storage on shared/public devices
+Recommendation	Add a clear warning on shared devices. Consider sessionStorage instead (cleared on tab close). Add explicit "clear draft" button.
+7. ACCESS CONTROL SUMMARY
+Role	Can Access	Cannot Access
+Owner	Everything	—
+Administrator	Everything except tenant settings	Tenant settings
+Head of School	Pedagogy, SIS, attendance, comms, compliance	Tenant config, billing admin
+Lead Guide	Classroom + compliance + rostering + daily care	Admin, billing, enrollment config
+Guide	Classroom essentials + self-service + daily care	Other classes, admin, billing
+Assistant	Observations, students, attendance, incidents, daily care	Reports, admin, compliance config
+Parent	Own child only (via is_guardian_of() RLS)	Other children, staff data, admin
+RLS is enforced on 100% of tables. Multi-tenant isolation is database-level via current_tenant_id() from JWT claims.
+
+8. DATA PROTECTION MECHANISMS (Positive Findings)
+Mechanism	Status
+Row-Level Security (all tables)	Implemented
+Field-level encryption (AES-256-GCM)	SMS credentials, sensitive fields
+Hard-delete prevention (5 immutable tables)	Incidents, observations, medication admin, audit logs, counsellor notes
+Soft-delete pattern (all other tables)	Implemented
+Immutable audit log	Append-only, no UPDATE/DELETE
+Content Security Policy	Strict, nonce-based
+HSTS	Enabled in production
+Permissions-Policy header	camera=(), microphone=(), geolocation=()
+Rate limiting	Per-IP (public), per-user (authenticated)
+CRON_SECRET for scheduled jobs	Verified
+Webhook signature verification	Stripe, SMS
+9. SUMMARY OF FINDINGS
+#	Finding	Severity	APP	Recommendation
+F1	Parent education/occupation collected without clear necessity	Medium	APP 3.2	Make admin-only or derive from postcode
+F2	Religion field collected for all states (only needed in QLD)	Medium	APP 3	Make conditional on tenant jurisdiction
+F3	Previous school / how heard are marginal	Low	APP 3.2	Already mitigated with toggles
+F4	OpenAI receives children's personal/medical data (US servers)	High	APP 8	Disclose in privacy policy; consent gate; consider Azure AU
+F5	Google Fonts leaks IP/UA to Google on every page load	Medium	APP 8	Switch to next/font/google (local serving)
+F6	Enrollment drafts with PII stored in localStorage	Medium	APP 11	Use sessionStorage; add "clear draft" UI; warn on shared devices
+F7	Resend (email) and Upstash (rate-limit) are US-based	Low	APP 8	Minimal PII exposure; document in sub-processor list
+10. WHAT'S NOT PRESENT (Positive)
+No advertising trackers, pixels, or marketing tools
+No behavioural analytics or session replay
+No device fingerprinting or canvas fingerprinting
+No third-party cookies
+No data sold or shared with data brokers
+No unnecessary geolocation tracking (properly gated)
+No IP address logging to database
+
+Audit Logging Assessment — WattleOS (ST4S Framework)
+What's Working Well
+The foundation is solid — 350+ action types, immutable storage, RLS-protected reads, sensitivity levels, IP capture, and a full admin UI with CSV export. This is well above baseline for most school software.
+
+Gap Analysis
+1. Events Currently Logged
+Logged: Student CRUD, medical records, attendance (bulk), incidents, medication administration, wellbeing, enrollment, billing, reports, CCS submissions, user invites, role changes, custody restrictions, photo uploads, observations, pastoral records, daily care logs, visitor sign-in, comms (SMS/push), fee notices, exports.
+
+Present in schema, but need to verify actual call coverage:
+
+2. Required Event Coverage — Gaps
+Event Category	Status	Gap Detail
+User login (success)	Likely present	AuditActions likely has USER_LOGIN — verify it's called from auth callback
+User login (failure)	LIKELY MISSING	Failed logins typically happen before a session exists — auth middleware doesn't log
+User logout	UNKNOWN	Supabase session expiry is passive; explicit logout may not be captured
+Student record access (VIEW)	LIKELY MISSING	Read actions are expensive to log and often omitted — check if student profile page logs a VIEW event
+Student record modification	Present	Changes logged with updated_fields in metadata
+Permission/role changes	Present	Marked as critical sensitivity
+Data exports/downloads	Present	Export actions logged
+Bulk operations	Present	logAuditBulk() with _batch_size
+Admin actions (user create/delete)	Present	User invite/deactivate covered
+API access patterns	NOT APPLICABLE	No public API — server actions only. No external API key logging needed
+ST4S Risk: Login failure logging is a hard requirement for detecting credential-stuffing and unauthorized access attempts. Since Supabase auth handles the failure before your server action runs, this is a genuine gap.
+
+3. Metadata Per Log Entry
+Required Field	Status	Notes
+Timestamp	✅ created_at TIMESTAMPTZ
+User ID	✅ user_id column
+Action	✅ action column
+Resource accessed	✅ entity_type + entity_id
+IP address	✅ _ip in metadata JSONB	Gap: IP is in JSONB, not a top-level indexed column — slower for IP-based investigations
+Outcome (success/failure)	MISSING	No outcome field — all logged events are assumed successful. Failed operations that throw before logAudit() runs are silently unrecorded
+User agent	✅ _user_agent in metadata
+4. Immutability
+✅ Strong. Hard-delete blocked by database trigger (prevent_hard_delete()). No UPDATE policies exist. Insert-only via admin client that bypasses RLS. This is genuinely immutable at the database level.
+
+Minor gap: If a Supabase superadmin (Supabase dashboard access) can modify rows directly, that's outside your control. Document this in your compliance statement — it's acceptable if acknowledged.
+
+5. Separation from Logged Data
+✅ Separate table. audit_logs is its own table, not embedded in entity tables. Admin client writes bypass RLS but the table itself is isolated.
+
+Improvement: For highest assurance, audit logs should ideally be in a separate database or at minimum a separate Supabase schema. Currently it's in the same schema as student data — an admin with direct DB access could theoretically corrupt both simultaneously.
+
+6. Retention Period
+MISSING — Compliance Risk: HIGH
+
+No retention policy is defined or enforced. Logs grow indefinitely. ST4S requires:
+
+Student records: 7 years after last date of attendance (or age 25, whichever is later)
+Staff records: 7 years
+Audit logs: should match the records they log (7 years minimum)
+The current "keep forever" approach satisfies minimum retention but creates a data minimisation issue under the Australian Privacy Principles (APP 11) — you must not keep personal information longer than needed.
+
+Fix: Add a Supabase scheduled function or pg_cron job to archive logs older than 7 years to cold storage (e.g., S3/R2), then delete from the live table.
+
+7. Search/Export for Compliance Investigations
+✅ Solid. Six filter types, free-text search, CSV export up to 10k rows.
+
+Gaps:
+
+10k row limit on export may be insufficient for a multi-year investigation across a large school
+No audit log of who accessed the audit logs (meta-audit gap) — an investigator's own access is unrecorded
+No tamper-evident export (e.g., hash/signature on exported CSV) — exported file could be modified before submission
+8. Sensitive Operations NOT Logged
+Based on the exploration, the following warrant verification:
+
+Operation	Risk if Unlogged
+Student profile view (read-only)	ST4S requires knowing who accessed a child's record, not just who changed it
+Parent portal login and record access	Parents accessing their child's data should be traceable
+File/document downloads (if any)	Any attached documents (medical plans, custody orders)
+Supabase Auth admin actions	Password resets initiated by admins
+Scheduled/cron job mutations	Covered by logAuditSystem() but verify it's actually called
+Priority Fixes
+Critical (do now):
+
+Failed login logging — Hook into Supabase Auth webhook (auth.users changes or use a custom SMTP/auth hook) to log failed login attempts with IP, email attempted, timestamp, and outcome=failure.
+
+Outcome field — Add an outcome column (success | failure | partial) to audit_logs. Currently, only successful operations reach logAudit() — errors that throw beforehand leave no trace. This is a genuine forensic gap.
+
+Student record VIEW logging — Add logAudit() calls to student profile server actions for read operations. Yes, this is high volume — use sensitivity=low and consider sampling for bulk list views, but individual profile access must be logged.
+
+High (address this sprint):
+
+Retention policy — Define and implement a 7-year retention window with archival. Add this to your compliance documentation now even if the automation comes later.
+
+Raise IP to a top-level column — Move _ip from JSONB metadata to a dedicated ip_address TEXT column with an index. Required for efficient IP-based forensic queries.
+
+Medium (next quarter):
+
+Meta-audit — Log access to the audit log viewer itself (VIEW_AUDIT_LOGS permission actions).
+
+Export row limit — Lift or paginate the 10k CSV export cap, or add a streaming export option for large investigations.
+
+Tamper-evident exports — Include a SHA-256 hash of the CSV content in the filename or a separate .sig file for evidentiary integrity.
+
+Compliance Statement Summary
+Requirement	Status
+Comprehensive event coverage	80% — view/read events and login failures are the main gaps
+Required metadata fields	90% — outcome field is missing
+Immutability	✅ Strong
+Separation from data	Partial — same DB schema
+Retention policy	❌ Not defined
+Search/export capability	✅ Present with minor limitations
+Sensitive operation coverage	Partial — read access not logged
+
+WattleOS Security Audit — APP 11 Compliance
+Audited: 2026-03-28
+
+1. TLS / Data in Transit
+Status: PASS
+
+HSTS header set in production: max-age=31536000; includeSubDomains (src/proxy.ts)
+All Supabase connections use HTTPS/WSS only — next.config.mjs remote patterns enforce protocol: 'https'
+WebSocket limited to wss://*.supabase.co
+APP 11 implication: Satisfies the requirement to protect personal information from interference or misuse during transmission.
+
+2. Encryption at Rest (Supabase)
+Status: PASS (platform) / CRITICAL GAP (application layer)
+
+Supabase encrypts the underlying PostgreSQL data at rest using AES-256 at the storage layer (AWS RDS encryption). This covers all tables by default.
+
+However, the application has an existing field-level encryption utility (src/lib/utils/encryption.ts — AES-256-GCM, per-record IV, auth tag) that is only partially deployed:
+
+Table	Sensitive Fields	Field Encryption
+sms_gateway_configs	api_key_enc, api_secret_enc	✓ Encrypted
+keypay_oauth_tokens	access_token, refresh_token	✓ Encrypted
+medical_conditions	condition_name, details, treatment_plan	PLAINTEXT
+nccd_register_entries	disability_subcategory, disability_category	PLAINTEXT
+individual_learning_plans	child_strengths, family_goals, background_information	PLAINTEXT
+daily_care_logs	general_notes	PLAINTEXT
+APP 11 / ST4S implication: Platform encryption alone is insufficient for sensitive disability, medical, and behavioural records. A database breach or privileged Supabase access exposes all these fields in plaintext. The encryption infrastructure already exists — it is not being used where it matters most.
+
+3. Sensitive Fields Requiring Application-Level Encryption
+Status: CRITICAL — 4 tables unprotected
+
+The fields above contain exactly the categories that attract the highest obligations under APP 11 and the Privacy Act 1988 (sensitive information definition: health, disability, racial/ethnic origin):
+
+Medical conditions — diagnoses, medications, treatment plans for children
+NCCD disability register — specific disability categories required for Commonwealth funding
+ILP background — family context, child's strengths/difficulties (often includes disability detail)
+Daily care notes — may include toileting, behavioural, or medical events
+Recommended fix: Apply encryptField() / decryptField() from the existing utility. The pattern is already established in src/lib/actions/sms-gateway.ts. A migration is needed to encrypt existing rows.
+
+Additionally, there is a silent failure risk: if FIELD_ENCRYPTION_KEY is missing from the environment, encryption.ts falls back to returning plaintext with no error. In production this must throw.
+
+4. Secrets Management
+Status: PASS
+
+.env and .env*.local are in .gitignore — secrets not committed
+All sensitive keys (SUPABASE_SERVICE_ROLE_KEY, STRIPE_SECRET_KEY, OPENAI_API_KEY, FIELD_ENCRYPTION_KEY, etc.) use non-NEXT_PUBLIC_ prefixes — not bundled into client JS
+NEXT_PUBLIC_ variables are limited to the anon key, Supabase URL, and app URL — all appropriate
+No hardcoded tokens or credentials found in source
+Cron endpoints validate Bearer {CRON_SECRET} — correct
+One concern: No documented key rotation procedure found for FIELD_ENCRYPTION_KEY or SMS_ENCRYPTION_KEY. Given these wrap child health data, a rotation runbook should exist.
+
+APP 11 implication: Good posture. The absence of a rotation procedure is a governance gap, not a technical vulnerability — but it should be documented.
+
+5. File Uploads — Validation, Scanning, and Cross-Tenant Access
+Status: MIXED
+
+Observation media (children's photos/videos):
+
+Stored in private observation-media bucket — src/lib/storage/signed-urls.ts
+Signed URLs with 1-hour expiry, generated server-side only
+Storage path is tenant_id/student_id/observation_id/filename — correct tenant isolation
+PASS
+School/person photos:
+
+Stored in a public bucket with .getPublicUrl() — src/components/domain/school-photos/bulk-upload-zone.tsx
+The URL itself is not access-controlled — anyone with the URL can retrieve the photo
+Row-level security protects the database record of the URL, but not the object in storage
+MEDIUM RISK — student and staff portraits are permanently accessible via direct URL
+No file type scanning (malware/AV) was found. For a school platform this is acceptable if uploads are limited to images, but should be documented.
+
+APP 11 implication: Cross-tenant access is blocked for observation media. School photos are a weaker link — a leaked URL is permanently valid, which is inappropriate for images of children.
+
+6. Supabase Storage Bucket Policies
+Status: PASS for private buckets / FAIL for photo bucket
+
+observation-media: Private bucket, RLS enforced, signed URLs only — correct
+Storage RLS policies on photo_sessions and related tables use current_tenant_id() — correct tenant scoping
+Critical RLS function risk:
+
+
+-- supabase/migrations/00001_foundation.sql
+SELECT COALESCE(
+  (auth.jwt() -> 'app_metadata' ->> 'tenant_id')::UUID,
+  '00000000-0000-0000-0000-000000000000'::UUID  -- ← FAIL-OPEN
+);
+If tenant_id is absent from the JWT, the function returns the all-zeros UUID rather than NULL. Any policy written as tenant_id = current_tenant_id() would match rows that happen to have 00000000-... as their tenant — instead of denying the request. This should return NULL to fail closed.
+
+APP 11 implication: The all-zeros fallback is a latent vulnerability. It is low-likelihood but high-impact if triggered.
+
+7. API Over-Fetching
+Status: PASS
+
+All examined API routes use explicit .select() with named columns — no select('*') on sensitive tables
+Cron routes and webhook handlers scope queries with .eq("tenant_id", tenantId)
+Ask Wattle API resolves tenant_id from the authenticated session before any data fetch
+Report PDF route relies on RLS for tenant isolation (no explicit .eq("tenant_id") in the query, but RLS covers it)
+APP 11 implication: Data minimisation principle is generally respected. No obvious over-fetching found.
+
+8. Sensitive Data in URLs, Logs, and Error Messages
+Status: PASS
+
+Dynamic route parameters are UUIDs, not sequential integers or names
+console.error calls use generic labels — no user data, no PII in log output
+Client-facing error responses return generic "Internal server error" messages
+Auth callback URL validation prevents open redirects
+APP 11 implication: No observable PII leakage through logs or URLs.
+
+9. CORS Configuration
+Status: PASS
+
+CSP connect-src in src/proxy.ts:
+
+
+connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.upstash.io
+No wildcard origins
+No external analytics or ad domains
+Form submissions restricted to same-origin (form-action 'self')
+Iframe embedding blocked (frame-ancestors 'none')
+APP 11 implication: Data cannot be exfiltrated to third-party origins via CORS misuse.
+
+10. Security Headers
+Status: EXCELLENT
+
+All applied via middleware in src/proxy.ts:
+
+Header	Value
+Content-Security-Policy	Nonce-based script-src, restrictive directives
+Strict-Transport-Security	max-age=31536000; includeSubDomains (production only)
+X-Frame-Options	DENY
+X-Content-Type-Options	nosniff
+Referrer-Policy	strict-origin-when-cross-origin
+Permissions-Policy	camera=(), microphone=(), geolocation=()
+X-XSS-Protection	1; mode=block
+APP 11 implication: Strong browser-side controls reduce attack surface for data theft via XSS or clickjacking.
+
+11. Additional Findings
+XSS — Newsletter HTML not sanitised (Medium)
+Newsletter body_html is rendered with dangerouslySetInnerHTML in at least three components without sanitisation. A compromised or malicious admin account could inject a script that exfiltrates session tokens or student data from parent-facing views.
+
+Fix: Add DOMPurify on insert and display.
+
+Demo mode auth bypass (Medium)
+NEXT_PUBLIC_DEMO_MODE=true bypasses all authentication. If accidentally set in a production deployment, the entire application is open. There is no startup guard that prevents this.
+
+Fix: Add a check that throws or refuses to start if NEXT_PUBLIC_DEMO_MODE=true and NODE_ENV=production.
+
+Remediation Priority
+Immediate (before next production deploy)
+Encrypt medical_conditions, nccd_register_entries, individual_learning_plans, daily_care_logs sensitive fields using the existing encryptField() utility. Write a migration to encrypt existing rows.
+Fix current_tenant_id() RLS function — return NULL instead of the all-zeros UUID so policies fail closed.
+Throw on missing FIELD_ENCRYPTION_KEY in production — remove the silent plaintext fallback in encryption.ts.
+High (within current sprint)
+Sanitise newsletter HTML with DOMPurify before storage and before render.
+Add demo mode production guard — refuse to start if demo mode is on in production.
+Move school/person photos to signed URLs — convert the photo bucket to private, generate signed URLs server-side.
+Medium (next sprint)
+Document key rotation runbook for FIELD_ENCRYPTION_KEY and SMS_ENCRYPTION_KEY.
+Audit RLS guardian-read consistency — NCCD register lacks guardian read policies that ILP tables have; verify intended.
+File upload documentation — formally document that uploads are image-only with size caps.
+Summary
+Area	Result	Severity
+TLS in transit	PASS	—
+Platform encryption at rest	PASS	—
+App-level field encryption	FAIL	Critical
+Secrets management	PASS	—
+File upload security	Partial	Medium
+Storage bucket RLS	Partial	Low–Medium
+RLS fail-open fallback	FAIL	High
+API over-fetching	PASS	—
+PII in logs/URLs	PASS	—
+CORS	PASS	—
+Security headers	PASS (Excellent)	—
+Newsletter XSS	FAIL	Medium
+Demo mode bypass	FAIL	Medium
+The platform has a strong security foundation. The three critical gaps — medical/disability data in plaintext, the RLS fail-open UUID, and missing encryption key enforcement — are the ones that directly create APP 11 liability and should be treated as blocking issues.
+
+WattleOS Authentication & Access Control Audit
+Platform: Next.js 15 + Supabase Auth + Google/Apple OAuth
+1. Authentication Implementation
+OAuth-only via Google (web + mobile) and Apple (iOS native). No email/password auth. Supabase SSR cookie-based sessions with JWT in app_metadata carrying tenant_id.
+
+Key files: server.ts, browser.ts, proxy.ts, tenant-context.ts
+
+Verdict: Solid foundation. Delegating to Google/Apple eliminates password storage risk entirely.
+
+2. Role-Based Access Control (RBAC)
+7 system roles auto-seeded per tenant: Owner, Administrator, Head of School, Lead Guide, Guide, Assistant, Parent.
+
+196+ granular permissions mapped to roles via role_permissions table
+Per-user overrides via tenant_user_permission_overrides (grant/deny)
+Parent access uses separate is_guardian_of() RLS function (not role permissions)
+Platform superadmin checked via is_platform_admin flag
+Verdict: No issues found. Well-designed role hierarchy with granular permissions.
+
+3. Server-Side vs Client-Side Enforcement
+Layer	Implementation	Status
+Server Actions	requirePermission() called in 120/127 actions (94.5%)	PASS
+Database	186 RLS policies across all tables with has_permission() and current_tenant_id()	PASS
+API Routes	All 13 routes authenticated via JWT, webhook signatures, or CRON_SECRET	PASS
+Client-side	hasPermission() used for UI hiding only, always backed by server checks	PASS
+The 7 actions without requirePermission() are intentionally unprotected: auth/session actions, push token registration, and parent portal queries (protected by is_guardian_of() RLS instead).
+
+Verdict: No issues found. Defense-in-depth with both application and database enforcement.
+
+4. Session Management
+CRITICAL — Session Timeout Component Not Activated
+A full <SessionTimeout /> component exists at session-timeout.tsx (15-min idle, 60s warning, cross-tab logout) but is never rendered in any layout. Zero imports found in src/app/.
+
+Impact: On shared classroom iPads/devices, a guide walks away and the next person has full access to student medical records, custody restrictions, and sensitive data.
+Severity: CRITICAL — Direct Australian Privacy Act breach risk for children's data on shared devices.
+HIGH — No Server-Side Session Expiry Control
+config.toml has no jwt_expiry setting — defaults to Supabase's 3600s (1 hour)
+Middleware only checks if JWT exists, not its age
+signOutAction() clears cookies but does not invalidate the token server-side — a stolen JWT remains valid until natural expiry
+No session revocation list or blacklist mechanism
+Severity: HIGH — Stolen/intercepted JWT usable for up to 1 hour after logout.
+
+Positive findings:
+Refresh token rotation handled by Supabase (default behavior)
+Cross-tab logout detection coded (but inactive since component isn't mounted)
+Session cookies properly carried through redirects to prevent stale JWTs
+5. Password Policies
+N/A — No password-based auth. OAuth-only via Google/Apple. Password security is delegated to the identity provider.
+
+Verdict: Non-issue. This is actually a security advantage.
+
+6. MFA Support
+HIGH — No MFA Implementation
+Zero MFA/2FA/TOTP code exists anywhere in the codebase. No enrollment, no enforcement, no backup codes.
+
+Google/Apple OAuth support MFA natively, but WattleOS does not require or verify that users have MFA enabled on their provider accounts
+An Owner account compromised via a Google password leak grants full access to all school data
+Severity: HIGH — Under Australian Privacy Principle 11 (security of personal information), MFA should be available and enforceable for admin/staff roles handling children's data. The OAIC considers MFA a reasonable security measure for sensitive data.
+
+7. Invitation/Onboarding Flow
+Properly secured. No self-registration possible.
+
+Parents require an invite_token (14-day expiry, email-verified, single-use per student)
+Owners require a setup_token (email-scoped, single-use, expiry-enforced)
+selectTenantAction() validates user actually has a tenant_users membership before stamping JWT
+Tokens are cryptographically random, not guessable
+Verdict: No issues found.
+
+8. API Route Protection
+All 13 API routes are protected:
+
+Route	Auth Method
+/api/ask-wattle	Supabase JWT + rate limiting
+/api/cron/* (6 routes)	CRON_SECRET bearer token
+/api/oauth/keypay/callback	OAuth state token (CSRF)
+/api/reports/[id]/pdf	Supabase JWT + RLS
+/api/webhooks/stripe	Stripe signature verification
+/api/webhooks/sms	Shared secret header
+Verdict: No issues found.
+
+9. Hardcoded Credentials & Secrets
+None found. All secrets use environment variables. .env and .env*.local properly gitignored. Only .env.keypay.example is tracked (safe, contains no values). Field-level encryption uses AES-256-GCM for medical/sensitive data.
+
+Verdict: No issues found.
+
+10. Supabase Key Usage
+Key	Usage	Status
+NEXT_PUBLIC_SUPABASE_ANON_KEY	Browser client, middleware	CORRECT — client-safe, RLS-protected
+SUPABASE_SERVICE_ROLE_KEY	Server actions only ("use server")	CORRECT — never imported in client code
+Admin client (createSupabaseAdminClient) used only for pre-auth flows (OAuth callbacks, setup tokens, parent invitations) where the user doesn't yet have a JWT. All 46 server action files importing it are server-only.
+
+Verdict: No issues found.
+
+Bonus Finding: Demo Mode Risk
+CRITICAL — Demo Mode Bypasses All Authentication
+demo-mode.ts — When NEXT_PUBLIC_DEMO_MODE=true, all auth guards are skipped and every visitor gets a mock Owner context with ALL 196+ permissions. This is checked in:
+
+proxy.ts:173 — middleware skips auth entirely
+tenant-context.ts:31 — returns DEMO_CONTEXT with full admin
+The variable is NEXT_PUBLIC_ prefixed, meaning it's baked into the client JS bundle at build time. If accidentally set in a production build, every unauthenticated visitor becomes a full admin.
+
+Severity: CRITICAL — No runtime safeguard prevents this. A misconfigured CI/CD pipeline or accidental .env change would expose the entire platform. Should have a production-environment guard (if (process.env.NODE_ENV === 'production') return false).
+
+Summary
+#	Finding	Severity	Compliance Risk
+1	Session timeout coded but never activated — shared devices have no idle logout	CRITICAL	APP 11 breach — children's sensitive data exposed on shared iPads
+2	Demo mode bypasses all auth with no production guard	CRITICAL	Total platform compromise if env var misconfigured
+3	No MFA support for admin/staff accounts	HIGH	OAIC considers MFA a reasonable security measure for sensitive data
+4	No server-side session invalidation — stolen JWT valid for 1 hour post-logout	HIGH	Session hijacking window for sensitive data access
+5	No JWT expiry configuration — using Supabase default (1 hour)	MEDIUM	Should be explicitly configured and documented per compliance policy
+6	Open redirects	LOW	Properly mitigated with path validation
+7	Self-registration prevention	LOW	Properly secured with invitation tokens
+8	Secret/key management	LOW	Excellent — all env-based, properly separated
+9	RBAC & RLS enforcement	LOW	Excellent — defense-in-depth, 186 RLS policies
+Recommended Priority Actions
+Activate <SessionTimeout /> in the app layout — this is already built, just needs mounting
+Add production guard to demo mode — if (process.env.NODE_ENV === 'production') return false as first line of isDemoMode()
+Implement MFA enrollment for Owner/Administrator roles (Supabase supports TOTP natively)
+Configure JWT expiry explicitly in supabase/config.toml and consider shorter expiry for admin roles
+Add server-side session revocation — at minimum, check a signed_out_at timestamp against JWT iat
+The background task completed but the audit is already done. All findings were confirmed through the parallel agents and direct verification.
+
+Is there anything specific from the audit you'd like me to fix first? The two quickest wins are:
+
+Activate <SessionTimeout /> — just needs adding to the app layout (the component is already built)
+Add production guard to demo mode — a one-line fix in isDemoMode()
+
+WattleOS NDB Scheme Readiness Audit
+Status: NOT READY for production with sensitive student data
+
+OVERALL VERDICT
+Area	Status	Severity
+Incident Response Plan	RED — not documented	CRITICAL
+Breach Detection (anomaly)	RED — not implemented	HIGH
+Failed Login Monitoring	RED — not implemented	HIGH
+Security Monitoring/Alerting	RED — no Sentry, no alerts	CRITICAL
+Breach Scope Determination	GREEN — excellent audit logs	✅
+Tenant Kill Switch	GREEN — is_active flag, instant	✅
+Rate Limiting (public)	GREEN — Upstash Redis, well-tiered	✅
+XSS/CSRF/SQL Injection	GREEN — CSP headers, parameterized queries, Zod	✅
+Input Validation	GREEN — Zod on ~50+ actions	✅
+Force-Logout All Sessions	AMBER — single-user works, no bulk revoke	HIGH
+API Key Revocation	AMBER — manual via Supabase dashboard	MEDIUM
+1. Incident Response Plan — CRITICAL GAP
+No IRP exists. DEPLOYMENT_CHECKLIST.md mentions a "24h SLA for serious incidents" but has no procedures.
+
+A compliant IRP must contain:
+
+Definition — what constitutes a notifiable breach under the Privacy Act 1988 (personal info + risk of serious harm)
+Detection triggers — automated alerts (see §7) + manual report pathway
+Containment steps — tenant kill switch, force-logout, API key rotation
+Scope determination — how to use audit logs to identify affected schools/students
+Notification timeline — 30-day window to notify OAIC + affected individuals
+Escalation chain — Security Lead → CEO → OAIC notification (Form NDB-1)
+Communication templates — pre-drafted email to affected schools/parents
+Post-incident review — root cause + remediation
+2. Breach Detection — PARTIAL
+Rate limiting is well-implemented via Upstash Redis (src/lib/utils/rate-limit.ts):
+
+Tier	Limit	Window	Covers
+public_write	5	15m	Inquiry forms, enrollment
+public_read	20	5m	Token validation, tour slots
+auth_action	10	15m	URL-based invitations
+authenticated_llm	30	1m	AI endpoint (cost control)
+Missing:
+
+No failed login attempt tracking — no table, no alerts after repeated failures
+No brute-force lockout
+No anomaly detection (bulk export, after-hours access, unusual IP)
+Authenticated staff endpoints have no rate limits (by design, but bulk export endpoints should be protected)
+3. Breach Scope Determination — EXCELLENT
+The audit logging in src/lib/actions/audit-logs.ts is comprehensive:
+
+Records tenant_id, user_id, action, entity_type, entity_id, created_at, plus _ip, _user_agent, _role, _sensitivity in metadata
+Filterable by school, student, user, action, sensitivity level, and date range
+CSV export (exportAuditLogsCsv) for handing to OAIC
+Can answer "which schools/students were affected" post-breach
+Gap: No documented retention policy. NDB investigations require logs to be available for months. Confirm audit logs are retained for at least 1 year.
+
+4. Force-Logout — PARTIAL
+src/lib/actions/auth.ts handles single-user logout and tenant-switching cleanly. No force-logout-all endpoint exists.
+
+To add: an endpoint using Supabase Admin API (auth.admin.updateUserById(userId, { ban_duration: 'none' }) to disable) or refresh token revocation. Should require SUPERADMIN role and log to audit trail.
+
+5. API Key Revocation — MANUAL
+Service role key is environment-only (not in code). Revocation requires:
+
+Supabase Dashboard → Project Settings → Regenerate key
+Redeploy with new key
+Time to revoke: ~5 min. Document this procedure explicitly in your IRP — if the service role key is exposed, those 5 minutes matter.
+
+6. Tenant Kill Switch — SOLID
+tenants.is_active flag in supabase/migrations/00001_foundation.sql with RLS enforcement across all 40+ tables. Single SQL update takes a school offline in under a second without affecting other tenants. All data is preserved.
+
+7. Security Monitoring & Alerting — CRITICAL GAP
+No error tracking service (Sentry, etc.) is installed. No real-time alerts exist for:
+
+Unhandled exceptions
+High error rates
+Critical audit log events (bulk deletes, medical record access, etc.)
+Auth failures
+The monthly manual audit log review in DEPLOYMENT_CHECKLIST.md is insufficient for NDB compliance — a breach can cause serious harm within hours, not a month.
+
+Minimum needed:
+
+Sentry — catch unhandled errors, alert on spikes
+Audit log webhook — trigger Slack/PagerDuty alert on sensitivity = 'critical' events or anomalous patterns
+8. Rate Limiting Coverage
+Webhook endpoints (/api/webhooks/stripe, /api/webhooks/sms) rely on signature verification only — acceptable since sources are trusted. Cron routes are protected by CRON_SECRET. The main gap is no rate limiting on bulk data export endpoints for authenticated staff, which could be used for DoS or data harvesting.
+
+9. SQL Injection / XSS / CSRF — STRONG
+All DB access via Supabase JS client (parameterized automatically) — no raw SQL concatenation found
+CSP headers in src/proxy.ts with nonce-based script policy, frame-ancestors 'none', object-src 'none'
+dangerouslySetInnerHTML found in 3 places (newsletter body only, editor-generated — acceptable)
+CSRF protected via Next.js Server Actions (same-site cookies) and OAuth state parameter
+The one CSP weakness: style-src 'unsafe-inline' — required for Tailwind, acceptable but worth noting.
+
+10. Input Validation — MOSTLY SOLID
+Zod schemas on ~50+ server actions, magic-byte file validation in src/lib/utils/file-validation.ts (verifies actual file content, not just extension). Not all 94+ server actions have been confirmed — a full sweep is warranted.
+
+NDB Tooling: What Exists to Support 30-Day Notification
+Requirement	Tooling Available
+Detect breach	Manual only — no automated detection
+Determine scope	Audit logs with CSV export
+Contain breach	Tenant kill switch + manual user disable
+Notify affected individuals	No tooling — needs IRP + comms templates
+Notify OAIC	No tooling — needs IRP with escalation steps
+Document investigation	Audit logs + CSV export
+Priority Actions
+Immediate (before go-live):
+
+Write an Incident Response Plan — even a 2-page document is better than nothing
+Integrate Sentry
+Add failed login tracking + lockout after 10 attempts
+Define and document audit log retention policy (minimum 1 year)
+Week 1–2:
+5. Build force-logout endpoint using Supabase Admin API
+6. Add critical audit log webhook → Slack/PagerDuty
+7. Rate-limit bulk export endpoints
+
+Week 3–4:
+8. Anomaly detection (bulk access, after-hours, unusual IP)
+9. DR drill including audit log restore test
+10. Add Zod validation sweep across remaining server actions
+
+The architecture is solid — RLS, multi-tenancy, audit logging, CSP headers are all done right. The gaps are operational (monitoring, alerting, documented procedures) rather than structural. Estimated 4–6 weeks to reach defensible NDB compliance.
+WattleOS — Data Retention & Privacy Compliance Audit
+Australian Education Regulation 2013 + Privacy Act (APPs)
+Audit date: 28 March 2026 | Read-only code analysis | 71 tables, 66 migrations, 40+ action files
+
+What WattleOS Is
+Multi-tenant Montessori SIS (Student Information System) for Australian schools. Next.js 16 + Supabase PostgreSQL, multi-tenant RLS isolation, Stripe billing. Explicitly targets NQS, ACARA, and Education Regulation compliance.
+
+1. Automated Data Retention / Expiry Logic
+Finding: No automated purge exists. Zero.
+
+Active cron jobs alert only — they never delete:
+
+Cron	Schedule	Action
+incident-escalation-check/route.ts	Hourly	Alerts if serious incident not escalated to NQA ITS within 24h
+medication-expiry-check/route.ts	Daily 7am AEST	Alerts on plans expiring in 30 days (no purge)
+ratio-breach-check/route.ts	Periodic	Educator:child ratio breach alerts
+No TTL fields (retention_until, purge_at, expires_at) exist on any student or regulatory table. Only temporary tokens have expires_at.
+
+Compliance risk: The legal page at data-processing/page.tsx:322–329 promises permanent deletion within 120 days of subscription termination. There is no cron job, batch process, or admin tool to execute this promise.
+
+2. Can a School Admin Delete a Student's Record?
+Yes — soft delete only.
+
+students.ts:513–564 — deleteStudent():
+
+Sets students.deleted_at = now()
+Cascades to enrollments: sets enrollments.deleted_at = now(), status = 'withdrawn'
+Logs an audit entry: STUDENT_DELETED
+Does not touch observations, incidents, medical records, attendance
+This is a soft delete. The row stays in the database.
+
+3. Is Soft-Deleted Data Actually Inaccessible?
+Mostly yes, but with caveats.
+
+All SELECT queries filter WHERE deleted_at IS NULL. Indexes enforce this:
+
+
+CREATE INDEX idx_roles_tenant ON roles (tenant_id) WHERE deleted_at IS NULL;
+But:
+
+A service_role key (used in Edge Functions) bypasses RLS entirely — deleted data is visible at that level
+PITR backup restoration would restore deleted records
+Supabase dashboard (direct DB access) shows all rows including soft-deleted ones
+No column-level encryption on deleted rows — data sits plainly in the table
+Specific gap: Parents access their child's data via is_guardian_of() RLS function, which checks guardians.deleted_at IS NULL. So a deleted student's guardian loses portal access, but the underlying data is still present and accessible to platform admins.
+
+4. Subject Access Request (APP 12) — Parent Access to All Data
+Finding: Not implemented.
+
+No /api/sar, /api/data-request, or /api/export endpoint exists. The privacy policy references APPs rights but there is no automated mechanism.
+
+What parents can do: read-only portal access to their child's portfolio, observations, daily care logs, and attendance via the is_guardian_of() RLS guard. No ability to download or export.
+
+Compliance gap: APP 12 requires providing access within 30 days of request. Currently this would require manual intervention by Ecodia staff with direct DB access.
+
+5. Data Correction Mechanism (APP 13)
+Finding: Partial — no formal workflow.
+
+What exists:
+
+All tables have updated_at auto-updated via trigger
+School admins can edit student records directly (no correction log)
+deleteStudent() soft-deletes + re-insert is the de facto "correction" pattern
+audit.ts logs actions but not before/after field values — no diff
+What's missing:
+
+No "correction request" form or workflow
+No column-level change history — you can see that a record was updated at a timestamp, not what changed
+No amendment trail (original value → corrected value → approver)
+6. Data Export in Portable Format
+Finding: PDF reports only — CSV/JSON not implemented.
+
+report-export.ts:87–200 — exportReportToPdf(): generates term reports as PDF via @react-pdf/renderer, uploads to Supabase Storage, returns a 1-hour signed URL.
+
+data-processing/page.tsx:458 states: "provide data export functionality in standard formats (CSV, JSON) prior to deletion upon request" — this is promised but not built.
+
+No bulk student data export, no JSON dump of a student's complete record, no CSV attendance export.
+
+7. School Churn — What Happens to Their Data?
+Finding: Policy exists, implementation does not.
+
+The tenants table has no deleted_at column and no DELETE RLS policy. There is no offboarding route, no cascade deletion, no automated purge process.
+
+Legal commitment from data-processing/page.tsx:322–329:
+
+90-day grace period → export window
+Permanent deletion from production + backups within 120 days of termination
+School may request earlier deletion (30-day turnaround)
+Written confirmation of deletion provided
+
+None of this is automated. A school churning today would require Ecodia to manually:
+
+Export data
+Run DELETE queries across all tables filtered by tenant_id
+Wait for backup rotation
+Confirm deletion
+The ON DELETE CASCADE on tenant_id foreign keys means a single hard-delete of the tenant would cascade to all child records — but that would also bypass the hard-delete triggers protecting incidents, observations, and medications (those triggers are per-table BEFORE DELETE, not cascade-aware).
+
+8. Backups and Deletion Persistence
+Finding: Deleted records persist in backups. This is documented but not technically mitigated.
+
+From data-processing/page.tsx:291–292:
+
+Daily automated backups, Sydney region (AWS RDS / Supabase)
+PITR (Point-In-Time Recovery) capability
+Backups deleted within 30 days of bulk data deletion
+The problem: Soft-deleted records (deleted_at = now()) exist in every daily backup taken after deletion. PITR can restore any point before the deletion. The 30-day backup expiry after bulk deletion (school churn) is the only stated protection — but this isn't automated either.
+
+For individual record deletions (single student), there is no mechanism to ensure that record is purged from backups. It will persist in PITR snapshots for the backup retention window.
+
+Bottom line: A parent who exercises their erasure right under the Privacy Act cannot have their data fully removed until the backup window expires — and the system has no way to prove when that happens.
+
+9. Orphaned Data
+Finding: Low risk by design, one specific gap.
+
+Most foreign keys default to RESTRICT (no explicit ON DELETE clause), preventing orphans. The universal soft-delete pattern means parent records are rarely hard-deleted.
+
+One confirmed orphan risk:
+
+
+sign_in_out_records → students(id) ON DELETE CASCADE
+Kiosk sign-in records are auto-deleted if a student is hard-deleted. In practice this is blocked by the soft-delete pattern, but the cascade is structurally present.
+
+Soft-delete orphan scenario: A student is soft-deleted. Their daily_care_entries (FK enrollment_id, no CASCADE) persist with a reference to an enrollment that is also soft-deleted. These records are invisible in the UI but accumulate in the DB. No cleanup function exists.
+
+No cleanup_orphaned_records() function, no batch job, no scheduled cleanup.
+
+10. Are Attendance & Enrolment Records Protected from Premature Deletion?
+Finding: Partially — no 7-year floor enforced in code.
+
+What protects these records:
+
+attendance_records has no deleted_at column — there is no soft-delete path exposed for attendance. You cannot delete attendance records from the UI.
+enrollments uses soft-delete; deleteStudent() withdraws them but doesn't hard-delete
+Both tables have RESTRICT foreign keys preventing orphaning
+What's missing:
+
+No 7-year retention floor — a school admin could theoretically delete enrollment records for a student who left last year (soft-delete), and after school offboarding those records would be purged within 120 days
+No code checks created_at > now() - interval '7 years' before allowing deletion
+No retention_until or retain_until column to enforce the legal minimum
+The hard-delete trigger (prevent_hard_delete()) at 00052_hard_delete_prevention.sql protects incidents, observations, medications, and audit logs — but NOT enrollments or attendance records
+Data Lifecycle Map
+
+Collection → Supabase PostgreSQL (tenant-isolated via RLS)
+           ↓
+Storage   → All tables; soft-delete pattern (deleted_at)
+           → Hard-delete blocked on: incidents, observations,
+             medications, audit_logs, counsellor_case_notes
+           ↓
+Access    → School admins: full CRUD via app
+           → Parents: read-only portal (is_guardian_of() RLS)
+           → Platform admins: service_role (bypasses RLS)
+           ↓
+Modification → updated_at trigger; audit_logs records action
+             → No column-level diff / change history
+           ↓
+Archival  → None — no archive tier, no cold storage
+           ↓
+Deletion  → Individual: soft-delete (UI) or hard-delete (blocked by trigger)
+           → Tenant offboarding: MANUAL only; legal promises 120-day purge
+           ↓
+Backups   → Daily PITR snapshots, Sydney region
+           → Deleted data persists in backups
+           → Purged 30 days after bulk deletion (not automated)
+Compliance Summary
+Requirement	Status	Notes
+Reg 87 — Incident register	✅ Compliant	Hard-delete blocked; 24h escalation alerts
+Reg 93/94 — Medication records	✅ Compliant	Hard-delete blocked; immutable
+Reg 123 — Educator:child ratios	✅ Compliant	ratio_logs tracked with alerts
+7-year retention floor (AER 2013)	❌ Not enforced	No retention_until field; no floor check before deletion
+APP 12 — Access to personal information	❌ Not implemented	No SAR endpoint; manual only
+APP 13 — Correction of personal information	⚠️ Partial	Edit allowed; no formal correction workflow or diff trail
+School offboarding data destruction	❌ Not implemented	Legal promise exists; no automation
+Data export (CSV/JSON)	❌ Not implemented	PDF only; promised but not built
+Backup coverage of deletions	⚠️ Documented gap	30-day backup expiry policy stated; not automated
+Tenant RLS isolation	✅ Compliant	current_tenant_id() enforced everywhere
+Audit trail	✅ Partial	Actions logged; no before/after field diffs
+Critical Gaps to Address
+7-year retention floor — Add a DB constraint or application check preventing soft-deletion of enrollment/attendance records younger than 7 years. Add retain_until column populated at creation (created_at + 7 years).
+
+School offboarding automation — Build a tenant offboarding process: 90-day read-only mode → bulk export → scheduled purge cron → deletion confirmation logged to audit.
+
+SAR endpoint — Build /api/data-request that exports all records for a given student as JSON/CSV, filterable by date range, accessible to guardians and school admins.
+
+Soft-delete audit trail — Add deleted_by UUID and deletion_reason TEXT columns to students, enrollments, and other critical tables so deletions are attributed.
+
+Data correction workflow — Implement column-level change history (or at minimum a JSONB previous_values snapshot) on student and enrollment records so APP 13 corrections are traceable.
+
+Here is the full audit report:
+
+WattleOS — Supply Chain & Data Compliance Audit
+Mapped to APP 8 (Cross-border disclosure) and ST4S requirements. Date: 2026-03-28
+
+1. NPM Vulnerability Audit
+npm audit found 7 vulnerabilities (4 HIGH, 3 MODERATE, 0 critical).
+
+Package	Severity	Issue	In Prod?
+next@16.1.6	MODERATE	CSRF bypass on null-origin for Server Actions & HMR websocket — GHSA-mq59-m269-xvcx, GHSA-jcc7-9wpm-mj36	YES
+flatted	HIGH	Prototype pollution + unbounded recursion DoS via parse() — GHSA-rf6f-7fwh-wjgh	Transitive
+minimatch	HIGH	ReDoS via repeated wildcards — GHSA-3ppc-4f35-3m26	Transitive
+picomatch	HIGH	ReDoS + method injection — GHSA-3v7f-55p6-f55p	Transitive
+tar	HIGH	Hardlink + symlink path traversal — GHSA-qffp-2rhf-9h96	Transitive (CLI/build)
+ajv	MODERATE	ReDoS via $data option — GHSA-2g4f-4pwh-qvx6	Transitive
+brace-expansion	MODERATE	Process hang / memory exhaustion — GHSA-f886-m6hf-6m8v	Transitive (multiple)
+Action required: Upgrade next to >=16.1.7 immediately — this is a direct prod dependency with a CSRF vulnerability.
+
+The remaining HIGH/MODERATE issues are all transitive (inside @capacitor/cli, eslint, build tooling) and are not reachable at runtime in the deployed app. Still worth running npm update to clear them.
+
+2. External Services Inventory
+Supabase — Database, Auth, Storage, Realtime
+Data sent: All application data (student records, staff, health/medical data, incidents, billing, documents). Auth tokens and session cookies.
+Region: Not determinable from code alone — the project config.toml has id = "your-project-ref" (placeholder). You must confirm your Supabase project region in the Supabase dashboard. AP-Southeast-2 (Sydney) is available and recommended for AU data residency.
+Certifications: Supabase holds SOC 2 Type II. ISO 27001 not listed. GDPR-compliant. No explicit AU Privacy Act compliance statement.
+APP 8 flag: If region is US-East (default for free/new projects), sensitive health and student data is leaving Australia without explicit consent disclosures. Verify and document the region.
+Resend — Transactional Email
+Data sent: Recipient email addresses, names, notification content (admission alerts, invitations). No health data appears to flow through email based on code review.
+Region: US-based (Resend infrastructure is US/EU via AWS SES). No AU region option.
+Certifications: SOC 2 Type II (in progress as of late 2025 — verify current status).
+APP 8 flag: Email addresses and names are sent to a US service. Must be disclosed in privacy policy.
+Stripe — Payment Processing
+Data sent: Customer name/email, billing amounts, invoice data, BECS Direct Debit bank details (BSB/account), refund records.
+Region: US-headquartered, data processed via AWS US-East and EU. Australian entity: Stripe Australia Pty Ltd.
+Certifications: PCI DSS Level 1, SOC 2 Type II, ISO 27001.
+APP 8 flag: Bank details flow to Stripe's US infrastructure. Stripe's AU entity and standard agreements provide adequate cross-border mechanisms for PCI/financial data, but must be in privacy policy.
+OpenAI — LLM & Embeddings
+Data sent: User queries to "Ask Wattle" (potentially containing student/staff names in context), document chunks for embedding (ingest pipeline), observation text for auto-tagging.
+Models: gpt-4o, gpt-4o-mini, text-embedding-3-small
+Region: US-based (OpenAI servers in US).
+Certifications: SOC 2 Type II. Not ISO 27001. No AU-specific data residency.
+APP 8 flag: HIGH RISK. If document ingestion includes files containing student health data, IEPs, or incident reports, that data is sent to OpenAI's US servers. OpenAI's zero-data-retention API option (ZDR) should be evaluated. Must be disclosed prominently in privacy policy. Consider whether the embedding pipeline should scrub/anonymise before sending.
+Google APIs — Drive & Fonts
+Data sent (Drive): Portfolio folder names and file metadata. Potentially file content if Drive is used for storage.
+Data sent (Fonts): Client IP address, browser UA string (via CSS @import of Google Fonts — loaded client-side from fonts.googleapis.com/fonts.gstatic.com).
+Region: US-based.
+Certifications: ISO 27001, SOC 2, ISO 27017/27018.
+APP 8 flag: Google Fonts CSS imports leak visitor IPs to Google. Consider self-hosting fonts to eliminate this. Google Drive integration may be disclosed under existing Google Workspace terms for schools.
+Upstash Redis — Rate Limiting
+Data sent: Rate limit keys (which include authenticated user IDs or IP addresses), request counts.
+Region: Upstash offers US, EU, and AP regions — verify which region your instance is in. AP-Southeast-1 (Singapore) or AP-Southeast-2 (Sydney) preferred.
+Certifications: SOC 2 Type II.
+APP 8 flag: User IDs/IPs sent to US if default region. Moderate risk — no personal data content, just identifiers and counters.
+SMS Providers (MessageMedia / Burst SMS)
+Data sent: Recipient phone numbers, message body (student names, school names, alert text, guardian names).
+Region: Both are Australian-headquartered companies — MessageMedia (Melbourne) and Burst SMS (Sydney). Infrastructure is AU-based.
+Certifications: MessageMedia: ISO 27001. Burst SMS: AU-based, SOC 2 status unclear.
+APP 8 status: Low risk — both are AU providers. Excellent choice for APP 8 compliance.
+KeyPay — Payroll (OAuth integration, not yet live)
+Data sent (when live): Staff payroll data, employment details, timesheets. OAuth tokens.
+Region: KeyPay is AU-based (Brisbane). Acquired by Employment Hero — servers remain AU.
+Certifications: ISO 27001.
+APP 8 status: Low risk — AU provider.
+Vercel — Hosting & Cron
+Data sent: All HTTP traffic, server logs, cron job execution. Includes all API request/response bodies.
+Region: Vercel Edge Network — by default global CDN. Serverless functions can be pinned to a region. Verify your Vercel function region (should be syd1 for AU).
+Certifications: SOC 2 Type II.
+APP 8 flag: If functions run in US (default), all data transits US infrastructure. Pin to syd1.
+3. Telemetry & Phone-Home
+Next.js telemetry: Not explicitly disabled. Next.js collects anonymous build/usage telemetry by default. Add NEXT_TELEMETRY_DISABLED=1 to your .env / Vercel environment variables.
+No analytics SDKs found: No PostHog, Mixpanel, Segment, Google Analytics, or similar. Good.
+No error tracking found: No Sentry, Bugsnag, Datadog, etc. Consider adding Sentry (AU region available) for production error visibility — but document it when you do.
+Capacitor plugins: No known telemetry in the Capacitor plugins used, but @capacitor/push-notifications uses APNs (Apple, US) and FCM (Google, US) for push delivery by design.
+4. next.config.mjs — Trusted Image Domains
+
+remotePatterns: [
+  { protocol: 'https', hostname: '*.supabase.co' },      // Supabase Storage
+  { protocol: 'https', hostname: '*.googleusercontent.com' }, // Google OAuth avatars
+]
+These are tightly scoped. No wildcard * or http:// patterns. Good.
+
+5. Iframes & Embedded Third-Party Content
+No <iframe> tags found anywhere in the codebase. Good.
+
+6. Content Security Policy
+CSP is implemented in src/proxy.ts with per-request nonces. Trusted external domains:
+
+Directive	External domains allowed
+script-src	None (nonce only)
+style-src	https://fonts.googleapis.com
+font-src	https://fonts.gstatic.com
+img-src	https://*.supabase.co
+media-src	https://*.supabase.co
+connect-src	https://*.supabase.co, wss://*.supabase.co, https://*.upstash.io
+frame-src	'none'
+frame-ancestors	'none'
+Gaps: Stripe's JS SDK (js.stripe.com) and the Google Fonts CSS are loaded but not in the CSP connect-src or script-src. If Stripe.js is loaded client-side, you'll need to add https://js.stripe.com to script-src. Verify whether Stripe.js is loaded and whether the CSP is blocking it in practice.
+
+7. Priority Actions for APP 8 Compliance
+Priority	Action
+Critical	Upgrade next to >=16.1.7 to patch CSRF vulnerability
+Critical	Confirm Supabase project region in dashboard — must be ap-southeast-2 for AU data residency
+Critical	Confirm Vercel serverless function region is syd1
+High	Audit what documents are ingested into OpenAI embeddings — if they contain health/student data, implement scrubbing or switch to a self-hosted embedding model, OR document under APP 8
+High	Add NEXT_TELEMETRY_DISABLED=1 to all environments
+High	Update Privacy Policy to explicitly name: Supabase (region), Resend (US), Stripe (AU entity), OpenAI (US), Google (US), Upstash (region TBC), Vercel (region)
+Medium	Confirm Upstash Redis instance region — set to ap-southeast-2 if possible
+Medium	Self-host Google Fonts to eliminate IP leakage to Google CDN
+Medium	Verify Stripe.js CSP directive — add https://js.stripe.com if needed
+Low	Run npm update to clear transitive HIGH/MODERATE vulnerabilities in build tools
+Low	Evaluate adding Sentry (AU region) for production error tracking
+
+ST4S Documentation Audit — WattleOS
+What exists (and is solid)
+The three published legal pages are comprehensive:
+
+Document	Route	State
+Privacy Policy	/legal/privacy	Complete — 12 sections, APP-aligned, NDB scheme covered
+Terms of Service	/legal/terms	Complete — 13 sections, data ownership, AUP basics
+Data Processing Agreement	/legal/data-processing	Complete — 10 sections + Schedule A (technical measures)
+There's also a DEPLOYMENT_CHECKLIST.md, PRODUCTION_AUDIT_REPORT.md, and a session-security.md for shared-device session timeout.
+
+What's missing or incomplete
+Critical gaps (block ST4S submission)
+1. Incident Response Plan — referenced in the DPA ("documented incident response plan") but never published as a standalone document. ST4S requires schools to see the actual plan, not just a promise one exists. Needs: detection → investigation → notification → recovery → post-incident review, with roles, timelines, and communication templates.
+
+2. Vulnerability Disclosure Policy — does not exist. ST4S expects a published channel for responsible disclosure. Needs: security@wattleos.au, safe-harbor clause, scope, response timeline.
+
+3. Data Breach Notification Procedure — the DPA promises 24h notification to schools and OAIC reporting, but never defines what qualifies as an "eligible data breach" under the NDB scheme. Needs: breach definition, eligible vs. non-eligible criteria, decision flowchart, notification templates.
+
+4. Ask Wattle LLM data handling — the privacy policy lists 6 subprocessors but Anthropic (Claude API) is not listed. Student data context is passed to the LLM for Ask Wattle's 35+ tools. This is a material gap — ST4S will flag it directly.
+
+High priority (needed before multi-school rollout)
+5. Backup & Disaster Recovery Plan — the DPA says "daily automated backups, Sydney region" but there's no RTO/RPO statement, no tested restore procedure, and no DR test schedule. The deployment checklist even marks "disaster recovery test" as not yet done.
+
+6. Data Retention Schedule (granular) — current policy says "90 days after termination then deleted." No per-type breakdown: audit logs (regulatory retention?), incident records (Reg 87 retention period), medical data, parent communications.
+
+7. Access Control Policy — the permissions system exists in code (permissions.ts, RBAC roles) but there's no policy document. Needs: permission matrix, least-privilege statement, account lifecycle (creation/modification/termination), access review cadence.
+
+8. Subprocessor DPA links — the list is accurate (Supabase, Vercel, Stripe, Xero, KeyPay, Google Workspace) but no certification links or their own DPAs are referenced. Schools doing due diligence will ask for these.
+
+Medium priority
+9. Data Flow Diagrams — nothing exists. School → WattleOS → Supabase → backups → integrations, showing where data crosses borders and where encryption applies. Required for serious security assessments.
+
+10. Cookie/Tracking Disclosure — covered in Privacy Policy §10 (essential-only cookies) but no dedicated /legal/cookies page and no cookie table (name, type, purpose, duration). Some school procurement checklists specifically require this as a separate document.
+
+11. /.well-known/security.txt — 30-minute task, expected by security reviewers. Not present.
+
+Exists but not a gap
+12. API documentation — WattleOS is not a public API product; schools don't integrate directly, so this isn't required for ST4S.
+
+13. Change management / deployment procedures — DEPLOYMENT_CHECKLIST.md covers this reasonably well.
+
+14. /security or /trust page — no dedicated page. The legal pages cover the substance but there's no consolidated trust/security landing page for schools evaluating the product.
+
+Summary scorecard
+#	Document	Status	ST4S impact
+1	Privacy Policy	Complete
+2	Terms of Service / AUP	Mostly complete
+3	Data Processing Agreement	Complete
+4	Security whitepaper / trust page	Missing	Medium
+5	Incident Response Plan	Referenced, not published	Critical
+6	Data Breach Notification Procedure	Partial — no breach criteria	Critical
+7	Data Retention & Deletion Policy	Generic — no per-type schedule	High
+8	Backup & Disaster Recovery	Mentioned — no RTO/RPO/test	High
+9	Access Control Policy	In code — no policy doc	High
+10	Subprocessor list	Listed — no DPA links	High
+11	Data Flow Diagrams	Missing	High
+12	API documentation	N/A — not a public API	N/A
+13	Change management procedures	Covered in checklist
+14	Vulnerability Disclosure Policy	Missing	Critical
+15	Cookie/tracking disclosure	In privacy policy — no dedicated page	Medium
++	Anthropic/LLM as unlisted subprocessor	Missing	Critical
++	/.well-known/security.txt	Missing	Low
+
+WattleOS — NDB & ST4S Security Audit Report
+Date: 28 March 2026
+
+Executive Summary
+WattleOS has solid architectural foundations but has critical gaps that must be addressed before production deployment. Overall NDB readiness: 65/100.
+
+1. Incident Response Plan
+What exists
+src/lib/actions/incidents.ts — Full incident lifecycle: create → parent notification (24h) → NQA regulator notification → closure
+src/app/api/cron/incident-escalation-check/route.ts — Hourly cron alerts directors if serious incidents exceed the 24h NQA reporting deadline (Reg 87)
+src/lib/validations/incidents.ts — Zod schema enforces serious_incident_reason when is_serious_incident=true
+Gaps
+No data breach notification runbook. No documented procedure for a privacy breach (as distinct from a child safety incident). The deployment checklist mentions "zero compliance violations" but says nothing about breach response timelines.
+The 30-day OAIC notification SLA is entirely undocumented.
+What a breach runbook should contain
+Milestone	Action
+T+0	Discover / flag suspicious activity in audit logs
+T+1h	Internal investigation — run scope queries (see §3)
+T+4h	Brief leadership; determine if NDB threshold met (likely serious harm)
+T+24h	Notify affected families via in-app announcement + email
+T+30d	Submit NDB notification to OAIC
+Ongoing	Document all actions taken; retain for 5 years
+2. Breach Detection
+Login / brute-force protection — FAIL
+src/app/(auth)/login/page.tsx — handleGoogleLogin() calls signInWithOAuth() with no rate limiting
+The rate-limit utility (src/lib/utils/rate-limit.ts) exists and uses Upstash Redis with sliding windows — but is only applied to public forms, not the auth flow
+No CAPTCHA, no account lockout, no failed-attempt counter
+Rate limiting — PARTIAL
+What is protected:
+
+Route	Tier	Limit
+Public enrollment form	public_write	5 req/15 min/IP
+Inquiry status	public_read	20 req/5 min/IP
+Invitation acceptance	auth_action	10 req/15 min/IP
+Ask Wattle LLM	authenticated_llm	30 req/min/user
+What is not rate-limited: incident creation, medical record access, student data export, admin user management — any authenticated endpoint.
+
+Anomaly detection — FAIL
+No detection of bulk queries, after-hours access, or cross-student sweeps. No Sentry, Datadog, or alert integrations found.
+
+3. Breach Scope Determination
+Strong foundation
+supabase/migrations/00001_foundation.sql — All tenant tables have RLS enforcing tenant_id = current_tenant_id() (read from tamper-proof JWT metadata), so a breach in one school cannot touch another school's data
+src/lib/utils/audit.ts — 577 logAudit() calls capturing user_id, tenant_id, entity_type, entity_id, action, metadata, IP address, and timestamp. Append-only, service-role writes.
+Missing
+No RPC function or admin UI to answer "which students did user X access between date A and date B?" — investigators would need to write raw SQL each time.
+
+Recommended query pattern (add as Supabase RPC):
+
+
+SELECT DISTINCT a.entity_id, s.first_name, s.last_name, COUNT(*) access_count
+FROM audit_logs a
+JOIN students s ON s.id = a.entity_id::uuid
+WHERE a.tenant_id = 'school-uuid'
+  AND a.user_id = 'compromised-user-id'
+  AND a.action IN ('STUDENT_VIEWED', 'MEDICAL_VIEWED', 'STUDENT_EXPORTED')
+  AND a.created_at BETWEEN '2026-03-01' AND '2026-03-28'
+GROUP BY a.entity_id, s.first_name, s.last_name;
+4. Force-Logout / Session Revocation
+What exists
+src/components/domain/auth/session-timeout.tsx — 15-minute idle timeout with 60s warning; cross-tab sync
+src/lib/actions/auth.ts — User-initiated signOut() calls Supabase to invalidate the session
+Critical gaps
+No admin force-logout. If a teacher's account is compromised, there is no way to remotely sign them out. They remain active for up to 15 minutes.
+No JWT revocation list. Supabase JWTs are self-contained; once issued they are valid until expiry (~1 hour) even if the user is suspended.
+Tenant suspension doesn't terminate active sessions. src/lib/actions/auth.ts:36-41 checks is_active at login time only — not on subsequent requests.
+Recommendation
+Add a session_revocations table; check it in the Supabase middleware on every refresh
+Build a superadmin "force logout user" action using Supabase Admin SDK
+Add RLS policy on all tenant tables: AND (SELECT is_active FROM tenants WHERE id = current_tenant_id())
+5. API Key Revocation
+SMS credentials stored per-tenant (via settings form), masked on display — no expiration dates or rotation schedule
+Stripe/Google Drive/KeyPay credentials are OAuth or env-vars — rotatable but no centralized UI
+No centralized key management, no expiration enforcement, no rotation alerts
+ACSC recommends rotating secrets every 90 days — nothing enforces this currently.
+
+6. Tenant Kill Switch
+Partial
+supabase/migrations/00001_foundation.sql:106 — is_active BOOLEAN NOT NULL DEFAULT true
+src/lib/actions/superadmin/tenants.ts — suspendTenant() / reactivateTenant() actions exist
+Login to a suspended tenant is blocked (src/lib/actions/auth.ts:36-41)
+Gap
+RLS policies do not re-check is_active on data queries. A user who is already logged in when a tenant is suspended can continue reading data until their session expires. The kill switch does not kill active sessions.
+
+7. Security Monitoring & Alerting
+src/app/api/cron/incident-escalation-check/route.ts — The only security alert in the app; fires hourly if Reg 87 SLA is breached
+No Sentry, no Datadog, no Slack webhook, no email alert on anomalous access
+Supabase provides auth_audit_log server-side but it is not queried by the app
+Audit logs are written but never automatically analyzed
+8. Rate Limiting — Unprotected Endpoints
+Every authenticated server action (incident creation, medical records, student export, observations, excursions, billing) has no rate limit. A compromised account could silently exfiltrate the entire student dataset with no triggering of any alert.
+
+Fix: add rateLimitOrFail("sensitive_mutation", userId) in high-risk server actions. The infrastructure (src/lib/utils/rate-limit.ts) already supports this — it just isn't applied.
+
+9. SQL Injection / XSS / CSRF
+Control	Status	Evidence
+SQL injection	PASS	All queries use Supabase fluent API — no string interpolation
+XSS	PASS	Zero dangerouslySetInnerHTML usages; nonce-based CSP
+CSRF	PASS	Next.js Server Actions enforce same-origin; OAuth uses PKCE state; Stripe webhooks use HMAC
+Security headers	PASS	src/proxy.ts — CSP, HSTS, X-Frame-Options, Permissions-Policy, Referrer-Policy
+Open redirect	PASS	src/app/(auth)/auth/callback/route.ts:70-78 — validates redirect params
+Slug injection	PASS	src/proxy.ts:50-53 — tenant slugs validated against strict regex
+This section is the strongest area of the audit.
+
+10. Input Validation
+40+ Zod schemas in src/lib/validations/
+Every server action calls safeParse() before any permission check or DB write
+UUID, enum, length, date, and custom business-rule validations are thorough
+Validation is server-side, not client-side-only
+One gap: some API route handlers (e.g. src/app/api/ask-wattle/route.ts) were not confirmed to validate request body schemas — worth a targeted review.
+
+Priority Actions
+P0 — Before any production data
+Rate-limit the login flow — add rateLimitOrFail("auth_action") before signInWithOAuth() in the login page
+Write a data breach response runbook — document T+0/T+1h/T+24h/T+30d milestones, OAIC notification procedure, family communication template
+Build admin force-logout — superadmin action to revoke a specific user's sessions immediately
+P1 — Within first production sprint
+Anomaly alerting — integrate Sentry for errors + a Supabase Realtime subscription on audit_logs to alert on bulk access patterns
+Enforce tenant.is_active in RLS — not just at login time
+Rate-limit sensitive authenticated endpoints — medical records, student data, exports
+Add scope-determination RPC — prebuilt query to answer "who accessed what, when" for breach investigation
+P2 — Next quarter
+Audit log admin dashboard (visual access timeline per record)
+API key management UI with expiration enforcement
+NQA ITS API integration (eliminate manual regulator notification step)
+NDB readiness: 65/100. ST4S (Reg 87) readiness: 80/100.
+
+The SQLi/XSS/CSRF and input validation story is excellent. The gaps are almost entirely in detection, response speed, and documentation — exactly what the NDB scheme cares about most. The P0 fixes would bring NDB readiness to approximately 85/100.
+
+Child Safety Audit — WattleOS
+Key Finding: Students Have No Accounts
+WattleOS is a staff and parent-only platform. Students are data entities (records in the DB), not authenticated users. This is the most important finding — the COPPA/children's privacy risk profile is fundamentally different from a student-login platform.
+
+1. Student-Accessible Features
+Students cannot access anything. There are no student login flows, no student routes, and no student-facing UI. The login page supports only staff and parent Google OAuth.
+
+Student data lives in the students table and is managed entirely by administrators via the /students admin interface.
+
+2. Student Account Restrictions vs Adult Accounts
+Not applicable — students have no accounts. The user hierarchy is:
+
+Staff roles: Owner → Admin → Head of School → Guide → Assistant → Support Staff
+Parent role: Zero explicit permissions; relies on is_guardian_of() RLS checks at the database level
+Students: Data entities only (src/types/domain.ts:306-380)
+3. Student-to-Student Communication
+Not possible — students cannot log in.
+
+4. Student-to-Adult Communication
+Not possible — students cannot log in.
+
+However, parent-to-staff communication does exist via class group channels and direct messages (src/lib/actions/comms/chat-channels.ts).
+
+5. Content Upload
+Staff only can upload media (observation photos) — requires CREATE_OBSERVATION or PUBLISH_OBSERVATION permission
+Parents cannot upload content
+Uploads go to a private observation-media Supabase bucket; signed URLs expire in 1 hour (src/lib/storage/signed-urls.ts:25)
+Gap: No file size limits or MIME type validation visible in code
+6. Privacy Defaults
+Defaults are maximally restrictive:
+
+Observations start as draft — parents cannot see them until explicitly published by staff
+Parents access only their own children's data via is_guardian_of() RLS (enforced at DB level, not just app level)
+No public sharing or external link features exist
+Tenant isolation enforced on all tables via RLS (supabase/migrations/00001_foundation.sql:118-180)
+7. Can Students See Other Students' Info?
+No — students have no accounts. Parents can only see their own children. The is_guardian_of() DB function prevents cross-family data access.
+
+8. Parent Portal Visibility
+Parents can see:
+
+Their linked children's names and photos
+Published observations for their children only
+Learning/mastery progress for their children
+School announcements, events, newsletters
+Their own billing/invoices
+Messages with staff
+Parents cannot see: other families' data, unpublished observations, health/medical records, staff details, or any other class's information.
+
+9. Bullying / Inappropriate Contact Vectors
+Two moderate-risk areas:
+
+Direct Messages (src/lib/actions/comms/chat-channels.ts:314-410)
+
+getOrCreateDirectChannel() allows any two authenticated users to DM with no relationship verification
+A staff member could initiate a DM with any parent without approval
+No content filtering, no moderation workflow, no report/escalation feature
+Class Group Messages (src/lib/actions/comms/chat-channels.ts:220-304)
+
+allow_parent_posts defaults to true — parents can post into class channels
+Moderation exists (is_moderated flag, is_hidden per message) but is manual
+No keyword filtering or automated content moderation
+10. Role Escalation to Admin/Teacher
+No self-escalation path exists. Role changes require MANAGE_USERS permission (src/lib/actions/staff-actions.ts:536-595), and all mutations are RLS-enforced at the database level. Role changes are audit-logged.
+
+Residual risk: If a staff account with MANAGE_USERS is compromised, it could escalate others. Not a code flaw — an operational/account-security concern.
+
+Compliance Gaps vs Australian Children's Online Privacy Code
+Area	Status	Gap
+No student accounts	✅ Strongest possible protection	—
+Parental access to child data	✅ Fully implemented	—
+Privacy by default	✅ Draft-only until published	—
+Data minimisation	✅ Only guardians see child data	—
+Content upload moderation	⚠️ Partial	No MIME/size validation
+Communication safeguards	⚠️ Partial	No content filtering; DMs unverified
+Age verification (parents)	❌ Missing	A minor could create a parent account via Google OAuth
+Complaint/report mechanism	❌ Missing	No in-app reporting for inappropriate messages
+Inappropriate content detection	❌ Missing	No keyword filtering on messages
+Priority Recommendations
+High (address before Dec 2026 deadline):
+
+Age verification at parent signup — confirm account holder is 18+ before assigning guardian role
+DM relationship check — require both users to share a school context before a DM channel can be created
+In-app message reporting — parents and staff need a way to flag inappropriate content
+Medium:
+4. Content filtering — basic keyword/image scanning on message sends
+5. File upload validation — add MIME type and size limits to observation media uploads
+6. Message deletion audit trail — log when messages are hidden/deleted and by whom
+
+Low:
+7. allow_parent_posts default — consider defaulting to false (read-only for parents) and requiring staff to explicitly enable posting
+
+The platform is in a strong position given students have no direct access. The gaps are in the adult communication layer (parent-staff messaging), which is the remaining exposure surface under the Privacy Act reforms.

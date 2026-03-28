@@ -37,6 +37,7 @@
 import type { ReactNode } from "react";
 
 import { AskWattleProvider } from "@/components/domain/ask-wattle/ask-wattle-provider";
+import { SessionTimeout } from "@/components/domain/auth/session-timeout";
 import { GlowRegistryProvider } from "@/components/domain/glow/glow-registry";
 import { AppSidebar } from "@/components/domain/sidebar";
 import { NativeInitializer } from "@/components/native/NativeInitializer";
@@ -148,6 +149,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   // WHY not pass the role name: Role names are tenant-customisable
   // ("Head of School", "Lead Guide"). Wattle needs a stable category.
   const wattleRole = inferWattleRole(ctx.permissions);
+
+  // Sensitive data mode: both flags must align for the indicator to show.
+  const wattleSensitiveData =
+    ctx.tenant.ai_sensitive_data_enabled &&
+    !ctx.tenant.ai_disable_sensitive_tools;
 
   // ──────────────────────────────────────────────────────────
   // Build grouped, permission-gated navigation
@@ -975,6 +981,8 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       <div className="flex h-dvh bg-background text-foreground">
         {/* Bootstraps Capacitor plugins once on mount. No-op on web. */}
         <NativeInitializer />
+        {/* Idle timeout: 15min idle → warning, 60s → auto-logout. Critical for shared classroom iPads. */}
+        <SessionTimeout />
         <AppSidebar
           tenantName={ctx.tenant.name}
           tenantLogo={ctx.tenant.logo_url}
@@ -1011,6 +1019,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
             userName={ctx.user.first_name ?? undefined}
             permissions={ctx.permissions}
             tenantName={ctx.tenant.name ?? undefined}
+            sensitiveDataEnabled={wattleSensitiveData}
           >
             <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8 page-enter">
               {children}

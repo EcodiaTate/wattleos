@@ -10,6 +10,11 @@ port = 54322
 [auth]
 site_url = "http://localhost:3000"
 additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+# JWT expiry: 30 minutes (1800 seconds) instead of the default 3600.
+# Tighter window for a platform handling children's sensitive data.
+# Supabase refresh tokens handle seamless re-authentication so users
+# won't notice the shorter window. See docs/SECURITY-DECISIONS.md.
+jwt_expiry = 1800
 
 [auth.external.google]
 enabled = true

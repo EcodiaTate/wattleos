@@ -50,6 +50,14 @@ export async function listCustodyRestrictions(
       return failure(error.message, "DB_ERROR");
     }
 
+    await logAudit({
+      context,
+      action: AuditActions.CUSTODY_VIEWED,
+      entityType: "student",
+      entityId: studentId,
+      metadata: { record_count: (data ?? []).length },
+    });
+
     return success((data ?? []) as CustodyRestriction[]);
   } catch (err) {
     const message =

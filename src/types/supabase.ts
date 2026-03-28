@@ -276,6 +276,7 @@ export type Database = {
           entity_type: string
           id: string
           metadata: Json | null
+          outcome: string | null
           tenant_id: string
           user_id: string | null
         }
@@ -286,6 +287,7 @@ export type Database = {
           entity_type: string
           id?: string
           metadata?: Json | null
+          outcome?: string | null
           tenant_id: string
           user_id?: string | null
         }
@@ -296,6 +298,7 @@ export type Database = {
           entity_type?: string
           id?: string
           metadata?: Json | null
+          outcome?: string | null
           tenant_id?: string
           user_id?: string | null
         }

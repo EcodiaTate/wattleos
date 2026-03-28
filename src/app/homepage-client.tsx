@@ -85,7 +85,7 @@ function useReveal(delay = 0) {
 function Overline({ children, color = C.clay }: { children: React.ReactNode; color?: string }) {
   return (
     <p style={{
-      fontFamily: "'DM Mono', monospace",
+      fontFamily: "var(--font-dm-mono), monospace",
       fontSize: "0.68rem",
       fontWeight: 500,
       letterSpacing: "0.18em",
@@ -191,7 +191,7 @@ function Hero() {
       <div aria-hidden style={{
         position: "absolute", left: -80, top: "50%",
         transform: "translateY(-50%) rotate(-90deg)",
-        fontFamily: "'DM Mono', monospace", fontSize: "0.58rem",
+        fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.58rem",
         letterSpacing: "0.3em", textTransform: "uppercase",
         color: `${C.bark}22`, whiteSpace: "nowrap",
         opacity: mounted ? 1 : 0, transition: "opacity 1.5s ease 1s",
@@ -208,7 +208,7 @@ function Hero() {
       }}>
 
         <h1 style={{
-          fontFamily: "'Lora', Georgia, serif",
+          fontFamily: "var(--font-lora), Georgia, serif",
           fontSize: "clamp(3.2rem, 7vw, 6.5rem)",
           color: C.bark, lineHeight: 1.04, fontWeight: 600,
           letterSpacing: "-0.03em", margin: "0 auto 1.8rem",
@@ -224,7 +224,7 @@ function Hero() {
         </h1>
 
         <p style={{
-          fontFamily: "'Lora', Georgia, serif",
+          fontFamily: "var(--font-lora), Georgia, serif",
           fontSize: "clamp(1.1rem, 2vw, 1.35rem)",
           color: C.mist, lineHeight: 1.65, maxWidth: 560, margin: "0 auto 3rem",
           fontWeight: 400, fontStyle: "italic",
@@ -236,7 +236,7 @@ function Hero() {
         <div style={{ display: "flex", gap: "0.9rem", justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="#demo" style={{
             background: C.bark, color: C.linen,
-            fontFamily: "'DM Mono', monospace", fontSize: "0.72rem", letterSpacing: "0.14em",
+            fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.72rem", letterSpacing: "0.14em",
             textTransform: "uppercase", padding: "1rem 2.2rem", borderRadius: "4px",
             textDecoration: "none", transition: "background 0.25s, transform 0.2s",
             display: "inline-block",
@@ -248,7 +248,7 @@ function Hero() {
           </Link>
           <Link href="#features" style={{
             background: "transparent", color: C.bark,
-            fontFamily: "'DM Mono', monospace", fontSize: "0.72rem", letterSpacing: "0.14em",
+            fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.72rem", letterSpacing: "0.14em",
             textTransform: "uppercase", padding: "1rem 2.2rem", borderRadius: "4px",
             border: `1.5px solid ${C.bark}20`, textDecoration: "none",
             transition: "border-color 0.2s, transform 0.2s",
@@ -269,7 +269,7 @@ function Hero() {
         display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
       }}>
         <span style={{
-          fontFamily: "'DM Mono', monospace", fontSize: "0.55rem",
+          fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.55rem",
           letterSpacing: "0.2em", textTransform: "uppercase", color: C.bark,
         }}>
           scroll
@@ -298,7 +298,7 @@ function ProblemSection() {
       {/* Ghost numeral */}
       <div aria-hidden style={{
         position: "absolute", right: "-2%", top: "5%",
-        fontFamily: "'Lora', Georgia, serif",
+        fontFamily: "var(--font-lora), Georgia, serif",
         fontSize: "clamp(12rem, 22vw, 22rem)", fontWeight: 700,
         color: `${C.bark}04`, lineHeight: 1, userSelect: "none", pointerEvents: "none",
       }}>
@@ -314,7 +314,7 @@ function ProblemSection() {
         }}>
           <Overline color={C.clay}>The Problem</Overline>
           <h2 style={{
-            fontFamily: "'Lora', Georgia, serif",
+            fontFamily: "var(--font-lora), Georgia, serif",
             fontSize: "clamp(2.2rem, 5vw, 3.8rem)", color: C.bark,
             fontWeight: 600, letterSpacing: "-0.025em", lineHeight: 1.15, marginBottom: "1.2rem",
           }}>
@@ -323,7 +323,7 @@ function ProblemSection() {
             that don&apos;t speak to each other
           </h2>
           <p style={{
-            fontFamily: "'Lora', Georgia, serif",
+            fontFamily: "var(--font-lora), Georgia, serif",
             fontSize: "clamp(1rem, 1.8vw, 1.2rem)",
             color: C.mist, maxWidth: 560, margin: "0 auto", lineHeight: 1.7, fontStyle: "italic",
           }}>
@@ -351,7 +351,7 @@ function ProblemSection() {
             }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `${C.clay}30` }} />
               <p style={{
-                fontFamily: "'Lora', Georgia, serif",
+                fontFamily: "var(--font-lora), Georgia, serif",
                 fontSize: "1.05rem", fontWeight: 700, color: C.bark,
                 marginBottom: "0.2rem", opacity: 0.45,
                 textDecoration: "line-through", textDecorationColor: `${C.clay}60`,
@@ -359,13 +359,13 @@ function ProblemSection() {
                 {sys.name}
               </p>
               <p style={{
-                fontFamily: "'DM Mono', monospace", fontSize: "0.65rem",
+                fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.65rem",
                 letterSpacing: "0.06em", color: C.dusty, marginBottom: "0.8rem",
               }}>
                 {sys.what}
               </p>
               <p style={{
-                fontFamily: "'DM Mono', monospace", fontSize: "0.65rem",
+                fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.65rem",
                 letterSpacing: "0.08em", color: C.sage, textTransform: "uppercase",
               }}>
                 → {sys.module}
@@ -401,14 +401,14 @@ function FeaturesSection() {
         }}>
           <Overline>The Complete Platform</Overline>
           <h2 style={{
-            fontFamily: "'Lora', Georgia, serif",
+            fontFamily: "var(--font-lora), Georgia, serif",
             fontSize: "clamp(2.2rem, 5vw, 3.8rem)", color: C.bark,
             fontWeight: 600, letterSpacing: "-0.025em", lineHeight: 1.15,
           }}>
             Everything a Montessori school needs
           </h2>
           <p style={{
-            fontFamily: "'Lora', Georgia, serif",
+            fontFamily: "var(--font-lora), Georgia, serif",
             fontSize: "1.1rem", color: C.mist, fontStyle: "italic",
             marginTop: "0.8rem",
           }}>
@@ -436,7 +436,7 @@ function FeaturesSection() {
                 textAlign: "left",
               }}>
                 <span style={{
-                  fontFamily: "'DM Mono', monospace", fontSize: "0.62rem",
+                  fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.62rem",
                   letterSpacing: "0.1em", color: active === i ? `${C.linen}70` : C.dusty,
                   flexShrink: 0, transition: "color 0.3s",
                 }}>
@@ -448,7 +448,7 @@ function FeaturesSection() {
                   flexShrink: 0, transition: "background 0.3s",
                 }} />
                 <span style={{
-                  fontFamily: "'Lora', Georgia, serif",
+                  fontFamily: "var(--font-lora), Georgia, serif",
                   fontSize: "1rem", fontWeight: 600, letterSpacing: "-0.01em",
                   color: active === i ? C.linen : C.bark, transition: "color 0.3s",
                 }}>
@@ -470,7 +470,7 @@ function FeaturesSection() {
             <div style={{ position: "relative", zIndex: 1 }}>
               <div aria-hidden style={{
                 position: "absolute", top: -20, right: -10,
-                fontFamily: "'Lora', Georgia, serif",
+                fontFamily: "var(--font-lora), Georgia, serif",
                 fontSize: "8rem", fontWeight: 700, lineHeight: 1,
                 color: `${feature.color}12`, userSelect: "none",
               }}>
@@ -483,7 +483,7 @@ function FeaturesSection() {
                 padding: "0.3rem 0.75rem", marginBottom: "1.5rem",
               }}>
                 <span style={{
-                  fontFamily: "'DM Mono', monospace", fontSize: "0.62rem",
+                  fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.62rem",
                   letterSpacing: "0.12em", textTransform: "uppercase", color: feature.color,
                 }}>
                   Module {feature.n}
@@ -491,7 +491,7 @@ function FeaturesSection() {
               </div>
 
               <h3 style={{
-                fontFamily: "'Lora', Georgia, serif",
+                fontFamily: "var(--font-lora), Georgia, serif",
                 fontSize: "clamp(1.8rem, 3vw, 2.6rem)", color: C.bark,
                 fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.15,
                 marginBottom: "1.2rem",
@@ -499,7 +499,7 @@ function FeaturesSection() {
                 {feature.title}
               </h3>
               <p style={{
-                fontFamily: "'Lora', Georgia, serif",
+                fontFamily: "var(--font-lora), Georgia, serif",
                 fontSize: "1.15rem", color: C.mist, lineHeight: 1.7,
                 fontStyle: "italic", maxWidth: 420, marginBottom: "2rem",
               }}>
@@ -534,7 +534,7 @@ function FeaturesSection() {
                   background: [C.wheat, C.sage, C.clay, C.shell][i % 4],
                   flexShrink: 0,
                 }} />
-                <span style={{ fontFamily: "'Lora', Georgia, serif", fontSize: "1rem", color: C.mist }}>
+                <span style={{ fontFamily: "var(--font-lora), Georgia, serif", fontSize: "1rem", color: C.mist }}>
                   {f}
                 </span>
               </div>
@@ -605,7 +605,7 @@ function RolesSection() {
         }}>
           <Overline color={C.dusty}>Built for Every Role</Overline>
           <h2 style={{
-            fontFamily: "'Lora', Georgia, serif",
+            fontFamily: "var(--font-lora), Georgia, serif",
             fontSize: "clamp(2.2rem, 5vw, 3.8rem)", color: C.bark,
             fontWeight: 600, letterSpacing: "-0.025em",
           }}>
@@ -640,7 +640,7 @@ function RolesSection() {
               >
                 <div aria-hidden style={{
                   position: "absolute", bottom: -20, right: -10,
-                  fontFamily: "'Lora', Georgia, serif",
+                  fontFamily: "var(--font-lora), Georgia, serif",
                   fontSize: "7rem", color: `${r.accent}0E`, lineHeight: 1, userSelect: "none",
                 }}>
                   {r.glyph}
@@ -650,27 +650,27 @@ function RolesSection() {
                   background: `${r.accent}20`, border: `2px solid ${r.accent}30`,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   marginBottom: "1.4rem",
-                  fontFamily: "'Lora', Georgia, serif",
+                  fontFamily: "var(--font-lora), Georgia, serif",
                   fontSize: "1.1rem", color: r.accent,
                 }}>
                   {r.glyph}
                 </div>
                 <h3 style={{
-                  fontFamily: "'Lora', Georgia, serif",
+                  fontFamily: "var(--font-lora), Georgia, serif",
                   fontSize: "1.5rem", color: C.bark, fontWeight: 700,
                   letterSpacing: "-0.01em", marginBottom: "0.8rem",
                 }}>
                   {r.title}
                 </h3>
                 <p style={{
-                  fontFamily: "'Lora', Georgia, serif",
+                  fontFamily: "var(--font-lora), Georgia, serif",
                   fontSize: "1rem", color: C.mist, lineHeight: 1.65,
                   fontStyle: "italic", marginBottom: "1.4rem",
                 }}>
                   {r.desc}
                 </p>
                 <span style={{
-                  fontFamily: "'DM Mono', monospace", fontSize: "0.65rem",
+                  fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.65rem",
                   letterSpacing: "0.14em", textTransform: "uppercase", color: r.accent,
                 }}>
                   Learn more →
@@ -712,14 +712,14 @@ function PricingSection() {
         }}>
           <Overline>Transparent Pricing</Overline>
           <h2 style={{
-            fontFamily: "'Lora', Georgia, serif",
+            fontFamily: "var(--font-lora), Georgia, serif",
             fontSize: "clamp(2.2rem, 5vw, 3.8rem)", color: C.bark,
             fontWeight: 600, letterSpacing: "-0.025em", marginBottom: "1rem",
           }}>
             One price. Everything included.
           </h2>
           <p style={{
-            fontFamily: "'Lora', Georgia, serif",
+            fontFamily: "var(--font-lora), Georgia, serif",
             fontSize: "1.1rem", color: C.mist, fontStyle: "italic",
           }}>
             No feature tiers. No hidden costs. Pricing scales simply with your student count.
@@ -738,7 +738,7 @@ function PricingSection() {
                 color: annual === opt.v ? C.linen : C.dusty,
                 border: `1px solid ${annual === opt.v ? C.bark : `${C.bark}15`}`,
                 borderRadius: 4, padding: "0.55rem 1.3rem",
-                fontFamily: "'DM Mono', monospace", fontSize: "0.66rem",
+                fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.66rem",
                 letterSpacing: "0.1em", textTransform: "uppercase",
                 cursor: "pointer", transition: "all 0.25s ease",
               }}>
@@ -753,7 +753,7 @@ function PricingSection() {
           }}>
             <div style={{ background: C.parchment, padding: "2.8rem 3rem" }}>
               <p style={{
-                fontFamily: "'DM Mono', monospace", fontSize: "0.66rem",
+                fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.66rem",
                 letterSpacing: "0.12em", textTransform: "uppercase",
                 color: C.dusty, marginBottom: "2rem",
               }}>
@@ -769,14 +769,14 @@ function PricingSection() {
                 }}
               />
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.62rem", color: C.dusty }}>10</span>
+                <span style={{ fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.62rem", color: C.dusty }}>10</span>
                 <span style={{
-                  fontFamily: "'Lora', Georgia, serif",
+                  fontFamily: "var(--font-lora), Georgia, serif",
                   fontSize: "2.8rem", color: C.bark, fontWeight: 700, lineHeight: 1,
                 }}>
                   {studentCount}
                 </span>
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.62rem", color: C.dusty }}>300</span>
+                <span style={{ fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.62rem", color: C.dusty }}>300</span>
               </div>
             </div>
 
@@ -785,7 +785,7 @@ function PricingSection() {
               display: "flex", flexDirection: "column", justifyContent: "center",
             }}>
               <p style={{
-                fontFamily: "'DM Mono', monospace", fontSize: "0.62rem",
+                fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.62rem",
                 letterSpacing: "0.12em", textTransform: "uppercase",
                 color: `${C.linen}50`, marginBottom: "1rem",
               }}>
@@ -793,13 +793,13 @@ function PricingSection() {
               </p>
               <div style={{ display: "flex", alignItems: "flex-start", gap: "0.3rem" }}>
                 <span style={{
-                  fontFamily: "'Lora', Georgia, serif",
+                  fontFamily: "var(--font-lora), Georgia, serif",
                   fontSize: "1.5rem", color: `${C.linen}60`, marginTop: "0.5rem",
                 }}>
                   $
                 </span>
                 <span style={{
-                  fontFamily: "'Lora', Georgia, serif",
+                  fontFamily: "var(--font-lora), Georgia, serif",
                   fontSize: "clamp(3.5rem, 7vw, 5.5rem)", color: C.linen,
                   fontWeight: 700, lineHeight: 1,
                 }}>
@@ -807,14 +807,14 @@ function PricingSection() {
                 </span>
               </div>
               <p style={{
-                fontFamily: "'DM Mono', monospace", fontSize: "0.62rem",
+                fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.62rem",
                 letterSpacing: "0.08em", color: `${C.linen}50`, marginTop: "0.6rem",
               }}>
                 ${perStudent} / student / month
               </p>
               {annual && savings > 0 && (
                 <p style={{
-                  fontFamily: "'DM Mono', monospace", fontSize: "0.62rem",
+                  fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.62rem",
                   letterSpacing: "0.08em", color: C.wheat, marginTop: "0.6rem",
                 }}>
                   ↑ Save ${savings}/year
@@ -822,7 +822,7 @@ function PricingSection() {
               )}
               {studentCount * perStudent < floor && (
                 <p style={{
-                  fontFamily: "'DM Mono', monospace", fontSize: "0.6rem",
+                  fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.6rem",
                   color: `${C.linen}40`, marginTop: "0.5rem",
                 }}>
                   ${floor}/mo minimum applies
@@ -837,7 +837,7 @@ function PricingSection() {
             borderRadius: 6,
           }}>
             <p style={{
-              fontFamily: "'Lora', Georgia, serif",
+              fontFamily: "var(--font-lora), Georgia, serif",
               fontSize: "1rem", color: C.mist, fontStyle: "italic", margin: 0,
             }}>
               <strong style={{ color: C.bark, fontStyle: "normal" }}>$499 one-time onboarding</strong>{" "}
@@ -878,7 +878,7 @@ function DemoSection() {
     padding: "0.85rem 1rem",
     border: `1px solid ${focused === field ? C.clay : `${C.bark}14`}`,
     borderRadius: 4,
-    fontFamily: "'Lora', Georgia, serif",
+    fontFamily: "var(--font-lora), Georgia, serif",
     fontSize: "1.05rem", color: C.bark, background: C.linen,
     outline: "none", transition: "border-color 0.2s",
   });
@@ -893,14 +893,14 @@ function DemoSection() {
           border: `1px solid ${C.sage}20`,
         }}>
           <h3 style={{
-            fontFamily: "'Lora', Georgia, serif",
+            fontFamily: "var(--font-lora), Georgia, serif",
             fontSize: "2.2rem", color: C.bark, fontWeight: 600,
             margin: "1.5rem 0 0.8rem", letterSpacing: "-0.02em",
           }}>
             Thank you
           </h3>
           <p style={{
-            fontFamily: "'Lora', Georgia, serif",
+            fontFamily: "var(--font-lora), Georgia, serif",
             fontSize: "1.05rem", color: C.mist, lineHeight: 1.7, fontStyle: "italic",
           }}>
             Your email client should have opened with your demo request. If not, reach us at{" "}
@@ -912,7 +912,7 @@ function DemoSection() {
             marginTop: "1.5rem", background: "none", cursor: "pointer",
             border: `1px solid ${C.bark}18`, borderRadius: 4,
             padding: "0.6rem 1.4rem",
-            fontFamily: "'DM Mono', monospace", fontSize: "0.66rem",
+            fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.66rem",
             letterSpacing: "0.1em", textTransform: "uppercase", color: C.mist,
           }}>
             ← Back
@@ -935,14 +935,14 @@ function DemoSection() {
         }}>
           <Overline color={C.sage}>Get Started</Overline>
           <h2 style={{
-            fontFamily: "'Lora', Georgia, serif",
+            fontFamily: "var(--font-lora), Georgia, serif",
             fontSize: "clamp(2.2rem, 5vw, 3.6rem)", color: C.bark,
             fontWeight: 600, letterSpacing: "-0.025em", marginBottom: "0.9rem",
           }}>
             Book a personalised demo
           </h2>
           <p style={{
-            fontFamily: "'Lora', Georgia, serif",
+            fontFamily: "var(--font-lora), Georgia, serif",
             fontSize: "1.1rem", color: C.mist, fontStyle: "italic",
           }}>
             We&apos;ll walk you through WattleOS with your school&apos;s curriculum and actual workflow.
@@ -966,7 +966,7 @@ function DemoSection() {
             ]).map(inp => (
               <div key={inp.field}>
                 <label style={{
-                  display: "block", fontFamily: "'DM Mono', monospace",
+                  display: "block", fontFamily: "var(--font-dm-mono), monospace",
                   fontSize: "0.62rem", letterSpacing: "0.1em", textTransform: "uppercase",
                   color: C.dusty, marginBottom: "0.5rem",
                 }}>
@@ -986,7 +986,7 @@ function DemoSection() {
 
           <div style={{ marginBottom: "1rem" }}>
             <label style={{
-              display: "block", fontFamily: "'DM Mono', monospace",
+              display: "block", fontFamily: "var(--font-dm-mono), monospace",
               fontSize: "0.62rem", letterSpacing: "0.1em", textTransform: "uppercase",
               color: C.dusty, marginBottom: "0.6rem",
             }}>
@@ -999,7 +999,7 @@ function DemoSection() {
                   color: formState.role === opt ? C.linen : C.mist,
                   border: `1px solid ${formState.role === opt ? C.bark : `${C.bark}18`}`,
                   borderRadius: 4, padding: "0.45rem 1rem",
-                  fontFamily: "'DM Mono', monospace", fontSize: "0.62rem",
+                  fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.62rem",
                   letterSpacing: "0.08em", cursor: "pointer",
                   transition: "all 0.2s ease",
                 }}>
@@ -1011,7 +1011,7 @@ function DemoSection() {
 
           <div style={{ marginBottom: "1rem" }}>
             <label style={{
-              display: "block", fontFamily: "'DM Mono', monospace",
+              display: "block", fontFamily: "var(--font-dm-mono), monospace",
               fontSize: "0.62rem", letterSpacing: "0.1em", textTransform: "uppercase",
               color: C.dusty, marginBottom: "0.6rem",
             }}>
@@ -1024,7 +1024,7 @@ function DemoSection() {
                   color: formState.students === opt ? C.linen : C.mist,
                   border: `1px solid ${formState.students === opt ? C.clay : `${C.bark}18`}`,
                   borderRadius: 4, padding: "0.45rem 1rem",
-                  fontFamily: "'DM Mono', monospace", fontSize: "0.62rem",
+                  fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.62rem",
                   letterSpacing: "0.08em", cursor: "pointer",
                   transition: "all 0.2s ease",
                 }}>
@@ -1036,7 +1036,7 @@ function DemoSection() {
 
           <div style={{ marginBottom: "1.8rem" }}>
             <label style={{
-              display: "block", fontFamily: "'DM Mono', monospace",
+              display: "block", fontFamily: "var(--font-dm-mono), monospace",
               fontSize: "0.62rem", letterSpacing: "0.1em", textTransform: "uppercase",
               color: C.dusty, marginBottom: "0.5rem",
             }}>
@@ -1056,7 +1056,7 @@ function DemoSection() {
           <button type="button" onClick={handleSubmit} style={{
             width: "100%", background: C.bark, color: C.linen, border: "none",
             borderRadius: 4, padding: "1.05rem",
-            fontFamily: "'DM Mono', monospace", fontSize: "0.72rem",
+            fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.72rem",
             letterSpacing: "0.15em", textTransform: "uppercase", cursor: "pointer",
             transition: "background 0.2s, transform 0.15s",
           }}
@@ -1072,7 +1072,7 @@ function DemoSection() {
             Request a Demo
           </button>
           <p style={{
-            fontFamily: "'DM Mono', monospace", fontSize: "0.62rem",
+            fontFamily: "var(--font-dm-mono), monospace", fontSize: "0.62rem",
             letterSpacing: "0.06em", color: C.dusty,
             textAlign: "center", marginTop: "1rem",
           }}>
@@ -1094,8 +1094,6 @@ export default function HomepageClient() {
   return (
     <div style={{ background: C.linen, color: C.bark, overflowX: "clip", minHeight: "100vh" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Mono:wght@400;500&display=swap');
-
         html { scroll-behavior: smooth; }
         ::selection { background: rgba(232,168,56,0.2); color: #2C1810; }
 

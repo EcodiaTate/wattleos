@@ -19,10 +19,12 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
+import { isDemoMode } from "@/lib/auth/demo-mode";
 import { randomBytes } from "crypto";
+import { isSessionRevoked } from "@/lib/actions/session";
 
 // Routes that don't require authentication (exact match)
-const PUBLIC_ROUTES = ["/login", "/auth/callback", "/", "/tenant-picker"];
+const PUBLIC_ROUTES = ["/login", "/auth/callback", "/", "/tenant-picker", "/mfa/verify"];
 
 // Route prefixes that don't require authentication (prefix match)
 // These are public-facing family pages - enrollment, inquiry, tours, invite
@@ -75,8 +77,8 @@ function applySecurityHeaders(response: NextResponse, nonce: string): void {
   const csp = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}'`,
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src 'self' https://fonts.gstatic.com",
+    "style-src 'self' 'unsafe-inline'",
+    "font-src 'self'",
     "img-src 'self' blob: data: https://*.supabase.co",
     "media-src 'self' blob: https://*.supabase.co",
     "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.upstash.io",
@@ -168,6 +170,15 @@ export async function proxy(request: NextRequest) {
     return supabaseResponse;
   }
 
+  // Demo mode: skip all auth gates so unauthenticated visitors can browse
+  if (isDemoMode()) {
+    if (tenantSlug) {
+      supabaseResponse.headers.set("x-tenant-slug", tenantSlug);
+    }
+    applySecurityHeaders(supabaseResponse, nonce);
+    return supabaseResponse;
+  }
+
   // Everything below requires authentication
   if (!user) {
     // API routes must return JSON 401, not an HTML redirect.
@@ -206,9 +217,36 @@ export async function proxy(request: NextRequest) {
     supabaseResponse.headers.set("x-tenant-slug", tenantSlug);
   }
 
+  // Session revocation check: reject JWTs issued before the user
+  // signed out. This closes the window where a stolen JWT remains
+  // valid until natural expiry.
+  const tenantId = user.app_metadata?.tenant_id;
+  if (tenantId && user.app_metadata?.iat) {
+    try {
+      const revoked = await isSessionRevoked(
+        user.id,
+        tenantId,
+        user.app_metadata.iat as number,
+      );
+      if (revoked) {
+        const loginUrl = request.nextUrl.clone();
+        loginUrl.pathname = "/login";
+        loginUrl.searchParams.set("error", "session_expired");
+        const redirectResponse = copySessionCookies(
+          supabaseResponse,
+          NextResponse.redirect(loginUrl),
+        );
+        applySecurityHeaders(redirectResponse, nonce);
+        return redirectResponse;
+      }
+    } catch {
+      // Non-critical: if the check fails, proceed with the request.
+      // The JWT is still valid per Supabase auth.
+    }
+  }
+
   // If user has no tenant_id in their JWT, redirect to tenant picker
   // (unless they're already on the tenant picker page)
-  const tenantId = user.app_metadata?.tenant_id;
   if (!tenantId && pathname !== "/tenant-picker") {
     const pickerUrl = request.nextUrl.clone();
     pickerUrl.pathname = "/tenant-picker";

@@ -569,7 +569,22 @@ export async function updateStaffRole(
       .eq("user_id", userId)
       .is("deleted_at", null);
 
-    if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
+    if (error) {
+      await logAudit({
+        context,
+        action: AuditActions.USER_ROLE_CHANGED,
+        entityType: "tenant_users",
+        entityId: userId,
+        outcome: "failure",
+        metadata: {
+          user_id: userId,
+          new_role: role.name,
+          new_role_id: roleId,
+          error: error.message,
+        },
+      });
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
+    }
 
     const prevRole = normOne(
       current?.role as unknown as { name: string } | null,
@@ -620,7 +635,17 @@ export async function suspendStaffMember(
       .eq("user_id", userId)
       .is("deleted_at", null);
 
-    if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
+    if (error) {
+      await logAudit({
+        context,
+        action: AuditActions.USER_SUSPENDED,
+        entityType: "tenant_users",
+        entityId: userId,
+        outcome: "failure",
+        metadata: { user_id: userId, error: error.message },
+      });
+      return failure(error.message, ErrorCodes.DATABASE_ERROR);
+    }
 
     await logAudit({
       context,

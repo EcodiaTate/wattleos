@@ -732,7 +732,7 @@ const TOOL_REGISTRY: WattleToolDef[] = [
     ],
     statusMessage: "Checking immunisation compliance...",
     isWrite: false,
-    sensitive: false,
+    sensitive: true,
     requiresConfirmation: false,
   },
   // ── Module G: CCS Session Reporting ──────────────────────────
@@ -955,7 +955,7 @@ const TOOL_REGISTRY: WattleToolDef[] = [
     requiredPermissions: [Permissions.CREATE_OBSERVATION],
     statusMessage: "Gathering context for observation draft...",
     isWrite: false,
-    sensitive: false,
+    sensitive: true,
     requiresConfirmation: false,
   },
   {
@@ -1375,7 +1375,7 @@ const TOOL_REGISTRY: WattleToolDef[] = [
     requiredPermissions: [Permissions.VIEW_DAILY_CARE_LOGS],
     statusMessage: "Checking daily care records...",
     isWrite: false,
-    sensitive: false,
+    sensitive: true, // contains intimate care details (nappy changes, feeding, sleep) — ST4S gated
     requiresConfirmation: false,
   },
   {
@@ -1396,7 +1396,7 @@ const TOOL_REGISTRY: WattleToolDef[] = [
     requiredPermissions: [Permissions.VIEW_DAILY_CARE_LOGS],
     statusMessage: "Looking up care log...",
     isWrite: false,
-    sensitive: false,
+    sensitive: true,
     requiresConfirmation: false,
   },
 
@@ -1709,10 +1709,14 @@ const SUGGEST_ACTIONS_TOOL: WattleToolDef = {
 export function buildToolsForOpenAI(
   userPermissions: string[],
   _userRole?: string,
+  sensitiveToolsEnabled: boolean = false,
 ): ChatCompletionTool[] {
   const tools: ChatCompletionTool[] = [];
 
   for (const def of TOOL_REGISTRY) {
+    // ST4S compliance: exclude sensitive tools unless tenant has opted in
+    if (def.sensitive && !sensitiveToolsEnabled) continue;
+
     // Permission gate: user needs ANY of the required permissions
     if (def.requiredPermissions.length > 0) {
       const hasPermission = def.requiredPermissions.some((p) =>
@@ -1769,6 +1773,13 @@ export function isHighlightTool(toolName: string): boolean {
 export function isWriteTool(toolName: string): boolean {
   const def = TOOL_REGISTRY.find((t) => t.name === toolName);
   return def?.isWrite ?? false;
+}
+
+/** Returns true if this tool accesses sensitive student data (medical, custody, etc.)
+ *  Used by the audit logger in ask-wattle.ts to log APP 8 compliance records. */
+export function isSensitiveTool(toolName: string): boolean {
+  const def = TOOL_REGISTRY.find((t) => t.name === toolName);
+  return def?.sensitive ?? false;
 }
 
 // ============================================================

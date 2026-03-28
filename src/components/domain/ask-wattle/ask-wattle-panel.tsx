@@ -491,6 +491,8 @@ export interface AskWattlePanelProps {
   permissions?: string[];
   /** Tenant/school name */
   tenantName?: string;
+  /** When true, shows a subtle "Extended access" indicator in the header */
+  sensitiveDataEnabled?: boolean;
   /** A question to auto-send when the panel opens */
   pendingQuestion?: string | null;
   /** Callback when the pending question has been consumed */
@@ -511,6 +513,7 @@ export function AskWattlePanel({
   userName,
   permissions,
   tenantName,
+  sensitiveDataEnabled,
   pendingQuestion,
   onPendingQuestionConsumed,
 }: AskWattlePanelProps) {
@@ -689,15 +692,49 @@ export function AskWattlePanel({
           <div className="flex items-center gap-3">
             <WattleAvatar />
             <div>
-              <h2
-                className="text-base font-medium leading-tight"
-                style={{
-                  color: "var(--wattle-dark)",
-                  fontFamily: "'Fraunces', Georgia, serif",
-                }}
-              >
-                Ask Wattle
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2
+                  className="text-base font-medium leading-tight"
+                  style={{
+                    color: "var(--wattle-dark)",
+                    fontFamily: "'Fraunces', Georgia, serif",
+                  }}
+                >
+                  Ask Wattle
+                </h2>
+                {sensitiveDataEnabled && (
+                  <span
+                    title="Ask Wattle can access medical, custody, and wellbeing data. All queries are logged."
+                    className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium leading-none"
+                    style={{
+                      background: "color-mix(in srgb, var(--wattle-gold) 14%, transparent)",
+                      color: "var(--wattle-brown)",
+                      border: "1px solid color-mix(in srgb, var(--wattle-gold) 30%, transparent)",
+                    }}
+                  >
+                    <svg
+                      width="9"
+                      height="10"
+                      viewBox="0 0 12 14"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M6 1L1 3.5V7c0 3 2.333 5.333 5 6 2.667-.667 5-3 5-6V3.5L6 1Z"
+                        fill="currentColor"
+                        opacity="0.25"
+                      />
+                      <path
+                        d="M6 1L1 3.5V7c0 3 2.333 5.333 5 6 2.667-.667 5-3 5-6V3.5L6 1Z"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    Extended access
+                  </span>
+                )}
+              </div>
               <span className="text-xs" style={{ color: "var(--wattle-tan)" }}>
                 Platform assistant
               </span>

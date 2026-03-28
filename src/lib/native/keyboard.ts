@@ -12,6 +12,31 @@
 import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import { isNative, isPluginAvailable, getPlatform } from "./platform";
 
+function isTextInput(
+  el: Element | null,
+): el is HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement {
+  if (!el) return false;
+  if (el instanceof HTMLTextAreaElement) return true;
+  if (el instanceof HTMLSelectElement) return true;
+  if (el instanceof HTMLInputElement) {
+    const t = el.type;
+    return (
+      t === "text" ||
+      t === "email" ||
+      t === "password" ||
+      t === "search" ||
+      t === "tel" ||
+      t === "url" ||
+      t === "number" ||
+      t === "date" ||
+      t === "datetime-local" ||
+      t === "time"
+    );
+  }
+  if (el.getAttribute("contenteditable") === "true") return true;
+  return false;
+}
+
 /**
  * Initialize keyboard behavior for the app.
  * Call once in the root layout.
@@ -28,23 +53,20 @@ export async function initKeyboard(options?: {
   }
 
   const cleanups: Array<{ remove: () => Promise<void> }> = [];
+  let keyboardVisible = false;
 
   try {
-    // Configure keyboard behavior
-    // WHY body resize: Ensures the entire viewport shrinks when keyboard
-    // appears, keeping forms and text areas visible without manual scroll
     await Keyboard.setResizeMode({ mode: KeyboardResize.Body });
 
     // iOS: Show the accessory bar (Done/Previous/Next buttons)
-    // WHY: iPad users need the Done button to dismiss the keyboard
     if (getPlatform() === "ios") {
       await Keyboard.setAccessoryBarVisible({ isVisible: true });
     }
 
-    // Scroll to active input when keyboard shows
+    // Let native scroll assist, but we also manually scroll below
     await Keyboard.setScroll({ isDisabled: false });
 
-    // Listen for keyboard events
+    // keyboardWillShow — instant callback for CSS/height updates
     if (options?.onShow) {
       const showHandle = await Keyboard.addListener(
         "keyboardWillShow",
@@ -55,19 +77,53 @@ export async function initKeyboard(options?: {
       cleanups.push(showHandle);
     }
 
+    // keyboardDidShow — scroll focused input into view AFTER body resize completes
+    const didShowHandle = await Keyboard.addListener("keyboardDidShow", () => {
+      keyboardVisible = true;
+      setTimeout(() => {
+        const el = document.activeElement;
+        if (isTextInput(el)) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 250);
+    });
+    cleanups.push(didShowHandle);
+
     if (options?.onHide) {
       const hideHandle = await Keyboard.addListener("keyboardWillHide", () => {
         options.onHide?.();
       });
       cleanups.push(hideHandle);
     }
-  } catch {
-    // Silent - keyboard plugin may not be fully available
-  }
 
-  return () => {
-    cleanups.forEach((h) => h.remove());
-  };
+    const didHideHandle = await Keyboard.addListener("keyboardDidHide", () => {
+      keyboardVisible = false;
+    });
+    cleanups.push(didHideHandle);
+
+    // Handle focus changes while keyboard is already open
+    const onFocusIn = (e: FocusEvent) => {
+      if (!keyboardVisible) return;
+      if (!isTextInput(e.target as Element)) return;
+      setTimeout(() => {
+        (e.target as HTMLElement).scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 150);
+    };
+
+    document.addEventListener("focusin", onFocusIn, { passive: true });
+
+    return () => {
+      cleanups.forEach((h) => h.remove());
+      document.removeEventListener("focusin", onFocusIn);
+    };
+  } catch {
+    return () => {
+      cleanups.forEach((h) => h.remove());
+    };
+  }
 }
 
 /**

@@ -22,10 +22,12 @@
 import { getTenantContext, hasPermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import { getTenantDisplaySettings } from "@/lib/actions/display-settings";
-import { getTenantGeneralSettings } from "@/lib/actions/tenant-settings";
+import { getTenantGeneralSettings, getTenantAiSettings } from "@/lib/actions/tenant-settings";
 import { AppearanceSettingsClient } from "@/components/domain/admin/appearance-settings-client";
 import { SchoolGeneralSettingsClient } from "@/components/domain/admin/school-general-settings-client";
+import { AiSettingsClient } from "@/components/domain/admin/ai-settings-client";
 import { DEFAULT_DISPLAY_SETTINGS } from "@/types/display";
+import { DEFAULT_TENANT_SETTINGS } from "@/lib/constants/tenant-settings";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -38,13 +40,15 @@ export default async function SchoolSettingsPage() {
     redirect("/dashboard");
   }
 
-  // Fetch both setting groups in parallel for speed
-  const [displayResult, generalResult] = await Promise.all([
+  // Fetch all setting groups in parallel for speed
+  const [displayResult, generalResult, aiResult] = await Promise.all([
     getTenantDisplaySettings(),
     getTenantGeneralSettings(),
+    getTenantAiSettings(),
   ]);
 
   const displaySettings = displayResult.data ?? DEFAULT_DISPLAY_SETTINGS;
+  const aiSettings = aiResult.data ?? DEFAULT_TENANT_SETTINGS;
 
   const generalSettings = generalResult.data ?? {
     name: context.tenant.name,
@@ -98,6 +102,21 @@ export default async function SchoolSettingsPage() {
 
       {/* ── Section 2: Appearance (existing component) ── */}
       <AppearanceSettingsClient initialSettings={displaySettings} />
+
+      {/* ── Section divider ── */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-background px-3 text-sm font-medium text-muted-foreground">
+            AI Assistant
+          </span>
+        </div>
+      </div>
+
+      {/* ── Section 3: AI / Ask Wattle settings ── */}
+      <AiSettingsClient initialSettings={aiSettings} />
     </div>
   );
 }

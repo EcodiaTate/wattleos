@@ -194,10 +194,14 @@ export function EnrollmentWizard({
     }
   }, [periods, state.enrollment_period_id]);
 
-  // Load draft from localStorage
+  // Load draft from sessionStorage.
+  // WHY sessionStorage instead of localStorage: enrollment drafts
+  // contain PII (child DOB, medical conditions, emergency contacts,
+  // addresses). sessionStorage is cleared when the tab closes,
+  // reducing the exposure window on shared/public devices.
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(storageKey);
+      const saved = sessionStorage.getItem(storageKey);
       if (saved) {
         const parsed = JSON.parse(saved);
         setState((s) => ({ ...s, ...parsed }));
@@ -210,7 +214,7 @@ export function EnrollmentWizard({
   // Save draft on state change
   const saveDraft = useCallback(() => {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(state));
+      sessionStorage.setItem(storageKey, JSON.stringify(state));
     } catch {
       // Ignore storage errors
     }
@@ -219,6 +223,19 @@ export function EnrollmentWizard({
   useEffect(() => {
     saveDraft();
   }, [saveDraft]);
+
+  // Clear draft — exposed via a visible button so users on shared
+  // devices can explicitly wipe PII before walking away.
+  const clearDraft = useCallback(() => {
+    try {
+      sessionStorage.removeItem(storageKey);
+    } catch {
+      // Ignore
+    }
+    setState(INITIAL_STATE);
+    setStep(0);
+    setError(null);
+  }, [storageKey]);
 
   // Helpers
   function update<K extends keyof WizardState>(key: K, value: WizardState[K]) {
@@ -371,7 +388,7 @@ export function EnrollmentWizard({
     } else {
       // Clear draft
       try {
-        localStorage.removeItem(storageKey);
+        sessionStorage.removeItem(storageKey);
       } catch {
         /* */
       }
@@ -432,6 +449,25 @@ export function EnrollmentWizard({
             style={{ width: `${progress}%` }}
           />
         </div>
+      </div>
+
+      {/* Privacy notice + Clear Draft
+          Draft data is stored in sessionStorage (cleared on tab close).
+          The notice and button are always visible so parents on shared
+          devices can wipe PII before walking away. */}
+      <div className="mb-4 flex flex-col gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-muted-foreground">
+          <span className="font-medium text-foreground">Using a shared device?</span>{" "}
+          Your draft is saved in this browser tab and cleared when you close it.
+          Use the button to erase your information immediately.
+        </p>
+        <button
+          type="button"
+          onClick={clearDraft}
+          className="shrink-0 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+        >
+          Clear Draft
+        </button>
       </div>
 
       {/* Error */}

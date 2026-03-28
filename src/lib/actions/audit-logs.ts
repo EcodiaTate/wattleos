@@ -35,6 +35,12 @@ export interface AuditLogEntry {
   entity_id: string | null;
   metadata: Record<string, unknown>;
   created_at: string;
+  /** Promoted from metadata._ip (Prompt 40). Indexed for fast forensic queries. */
+  ip_address: string | null;
+  /** Absolute deletion date: created_at + 7 years (Prompt 39). */
+  retain_until: string | null;
+  /** Set when exported to cold storage by the audit-archive cron (Prompt 39). */
+  archived_at: string | null;
 }
 
 export interface AuditLogFilters {
@@ -52,6 +58,8 @@ export interface AuditLogFilters {
   search?: string;
   /** Sensitivity level filter from metadata._sensitivity */
   sensitivity?: "critical" | "high" | "medium" | "low";
+  /** Filter by exact IP address — uses the promoted ip_address column (Prompt 40) */
+  ip_address?: string;
   /** Pagination: number of records per page */
   limit?: number;
   /** Pagination: offset */
@@ -115,6 +123,10 @@ function applyFilters<T extends { eq: any; gte: any; lt: any; or: any }>(
 
   if (filters.sensitivity) {
     q = q.eq("metadata->>_sensitivity", filters.sensitivity);
+  }
+
+  if (filters.ip_address) {
+    q = q.eq("ip_address", filters.ip_address);
   }
 
   if (filters.search) {
@@ -391,6 +403,8 @@ export async function exportAuditLogsCsv(
       "Sensitivity",
       "IP Address",
       "User Agent",
+      "Retain Until",
+      "Archived At",
       "Metadata",
     ];
 
@@ -400,7 +414,9 @@ export async function exportAuditLogsCsv(
       const userEmail = (meta._user_email as string) ?? "";
       const role = (meta._role as string) ?? "";
       const sensitivityVal = (meta._sensitivity as string) ?? "low";
-      const ip = (meta._ip as string) ?? "";
+      // Use the promoted top-level ip_address column (Prompt 40).
+      // Fall back to metadata._ip for rows that predate the migration.
+      const ip = log.ip_address ?? (meta._ip as string) ?? "";
       const userAgent = (meta._user_agent as string) ?? "";
 
       // Flatten non-internal metadata for the last column
@@ -420,6 +436,8 @@ export async function exportAuditLogsCsv(
         sensitivityVal,
         ip,
         userAgent,
+        log.retain_until ?? "",
+        log.archived_at ?? "",
         businessMeta,
       ];
     });

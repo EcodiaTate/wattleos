@@ -22,6 +22,30 @@ export interface TenantGeneralSettings {
   timezone: string;
   country: string;
   currency: string;
+  state: string | null;
+}
+
+// ============================================================
+// AI / Ask Wattle Settings
+// ============================================================
+
+export interface TenantSettings {
+  /** ST4S compliance: sensitive tools (medical, custody, wellbeing, ILP) are OFF
+   *  by default and only enabled via explicit per-tenant opt-in. */
+  ai_sensitive_data_enabled: boolean;
+  /** Hard kill-switch: when true, sensitive tools are removed from the OpenAI
+   *  tool set entirely, overriding ai_sensitive_data_enabled. */
+  ai_disable_sensitive_tools: boolean;
+}
+
+export const DEFAULT_TENANT_SETTINGS: TenantSettings = {
+  ai_sensitive_data_enabled: false,
+  ai_disable_sensitive_tools: false,
+};
+
+export interface UpdateAiSettingsInput {
+  ai_sensitive_data_enabled?: boolean;
+  ai_disable_sensitive_tools?: boolean;
 }
 
 export interface UpdateTenantGeneralInput {
@@ -30,7 +54,29 @@ export interface UpdateTenantGeneralInput {
   timezone?: string;
   country?: string;
   currency?: string;
+  state?: string | null;
 }
+
+// ============================================================
+// Australian States / Territories
+// ============================================================
+// Used in tenant settings UI and for jurisdiction-conditional
+// field display (e.g. religion field — QLD ISQ only).
+// ============================================================
+
+export const AUSTRALIAN_STATES = [
+  { value: "ACT", label: "Australian Capital Territory (ACT)" },
+  { value: "NSW", label: "New South Wales (NSW)" },
+  { value: "NT", label: "Northern Territory (NT)" },
+  { value: "QLD", label: "Queensland (QLD)" },
+  { value: "SA", label: "South Australia (SA)" },
+  { value: "TAS", label: "Tasmania (TAS)" },
+  { value: "VIC", label: "Victoria (VIC)" },
+  { value: "WA", label: "Western Australia (WA)" },
+  { value: "OTHER", label: "Other / International" },
+] as const;
+
+export type AustralianState = (typeof AUSTRALIAN_STATES)[number]["value"];
 
 // ============================================================
 // Australian Timezones

@@ -62,6 +62,13 @@ export async function selectTenantAction(
 export async function signOutAction(): Promise<void> {
   try {
     const supabase = await createSupabaseServerClient();
+
+    // Server-side session revocation: set signed_out_at so the
+    // middleware rejects any JWT issued before this timestamp.
+    // This closes the window where a stolen JWT stays valid.
+    const { revokeSession } = await import('@/lib/actions/session');
+    await revokeSession();
+
     await supabase.auth.signOut();
   } catch {
     // Sign-out should always redirect regardless of errors

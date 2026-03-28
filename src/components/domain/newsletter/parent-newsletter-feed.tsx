@@ -7,6 +7,7 @@ import {
   recordReadReceipt,
 } from "@/lib/actions/comms/newsletter";
 import { useHaptics } from "@/lib/hooks/use-haptics";
+import { sanitizeHtml } from "@/lib/utils/sanitize-html";
 
 interface ParentNewsletterFeedProps {
   initialNewsletters: NewsletterWithDetails[];
@@ -115,7 +116,7 @@ export function ParentNewsletterFeed({
                   <div
                     className="prose max-w-none text-sm"
                     style={{ color: "var(--foreground)" }}
-                    dangerouslySetInnerHTML={{ __html: nl.body_html }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(nl.body_html) }}
                   />
                 </div>
               )}

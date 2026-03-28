@@ -45,8 +45,9 @@ import {
   getToolStatusMessage,
   isExecutableTool,
   isHighlightTool,
+  isSensitiveTool,
 } from "@/lib/docs/wattle-tools";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   AskWattleRequest,
   MessageSource,
@@ -62,7 +63,9 @@ import type { ChatCompletionMessageParam } from "openai/resources/chat/completio
 // WHY gpt-4o: Cost-effective, fast, and more than capable for
 // a documentation-grounded assistant. No need for o1/o3 reasoning
 // overhead when we're doing RAG-based Q&A.
-const OPENAI_MODEL = "gpt-4o";
+// OPENAI_MODEL env var allows swapping to Azure OpenAI AU East or a self-hosted
+// OpenAI-compatible endpoint (e.g. vLLM on RunPod) without code changes.
+const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-4o";
 const MAX_HISTORY_MESSAGES = 20; // Keep conversation context manageable
 const MAX_RESPONSE_TOKENS = 1500;
 
@@ -164,6 +167,8 @@ interface WattlePromptContext {
   permissions: string[];
   /** Compressed manifest of visible UI elements for glow guidance */
   uiManifest?: string;
+  /** ST4S: whether this tenant has opted in to sensitive data tools */
+  sensitiveToolsEnabled?: boolean;
 }
 
 function buildWattleSystemPrompt(ctx: WattlePromptContext): string {
@@ -270,6 +275,31 @@ Rules for highlighting:
 - When answering "how do I...?" questions on a page with relevant elements, ALWAYS use highlight_ui_elements to show them where to go visually.
 - If the user is on a different page than where the workflow happens, navigate them first with an action button - then highlight on their next question.
 - You can combine highlights with text: give a brief explanation AND highlight the elements.`);
+  }
+
+  // ST4S: inject sensitive data boundary instructions based on tenant opt-in
+  if (!ctx.sensitiveToolsEnabled) {
+    parts.push(
+      `## SENSITIVE DATA BOUNDARY
+
+You cannot access medical records, medication plans, emergency contacts, custody/pickup restrictions, wellbeing flags, counsellor referrals, or individual learning plans through this conversation.
+
+When a user asks about any of these:
+- Acknowledge what they need without apologising excessively
+- Tell them exactly where to find it in WattleOS (use suggest_actions or highlight_ui_elements to point them there)
+- Example: If asked 'Does Sarah have any allergies?', respond: 'I can't pull up medical info directly, but you can check Sarah's medical tab now —' then use suggest_actions to link to the student medical page.
+- Do NOT say 'I'm just an AI' or 'I don't have permission'. Say 'Sensitive student data isn't available through Ask Wattle at your school — here's where to find it directly.'
+- If the school admin asks how to enable it, explain it's in Tenant Settings under 'Ask Wattle AI — Sensitive Data Access'.`,
+    );
+  } else {
+    parts.push(
+      `## SENSITIVE DATA NOTICE
+
+You have access to medical, custody, wellbeing, and learning plan data. When accessing this information:
+- Only retrieve what was specifically asked for — do not volunteer additional sensitive details
+- Never include sensitive data in suggest_actions labels or highlight_ui_elements descriptions (these may be visible in UI chrome)
+- If a parent or guardian is mentioned in the conversation context, remember they should NOT see other children's data`,
+    );
   }
 
   return parts.join("\n\n");
@@ -419,7 +449,11 @@ async function persistMessage(
 // request. The OpenAI SDK handles connection pooling internally.
 
 function getOpenAIClient(): OpenAI {
-  return new OpenAI();
+  // OPENAI_BASE_URL allows redirecting to Azure OpenAI AU East or a self-hosted
+  // OpenAI-compatible endpoint (e.g. vLLM/TGI on RunPod Sydney) for data residency.
+  return new OpenAI({
+    baseURL: process.env.OPENAI_BASE_URL, // undefined = default OpenAI endpoint
+  });
 }
 
 // ============================================================
@@ -442,6 +476,17 @@ export async function askWattle(
     const userId = context.user.id;
     const tenantId = context.tenant.id;
     const permissions = context.permissions ?? [];
+
+    // ST4S: fetch tenant's sensitive data consent flag
+    const supabase = await createSupabaseServerClient();
+    const { data: tenant } = await supabase
+      .from("tenants")
+      .select("ai_sensitive_data_enabled, ai_disable_sensitive_tools")
+      .eq("id", tenantId)
+      .single();
+    const sensitiveToolsEnabled =
+      (tenant?.ai_sensitive_data_enabled ?? false) &&
+      !(tenant?.ai_disable_sensitive_tools ?? false);
 
     // 2. Get or create conversation
     const conversationId = await getOrCreateConversation(
@@ -484,6 +529,7 @@ export async function askWattle(
       tenantName: input.tenant_name,
       currentRoute: input.current_route,
       permissions,
+      sensitiveToolsEnabled,
     });
 
     const messages: ChatCompletionMessageParam[] = [
@@ -500,9 +546,9 @@ export async function askWattle(
       },
     ];
 
-    // 7. Call GPT-4o with tools (dynamic based on permissions)
+    // 7. Call model with tools filtered by permissions and ST4S consent
     const openai = getOpenAIClient();
-    const tools = buildToolsForOpenAI(permissions, input.user_role);
+    const tools = buildToolsForOpenAI(permissions, input.user_role, sensitiveToolsEnabled);
 
     const response = await openai.chat.completions.create({
       model: OPENAI_MODEL,
@@ -576,6 +622,7 @@ export async function buildAskWattleStream(
   userId: string,
   tenantId: string | null,
   permissions: string[],
+  sensitiveToolsEnabled: boolean = false,
 ): Promise<{
   stream: ReadableStream<Uint8Array>;
   conversationId: string;
@@ -622,6 +669,7 @@ export async function buildAskWattleStream(
     currentRoute: input.current_route,
     permissions,
     uiManifest: input.ui_manifest,
+    sensitiveToolsEnabled,
   });
 
   const messages: ChatCompletionMessageParam[] = [
@@ -649,7 +697,7 @@ export async function buildAskWattleStream(
   // final text response streams to the client.
   const openai = getOpenAIClient();
   const encoder = new TextEncoder();
-  const tools = buildToolsForOpenAI(permissions, input.user_role);
+  const tools = buildToolsForOpenAI(permissions, input.user_role, sensitiveToolsEnabled);
 
   // Create Supabase client NOW, before the stream starts.
   // WHY: createSupabaseServerClient() calls cookies() which uses
@@ -772,6 +820,45 @@ export async function buildAskWattleStream(
               executeWattleTool(tc.id, tc.name, tc.arguments, toolCtx),
             ),
           );
+
+          // APP 8 audit: log every Ask Wattle query that accesses sensitive data.
+          // This creates a durable record of what student data was sent to OpenAI.
+          // Fire-and-forget (void Promise) so logging never blocks the stream.
+          if (tenantId) {
+            const adminForAudit = createSupabaseAdminClient();
+            const sensitiveToolCalls = executableCalls.filter((tc) =>
+              isSensitiveTool(tc.name),
+            );
+            if (sensitiveToolCalls.length > 0) {
+              const auditRows = sensitiveToolCalls.map((tc) => ({
+                tenant_id: tenantId as string,
+                user_id: userId,
+                action: `ask_wattle.tool.${tc.name}`,
+                entity_type: "ask_wattle",
+                entity_id: null as string | null,
+                outcome: "success" as const,
+                ip_address: null as string | null,
+                metadata: {
+                  _sensitivity: "high",
+                  _system: false,
+                  tool_name: tc.name,
+                  message_preview: input.message.slice(0, 200),
+                  data_sent_to_openai: true,
+                },
+              }));
+              void adminForAudit
+                .from("audit_logs")
+                .insert(auditRows)
+                .then(({ error }) => {
+                  if (error) {
+                    console.error(
+                      "[ask-wattle] Failed to write sensitive tool audit log:",
+                      error.message,
+                    );
+                  }
+                });
+            }
+          }
 
           // Emit structured tool results to the frontend (parallel channel)
           // GPT gets the string `content`; the client gets typed `structured` data

@@ -3,6 +3,7 @@
 // Parent single-newsletter view. Records read receipt on load.
 
 import Link from "next/link";
+import { sanitizeHtml } from "@/lib/utils/sanitize-html";
 import { getNewsletter, recordReadReceipt } from "@/lib/actions/comms/newsletter";
 import { notFound } from "next/navigation";
 
@@ -65,7 +66,7 @@ export default async function ParentNewsletterDetailPage({
         <div
           className="prose max-w-none text-sm"
           style={{ color: "var(--foreground)" }}
-          dangerouslySetInnerHTML={{ __html: nl.body_html }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(nl.body_html) }}
         />
       </div>
     </div>

@@ -160,20 +160,34 @@ export function BulkUploadZone({
           throw new Error(uploadError.message);
         }
 
-        // Step 3: Get public URL
-        const { data: urlData } = supabase.storage
-          .from("profile-photos")
-          .getPublicUrl(storagePath);
-
-        const publicUrl = urlData.publicUrl;
+        // Step 3: Get a short-lived signed URL (1 hour) via the
+        // photos/signed-url API route. The profile-photos bucket
+        // is private; .getPublicUrl() would produce a permanent
+        // unauthenticated URL — inappropriate for images of children.
+        let photoUrl = "";
+        try {
+          const signedRes = await fetch("/api/photos/signed-url", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paths: [storagePath] }),
+          });
+          if (signedRes.ok) {
+            const signedData = await signedRes.json();
+            photoUrl = signedData.signed_urls?.[storagePath] ?? "";
+          }
+        } catch {
+          // Non-fatal: photo is registered; URL can be regenerated later
+        }
 
         // Step 4: Register photo via server action
+        // We store the storage_path so the app can always generate
+        // a fresh signed URL on demand.
         const result = await registerPhoto({
           session_id: sessionId,
           person_type: personType,
           person_id: null,
           storage_path: storagePath,
-          photo_url: publicUrl,
+          photo_url: photoUrl,
           original_filename: entry.originalFilename,
           file_size_bytes: compressed.size,
         });
@@ -192,7 +206,7 @@ export function BulkUploadZone({
                   ...f,
                   status: "done" as const,
                   photoId,
-                  photoUrl: publicUrl,
+                  photoUrl,
                 }
               : f,
           ),
@@ -200,7 +214,7 @@ export function BulkUploadZone({
 
         completedPhotos.push({
           id: photoId,
-          photo_url: publicUrl,
+          photo_url: photoUrl,
           original_filename: entry.originalFilename,
         });
 

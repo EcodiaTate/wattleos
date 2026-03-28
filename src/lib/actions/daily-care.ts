@@ -23,6 +23,16 @@ import { Permissions } from "@/lib/constants/permissions";
 import { SUNSCREEN_REAPPLY_MINUTES } from "@/lib/constants/daily-care";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuditActions, logAudit } from "@/lib/utils/audit";
+import { encryptField, decryptField } from "@/lib/utils/encryption";
+
+/** Decrypt general_notes on a daily care log row */
+function decryptLogNotes<T>(row: T): T {
+  const r = row as Record<string, unknown>;
+  if (typeof r.general_notes === "string" && r.general_notes) {
+    return { ...row, general_notes: decryptField(r.general_notes) };
+  }
+  return row;
+}
 import {
   createDailyCareLogSchema,
   createCareEntrySchema,
@@ -179,7 +189,7 @@ export async function getDailyCareLogDashboard(): Promise<
         };
         const logId = rest.id as string;
         return {
-          ...rest,
+          ...decryptLogNotes(rest),
           student: students,
           entry_count: logEntryCountMap[logId] ?? 0,
           last_entry_at: logLastEntryMap[logId] ?? null,
@@ -384,7 +394,7 @@ export async function getOrCreateDailyLog(
     }
 
     if (existing) {
-      return success(existing as unknown as DailyCareLog);
+      return success(decryptLogNotes(existing) as unknown as DailyCareLog);
     }
 
     // Create new log
@@ -415,7 +425,7 @@ export async function getOrCreateDailyLog(
       metadata: { student_id: studentId, log_date: logDate },
     });
 
-    return success(newLog as unknown as DailyCareLog);
+    return success(decryptLogNotes(newLog) as unknown as DailyCareLog);
   } catch (err) {
     return failure(
       err instanceof Error ? err.message : "Failed to get or create daily log",
@@ -548,7 +558,7 @@ export async function getDailyCareLog(
     };
 
     const result: DailyCareLogWithEntries = {
-      ...(logRest as unknown as DailyCareLog),
+      ...(decryptLogNotes(logRest) as unknown as DailyCareLog),
       student: students as DailyCareLogWithEntries["student"],
       entries: entriesWithRecorder,
       created_by_user: createdByUser
@@ -705,7 +715,7 @@ export async function listDailyCareLogs(
         };
         const logId = rest.id as string;
         return {
-          ...rest,
+          ...decryptLogNotes(rest),
           student: students,
           entry_count: logEntryCountMap[logId] ?? 0,
           last_entry_at: logLastEntryMap[logId] ?? null,
@@ -1407,7 +1417,7 @@ export async function shareDailyCareLog(
     };
 
     if (v.general_notes !== undefined) {
-      updateData.general_notes = v.general_notes;
+      updateData.general_notes = v.general_notes ? encryptField(v.general_notes) : v.general_notes;
     }
 
     const { data: updated, error: updateError } = await supabase
@@ -1436,7 +1446,7 @@ export async function shareDailyCareLog(
       },
     });
 
-    return success(updated as unknown as DailyCareLog);
+    return success(decryptLogNotes(updated) as unknown as DailyCareLog);
   } catch (err) {
     return failure(
       err instanceof Error ? err.message : "Failed to share daily care log",
@@ -1493,7 +1503,7 @@ export async function unshareDailyCareLog(
 
     // No audit for correction action (as specified)
 
-    return success(updated as unknown as DailyCareLog);
+    return success(decryptLogNotes(updated) as unknown as DailyCareLog);
   } catch (err) {
     return failure(
       err instanceof Error ? err.message : "Failed to unshare daily care log",
@@ -1574,7 +1584,7 @@ export async function getChildCareHistory(
         };
         const logId = rest.id as string;
         return {
-          ...rest,
+          ...decryptLogNotes(rest),
           student: students,
           entry_count: logEntryCountMap[logId] ?? 0,
           last_entry_at: logLastEntryMap[logId] ?? null,

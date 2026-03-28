@@ -19,6 +19,24 @@ import { Permissions } from "@/lib/constants/permissions";
 import { currentNccdYear } from "@/lib/constants/nccd";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuditActions, logAudit } from "@/lib/utils/audit";
+import { encryptField, decryptField } from "@/lib/utils/encryption";
+
+const SENSITIVE_NCCD_FIELDS = [
+  "disability_subcategory",
+  "notes",
+] as const;
+
+function decryptNccdRecord<T extends Record<string, unknown>>(row: T): T {
+  const result = { ...row };
+  for (const field of SENSITIVE_NCCD_FIELDS) {
+    if (typeof result[field] === "string") {
+      (result as Record<string, unknown>)[field] = decryptField(
+        result[field] as string,
+      );
+    }
+  }
+  return result;
+}
 import {
   createNccdEntrySchema,
   updateNccdEntrySchema,
@@ -70,7 +88,7 @@ export async function createNccdEntry(
         student_id: v.student_id,
         collection_year: v.collection_year,
         disability_category: v.disability_category,
-        disability_subcategory: v.disability_subcategory || null,
+        disability_subcategory: v.disability_subcategory ? encryptField(v.disability_subcategory) : null,
         adjustment_level: v.adjustment_level,
         adjustment_types: v.adjustment_types,
         funding_source: v.funding_source || null,
@@ -85,7 +103,7 @@ export async function createNccdEntry(
         parental_consent_by: v.parental_consent_given ? context.user.id : null,
         ilp_id: v.ilp_id || null,
         status: v.status,
-        notes: v.notes || null,
+        notes: v.notes ? encryptField(v.notes) : null,
         review_due_date: v.review_due_date || null,
         created_by: context.user.id,
       })
@@ -119,7 +137,7 @@ export async function createNccdEntry(
       },
     });
 
-    return success(data as NccdRegisterEntry);
+    return success(decryptNccdRecord(data) as NccdRegisterEntry);
   } catch (err) {
     return failure(
       err instanceof Error ? err.message : "Unexpected error",
@@ -154,7 +172,7 @@ export async function updateNccdEntry(
     if (v.disability_category !== undefined)
       updatePayload.disability_category = v.disability_category;
     if (v.disability_subcategory !== undefined)
-      updatePayload.disability_subcategory = v.disability_subcategory || null;
+      updatePayload.disability_subcategory = v.disability_subcategory ? encryptField(v.disability_subcategory) : null;
     if (v.adjustment_level !== undefined)
       updatePayload.adjustment_level = v.adjustment_level;
     if (v.adjustment_types !== undefined)
@@ -185,7 +203,7 @@ export async function updateNccdEntry(
       updatePayload.parental_consent_date = v.parental_consent_date || null;
     if (v.ilp_id !== undefined) updatePayload.ilp_id = v.ilp_id || null;
     if (v.status !== undefined) updatePayload.status = v.status;
-    if (v.notes !== undefined) updatePayload.notes = v.notes || null;
+    if (v.notes !== undefined) updatePayload.notes = v.notes ? encryptField(v.notes) : null;
     if (v.review_due_date !== undefined)
       updatePayload.review_due_date = v.review_due_date || null;
 
@@ -213,7 +231,7 @@ export async function updateNccdEntry(
       metadata: { changes: Object.keys(updatePayload) },
     });
 
-    return success(data as NccdRegisterEntry);
+    return success(decryptNccdRecord(data) as NccdRegisterEntry);
   } catch (err) {
     return failure(
       err instanceof Error ? err.message : "Unexpected error",
@@ -299,8 +317,9 @@ export async function getNccdEntry(
       );
     }
 
+    const decrypted = decryptNccdRecord(data);
     const entry: NccdEntryWithDetails = {
-      ...(data as NccdRegisterEntry),
+      ...(decrypted as NccdRegisterEntry),
       student: Array.isArray(data.student) ? data.student[0] : data.student,
       evidence: (data.evidence as NccdEvidenceItem[]) ?? [],
       ilp: Array.isArray(data.ilp)
@@ -420,7 +439,7 @@ export async function listNccdEntries(
         }
 
         return {
-          ...(row as NccdRegisterEntry),
+          ...(decryptNccdRecord(row) as NccdRegisterEntry),
           student: studentRaw,
           evidence_count: count,
         } as NccdEntryWithStudent;
@@ -841,8 +860,9 @@ export async function getStudentNccdEntry(
 
     if (!data) return success(null);
 
+    const decrypted2 = decryptNccdRecord(data);
     const entry: NccdEntryWithDetails = {
-      ...(data as NccdRegisterEntry),
+      ...(decrypted2 as NccdRegisterEntry),
       student: Array.isArray(data.student) ? data.student[0] : data.student,
       evidence: (data.evidence as NccdEvidenceItem[]) ?? [],
       ilp: Array.isArray(data.ilp)

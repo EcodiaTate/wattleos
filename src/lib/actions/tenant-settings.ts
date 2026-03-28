@@ -30,14 +30,18 @@
 import { getTenantContext, requirePermission } from "@/lib/auth/tenant-context";
 import { Permissions } from "@/lib/constants/permissions";
 import {
+  AUSTRALIAN_STATES,
   AUSTRALIAN_TIMEZONES,
   SUPPORTED_COUNTRIES,
   SUPPORTED_CURRENCIES,
 } from "@/lib/constants/tenant-settings";
 import type {
   TenantGeneralSettings,
+  TenantSettings,
+  UpdateAiSettingsInput,
   UpdateTenantGeneralInput,
 } from "@/lib/constants/tenant-settings";
+import { AuditActions, logAudit } from "@/lib/utils/audit";
 import {
   createSupabaseAdminClient,
   createSupabaseServerClient,
@@ -57,7 +61,7 @@ export async function getTenantGeneralSettings(): Promise<
 
     const { data, error } = await supabase
       .from("tenants")
-      .select("name, logo_url, timezone, country, currency")
+      .select("name, logo_url, timezone, country, currency, state")
       .eq("id", context.tenant.id)
       .single();
 
@@ -75,6 +79,7 @@ export async function getTenantGeneralSettings(): Promise<
       timezone: data.timezone,
       country: data.country,
       currency: data.currency,
+      state: data.state ?? null,
     });
   } catch (err) {
     const message =
@@ -125,6 +130,14 @@ export async function updateTenantGeneralSettings(
       return failure("Invalid currency", ErrorCodes.VALIDATION_ERROR);
     }
 
+    if (
+      input.state !== undefined &&
+      input.state !== null &&
+      !AUSTRALIAN_STATES.some((s) => s.value === input.state)
+    ) {
+      return failure("Invalid state", ErrorCodes.VALIDATION_ERROR);
+    }
+
     // ── Build update payload (only changed fields) ──────────
     const updates: Record<string, unknown> = {};
 
@@ -133,6 +146,7 @@ export async function updateTenantGeneralSettings(
     if (input.timezone !== undefined) updates.timezone = input.timezone;
     if (input.country !== undefined) updates.country = input.country;
     if (input.currency !== undefined) updates.currency = input.currency;
+    if (input.state !== undefined) updates.state = input.state;
 
     if (Object.keys(updates).length === 0) {
       return failure("No fields to update", ErrorCodes.VALIDATION_ERROR);
@@ -143,7 +157,7 @@ export async function updateTenantGeneralSettings(
       .from("tenants")
       .update(updates)
       .eq("id", context.tenant.id)
-      .select("name, logo_url, timezone, country, currency")
+      .select("name, logo_url, timezone, country, currency, state")
       .single();
 
     if (error) {
@@ -160,6 +174,7 @@ export async function updateTenantGeneralSettings(
       timezone: data.timezone,
       country: data.country,
       currency: data.currency,
+      state: data.state ?? null,
     });
   } catch (err) {
     const message =
@@ -325,5 +340,126 @@ export async function deleteTenantLogo(): Promise<ActionResponse<null>> {
     const message =
       err instanceof Error ? err.message : "Failed to delete logo";
     return failure(message, ErrorCodes.INTERNAL_ERROR);
+  }
+}
+
+// ============================================================
+// GET: AI / Ask Wattle Settings
+// ============================================================
+// Returns the two AI consent flags for the tenant:
+//   ai_sensitive_data_enabled — explicit opt-in (default false)
+//   ai_disable_sensitive_tools — hard kill-switch (default false)
+//
+// Gated to MANAGE_TENANT_SETTINGS so only Owners/Admins can
+// view or change these. The Ask Wattle route enforces the flags
+// independently using an admin client query.
+// ============================================================
+
+export async function getTenantAiSettings(): Promise<
+  ActionResponse<TenantSettings>
+> {
+  try {
+    await requirePermission(Permissions.MANAGE_TENANT_SETTINGS);
+    const context = await getTenantContext();
+    const supabase = await createSupabaseServerClient();
+
+    const { data, error } = await supabase
+      .from("tenants")
+      .select("ai_sensitive_data_enabled, ai_disable_sensitive_tools")
+      .eq("id", context.tenant.id)
+      .single();
+
+    if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
+
+    return success({
+      ai_sensitive_data_enabled: data.ai_sensitive_data_enabled ?? false,
+      ai_disable_sensitive_tools: data.ai_disable_sensitive_tools ?? false,
+    });
+  } catch (err) {
+    return failure(
+      err instanceof Error ? err.message : "Failed to load AI settings",
+      ErrorCodes.INTERNAL_ERROR,
+    );
+  }
+}
+
+// ============================================================
+// UPDATE: AI / Ask Wattle Settings
+// ============================================================
+// Allows toggling ai_sensitive_data_enabled and/or
+// ai_disable_sensitive_tools.
+//
+// WHY both flags:
+//   ai_sensitive_data_enabled requires an explicit consent
+//   acknowledgment (the admin must tick a checkbox that says
+//   "I understand this sends student data to OpenAI servers
+//   in the United States"). This is the APP 8 consent gate.
+//
+//   ai_disable_sensitive_tools is a hard operational kill-switch
+//   that can be toggled without revoking consent. Useful during
+//   audits or incidents.
+//
+// WHY admin client for the update:
+//   No UPDATE RLS on tenants for authenticated users.
+//   Permission is enforced via requirePermission().
+// ============================================================
+
+export async function updateTenantAiSettings(
+  input: UpdateAiSettingsInput,
+): Promise<ActionResponse<TenantSettings>> {
+  try {
+    await requirePermission(Permissions.MANAGE_TENANT_SETTINGS);
+    const context = await getTenantContext();
+    const admin = createSupabaseAdminClient();
+
+    const updatePayload: Record<string, boolean> = {};
+    if (typeof input.ai_sensitive_data_enabled === "boolean") {
+      updatePayload.ai_sensitive_data_enabled = input.ai_sensitive_data_enabled;
+    }
+    if (typeof input.ai_disable_sensitive_tools === "boolean") {
+      updatePayload.ai_disable_sensitive_tools = input.ai_disable_sensitive_tools;
+    }
+
+    if (Object.keys(updatePayload).length === 0) {
+      return failure("No AI settings provided to update", ErrorCodes.VALIDATION_ERROR);
+    }
+
+    const { data, error } = await admin
+      .from("tenants")
+      .update(updatePayload)
+      .eq("id", context.tenant.id)
+      .select("ai_sensitive_data_enabled, ai_disable_sensitive_tools")
+      .single();
+
+    if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
+
+    // Audit log — critical sensitivity, logged for every toggle
+    if (typeof input.ai_sensitive_data_enabled === "boolean") {
+      await logAudit({
+        context,
+        action: AuditActions.AI_SENSITIVE_DATA_TOGGLED,
+        entityType: "tenant",
+        entityId: context.tenant.id,
+        metadata: { enabled: input.ai_sensitive_data_enabled },
+      });
+    } else {
+      await logAudit({
+        context,
+        action: AuditActions.SETTINGS_UPDATED,
+        entityType: "tenant",
+        entityId: context.tenant.id,
+        metadata: updatePayload,
+      });
+    }
+
+    return success({
+      ai_sensitive_data_enabled: data.ai_sensitive_data_enabled ?? false,
+      ai_disable_sensitive_tools: data.ai_disable_sensitive_tools ?? false,
+    });
+  } catch (err) {
+    return failure(
+      err instanceof Error ? err.message : "Failed to update AI settings",
+      ErrorCodes.INTERNAL_ERROR,
+    );
   }
 }

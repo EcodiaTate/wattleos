@@ -24,6 +24,25 @@ import {
 } from "@/lib/constants/ilp";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuditAction, AuditActions, logAudit } from "@/lib/utils/audit";
+import { encryptField, decryptField } from "@/lib/utils/encryption";
+
+const SENSITIVE_ILP_FIELDS = [
+  "child_strengths",
+  "background_information",
+  "family_goals",
+] as const;
+
+function decryptIlpRecord<T extends Record<string, unknown>>(row: T): T {
+  const result = { ...row };
+  for (const field of SENSITIVE_ILP_FIELDS) {
+    if (typeof result[field] === "string") {
+      (result as Record<string, unknown>)[field] = decryptField(
+        result[field] as string,
+      );
+    }
+  }
+  return result;
+}
 import {
   createPlanSchema,
   updatePlanSchema,
@@ -102,10 +121,10 @@ export async function createPlan(
         funding_reference: v.funding_reference || null,
         start_date: v.start_date,
         review_due_date: v.review_due_date || null,
-        child_strengths: v.child_strengths || null,
+        child_strengths: v.child_strengths ? encryptField(v.child_strengths) : null,
         child_interests: v.child_interests || null,
-        background_information: v.background_information || null,
-        family_goals: v.family_goals || null,
+        background_information: v.background_information ? encryptField(v.background_information) : null,
+        family_goals: v.family_goals ? encryptField(v.family_goals) : null,
         parent_consent_given: v.parent_consent_given,
         parent_consent_date: v.parent_consent_date || null,
         parent_consent_by: v.parent_consent_by || null,
@@ -134,7 +153,7 @@ export async function createPlan(
       },
     });
 
-    return success(data as IndividualLearningPlan);
+    return success(decryptIlpRecord(data) as IndividualLearningPlan);
   } catch (err) {
     return failure(
       err instanceof Error ? err.message : "Failed to create plan",
@@ -210,13 +229,13 @@ export async function updatePlan(
       updatePayload.next_review_date = v.next_review_date;
     if (v.end_date !== undefined) updatePayload.end_date = v.end_date;
     if (v.child_strengths !== undefined)
-      updatePayload.child_strengths = v.child_strengths;
+      updatePayload.child_strengths = v.child_strengths ? encryptField(v.child_strengths) : v.child_strengths;
     if (v.child_interests !== undefined)
       updatePayload.child_interests = v.child_interests;
     if (v.background_information !== undefined)
-      updatePayload.background_information = v.background_information;
+      updatePayload.background_information = v.background_information ? encryptField(v.background_information) : v.background_information;
     if (v.family_goals !== undefined)
-      updatePayload.family_goals = v.family_goals;
+      updatePayload.family_goals = v.family_goals ? encryptField(v.family_goals) : v.family_goals;
     if (v.parent_consent_given !== undefined)
       updatePayload.parent_consent_given = v.parent_consent_given;
     if (v.parent_consent_date !== undefined)
@@ -255,7 +274,7 @@ export async function updatePlan(
         : { updated_fields: Object.keys(updatePayload) },
     });
 
-    return success(data as IndividualLearningPlan);
+    return success(decryptIlpRecord(data) as IndividualLearningPlan);
   } catch (err) {
     return failure(
       err instanceof Error ? err.message : "Failed to update plan",
@@ -365,8 +384,9 @@ export async function getPlan(
           .single()
       : { data: null };
 
+    const decryptedPlan = decryptIlpRecord(plan);
     const result: IndividualLearningPlanWithDetails = {
-      ...(plan as unknown as IndividualLearningPlan),
+      ...(decryptedPlan as unknown as IndividualLearningPlan),
       student: plan.student as IndividualLearningPlanWithDetails["student"],
       goals: goalsWithStrategies,
       collaborators: (collaborators ?? []) as IlpCollaborator[],
@@ -459,7 +479,7 @@ export async function listPlans(
     }
 
     const items: IndividualLearningPlanListItem[] = plans.map((plan) => ({
-      ...(plan as unknown as IndividualLearningPlan),
+      ...(decryptIlpRecord(plan) as unknown as IndividualLearningPlan),
       student: plan.student as IndividualLearningPlanListItem["student"],
       goal_count: goalCountMap[plan.id] ?? 0,
       goals_achieved: goalAchievedMap[plan.id] ?? 0,
@@ -481,6 +501,7 @@ export async function listPlans(
 
 export async function archivePlan(
   planId: string,
+  deletionReason?: string,
 ): Promise<ActionResponse<{ archived: boolean }>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_ILP);
@@ -491,6 +512,8 @@ export async function archivePlan(
       .update({
         deleted_at: new Date().toISOString(),
         updated_by: context.user.id,
+        deleted_by: context.user.id,
+        deletion_reason: deletionReason ?? null,
       })
       .eq("id", planId)
       .eq("tenant_id", context.tenant.id)
@@ -505,7 +528,7 @@ export async function archivePlan(
       action: AuditActions.ILP_PLAN_ARCHIVED,
       entityType: "individual_learning_plan",
       entityId: planId,
-      metadata: {},
+      metadata: { deletion_reason: deletionReason ?? null },
     });
 
     return success({ archived: true });

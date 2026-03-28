@@ -7,6 +7,7 @@
 
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 
 export default function GlobalError({
@@ -17,9 +18,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // TODO: Replace with Sentry or structured logging
-    //TOUCHg
-    console.error("Global error:", error);
+    Sentry.captureException(error);
   }, [error]);
 
   return (

@@ -37,6 +37,7 @@
 import { acceptParentInvitation } from "@/lib/actions/enroll/accept-parent-invitation";
 import { acceptSetupToken } from "@/lib/actions/setup/accept-setup-token";
 import { getUserTenants, setUserTenant } from "@/lib/auth/tenant-context";
+import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { createServerClient } from "@supabase/ssr";
 import type { CookieSerializeOptions } from "cookie";
 import { NextRequest, NextResponse } from "next/server";
@@ -215,6 +216,55 @@ export async function GET(request: NextRequest) {
   } else {
     // Multiple tenants - let them pick
     redirectUrl = `${origin}/tenant-picker`;
+  }
+
+  // ── MFA CHECK ───────────────────────────────────────────────────────────
+  // Two cases handled:
+  //   1. Enrolled → redirect to /mfa/verify to complete TOTP challenge
+  //   2. Required for role but not enrolled → redirect to /settings/security
+  //      to force enrollment before they can access the app
+  const { data: mfaFactors } = await supabase.auth.mfa.listFactors();
+  const hasVerifiedTotp = mfaFactors?.totp?.some(
+    (f) => f.status === "verified",
+  );
+
+  if (hasVerifiedTotp) {
+    // Enrolled — must verify TOTP before accessing app
+    redirectUrl = `${origin}/mfa/verify`;
+  } else if (tenants.length === 1) {
+    // Not enrolled — check if MFA is required for this user's role
+    try {
+      const adminClient = createSupabaseAdminClient();
+      const tenantId = tenants[0].tenant.id;
+
+      // Look up this user's role name in the tenant
+      const { data: membership } = await adminClient
+        .from("tenant_users")
+        .select("roles(name)")
+        .eq("user_id", userId)
+        .eq("tenant_id", tenantId)
+        .is("deleted_at", null)
+        .single();
+
+      const roleName = (membership?.roles as unknown as { name: string } | null)?.name ?? "";
+
+      // Look up which roles require MFA for this tenant
+      const { data: tenantSettings } = await adminClient
+        .from("tenants")
+        .select("require_mfa_for_roles")
+        .eq("id", tenantId)
+        .single();
+
+      const requiredRoles: string[] = tenantSettings?.require_mfa_for_roles ?? ["Owner", "Administrator"];
+
+      if (requiredRoles.includes(roleName)) {
+        // MFA required for this role but not enrolled — force enrollment
+        redirectUrl = `${origin}/settings/security?mfa_required=1`;
+      }
+    } catch {
+      // Non-fatal: if we can't determine MFA requirements, let them through.
+      // The settings page will surface the enrollment prompt on next visit.
+    }
   }
 
   // ── Build the redirect response and replay ALL cookies onto it ────────

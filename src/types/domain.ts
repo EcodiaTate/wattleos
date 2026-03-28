@@ -114,9 +114,15 @@ export interface Tenant {
   timezone: string;
   country: string;
   currency: string;
+  /** Australian state/territory for jurisdiction-specific reporting (e.g. ISQ for QLD). */
+  state: string | null;
   settings: Record<string, unknown>;
   plan_tier: PlanTier;
   is_active: boolean;
+  /** ST4S: explicit opt-in to allow Wattle to access medical/custody/wellbeing data */
+  ai_sensitive_data_enabled: boolean;
+  /** ST4S: hard kill-switch that overrides ai_sensitive_data_enabled */
+  ai_disable_sensitive_tools: boolean;
   // Platform billing (WattleOS → school subscription)
   subscription_status: SubscriptionStatus;
   stripe_platform_customer_id: string | null;

@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { checkRatioBreaches } = await import("@/lib/actions/ratios");
+    const { checkRatioBreaches } = await import("@/lib/cron/ratio-breach-check");
 
     const result = await checkRatioBreaches();
 

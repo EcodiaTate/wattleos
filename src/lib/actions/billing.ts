@@ -246,6 +246,19 @@ export async function createInvoice(
     if (lineError) {
       // Cleanup: delete the invoice if line items fail
       await supabase.from("invoices").delete().eq("id", invoice.id);
+      await logAudit({
+        context,
+        action: AuditActions.INVOICE_CREATED,
+        entityType: "invoice",
+        entityId: invoice.id,
+        outcome: "failure",
+        metadata: {
+          invoice_number: invoiceNumber,
+          student_id: v.student_id,
+          error: lineError.message,
+          phase: "line_items",
+        },
+      });
       return failure(lineError.message, ErrorCodes.CREATE_FAILED);
     }
 

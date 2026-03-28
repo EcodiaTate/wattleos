@@ -172,6 +172,8 @@ interface AskWattleProviderProps {
   userName?: string;
   permissions?: string[];
   tenantName?: string;
+  /** When true, Wattle has access to sensitive data (medical, custody, wellbeing). Shows indicator in panel header. */
+  sensitiveDataEnabled?: boolean;
 }
 
 export function AskWattleProvider({
@@ -180,6 +182,7 @@ export function AskWattleProvider({
   userName,
   permissions,
   tenantName,
+  sensitiveDataEnabled,
 }: AskWattleProviderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
@@ -272,6 +275,7 @@ export function AskWattleProvider({
         userName={userName}
         permissions={permissions}
         tenantName={tenantName}
+        sensitiveDataEnabled={sensitiveDataEnabled}
         pendingQuestion={pendingQuestion}
         onPendingQuestionConsumed={handlePendingQuestionConsumed}
       />

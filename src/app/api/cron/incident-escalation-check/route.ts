@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const { checkIncidentNqaEscalations } =
-      await import("@/lib/actions/incidents");
+      await import("@/lib/cron/incident-escalation-check");
 
     const result = await checkIncidentNqaEscalations();
 

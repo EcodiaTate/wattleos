@@ -82,6 +82,7 @@ export default async function EditStudentPage({
       <StudentForm
         initialData={student}
         canManageEnrollment={canManageEnrollment}
+        tenantState={context.tenant.state}
       />
     </div>
   );

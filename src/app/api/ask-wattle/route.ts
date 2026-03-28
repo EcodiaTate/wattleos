@@ -84,6 +84,7 @@ export async function POST(request: NextRequest) {
     // for the prompt, but we validate against the real DB here.
     let tenantId: string | null = null;
     let permissions: string[] = [];
+    let sensitiveToolsEnabled = false;
     try {
       const { data: membership } = await supabase
         .from("tenant_users")
@@ -122,6 +123,22 @@ export async function POST(request: NextRequest) {
           })
           .filter((key): key is string => !!key);
       }
+
+      // ST4S: fetch the tenant's consent flags for sensitive AI tools.
+      // sensitiveToolsEnabled is only true when:
+      //   (a) ai_sensitive_data_enabled = true  (explicit opt-in), AND
+      //   (b) ai_disable_sensitive_tools = false (kill-switch is OFF)
+      // Defaults to false — tools stay OFF unless explicitly enabled.
+      if (tenantId) {
+        const { data: tenant } = await supabase
+          .from("tenants")
+          .select("ai_sensitive_data_enabled, ai_disable_sensitive_tools")
+          .eq("id", tenantId)
+          .single();
+        const optedIn = tenant?.ai_sensitive_data_enabled ?? false;
+        const killSwitch = tenant?.ai_disable_sensitive_tools ?? false;
+        sensitiveToolsEnabled = optedIn && !killSwitch;
+      }
     } catch {
       // Non-tenant user (e.g., demo accounts) - no permissions
       tenantId = null;
@@ -134,6 +151,7 @@ export async function POST(request: NextRequest) {
       user.id,
       tenantId,
       permissions,
+      sensitiveToolsEnabled,
     );
 
     return new Response(stream, {

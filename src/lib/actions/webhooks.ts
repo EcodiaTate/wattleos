@@ -198,7 +198,7 @@ export async function retryWebhookEvent(
   webhookEventId: string,
 ): Promise<ActionResponse<{ success: boolean }>> {
   try {
-    await requirePermission(Permissions.MANAGE_INTEGRATIONS);
+    const ctx = await requirePermission(Permissions.MANAGE_INTEGRATIONS);
 
     // Use admin client - re-processing needs service role access
     const supabase = createSupabaseAdminClient();
@@ -209,6 +209,7 @@ export async function retryWebhookEvent(
         "id, provider, event_type, event_id, payload, tenant_id, retry_count, status",
       )
       .eq("id", webhookEventId)
+      .eq("tenant_id", ctx.tenant.id)
       .maybeSingle();
 
     if (fetchErr || !event) {
@@ -222,7 +223,8 @@ export async function retryWebhookEvent(
         status: "pending",
         next_retry_at: new Date().toISOString(), // due immediately
       })
-      .eq("id", webhookEventId);
+      .eq("id", webhookEventId)
+      .eq("tenant_id", ctx.tenant.id);
 
     if (resetErr) {
       return failure(resetErr.message, "DB_ERROR");

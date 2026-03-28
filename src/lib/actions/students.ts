@@ -237,7 +237,7 @@ export async function getStudent(
   studentId: string,
 ): Promise<ActionResponse<StudentWithDetails>> {
   try {
-    await requirePermission(Permissions.VIEW_STUDENTS);
+    const context = await requirePermission(Permissions.VIEW_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     // Fetch student
@@ -310,6 +310,13 @@ export async function getStudent(
       pickup_authorizations: pickupAuthorizations ?? [],
     };
 
+    await logAudit({
+      context,
+      action: AuditActions.STUDENT_VIEWED,
+      entityType: "student",
+      entityId: studentId,
+    });
+
     return success(studentWithDetails);
   } catch (err) {
     const message =
@@ -377,6 +384,13 @@ export async function createStudent(
       .single();
 
     if (error) {
+      await logAudit({
+        context,
+        action: AuditActions.STUDENT_CREATED,
+        entityType: "student",
+        outcome: "failure",
+        metadata: { first_name: input.first_name, last_name: input.last_name, error: error.message },
+      });
       return failure(error.message, "DB_ERROR");
     }
 
@@ -481,6 +495,14 @@ export async function updateStudent(
       .single();
 
     if (error) {
+      await logAudit({
+        context,
+        action: AuditActions.STUDENT_UPDATED,
+        entityType: "student",
+        entityId: studentId,
+        outcome: "failure",
+        metadata: { updated_fields: Object.keys(updateData), error: error.message },
+      });
       return failure(error.message, "DB_ERROR");
     }
 
@@ -512,6 +534,7 @@ export async function updateStudent(
 
 export async function deleteStudent(
   studentId: string,
+  deletionReason?: string,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     const context = await requirePermission(Permissions.MANAGE_STUDENTS);
@@ -525,21 +548,40 @@ export async function deleteStudent(
       .is("deleted_at", null)
       .single();
 
-    // Soft delete the student
+    const now = new Date().toISOString();
+
+    // Soft delete the student — record who deleted and why
     const { error: studentError } = await supabase
       .from("students")
-      .update({ deleted_at: new Date().toISOString() })
+      .update({
+        deleted_at: now,
+        deleted_by: context.user.id,
+        deletion_reason: deletionReason ?? null,
+      })
       .eq("id", studentId)
       .is("deleted_at", null);
 
     if (studentError) {
+      await logAudit({
+        context,
+        action: AuditActions.STUDENT_DELETED,
+        entityType: "student",
+        entityId: studentId,
+        outcome: "failure",
+        metadata: { error: studentError.message },
+      });
       return failure(studentError.message, "DB_ERROR");
     }
 
-    // Soft delete active enrollments
+    // Soft delete active enrollments — propagate attribution
     await supabase
       .from("enrollments")
-      .update({ deleted_at: new Date().toISOString(), status: "withdrawn" })
+      .update({
+        deleted_at: now,
+        status: "withdrawn",
+        deleted_by: context.user.id,
+        deletion_reason: "Student record deleted",
+      })
       .eq("student_id", studentId)
       .eq("status", "active")
       .is("deleted_at", null);
@@ -552,6 +594,7 @@ export async function deleteStudent(
       metadata: {
         first_name: existing?.first_name ?? "unknown",
         last_name: existing?.last_name ?? "unknown",
+        deletion_reason: deletionReason ?? null,
       },
     });
 

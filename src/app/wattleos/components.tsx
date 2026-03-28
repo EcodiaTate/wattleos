@@ -682,7 +682,6 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600;700&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         ::selection { background: rgba(232, 168, 56, 0.25); color: #2C1810; }
@@ -759,7 +758,7 @@ export function MarketingNav() {
           <WattleLogo size={34} />
           <span
             style={{
-              fontFamily: "'Fraunces', Georgia, serif",
+              fontFamily: "var(--font-fraunces), Georgia, serif",
               fontSize: 22,
               color: "#2C1810",
               fontWeight: 500,
@@ -783,7 +782,7 @@ export function MarketingNav() {
               key={l.href}
               href={l.href}
               style={{
-                fontFamily: "'Outfit', sans-serif",
+                fontFamily: "var(--font-outfit), sans-serif",
                 fontSize: 14,
                 color: "#5C4A32",
                 fontWeight: 400,
@@ -801,7 +800,7 @@ export function MarketingNav() {
               color: "#FEFCF6",
               borderRadius: 8,
               padding: "10px 24px",
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "var(--font-outfit), sans-serif",
               fontSize: 14,
               fontWeight: 600,
               textDecoration: "none",
@@ -851,7 +850,7 @@ export function MarketingFooter() {
             <WattleLogo size={30} />
             <span
               style={{
-                fontFamily: "'Fraunces', Georgia, serif",
+                fontFamily: "var(--font-fraunces), Georgia, serif",
                 fontSize: 20,
                 color: "#FEFCF6",
                 fontWeight: 500,
@@ -862,7 +861,7 @@ export function MarketingFooter() {
           </div>
           <p
             style={{
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "var(--font-outfit), sans-serif",
               fontSize: 14,
               lineHeight: 1.65,
               maxWidth: 280,
@@ -874,7 +873,7 @@ export function MarketingFooter() {
           </p>
           <p
             style={{
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "var(--font-outfit), sans-serif",
               fontSize: 13,
               opacity: 0.65,
               margin: 0,
@@ -951,7 +950,7 @@ export function MarketingFooter() {
           <div key={col.title}>
             <h4
               style={{
-                fontFamily: "'Outfit', sans-serif",
+                fontFamily: "var(--font-outfit), sans-serif",
                 fontSize: 12,
                 fontWeight: 600,
                 color: "#E8A838",
@@ -968,7 +967,7 @@ export function MarketingFooter() {
                 href={link.href}
                 style={{
                   display: "block",
-                  fontFamily: "'Outfit', sans-serif",
+                  fontFamily: "var(--font-outfit), sans-serif",
                   fontSize: 14,
                   color: "rgba(254, 252, 246, 0.55)",
                   textDecoration: "none",
@@ -997,7 +996,7 @@ export function MarketingFooter() {
       >
         <p
           style={{
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "var(--font-outfit), sans-serif",
             fontSize: 13,
             opacity: 0.35,
             margin: 0,
@@ -1007,7 +1006,7 @@ export function MarketingFooter() {
         </p>
         <p
           style={{
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "var(--font-outfit), sans-serif",
             fontSize: 13,
             opacity: 0.35,
             margin: 0,
@@ -1034,7 +1033,7 @@ export function SectionLabel({
   return (
     <p
       style={{
-        fontFamily: "'Outfit', sans-serif",
+        fontFamily: "var(--font-outfit), sans-serif",
         fontSize: 13,
         fontWeight: 600,
         color,
@@ -1052,7 +1051,7 @@ export function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
     <h2
       style={{
-        fontFamily: "'Fraunces', Georgia, serif",
+        fontFamily: "var(--font-fraunces), Georgia, serif",
         fontSize: "clamp(30px, 4vw, 46px)",
         color: "#2C1810",
         fontWeight: 400,
@@ -1076,7 +1075,7 @@ export function SectionDescription({
   return (
     <p
       style={{
-        fontFamily: "'Outfit', sans-serif",
+        fontFamily: "var(--font-outfit), sans-serif",
         fontSize: 17,
         color: "#6B5744",
         maxWidth,
@@ -1153,7 +1152,7 @@ export function PageHero({
             style={{
               fontSize: 13,
               color: labelColor,
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "var(--font-outfit), sans-serif",
               fontWeight: 600,
             }}
           >
@@ -1163,7 +1162,7 @@ export function PageHero({
         <h1
           className="page-hero-heading"
           style={{
-            fontFamily: "'Fraunces', Georgia, serif",
+            fontFamily: "var(--font-fraunces), Georgia, serif",
             fontSize: "clamp(38px, 5.5vw, 58px)",
             color: "#2C1810",
             lineHeight: 1.1,
@@ -1176,7 +1175,7 @@ export function PageHero({
         </h1>
         <p
           style={{
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "var(--font-outfit), sans-serif",
             fontSize: "clamp(16px, 2vw, 19px)",
             color: "#6B5744",
             lineHeight: 1.65,
@@ -1194,7 +1193,7 @@ export function PageHero({
             color: "#FEFCF6",
             borderRadius: 10,
             padding: "15px 32px",
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "var(--font-outfit), sans-serif",
             fontSize: 15,
             fontWeight: 600,
             textDecoration: "none",
@@ -1255,7 +1254,7 @@ export function FeatureRow({
       <div style={{ flex: "1 1 340px" }}>
         <h3
           style={{
-            fontFamily: "'Fraunces', Georgia, serif",
+            fontFamily: "var(--font-fraunces), Georgia, serif",
             fontSize: 28,
             color: "#2C1810",
             fontWeight: 500,
@@ -1267,7 +1266,7 @@ export function FeatureRow({
         </h3>
         <p
           style={{
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "var(--font-outfit), sans-serif",
             fontSize: 16,
             color: "#6B5744",
             lineHeight: 1.7,
@@ -1306,7 +1305,7 @@ export function CTABanner() {
         <div style={{ position: "relative", zIndex: 1 }}>
           <h2
             style={{
-              fontFamily: "'Fraunces', Georgia, serif",
+              fontFamily: "var(--font-fraunces), Georgia, serif",
               fontSize: "clamp(24px, 3vw, 34px)",
               color: "#FEFCF6",
               fontWeight: 400,
@@ -1318,7 +1317,7 @@ export function CTABanner() {
           </h2>
           <p
             style={{
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "var(--font-outfit), sans-serif",
               fontSize: 16,
               color: "rgba(254, 252, 246, 0.6)",
               maxWidth: 440,
@@ -1345,7 +1344,7 @@ export function CTABanner() {
                 color: "#2C1810",
                 borderRadius: 10,
                 padding: "14px 32px",
-                fontFamily: "'Outfit', sans-serif",
+                fontFamily: "var(--font-outfit), sans-serif",
                 fontSize: 15,
                 fontWeight: 600,
                 textDecoration: "none",
@@ -1362,7 +1361,7 @@ export function CTABanner() {
                 border: "1.5px solid rgba(254,252,246,0.2)",
                 borderRadius: 10,
                 padding: "13px 32px",
-                fontFamily: "'Outfit', sans-serif",
+                fontFamily: "var(--font-outfit), sans-serif",
                 fontSize: 15,
                 fontWeight: 500,
                 textDecoration: "none",

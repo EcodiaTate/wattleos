@@ -60,6 +60,7 @@ export const AuditActions = {
   MEDICAL_DELETED: "medical.deleted",
 
   // ── Custody ─────────────────────────────────────────────
+  CUSTODY_VIEWED: "custody_restriction.viewed",
   CUSTODY_CREATED: "custody_restriction.created",
   CUSTODY_UPDATED: "custody_restriction.updated",
   CUSTODY_DELETED: "custody_restriction.deleted",
@@ -144,6 +145,7 @@ export const AuditActions = {
   // ── Settings ────────────────────────────────────────────
   SETTINGS_UPDATED: "settings.updated",
   BRANDING_UPDATED: "branding.updated",
+  AI_SENSITIVE_DATA_TOGGLED: "settings.ai_sensitive_data_toggled",
 
   // ── Data Import ─────────────────────────────────────────
   IMPORT_STARTED: "import.started",
@@ -161,6 +163,7 @@ export const AuditActions = {
   // ── Authentication ──────────────────────────────────────
   LOGIN_SUCCESS: "auth.login",
   LOGIN_FAILED: "auth.login_failed",
+  ACCOUNT_LOCKED: "auth.account_locked",
   LOGOUT: "auth.logout",
   TENANT_SWITCHED: "auth.tenant_switched",
 
@@ -375,6 +378,7 @@ export const AuditActions = {
   REFERRAL_UPDATED: "wellbeing.referral_updated",
   REFERRAL_STATUS_CHANGED: "wellbeing.referral_status_changed",
   REFERRAL_DELETED: "wellbeing.referral_deleted",
+  CASE_NOTE_VIEWED: "wellbeing.case_note_viewed",
   CASE_NOTE_CREATED: "wellbeing.case_note_created",
   CASE_NOTE_UPDATED: "wellbeing.case_note_updated",
   CASE_NOTE_DELETED: "wellbeing.case_note_deleted",
@@ -703,6 +707,31 @@ export const AuditActions = {
   TUCKSHOP_DELIVERY_ORDERED: "tuckshop.delivery_ordered",
   TUCKSHOP_DELIVERY_RECEIVED: "tuckshop.delivery_received",
   TUCKSHOP_DELIVERY_FINALIZED: "tuckshop.delivery_finalized",
+
+  // ── Tenant Offboarding (Prompt 46) ────────────────────────
+  TENANT_OFFBOARD_INITIATED: "tenant.offboard_initiated",
+  TENANT_OFFBOARD_CANCELLED: "tenant.offboard_cancelled",
+  TENANT_OFFBOARD_PHASE_ADVANCED: "tenant.offboard_phase_advanced",
+  TENANT_PURGED: "tenant.purged",
+
+  // ── Soft-Delete Attribution (Prompt 47) ───────────────────
+  STUDENT_DELETED_WITH_REASON: "student.deleted_with_reason",
+  ENROLLMENT_DELETED_WITH_REASON: "enrollment.deleted_with_reason",
+  INCIDENT_DELETED_WITH_REASON: "incident.deleted_with_reason",
+  MEDICAL_DELETED_WITH_REASON: "medical.deleted_with_reason",
+  ILP_DELETED_WITH_REASON: "ilp.deleted_with_reason",
+
+  // ── Data Corrections APP 13 (Prompt 48) ───────────────────
+  DATA_CORRECTION_REQUESTED: "data_correction.requested",
+  DATA_CORRECTION_APPROVED: "data_correction.approved",
+  DATA_CORRECTION_REJECTED: "data_correction.rejected",
+  DATA_CORRECTION_APPLIED: "data_correction.applied",
+
+  // ── Data Exports (Prompt 49) ──────────────────────────────
+  STUDENT_DATA_EXPORTED_CSV: "student.data_exported_csv",
+  STUDENT_DATA_EXPORTED_JSON: "student.data_exported_json",
+  CLASS_DATA_EXPORTED_CSV: "class.data_exported_csv",
+  ATTENDANCE_DATA_EXPORTED_CSV: "attendance.data_exported_csv",
 } as const;
 
 export type AuditAction = (typeof AuditActions)[keyof typeof AuditActions];
@@ -719,6 +748,7 @@ export type AuditSensitivity = "low" | "medium" | "high" | "critical";
 
 const ACTION_SENSITIVITY: Partial<Record<AuditAction, AuditSensitivity>> = {
   // Critical: custody, medical, user management
+  [AuditActions.CUSTODY_VIEWED]: "high",
   [AuditActions.CUSTODY_CREATED]: "critical",
   [AuditActions.CUSTODY_UPDATED]: "critical",
   [AuditActions.CUSTODY_DELETED]: "critical",
@@ -726,6 +756,7 @@ const ACTION_SENSITIVITY: Partial<Record<AuditAction, AuditSensitivity>> = {
   [AuditActions.MEDICAL_UPDATED]: "high",
   [AuditActions.MEDICAL_DELETED]: "high",
   [AuditActions.MEDICAL_VIEWED]: "medium",
+  [AuditActions.STUDENT_VIEWED]: "low",
   [AuditActions.USER_INVITED]: "high",
   [AuditActions.USER_ROLE_CHANGED]: "critical",
   [AuditActions.USER_SUSPENDED]: "critical",
@@ -737,6 +768,7 @@ const ACTION_SENSITIVITY: Partial<Record<AuditAction, AuditSensitivity>> = {
   [AuditActions.COMPLIANCE_RECORD_UPDATED]: "medium",
   [AuditActions.COMPLIANCE_RECORD_DELETED]: "high",
   [AuditActions.SETTINGS_UPDATED]: "high",
+  [AuditActions.AI_SENSITIVE_DATA_TOGGLED]: "critical",
   [AuditActions.PICKUP_AUTHORIZED]: "high",
   [AuditActions.PICKUP_REVOKED]: "high",
   [AuditActions.CONSENT_REVOKED]: "high",
@@ -780,6 +812,7 @@ const ACTION_SENSITIVITY: Partial<Record<AuditAction, AuditSensitivity>> = {
 
   // Auth
   [AuditActions.LOGIN_FAILED]: "medium",
+  [AuditActions.ACCOUNT_LOCKED]: "critical",
   [AuditActions.LOGIN_SUCCESS]: "low",
   [AuditActions.TENANT_SWITCHED]: "low",
 
@@ -949,6 +982,7 @@ const ACTION_SENSITIVITY: Partial<Record<AuditAction, AuditSensitivity>> = {
   [AuditActions.REFERRAL_UPDATED]: "medium",
   [AuditActions.REFERRAL_STATUS_CHANGED]: "high",
   [AuditActions.REFERRAL_DELETED]: "critical",
+  [AuditActions.CASE_NOTE_VIEWED]: "high",
   [AuditActions.CASE_NOTE_CREATED]: "high",
   [AuditActions.CASE_NOTE_UPDATED]: "high",
   [AuditActions.CASE_NOTE_DELETED]: "critical",
@@ -1216,6 +1250,8 @@ interface LogAuditInput {
   entityId?: string | null;
   /** Additional context (old values, change details, etc.) */
   metadata?: Record<string, unknown>;
+  /** Outcome of the action: 'success' (default), 'failure', or 'partial' */
+  outcome?: "success" | "failure" | "partial";
 }
 
 /**
@@ -1253,6 +1289,10 @@ export async function logAudit(input: LogAuditInput): Promise<void> {
       action: input.action,
       entity_type: input.entityType,
       entity_id: input.entityId ?? null,
+      outcome: input.outcome ?? "success",
+      // Promoted to top-level column (Prompt 40) for indexable forensic queries.
+      // Also kept in metadata._ip for backward compatibility.
+      ip_address: reqCtx.ip ?? null,
       metadata: {
         ...input.metadata,
         _ip: reqCtx.ip,
@@ -1280,6 +1320,8 @@ interface LogAuditSystemInput {
   entityType: string;
   entityId?: string | null;
   metadata?: Record<string, unknown>;
+  /** Outcome of the action: 'success' (default), 'failure', or 'partial' */
+  outcome?: "success" | "failure" | "partial";
 }
 
 /**
@@ -1298,6 +1340,10 @@ export async function logAuditSystem(
       action: input.action,
       entity_type: input.entityType,
       entity_id: input.entityId ?? null,
+      outcome: input.outcome ?? "success",
+      // System actions have no end-user IP; ip_address stays null.
+      // The field is populated for completeness (Prompt 40).
+      ip_address: null,
       metadata: {
         ...input.metadata,
         _system: true,
