@@ -146,8 +146,8 @@ export async function requestCorrection(
       action: AuditActions.DATA_CORRECTION_REQUESTED,
       entityType: input.entity_type,
       entityId: input.entity_id,
-      sensitivity: "high",
       metadata: {
+        _sensitivity: "high",
         field_name: input.field_name,
         reason: input.reason,
         correction_id: data.id,
@@ -293,8 +293,8 @@ export async function approveCorrection(
       action: AuditActions.DATA_CORRECTION_APPROVED,
       entityType: correction.entity_type,
       entityId: correction.entity_id,
-      sensitivity: "high",
       metadata: {
+        _sensitivity: "high",
         correction_id: correctionId,
         field_name: correction.field_name,
         review_notes: reviewNotes ?? null,
@@ -357,8 +357,8 @@ export async function rejectCorrection(
       action: AuditActions.DATA_CORRECTION_REJECTED,
       entityType: correction.entity_type,
       entityId: correction.entity_id,
-      sensitivity: "high",
       metadata: {
+        _sensitivity: "high",
         correction_id: correctionId,
         field_name: correction.field_name,
         review_notes: reviewNotes,

@@ -56,6 +56,7 @@ export default async function SchoolSettingsPage() {
     timezone: context.tenant.timezone,
     country: context.tenant.country,
     currency: context.tenant.currency,
+    state: context.tenant.state ?? null,
   };
 
   return (

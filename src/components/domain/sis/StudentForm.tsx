@@ -20,11 +20,11 @@ import type { CreateStudentInput, UpdateStudentInput } from "@/lib/actions/stude
 import { createStudent, updateStudent } from "@/lib/actions/students";
 import { ENROLLMENT_STATUSES } from "@/lib/constants";
 import type {
-  EnrollmentStatus,
-  IndigenousStatus,
-  LanguageBackground,
-  ResidentialAddress,
-  Student,
+    EnrollmentStatus,
+    IndigenousStatus,
+    LanguageBackground,
+    ResidentialAddress,
+    Student,
 } from "@/types/domain";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -33,7 +33,7 @@ import { useState } from "react";
 interface StudentFormProps {
   initialData?: Student;
   canManageEnrollment?: boolean;
-  /** Tenant state/jurisdiction — used to conditionally show ISQ fields (QLD only) */
+  /** Tenant state/jurisdiction - used to conditionally show ISQ fields (QLD only) */
   tenantState?: string | null;
 }
 
@@ -87,7 +87,7 @@ export function StudentForm({
 
   // Religion field is only required for QLD independent schools (ISQ reporting).
   // Hide it entirely for non-QLD tenants to avoid collecting data unnecessarily
-  // (APP 3.2 — minimum necessary collection).
+  // (APP 3.2 - minimum necessary collection).
   const showReligionField = tenantState === "QLD";
 
   // ── Basic fields ──────────────────────────────────────────
@@ -190,7 +190,7 @@ export function StudentForm({
       interpreter_required: interpreterRequired,
       // Address
       residential_address: buildAddress(),
-      // ISQ — only collected for QLD schools
+      // ISQ - only collected for QLD schools
       religion: showReligionField ? religion.trim() || null : null,
       // Government identifiers
       crn: crn.trim() || null,

@@ -33,7 +33,7 @@ export function MfaVerifyClient() {
       if (totp) {
         setFactorId(totp.id);
       } else {
-        // No MFA factor — shouldn't be here, redirect to dashboard
+        // No MFA factor - shouldn't be here, redirect to dashboard
         router.replace("/dashboard");
       }
     });
@@ -69,7 +69,7 @@ export function MfaVerifyClient() {
         return;
       }
 
-      // MFA verified — redirect to app
+      // MFA verified - redirect to app
       router.replace("/dashboard");
     });
   }
@@ -82,17 +82,17 @@ export function MfaVerifyClient() {
       const result = await verifyBackupCode(code.trim());
 
       if (result.error) {
-        setError(result.error);
+        setError(result.error.message);
         setCode("");
         return;
       }
 
       if (result.data?.remainingCodes === 0) {
-        // Last code used — warn them
+        // Last code used - warn them
         setError("");
       }
 
-      // Backup code verified — redirect to app
+      // Backup code verified - redirect to app
       router.replace("/dashboard");
     });
   }

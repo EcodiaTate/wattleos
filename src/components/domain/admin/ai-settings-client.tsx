@@ -6,11 +6,11 @@
 // WattleOS V2 - AI / Ask Wattle Settings (Prompt 38)
 // ============================================================
 // Consent acknowledgment UI for enabling sensitive data access
-// in Ask Wattle (APP 8 — Cross-border disclosure compliance).
+// in Ask Wattle (APP 8 - Cross-border disclosure compliance).
 //
 // Two flags controlled here:
-//   ai_sensitive_data_enabled  — explicit opt-in consent gate
-//   ai_disable_sensitive_tools — hard operational kill-switch
+//   ai_sensitive_data_enabled  - explicit opt-in consent gate
+//   ai_disable_sensitive_tools - hard operational kill-switch
 //
 // WHY a separate component: The consent UI has its own loading/
 // saving state, a distinct visual weight (warning colours), and
@@ -71,7 +71,7 @@ export function AiSettingsClient({ initialSettings }: AiSettingsClientProps) {
     <section className="space-y-6">
       <div>
         <h2 className="text-base font-semibold text-foreground">
-          Ask Wattle — AI Data Access
+          Ask Wattle - AI Data Access
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Ask Wattle (your AI assistant) can access sensitive student data to
@@ -99,7 +99,7 @@ export function AiSettingsClient({ initialSettings }: AiSettingsClientProps) {
           {sensitiveEffectivelyEnabled
             ? "Sensitive data access enabled"
             : settings.ai_disable_sensitive_tools
-              ? "Kill-switch active — data access suspended"
+              ? "Kill-switch active - data access suspended"
               : "Sensitive data access disabled"}
         </span>
       </div>
@@ -126,7 +126,7 @@ export function AiSettingsClient({ initialSettings }: AiSettingsClientProps) {
           </svg>
           <div className="text-sm space-y-1">
             <p className="font-medium text-foreground">
-              Privacy disclosure — please read before enabling
+              Privacy disclosure - please read before enabling
             </p>
             <p className="text-muted-foreground">
               Enabling this feature allows Ask Wattle to access and process the

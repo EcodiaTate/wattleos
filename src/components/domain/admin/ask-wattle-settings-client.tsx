@@ -26,10 +26,10 @@ export function AskWattleSettingsClient({ initialEnabled }: Props) {
 
   function handleToggleRequest(next: boolean) {
     if (next) {
-      // Turning ON — require confirmation
+      // Turning ON - require confirmation
       setShowConfirm(true);
     } else {
-      // Turning OFF — no confirmation needed
+      // Turning OFF - no confirmation needed
       applyToggle(false);
     }
   }
@@ -62,7 +62,7 @@ export function AskWattleSettingsClient({ initialEnabled }: Props) {
         {/* Description */}
         <div>
           <h2 className="text-base font-semibold text-foreground">
-            Ask Wattle AI — Sensitive Data Access
+            Ask Wattle AI - Sensitive Data Access
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             By default, Ask Wattle cannot access medical records, emergency

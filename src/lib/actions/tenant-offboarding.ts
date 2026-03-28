@@ -144,8 +144,8 @@ export async function initiateTenantOffboarding(): Promise<
       action: AuditActions.TENANT_OFFBOARD_INITIATED,
       entityType: "tenant",
       entityId: context.tenant.id,
-      sensitivity: "critical",
       metadata: {
+        _sensitivity: "critical",
         phase: "grace_period",
         initiated_at: now,
         note: "Tenant offboarding initiated. Grace period starts now (30 days to cancel).",
@@ -210,8 +210,8 @@ export async function cancelTenantOffboarding(): Promise<
       action: AuditActions.TENANT_OFFBOARD_CANCELLED,
       entityType: "tenant",
       entityId: context.tenant.id,
-      sensitivity: "critical",
-      metadata: { cancelled_at: now },
+      metadata: {
+        _sensitivity: "critical", cancelled_at: now },
     });
 
     return success({ offboard_phase: "active" });
@@ -260,8 +260,8 @@ export async function advanceTenantOffboardPhase(
     action: AuditActions.TENANT_OFFBOARD_PHASE_ADVANCED,
     entityType: "tenant",
     entityId: tenantId,
-    sensitivity: "critical",
-    metadata: { to_phase: toPhase },
+    metadata: {
+        _sensitivity: "critical", to_phase: toPhase },
   });
 
   return { ok: true };

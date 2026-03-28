@@ -23,10 +23,10 @@
 
 import { submitEnrollmentApplication } from "@/lib/actions/enroll";
 import type {
-  ApplicationCustodyRestriction,
-  ApplicationEmergencyContact,
-  ApplicationGuardian,
-  ApplicationMedicalCondition,
+    ApplicationCustodyRestriction,
+    ApplicationEmergencyContact,
+    ApplicationGuardian,
+    ApplicationMedicalCondition,
 } from "@/types/domain";
 import { useCallback, useEffect, useState } from "react";
 
@@ -224,7 +224,7 @@ export function EnrollmentWizard({
     saveDraft();
   }, [saveDraft]);
 
-  // Clear draft — exposed via a visible button so users on shared
+  // Clear draft - exposed via a visible button so users on shared
   // devices can explicitly wipe PII before walking away.
   const clearDraft = useCallback(() => {
     try {

@@ -233,8 +233,8 @@ async function purgeTenantData(
     action: AuditActions.TENANT_PURGED,
     entityType: "tenant",
     entityId: tenantId,
-    sensitivity: "critical",
     metadata: {
+        _sensitivity: "critical",
       purged_at: new Date().toISOString(),
       tables_processed: PURGE_ORDER.length,
     },

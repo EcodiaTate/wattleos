@@ -58,7 +58,7 @@ export function MfaEnrollmentClient({
     startTransition(async () => {
       const result = await enrollMfa();
       if (result.error) {
-        setError(result.error);
+        setError(result.error.message);
         return;
       }
       if (result.data) {
@@ -87,7 +87,7 @@ export function MfaEnrollmentClient({
     startTransition(async () => {
       const result = await verifyMfaEnrollment(factorId!, code);
       if (result.error) {
-        setError(result.error);
+        setError(result.error.message);
         return;
       }
       if (result.data) {
@@ -104,7 +104,7 @@ export function MfaEnrollmentClient({
     startTransition(async () => {
       const result = await unenrollMfa(factorId!);
       if (result.error) {
-        setError(result.error);
+        setError(result.error.message);
         return;
       }
       setEnrolled(false);

@@ -41,7 +41,7 @@ export function MfaPolicyClient({ currentRoles, availableRoles }: Props) {
     startTransition(async () => {
       const result = await updateMfaPolicy(Array.from(selectedRoles));
       if (result.error) {
-        setError(result.error);
+        setError(result.error.message);
         return;
       }
       setSaved(true);

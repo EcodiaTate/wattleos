@@ -31,6 +31,7 @@ const DEMO_TENANT: Tenant = {
   timezone: 'Australia/Sydney',
   country: 'AU',
   currency: 'AUD',
+  state: null,
   settings: {},
   plan_tier: 'enterprise',
   is_active: true,

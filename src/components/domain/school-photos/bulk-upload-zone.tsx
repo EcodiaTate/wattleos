@@ -163,7 +163,7 @@ export function BulkUploadZone({
         // Step 3: Get a short-lived signed URL (1 hour) via the
         // photos/signed-url API route. The profile-photos bucket
         // is private; .getPublicUrl() would produce a permanent
-        // unauthenticated URL — inappropriate for images of children.
+        // unauthenticated URL - inappropriate for images of children.
         let photoUrl = "";
         try {
           const signedRes = await fetch("/api/photos/signed-url", {

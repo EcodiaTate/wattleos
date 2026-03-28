@@ -129,8 +129,8 @@ export async function exportStudentDataCsv(
       action: AuditActions.STUDENT_DATA_EXPORTED_CSV,
       entityType: "student",
       entityId: studentId,
-      sensitivity: "high",
-      metadata: { filename, options },
+      metadata: {
+        _sensitivity: "high", filename, options },
     });
 
     return success({ csv, filename });
@@ -209,8 +209,8 @@ export async function exportStudentDataJson(
       action: AuditActions.STUDENT_DATA_EXPORTED_JSON,
       entityType: "student",
       entityId: studentId,
-      sensitivity: "high",
-      metadata: { filename },
+      metadata: {
+        _sensitivity: "high", filename },
     });
 
     return success({ json, filename });
@@ -263,7 +263,7 @@ export async function exportClassDataCsv(
     if (error) return failure(error.message, ErrorCodes.DATABASE_ERROR);
 
     const rows = (enrollments ?? []).map((e) => {
-      const s = (e as { students: Record<string, unknown> }).students;
+      const s = ((e as unknown) as { students: Record<string, unknown> }).students;
       return {
         student_id: s.id,
         first_name: s.first_name,
@@ -295,8 +295,8 @@ export async function exportClassDataCsv(
       action: AuditActions.CLASS_DATA_EXPORTED_CSV,
       entityType: "class",
       entityId: classId,
-      sensitivity: "high",
-      metadata: { filename, row_count: rows.length },
+      metadata: {
+        _sensitivity: "high", filename, row_count: rows.length },
     });
 
     return success({ csv, filename });
@@ -324,7 +324,7 @@ export async function exportAttendanceCsv(
   filters: ExportAttendanceCsvFilters,
 ): Promise<ActionResponse<{ csv: string; filename: string; row_count: number }>> {
   try {
-    const context = await requirePermission(Permissions.VIEW_ATTENDANCE ?? Permissions.MANAGE_STUDENTS);
+    const context = await requirePermission(Permissions.MANAGE_STUDENTS);
     const supabase = await createSupabaseServerClient();
 
     const rateLimitError = await checkExportRateLimit(context.user.id);
@@ -354,9 +354,9 @@ export async function exportAttendanceCsv(
 
     const rows = (data ?? []).map((r) => ({
       date: r.date,
-      student_first_name: (r.students as { first_name: string; last_name: string })?.first_name ?? "",
-      student_last_name: (r.students as { first_name: string; last_name: string })?.last_name ?? "",
-      class_name: (r.classes as { name: string } | null)?.name ?? "",
+      student_first_name: (r.students as unknown as { first_name: string; last_name: string })?.first_name ?? "",
+      student_last_name: (r.students as unknown as { first_name: string; last_name: string })?.last_name ?? "",
+      class_name: (r.classes as unknown as { name: string } | null)?.name ?? "",
       status: r.status,
       check_in_at: r.check_in_at ?? "",
       check_out_at: r.check_out_at ?? "",
@@ -377,8 +377,8 @@ export async function exportAttendanceCsv(
       action: AuditActions.ATTENDANCE_DATA_EXPORTED_CSV,
       entityType: "attendance_records",
       entityId: context.tenant.id,
-      sensitivity: "high",
-      metadata: { filename, row_count: rows.length, filters },
+      metadata: {
+        _sensitivity: "high", filename, row_count: rows.length, filters },
     });
 
     return success({ csv, filename, row_count: rows.length });
