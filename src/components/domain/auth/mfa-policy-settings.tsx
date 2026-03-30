@@ -45,7 +45,7 @@ export function MfaPolicySettings({
     setSaving(false);
 
     if (result.error) {
-      setMessage({ type: "error", text: result.error });
+      setMessage({ type: "error", text: result.error.message });
     } else {
       setMessage({ type: "success", text: "MFA policy updated." });
     }
