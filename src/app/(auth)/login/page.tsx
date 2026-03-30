@@ -63,6 +63,9 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showEmail, setShowEmail] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const isNative = useMemo(() => Capacitor.isNativePlatform(), []);
 
@@ -177,6 +180,34 @@ function LoginForm() {
     }
   }, []);
 
+  const handleEmailLogin = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setIsLoading(true);
+      setError(null);
+
+      const supabase = createSupabaseBrowserClient();
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      if (authError) {
+        setError(
+          authError.message === "Invalid login credentials"
+            ? "Incorrect email or password. Please try again."
+            : authError.message,
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      // Success: session cookie is set, redirect to callback to resolve tenant
+      window.location.href = "/dashboard";
+    },
+    [email, password],
+  );
+
   return (
     <div className="w-full max-w-md space-y-8 rounded-xl bg-background p-8 shadow-lg">
       <div className="text-center">
@@ -246,6 +277,79 @@ function LoginForm() {
         </button>
       </div>
 
+      {/* Divider */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">or</span>
+        </div>
+      </div>
+
+      {/* Email/Password Sign-In */}
+      {!showEmail ? (
+        <button
+          type="button"
+          onClick={() => setShowEmail(true)}
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        >
+          <MailIcon />
+          Sign in with email
+        </button>
+      ) : (
+        <form onSubmit={handleEmailLogin} className="space-y-3">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-xs font-medium text-muted-foreground"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              autoFocus
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError(null);
+              }}
+              placeholder="you@school.edu.au"
+              className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm shadow-sm outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-xs font-medium text-muted-foreground"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError(null);
+              }}
+              placeholder="Your password"
+              className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm shadow-sm outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isLoading ? "Signing in…" : "Sign in"}
+          </button>
+        </form>
+      )}
+
       <p className="text-center text-xs text-muted-foreground">
         By signing in, you agree to our{" "}
         <Link
@@ -306,6 +410,26 @@ function AppleMark() {
         fill="currentColor"
         d="M16.365 1.43c0 1.14-.48 2.22-1.26 3.06-.81.87-2.14 1.55-3.31 1.46-.15-1.1.43-2.27 1.19-3.07.84-.89 2.24-1.54 3.38-1.45ZM20.39 17.13c-.54 1.24-.8 1.8-1.5 2.9-.98 1.52-2.36 3.41-4.06 3.43-1.51.02-1.9-.99-3.96-.98-2.06.01-2.49 1.0-4 .98-1.7-.02-3-1.73-3.98-3.25-2.74-4.24-3.03-9.22-1.34-11.82 1.2-1.86 3.1-2.96 4.89-2.96 1.83 0 2.98 1.0 4.49 1.0 1.47 0 2.36-1.0 4.47-1.0 1.6 0 3.3.87 4.5 2.36-3.95 2.16-3.31 7.78.49 9.34Z"
       />
+    </svg>
+  );
+}
+
+function MailIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      style={{ flexShrink: 0 }}
+    >
+      <rect width="20" height="16" x="2" y="4" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
     </svg>
   );
 }
